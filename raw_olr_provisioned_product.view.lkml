@@ -147,6 +147,13 @@ view: raw_olr_provisioned_product {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
+  measure: count_products {
+    label: "# Products Provisioned"
+    type: count_distinct
+    sql: ${product_id} ;;
+
+  }
+
   measure: count {
     type: count
     drill_fields: []
