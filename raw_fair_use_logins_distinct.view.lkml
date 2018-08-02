@@ -20,9 +20,27 @@ view: raw_fair_use_logins_distinct {
     sql:  ${TABLE}."USER_SSO_GUID" ;;
   }
 
-  measure: count_distinct {
+  dimension: ip {
+    type:  string
+    sql:  ${TABLE}."IP_ADDRESS" ;;
+  }
+
+
+  measure: user_count_distinct {
     type: count_distinct
     sql:  ${user_sso_guid} ;;
   }
 
+  measure: ip_count_distinct {
+    type:  count_distinct
+    sql:  ${ip} ;;
+  }
+
+measure: count {
+  type:  count
 }
+
+}
+
+# Per day how many IP address is each user using
+# Top ten users with highest number of IP address per day, per week, per month
