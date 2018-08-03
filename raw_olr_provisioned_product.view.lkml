@@ -2,43 +2,42 @@ view: raw_olr_provisioned_product {
   sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
 
   dimension: _hash {
-    type: string
-    sql: ${TABLE}."_HASH" ;;
-  }
+     type: string
+     sql: ${TABLE}."_HASH" ;;
+   }
 
-  dimension_group: _ldts {
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}."_LDTS" ;;
-  }
+dimension_group: _ldts {
+     type: time
+     timeframes: [
+       raw,
+       time,
+       date,
+       week,
+       month,
+       quarter,
+       year
+     ]
+     sql: ${TABLE}."_LDTS" ;;
+   }
 
-  dimension: _rsrc {
-    type: string
-    sql: ${TABLE}."_RSRC" ;;
-  }
+   dimension: _rsrc {
+     type: string
+     sql: ${TABLE}."_RSRC" ;;
+   }
 
-  dimension: code_type {
-    type: string
-    sql: ${TABLE}."CODE_TYPE" ;;
-  }
+   dimension: code_type {
+     type: string
+     sql: ${TABLE}."CODE_TYPE" ;;
+   }
+   dimension: context_id {
+     type: string
+     sql: ${TABLE}."CONTEXT_ID" ;;
+   }
 
-  dimension: context_id {
-    type: string
-    sql: ${TABLE}."CONTEXT_ID" ;;
-  }
-
-  dimension: core_text_isbn {
-    type: string
-    sql: ${TABLE}."CORE_TEXT_ISBN" ;;
-  }
+   dimension: core_text_isbn {
+     type: string
+     sql: ${TABLE}."CORE_TEXT_ISBN" ;;
+   }
 
   dimension_group: date_added {
     type: time
@@ -78,26 +77,26 @@ view: raw_olr_provisioned_product {
     sql: ${TABLE}."INSTITUTION_ID" ;;
   }
 
-  dimension_group: local {
-    type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
-    sql: ${TABLE}."LOCAL_TIME" ;;
-  }
+   dimension_group: local {
+     type: time
+     timeframes: [
+       raw,
+       time,
+       date,
+       week,
+       month,
+       quarter,
+       year
+     ]
+     sql: ${TABLE}."LOCAL_TIME" ;;
+   }
 
-  dimension: message_format_version {
-    type: number
-    sql: ${TABLE}."MESSAGE_FORMAT_VERSION" ;;
-  }
+   dimension: message_format_version {
+     type: number
+     sql: ${TABLE}."MESSAGE_FORMAT_VERSION" ;;
+   }
 
-  dimension: message_type {
+   dimension: message_type {
     type: string
     sql: ${TABLE}."MESSAGE_TYPE" ;;
   }
@@ -142,16 +141,20 @@ view: raw_olr_provisioned_product {
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
 
+  measure: product_count{
+    label: "# Products Provisioned"
+    type: count_distinct
+    sql:  ${TABLE}.product_id;;
+  }
+
+  measure: user_count{
+    type: count_distinct
+    sql:  ${TABLE}.user_sso_guid;;
+  }
+
   dimension: user_type {
     type: string
     sql: ${TABLE}."USER_TYPE" ;;
-  }
-
-  measure: count_products {
-    label: "# Products Provisioned"
-    type: count_distinct
-    sql: ${product_id} ;;
-
   }
 
   measure: count {
