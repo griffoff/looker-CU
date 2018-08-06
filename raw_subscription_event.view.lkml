@@ -123,4 +123,22 @@ view: raw_subscription_event {
     type: count
     drill_fields: []
   }
+
+  measure: count_subscription {
+    label: "# subscriptions"
+    type: count_distinct
+    sql: ${TABLE}.user_sso_guid ;;
+    drill_fields: [detail*]
+  }
+
+  set: detail {
+    fields: [
+      user_sso_guid,
+      local_time,
+      contract_id,
+      subscription_state,
+      subscription_start_date
+    ]
+  }
+
 }
