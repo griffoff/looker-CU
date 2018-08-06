@@ -36,9 +36,10 @@ view: raw_fair_use_logins_distinct {
     sql:  ${ip} ;;
   }
 
-measure: count {
+
+  measure: count {
   type:  count
-}
+  }
 
 }
 
