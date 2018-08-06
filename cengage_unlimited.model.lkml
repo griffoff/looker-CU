@@ -27,3 +27,7 @@ explore: additional_info_products {
 explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"
 }
+
+explore: fair_us_ip_tracking {
+  label: "Fair Use Dashboard"
+}
