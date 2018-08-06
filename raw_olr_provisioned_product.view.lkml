@@ -165,6 +165,7 @@ dimension_group: _ldts {
   measure: product_count{
     label: "# Products Provisioned"
     type: count_distinct
+    drill_fields: [detail*]
     sql:  ${TABLE}.product_id;;
   }
 
@@ -181,5 +182,16 @@ dimension_group: _ldts {
   measure: count {
     type: count
     drill_fields: []
+  }
+
+  set: detail {
+    fields: [
+      user_sso_guid,
+      local_time,
+      iac_isbn,
+      pp_product_type,
+      "source",
+      user_type
+    ]
   }
 }
