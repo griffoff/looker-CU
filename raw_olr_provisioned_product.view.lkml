@@ -1,10 +1,30 @@
 view: raw_olr_provisioned_product {
-  sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
+#   sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
+derived_table: {
+    sql:
+      Select prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type  from  UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
+        join prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
+        on iac.pp_pid = prod.product_id;;
+}
+
+
 
   dimension: _hash {
      type: string
      sql: ${TABLE}."_HASH" ;;
    }
+
+  dimension: pp_name {
+    label: "Product Name"
+  }
+
+  dimension: PP_LDAP_Group_name {
+    label: "Group Name"
+  }
+
+  dimension: pp_product_type {
+    label: "Product Type"
+  }
 
 dimension_group: _ldts {
      type: time
