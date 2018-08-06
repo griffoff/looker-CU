@@ -18,7 +18,12 @@ explore:raw_fair_use_logins
 explore: raw_subscription_event {}
 
 
+explore: additional_info_products {
+  label: "Provisioned Products Buckets"
+}
+#
+
+
 explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"
-
 }

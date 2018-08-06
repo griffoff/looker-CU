@@ -1,5 +1,12 @@
 view: raw_subscription_event {
-  sql_table_name: UNLIMITED.RAW_SUBSCRIPTION_EVENT ;;
+  derived_table: {
+    sql: with state as (
+    select
+    TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') as sub_start_date
+    ,rank () over (partition by user_sso_guid order by LOCAL_Time desc) as latest_record
+    ,* from Unlimited.Raw_Subscription_event
+    ) select * from state where latest_record = 1;;
+  }
 
   dimension: _hash {
     type: string
@@ -116,4 +123,22 @@ view: raw_subscription_event {
     type: count
     drill_fields: []
   }
+
+  measure: count_subscription {
+    label: "# subscriptions"
+    type: count_distinct
+    sql: ${TABLE}.user_sso_guid ;;
+    drill_fields: [detail*]
+  }
+
+  set: detail {
+    fields: [
+      user_sso_guid,
+      local_time,
+      contract_id,
+      subscription_state,
+      subscription_start_date
+    ]
+  }
+
 }
