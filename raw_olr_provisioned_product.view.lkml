@@ -1,13 +1,14 @@
 view: raw_olr_provisioned_product {
 #   sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
 derived_table: {
-    sql:
-      Select prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type  from  UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
-        join prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
-        on iac.pp_pid = prod.product_id;;
+        sql:
+        SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
+          FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
+              JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
+                ON iac.pp_pid = prod.product_id
+                  AND prod.user_type like 'student'
+                  AND prod."source" like 'unlimited';;
 }
-
-
 
   dimension: _hash {
      type: string
