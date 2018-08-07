@@ -1,4 +1,4 @@
-view: fair_us_ip_tracking {
+view: fair_use_ip_tracking {
   derived_table: {
     sql:
         WITH
@@ -62,8 +62,13 @@ view: fair_us_ip_tracking {
         (num_2x_under_30 / count(*)) * 100 AS perc_2x_under_30,
         (num_1x_under_30 / count(*)) * 100 AS perc_1x_under_30
         */
-        *
-        FROM ip_change_3x_under_30 ;;
+        *,
+        CASE
+        WHEN ip_change_3x_under_30_mins = 1 THEN 3
+        WHEN ip_change_2x_under_30_mins = 1 THEN 2
+        WHEN ip_change_under_30_mins = 1 THEN 1
+        ELSE 0 END AS num_ip_changes_
+        FROM ip_change_3x_under_30;;
         }
 
         dimension: guid {
@@ -81,6 +86,7 @@ view: fair_us_ip_tracking {
         dimension: ip_change_2x_under_30_mins {}
         dimension: user_previously_switched_ip_2x_under_30 {}
         dimension: ip_change_3x_under_30_mins {}
+        dimension: num_ip_changes_ {}
 
 
         measure: num_3x_under_30 {
@@ -113,6 +119,8 @@ view: fair_us_ip_tracking {
           sql: (SUM(${ip_change_under_30_mins}) / count(*)) * 100;;
         }
 
-
+        measure: count_ip_change {
+          type:  count
+        }
 
 }

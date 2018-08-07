@@ -28,6 +28,19 @@ explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"
 }
 
-explore: fair_us_ip_tracking {
+explore: fair_use_ip_tracking {
   label: "Fair Use Dashboard"
+}
+
+
+explore: fair_use_device_tracking {
+  label: "Fair Use Device Dashboard"
+}
+
+explore: fair_use_tracking {
+  label: "Fair Use Tracking Dashboard"
+}
+
+explore: fair_use_tracking_2 {
+  label: "Fair Use Tracking Dashboard 2"
 }
