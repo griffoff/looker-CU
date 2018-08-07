@@ -72,12 +72,12 @@ view: fair_use_tracking_2 {
       sql:  ${unique_ips} ;;
     }
 
-  dimension: unique_device_bucket {
-    type:  tier
-    tiers: [1, 2, 3, 4, 5]
-    style:  relational
-    sql:  ${unique_devices}} ;;
-  }
+    dimension: unique_device_bucket {
+      type:  tier
+      tiers: [1, 2, 3, 4, 5]
+      style:  relational
+      sql:  ${unique_devices} ;;
+    }
 
 
     measure: count {
