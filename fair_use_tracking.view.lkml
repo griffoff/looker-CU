@@ -2,7 +2,7 @@ view: fair_use_tracking {
   derived_table: {
     sql:
     WITH logins AS (
-    SELECT DISTINCT *,
+    SELECT DISTINCT _hash, user_sso_guid, cmp_session_id, ip_address, local_time, device,
     30 AS threshold_mins
     FROM unlimited.raw_fair_use_logins
 )
@@ -62,7 +62,9 @@ view: fair_use_tracking {
     dimension:  lag_login {}
     dimension:  ip_change {}
     dimension:  device_change {}
-    dimension:  unique_ips {}
+    dimension:  unique_ips {
+      type:  number
+    }
     dimension:  unique_devices {}
 
     dimension: unique_ip_bucket {
