@@ -23,6 +23,10 @@ explore: raw_subscription_event {
   }
 }
 
+explore: ga_dashboarddata {
+  label: "CU Dashboard"
+}
+
 
 explore: additional_info_products {
   label: "Provisioned Products Buckets"
