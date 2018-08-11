@@ -69,14 +69,14 @@ view: fair_use_tracking {
 
     dimension: unique_ip_bucket {
       type:  tier
-      tiers: [2, 3, 4, 5]
+      tiers: [ 2, 3, 4, 5]
       style:  integer
       sql:  ${unique_ips} ;;
     }
 
     dimension: unique_device_bucket {
       type:  tier
-      tiers: [2, 3, 4, 5]
+      tiers: [ 2, 3, 4, 5]
       style:  integer
       sql:  ${unique_devices} ;;
     }

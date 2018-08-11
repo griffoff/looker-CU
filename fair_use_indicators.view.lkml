@@ -97,6 +97,7 @@ persist_for: "24 hours"
   dimension: indicator_value {}
   dimension: indicator_id {}
 
+
   measure:  count {
     type:  count
   }
@@ -110,6 +111,10 @@ persist_for: "24 hours"
     type:  count_distinct
     sql: NULLIF(${indicator_id},0) ;;
   }
+
+
+
+
 #
 #   measure: total_users {
 #     type:  number

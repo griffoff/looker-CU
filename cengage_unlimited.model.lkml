@@ -62,15 +62,12 @@ join: fair_use_indicators {
 }
 }
 
-
-
-
-
-
-
+explore: fair_use_downloads_tracking {}
+explore: fair_use_print_tracking {}
 
 explore: fair_use_indicators {}
 
 explore: fair_use_indicators_aggregated {
   label: "Fair Use Indicators agg"
+
 }
