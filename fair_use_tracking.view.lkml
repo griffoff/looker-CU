@@ -1,3 +1,4 @@
+#  Tracks IP and Device changes per user per 30 minute threshold
 view: fair_use_tracking {
   derived_table: {
     sql:

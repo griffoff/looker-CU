@@ -37,14 +37,6 @@ explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"
 }
 
-explore: fair_use_ip_tracking {
-  label: "Fair Use Dashboard"
-}
-
-explore: fair_use_device_tracking {
-  label: "Fair Use Device Dashboard"
-}
-
 explore: fair_use_tracking {
   label: "Fair Use Tracking"
 }
@@ -62,12 +54,21 @@ join: fair_use_indicators {
 }
 }
 
-explore: fair_use_downloads_tracking {}
-explore: fair_use_print_tracking {}
+explore: fair_use_tracking_vitalsource {}
+
 
 explore: fair_use_indicators {}
 
 explore: fair_use_indicators_aggregated {
-  label: "Fair Use Indicators agg"
+  label: "Fair Use Indicators agg"}
 
-}
+
+
+explore: ind {
+  from: indicators
+  label: "Ind"
+
+  join: fair_use_indicators {
+    sql_on: ${ind.indicator_id} = ${fair_use_indicators.indicator_id};;
+    relationship: one_to_many
+  }}
