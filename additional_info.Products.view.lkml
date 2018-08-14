@@ -33,6 +33,13 @@ view: additional_info_products {
       sql: ${Provisioned_Product} ;;
     }
 
+  dimension: products_tiered_fair_use {
+    type: tier
+    style: integer
+    tiers: [2,4,6,8,10]
+    sql: ${Provisioned_Product} ;;
+  }
+
     dimension: last_added_date {
       type: date
     }

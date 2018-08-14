@@ -72,3 +72,17 @@ explore: ind {
     sql_on: ${ind.indicator_id} = ${fair_use_indicators.indicator_id};;
     relationship: one_to_many
   }}
+
+
+explore: provisioned_product {
+from: raw_olr_provisioned_product
+join: raw_subscription_event {
+  sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
+  relationship: many_to_one
+}
+join:  raw_vitalsource_event {
+  sql_on: ${provisioned_product.user_sso_guid} = ${raw_vitalsource_event.user_sso_guid} ;;
+  relationship: many_to_many
+
+}
+ }

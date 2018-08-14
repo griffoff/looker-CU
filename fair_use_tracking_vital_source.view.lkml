@@ -4,9 +4,10 @@ view: fair_use_tracking_vitalsource {
           WITH multiple_prints AS (
           SELECT
             user_sso_guid AS guid,
-            DATE_TRUNC(day, event_time) AS day,
+            DATE_TRUNC(week, event_time) AS week,
             COUNT(CASE WHEN event_action = 'Printed' THEN 1 END) AS prints,
             COUNT(CASE WHEN event_action = 'Downloaded' THEN 1 END) AS downloads,
+            COUNT(CASE WHEN event_action = 'Viewed' THEN 1 END) AS views,
           3 AS indicator_id
           FROM unlimited.raw_vitalsource_event
           GROUP BY 1, 2
@@ -20,7 +21,7 @@ view: fair_use_tracking_vitalsource {
       }
 
       dimension: guid {}
-      dimension: day {}
+      dimension: week {}
       dimension: prints {}
       dimension: print_ranges {
         type:  tier
@@ -36,6 +37,14 @@ view: fair_use_tracking_vitalsource {
           style:  integer
           sql:  ${downloads} ;;
         }
+
+  dimension: views {}
+  dimension: view_tiers {
+    type:  tier
+    tiers: [ 10, 20, 30, 40, 50]
+    style:  integer
+    sql:  ${downloads} ;;
+  }
 
 
       measure: user_count {

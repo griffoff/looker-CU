@@ -91,7 +91,8 @@ persist_for: "24 hours"
 
   dimension: guid {}
   dimension_group:  session_start_time {
-    timeframes: [date, time, time_of_day, month, year]
+  label: "Session"
+   timeframes: [date, time, time_of_day, week_of_year, month, year]
     type: time
   }
   dimension: indicator_value {}
