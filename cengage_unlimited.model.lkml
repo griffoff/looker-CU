@@ -86,3 +86,18 @@ join:  raw_vitalsource_event {
 
 }
  }
+
+explore: ebook_usage {}
+
+
+
+# explore: ebook_usage {
+#   from: raw_vitalsource_event
+#   join: raw_mt_resource_interactions {
+#     sql: ${ebook_usage.user_sso_guid} = ${raw_mt_resource_interactions.user_identifier};;
+#     sql_where: ${raw_mt_resource_interactions.event_category} = 'READING' AND ${raw_mt_resource_interactions.event_action} = 'VIEW' ;;
+#   }
+
+#   join: ga_mobiledata {
+#     sql: ${raw_vitalsource_event.user_sso_guid} = ${ga_mobiledata.userssoguid} ;;
+#   }

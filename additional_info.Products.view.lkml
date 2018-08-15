@@ -1,22 +1,26 @@
 view: additional_info_products {
   derived_table: {
     sql:
-        with prod as (
+        WITH prod AS (
+        SELECT
+          user_sso_guid
+          ,iac.pp_product_type
+          ,COUNT(*) AS Total_products
+          ,COUNT(DISTINCT prod.product_id) AS Provisioned_Product
+          ,MIN(TO_DATE(prod.date_added)) AS first_added_date
+          ,MAX(TO_DATE(prod.date_added)) AS last_added_date
+          ,COUNT(DISTINCT DATE_TRUNC('month',prod.date_added)) AS No_Of_Months_With_Products
+        FROM UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT prod
+        JOIN PROD.UNLIMITED.RAW_OLR_EXTENDED_IAC Iac
+        ON iac.pp_pid = prod.product_id
+        AND prod.user_type like 'student'
+        AND prod."source" like 'unlimited'
+        GROUP BY user_sso_guid, iac.pp_product_type
+  )
 
-        SELECT user_sso_guid, iac.pp_product_type
-        ,COUNT(*) AS Total_products
-        ,COUNT(DISTINCT prod.product_id) as Provisioned_Product
-        ,MIN(TO_DATE(prod.date_added)) AS first_added_date
-        ,MAX(TO_DATE(prod.date_added)) AS last_added_date
-        ,COUNT(DISTINCT DATE_TRUNC('month',prod.date_added)) AS No_Of_Months_With_Products
-
-  FROM UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT prod
-  JOIN PROD.UNLIMITED.RAW_OLR_EXTENDED_IAC Iac
-                ON iac.pp_pid = prod.product_id
-                  AND prod.user_type like 'student'
-                  AND prod."source" like 'unlimited'
-  group by user_sso_guid,iac.pp_product_type
-  ) select * from prod  ;;
+  SELECT
+    *
+  FROM prod;;
 
   # datagroup_trigger: provisioned_product
     }
