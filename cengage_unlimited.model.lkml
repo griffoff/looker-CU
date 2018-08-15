@@ -89,8 +89,13 @@ join:  raw_vitalsource_event {
 
 explore: ebook_usage {}
 
+explore: ebook_usage_aggregated {}
 
-
+explore: ebook_usage_aggregated_by_week {}
+  explore: coursewares_activated_week {}
+  explore: coursewares_activated {}
+  explore: device_changes {}
+  explore: device_changes_all_time {}
 # explore: ebook_usage {
 #   from: raw_vitalsource_event
 #   join: raw_mt_resource_interactions {

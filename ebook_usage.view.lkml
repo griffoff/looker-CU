@@ -1,7 +1,8 @@
 view: ebook_usage {
   derived_table: {
     sql:
-      SELECT
+    WITH combined_ebook_data AS
+     (SELECT
         event_time
         ,user_sso_guid
         ,vbid AS ebook_id
@@ -29,18 +30,40 @@ view: ebook_usage {
       TO_TIMESTAMP_LTZ(visitstarttime) AS event_time
       ,userssoguid AS user_sso_guid
       ,ssoisbn AS ebook_id
-      ,eventcategory AS event_action
+      ,eventaction AS event_action
       ,'mind tap mobile' AS source
       FROM prod.raw_ga.ga_mobiledata
       WHERE eventcategory = 'Reader'
-      AND ssoisbn IS NOT NULL
+      AND ssoisbn IS NOT NULL)
+
+
+      SELECT
+        ced.event_time AS event_time
+        ,ced.user_sso_guid AS user_sso_guid
+        ,ced.ebook_id AS ebook_id
+        ,ced.event_action AS event_action
+        ,ced.source AS source
+        ,CASE WHEN (rse.message_type = 'CUSubscription') THEN 1 ELSE 0 END AS unlimited_user
+      FROM combined_ebook_data ced
+      JOIN unlimited.raw_subscription_event rse
+      ON ced.user_sso_guid = rse.user_sso_guid
+
+
+
+
+
       ;;
   }
 
-dimension_group: event_time {
-  type: time
-  timeframes: [date, week, month, quarter, year]
-}
+# dimension_group: event_time {
+#   type: time
+#   timeframes: [date, week, month, quarter, year]
+# }
+
+  dimension: event_time {
+    type: date
+#     sql: ${TABLE}.event_time ;;
+  }
 
 dimension: user_sso_guid {
   type: string
@@ -58,6 +81,10 @@ dimension: event_action {
 dimension: source {
   type: string
 }
+
+  dimension: unlimited_user {
+    type: number
+  }
 
 measure: count {
   type: count
