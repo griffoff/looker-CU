@@ -118,6 +118,7 @@ view: ga_dashboarddata {
       year
     ]
     sql: ${TABLE}."LDTS" ;;
+    hidden: yes
   }
 
   dimension: mobiledevicebranding {
