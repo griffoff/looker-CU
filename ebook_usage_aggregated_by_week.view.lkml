@@ -44,14 +44,16 @@ view: ebook_usage_aggregated_by_week {
                         ,ced.source AS source
                         ,CASE WHEN (rse.message_type = 'CUSubscription') THEN 1 ELSE 0 END AS unlimited_user
                         FROM combined_ebook_data ced
-                        JOIN unlimited.raw_subscription_event rse
+                        INNER JOIN unlimited.raw_subscription_event rse
                         ON ced.user_sso_guid = rse.user_sso_guid)
+
 
                         SELECT
                           user_sso_guid
                           ,DATE_TRUNC('week', event_time) AS week
                           ,COUNT(DISTINCT ebook_id) AS unique_ebooks
                         FROM cengage_unlimited_users
+                        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
                         GROUP BY 1, 2 ;;
                 }
 
@@ -63,7 +65,7 @@ view: ebook_usage_aggregated_by_week {
     }
 
   dimension: week {
-    type: date
+    type: date_week
   }
 
 

@@ -1,13 +1,18 @@
 view: coursewares_activated {
     derived_table: {
       sql:
+      WITH all_users AS (
         SELECT prod.user_sso_guid, count(distinct prod.product_id) as unique_products
           FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
               JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
                   AND prod."source" like 'unlimited'
-                  GROUP BY 1;;
+                  GROUP BY 1)
+
+        SELECT*
+        FROM all_users
+        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users) ;;
     }
 
     dimension: user_sso_guid {}

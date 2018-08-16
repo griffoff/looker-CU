@@ -1,11 +1,20 @@
 view: device_changes_all_time {
  derived_table: {
   sql:
-    SELECT
+  WITH devices AS(
+  SELECT
       user_sso_guid
       ,COUNT (DISTINCT device) AS unique_devices
     FROM unlimited.raw_fair_use_logins
-    GROUP BY 1;;
+    GROUP BY 1)
+
+
+
+
+        SELECT
+         *
+        FROM devices
+        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users) ;;
 
   }
 

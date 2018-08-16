@@ -47,12 +47,7 @@ view: ebook_usage {
       FROM combined_ebook_data ced
       JOIN unlimited.raw_subscription_event rse
       ON ced.user_sso_guid = rse.user_sso_guid
-
-
-
-
-
-      ;;
+      WHERE ced.user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users) ;;
   }
 
 # dimension_group: event_time {
