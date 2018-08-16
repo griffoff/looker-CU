@@ -10,22 +10,28 @@ view: fair_use_tracking_vitalsource {
             COUNT(CASE WHEN event_action = 'Viewed' THEN 1 END) AS views,
           3 AS indicator_id
           FROM unlimited.raw_vitalsource_event
+          WHERE guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
           GROUP BY 1, 2
           ORDER BY 2 DESC
+
        )
 
+      SELECT * FROM multiple_prints;;
 
-       SELECT * FROM multiple_prints;;
+
+
 
         persist_for: "24 hours"
       }
 
       dimension: guid {}
-      dimension: week {}
+      dimension: week {
+        type: date_week
+      }
       dimension: prints {}
       dimension: print_ranges {
         type:  tier
-        tiers: [ 100, 200, 300, 400, 500]
+        tiers: [ 2, 5, 10, 20, 30, 100]
         style:  integer
         sql:  ${prints} ;;
         }

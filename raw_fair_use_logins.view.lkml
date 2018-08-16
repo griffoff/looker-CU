@@ -93,4 +93,9 @@ view: raw_fair_use_logins {
     type: count
     drill_fields: []
   }
+
+  measure: device_count {
+    type: count_distinct
+    sql:   ${TABLE}."DEVICE";;
+  }
 }
