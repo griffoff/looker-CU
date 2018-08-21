@@ -5,7 +5,8 @@ view: raw_subscription_event {
     TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') as sub_start_date
     ,rank () over (partition by user_sso_guid order by LOCAL_Time desc) as latest_record
     ,* from Unlimited.Raw_Subscription_event
-    ) select * from state where latest_record = 1;;
+    ) select * from state where latest_record = 1
+    and state.user_sso_guid not in (select user_sso_guid from unlimited.vw_user_blacklist);;
   }
 
   dimension: _hash {
