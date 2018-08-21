@@ -8,6 +8,8 @@ view: coursewares_activated_week {
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
                   AND prod."source" like 'unlimited'
+                  WHERE context_id IS NOT NULL
+                  AND source_id NOT LIKE '%trial%'
                   GROUP BY 1, 2 )
 
 

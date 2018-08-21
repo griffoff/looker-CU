@@ -23,6 +23,7 @@ view: ebook_usage {
       FROM cap_er.prod.raw_mt_resource_interactions
       WHERE event_category = 'READING'
       AND event_action = 'VIEW'
+      AND course_uri LIKE '%course-key:Cengage%'
 
       UNION
 
