@@ -7,7 +7,8 @@ derived_table: {
               JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
-                  AND prod."source" like 'unlimited';;
+                  AND prod."source" like 'unlimited'
+                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.CLTS_EXCLUDED_USERS);;
 }
 
   dimension: _hash {
@@ -39,11 +40,13 @@ dimension_group: _ldts {
        year
      ]
      sql: ${TABLE}."_LDTS" ;;
+    hidden: yes
    }
 
    dimension: _rsrc {
      type: string
      sql: ${TABLE}."_RSRC" ;;
+    hidden: yes
    }
 
    dimension: code_type {
@@ -150,6 +153,14 @@ dimension_group: _ldts {
   dimension: source_id {
     type: string
     sql: ${TABLE}."SOURCE_ID" ;;
+  }
+
+  dimension: status {
+    sql:
+      case
+        when (source_id like 'TRIAL') then 'TRIAL_ACCESS'
+        when (is_double(TRY_TO_DOUBLE(source_id))) then 'FULL_ACCESS'
+      else 'EMPTY' end ;;
   }
 
   dimension: user_environment {
