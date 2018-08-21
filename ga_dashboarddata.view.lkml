@@ -44,6 +44,7 @@ view: ga_dashboarddata {
   dimension: fullvisitorid {
     type: string
     sql: ${TABLE}."FULLVISITORID" ;;
+    hidden: yes
   }
 
   dimension: geonetwork_country {
