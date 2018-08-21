@@ -204,6 +204,7 @@ view: ga_dashboarddata {
   dimension: rsrc {
     type: string
     sql: ${TABLE}."RSRC" ;;
+    hidden: yes
   }
 
   dimension: schoolid {
@@ -234,6 +235,7 @@ view: ga_dashboarddata {
   dimension: totals_hits {
     type: number
     sql: ${TABLE}."TOTALS_HITS" ;;
+    hidden: yes
   }
 
   dimension: totals_pageviews {
@@ -286,6 +288,7 @@ view: ga_dashboarddata {
     type: number
     value_format_name: id
     sql: ${TABLE}."VISITID" ;;
+    hidden: yes
   }
 
   dimension: visitnumber {
@@ -296,6 +299,12 @@ view: ga_dashboarddata {
   dimension: visitstarttime {
     type: number
     sql: ${TABLE}."VISITSTARTTIME" ;;
+  }
+
+  measure: count_clicks {
+    label: "# Users"
+    type: count_distinct
+    sql:  ${TABLE}."USERSSOGUID" ;;
   }
 
   measure: count {
