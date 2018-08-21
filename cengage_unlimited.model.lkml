@@ -96,7 +96,6 @@ explore: coursewares_activated_week {}
 explore: coursewares_activated {}
 explore: device_changes {}
 explore: device_changes_all_time {}
-explore: weeks_above_threshhold_devices {}
 explore: unique_cities_per_user_per_week{}
 explore: unique_cities_per_user {}
 explore: weeks_above_threshhold_cities {}
