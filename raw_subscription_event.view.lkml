@@ -12,6 +12,7 @@ view: raw_subscription_event {
   dimension: _hash {
     type: string
     sql: ${TABLE}."_HASH" ;;
+    hidden: yes
   }
 
   dimension_group: _ldts {
@@ -26,11 +27,13 @@ view: raw_subscription_event {
       year
     ]
     sql: ${TABLE}."_LDTS" ;;
+    hidden: yes
   }
 
   dimension: _rsrc {
     type: string
     sql: ${TABLE}."_RSRC" ;;
+    hidden: yes
   }
 
   dimension: contract_id {
