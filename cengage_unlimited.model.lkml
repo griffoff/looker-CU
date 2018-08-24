@@ -89,14 +89,26 @@ join:  raw_vitalsource_event {
 
 explore: ebook_usage {}
 explore: ebook_usage2 {}
-explore: ebook_usage_actions {}
 
+
+  explore: ebook_usage_actions {
+    join: raw_subscription_event {
+      type: full_outer
+      sql_on: ${ebook_usage_actions.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
+      relationship: many_to_one
+    }
+
+    join: ebook_mapping {
+      type: left_outer
+      sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action} AND ${ebook_usage_actions.source} = ${ebook_mapping.source} ;;
+      relationship: many_to_one
+    }
+
+
+  }
 
 
 explore: ebook_usage_aggregated {}
-
-
-
 explore: ebook_usage_aggregated_by_week {}
 explore: coursewares_activated_week {}
 explore: coursewares_activated {}

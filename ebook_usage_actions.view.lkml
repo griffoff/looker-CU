@@ -59,30 +59,8 @@ view: ebook_usage_actions {
 
 
             SELECT
-              ced.event_time AS event_time
-              ,subscription_start
-              ,subscription_end
-              ,subscription_state
-              ,DATEDIFF('week', subscription_start, event_time) AS event_age_weeks
-              ,DATEDIFF('day', subscription_start, event_time) AS event_age_days
-              ,ced.user_sso_guid AS user_sso_guid
-              ,ced.ebook_id AS ebook_id
-              ,ced.event_action AS event_action
-              ,ced.event_category AS event_category
-              ,ced.source AS source
-              ,reading_page_view
-              ,reading_page_count
-              ,target_name
-              ,search_term
-              ,COALESCE(em.map, event_action) AS common_action
-              ,CASE WHEN (rse.message_type = 'CUSubscription') THEN 1 ELSE 0 END AS unlimited_user
-              ,CASE WHEN (ced.user_sso_guid IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)) THEN 1 ELSE 0 END AS internal_user
-            FROM combined_ebook_data ced
-            LEFT JOIN unlimited.raw_subscription_event rse
-            ON ced.user_sso_guid = rse.user_sso_guid
-            LEFT JOIN uploads.ebook_usage.ebook_mapping em
-            ON ced.event_action = em.action
-            AND ced.source = em.source
+              *
+            FROM combined_ebook_data
             ;;
 
     }
@@ -105,32 +83,21 @@ view: ebook_usage_actions {
     type: string
   }
 
-  dimension: subscription_start {
-    type: date
-  }
-
-  dimension: subscription_end {
-    type: date
-  }
-
-  dimension: subscription_state {
-    type: string
-  }
 
   dimension: event_age_weeks {
     type: number
+    sql: DATEDIFF(week, ${raw_subscription_event.subscription_start_date}, ${event_time_date})  ;;
   }
 
   dimension: event_age_days {
     type: number
+    sql: DATEDIFF(day, ${raw_subscription_event.subscription_start_date}, ${event_time_date})  ;;
   }
 
 
     dimension_group: event_time {
       type: time
       timeframes: [year, month, week, date]
-
-#     sql: ${TABLE}.event_time ;;
     }
 
     dimension: user_sso_guid {
@@ -162,11 +129,6 @@ view: ebook_usage_actions {
     type: number
   }
 
-  dimension: common_action {
-    type: string
-  }
-
-
     measure: count {
       type: count
     }
@@ -180,4 +142,67 @@ view: ebook_usage_actions {
       type: count_distinct
       sql: ${user_sso_guid} ;;
     }
+
+
+    measure: number_of_views {
+      group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.common_action} = 'View' THEN 1 ELSE 0 END ;;
+    }
+
+  measure: number_of_bookmarks {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Bookmark' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_highlights {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Highlight' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_notes {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Note' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_searches {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Search' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_prints {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Print' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_downloads {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Search' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_listen_tts {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Listen TTS' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_change_speed {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Change Speed' THEN 1 ELSE 0 END ;;
+  }
+
+  measure: number_of_change_font {
+    group_label: "Action Counts"
+    type: sum
+    sql: CASE WHEN ${ebook_mapping.common_action} = 'Font Change' THEN 1 ELSE 0 END ;;
+  }
+
+
   }

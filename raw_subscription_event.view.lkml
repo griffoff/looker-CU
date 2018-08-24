@@ -1,12 +1,18 @@
 view: raw_subscription_event {
   derived_table: {
-    sql: with state as (
-    select
-    TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') as sub_start_date
-    ,rank () over (partition by user_sso_guid order by LOCAL_Time desc) as latest_record
-    ,* from Unlimited.Raw_Subscription_event
-    ) select * from state where latest_record = 1
-    and state.user_sso_guid not in (select user_sso_guid from unlimited.vw_user_blacklist);;
+    sql: with state AS (
+    SELECT
+        TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') AS sub_start_date
+        ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time DESC) AS latest_record
+        ,*
+    FROM Unlimited.Raw_Subscription_event
+    )
+
+    SELECT
+      *
+    FROM state
+    WHERE latest_record = 1
+    AND state.user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist);;
   }
 
   dimension: _hash {
@@ -103,9 +109,11 @@ view: raw_subscription_event {
     sql: ${TABLE}."SUBSCRIPTION_START" ;;
   }
 
+
+
   dimension: subscription_state {
     type: string
-    sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+    sql: ${TABLE}."SUBSCRIPTION_STATE";;
   }
 
   dimension: user_environment {
