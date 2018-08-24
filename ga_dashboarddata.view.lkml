@@ -426,6 +426,7 @@ view: ga_dashboarddata {
 
   measure: count_clicks {
     label: "# Users"
+    description: "Number of Distinct Users "
     type: count_distinct
     sql:  ${TABLE}."USERSSOGUID" ;;
   }
