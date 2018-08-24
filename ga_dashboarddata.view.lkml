@@ -34,11 +34,23 @@ view: ga_dashboarddata {
     sql: ${TABLE}."EVENTACTION" ;;
   }
 
+  dimension: search_term_with_results{
+    type: string
+    label: "Search Terms"
+    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Term%' then split_part(${eventlabel},'|',1) else ${eventlabel} END;;
+  }
+
+  dimension: search_term_with_no_results{
+    type: string
+    label: "No Result Search Terms"
+    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Bar No%' then split_part(${eventlabel},'|',1) else ${eventlabel} END;;
+  }
+
   dimension: Added_content{
     label: "Event Dimensions"
     type: string
     sql: case when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Add To My Content Position%' then 'Added Content To Dashboard'
-              when eventaction like 'Search%'  then 'Searched Items'
+              when eventaction like 'Search Term%'  then 'Searched Items With Results'
               when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 'ebook launched'
               when eventaction like 'Dashboard Course Launched Name%' then 'courseware launched'
               when eventaction like 'Explore Catalog%' then 'catalog explored'
@@ -47,6 +59,9 @@ view: ga_dashboarddata {
               when eventaction like 'Support Clicked' then 'Support Clicked'
               when eventaction like '%FAQ%' then 'FAQ Clicked'
               when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Buy Now Button Click' then 'Clicked on UPGRADE (yellow banner)'
+              when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
+              when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
+              when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
               ELSE 'Other' END
     ;;
   }
@@ -117,8 +132,23 @@ view: ga_dashboarddata {
     sql: case when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Buy Now Button Click' then 1 else 0 end  ;;
   }
 
+  measure: course_key_events {
+    label: "Course Key Registrations"
+    type: sum
+    sql: case when ${eventcategory} like 'Course Key Registration' then 1 else 0 end  ;;
+  }
 
+  measure: access_code_events {
+    label: "Access Code Registrations"
+    type: sum
+    sql: case when ${eventcategory} like 'Access Code Registration' then 1 else 0 end  ;;
+  }
 
+  measure: cu_video_events {
+    label: "CU video viewed"
+    type: sum
+    sql: case when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 1 else 0 end  ;;
+  }
 
 
   dimension: eventcategory {
