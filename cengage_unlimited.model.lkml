@@ -88,8 +88,14 @@ join:  raw_vitalsource_event {
  }
 
 explore: ebook_usage {}
+explore: ebook_usage2 {}
+explore: ebook_usage_actions {}
+
+
 
 explore: ebook_usage_aggregated {}
+
+
 
 explore: ebook_usage_aggregated_by_week {}
 explore: coursewares_activated_week {}
@@ -100,6 +106,8 @@ explore: weeks_above_threshhold_devices {}
 explore: unique_cities_per_user_per_week{}
 explore: unique_cities_per_user {}
 explore: weeks_above_threshhold_cities {}
+
+explore: courseware_activations_per_user {}
 
 # explore: ebook_usage {
 #   from: raw_vitalsource_event

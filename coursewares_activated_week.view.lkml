@@ -1,22 +1,30 @@
 view: coursewares_activated_week {
   derived_table: {
     sql:
-      WITH all_users AS (
-        SELECT prod.user_sso_guid, DATE_TRUNC('week', prod.date_added) AS week, count(distinct prod.product_id) as unique_products
-          FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
-              JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
-                ON iac.pp_pid = prod.product_id
-                  AND prod.user_type like 'student'
-                  AND prod."source" like 'unlimited'
-                  WHERE context_id IS NOT NULL
-                  AND source_id NOT LIKE '%trial%'
-                  GROUP BY 1, 2 )
-
+       WITH all_users AS (
+        SELECT
+            prod.user_sso_guid
+            ,DATE_TRUNC('week', prod.date_added) AS week
+            ,count(distinct prod.product_id) as unique_products
+        FROM  prod.unlimited.raw_olr_provisioned_product prod
+        JOIN prod.unlimited.raw_olr_extended_iac iac
+        ON iac.pp_pid = prod.product_id
+        JOIN unlimited.raw_subscription_event se
+        ON prod.user_sso_guid = se.user_sso_guid
+        AND prod.source_id = se.contract_id
+        JOIN prod.unlimited.raw_olr_enrollment e
+        ON prod.context_id = e.course_key
+        AND prod.user_sso_guid = e.user_sso_guid
+        WHERE context_id IS NOT NULL
+        AND prod.user_type like 'student'
+        AND prod."source" like 'unlimited'
+        AND source_id <> '%trial%'
+        AND prod.user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+        GROUP BY 1, 2)
 
         SELECT
           *
-        FROM all_users
-        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users) ;;
+        FROM all_users ;;
   }
 
 dimension: user_sso_guid {}

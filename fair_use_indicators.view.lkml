@@ -80,11 +80,7 @@ multiple_devices AS (
 
  SELECT * FROM users_flagged
  UNION
- SELECT *, NULL AS indicator_value, 0 AS indicator_id FROM users_no_flags
-
-
-
-;;
+ SELECT *, NULL AS indicator_value, 0 AS indicator_id FROM users_no_flags ;;
 
 persist_for: "24 hours"
 }

@@ -23,8 +23,7 @@ view: unique_cities_per_user {
               ,COUNT(DISTINCT city) AS distinct_cities
             FROM cities
             WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
-            GROUP BY user_sso_guid
-            LIMIT 100 ;;
+            GROUP BY user_sso_guid ;;
   }
 
   dimension: user_sso_guid {

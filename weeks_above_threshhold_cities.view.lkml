@@ -26,7 +26,7 @@ view: weeks_above_threshhold_cities {
               ,COUNT(DISTINCT city) AS unique_city_count
             FROM cities
             GROUP BY user_sso_guid, week
-            LIMIT 100)
+            )
 
             SELECT
               user_sso_guid
