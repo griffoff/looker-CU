@@ -60,7 +60,7 @@ view: ga_dashboarddata {
   measure: Search_events{
     label: "# searchs"
     type: sum
-    sql: case when eventaction like 'Search%'  then 1 else 0 end   ;;
+    sql: case when eventaction like 'Search With Results%'  then 1 else 0 end   ;;
   }
 
   measure: noresult_search{
