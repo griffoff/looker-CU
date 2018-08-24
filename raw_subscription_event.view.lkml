@@ -58,21 +58,25 @@ view: raw_subscription_event {
   dimension: message_format_version {
     type: number
     sql: ${TABLE}."MESSAGE_FORMAT_VERSION" ;;
+    hidden: yes
   }
 
   dimension: message_type {
     type: string
     sql: ${TABLE}."MESSAGE_TYPE" ;;
+    hidden: yes
   }
 
   dimension: platform_environment {
     type: string
     sql: ${TABLE}."PLATFORM_ENVIRONMENT" ;;
+    hidden: yes
   }
 
   dimension: product_platform {
     type: string
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    hidden: yes
   }
 
   dimension_group: subscription_end {
@@ -111,6 +115,7 @@ view: raw_subscription_event {
   dimension: user_environment {
     type: string
     sql: ${TABLE}."USER_ENVIRONMENT" ;;
+    hidden: yes
   }
 
   dimension: user_sso_guid {

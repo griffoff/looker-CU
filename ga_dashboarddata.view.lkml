@@ -4,6 +4,7 @@ view: ga_dashboarddata {
   dimension: browser {
     type: string
     sql: ${TABLE}."BROWSER" ;;
+    hidden: yes
   }
 
   dimension: browserversion {
@@ -14,6 +15,7 @@ view: ga_dashboarddata {
   dimension: coursekey {
     type: string
     sql: ${TABLE}."COURSEKEY" ;;
+    hidden: yes
   }
 
   dimension: devicecategory {
@@ -24,6 +26,7 @@ view: ga_dashboarddata {
   dimension: environment {
     type: string
     sql: ${TABLE}."ENVIRONMENT" ;;
+    hidden: yes
   }
 
   dimension: eventaction {
@@ -129,16 +132,19 @@ view: ga_dashboarddata {
   }
 
   dimension: geonetwork_country {
+    group_label: "Geo Data"
     type: string
     sql: ${TABLE}."GEONETWORK_COUNTRY" ;;
   }
 
   dimension: geonetwork_metro {
+    group_label: "Geo Data"
     type: string
     sql: ${TABLE}."GEONETWORK_METRO" ;;
   }
 
   dimension: geonetwork_region {
+    group_label: "Geo Data"
     type: string
     sql: ${TABLE}."GEONETWORK_REGION" ;;
   }
@@ -146,46 +152,55 @@ view: ga_dashboarddata {
   dimension: haspurchased {
     type: string
     sql: ${TABLE}."HASPURCHASED" ;;
+    hidden: yes
   }
 
   dimension: hits_hitnumber {
     type: number
     sql: ${TABLE}."HITS_HITNUMBER" ;;
+    hidden: yes
   }
 
   dimension: hits_hour {
     type: number
     sql: ${TABLE}."HITS_HOUR" ;;
+    hidden: yes
   }
 
   dimension: hits_minute {
     type: number
     sql: ${TABLE}."HITS_MINUTE" ;;
+    hidden: yes
   }
 
   dimension: hits_time {
     type: number
     sql: ${TABLE}."HITS_TIME" ;;
+    hidden: yes
   }
 
   dimension: hits_type {
     type: string
     sql: ${TABLE}."HITS_TYPE" ;;
+    hidden: yes
   }
 
   dimension: hostname {
     type: string
     sql: ${TABLE}."HOSTNAME" ;;
+    hidden: yes
   }
 
   dimension: isloggedin {
     type: string
     sql: ${TABLE}."ISLOGGEDIN" ;;
+    hidden: yes
   }
 
   dimension: ismobile {
     type: string
     sql: ${TABLE}."ISMOBILE" ;;
+    hidden: yes
   }
 
   dimension_group: ldts {
@@ -206,81 +221,97 @@ view: ga_dashboarddata {
   dimension: mobiledevicebranding {
     type: string
     sql: ${TABLE}."MOBILEDEVICEBRANDING" ;;
+    hidden: yes
   }
 
   dimension: operatingsystem {
     type: string
     sql: ${TABLE}."OPERATINGSYSTEM" ;;
+    hidden: yes
   }
 
   dimension: operatingsystemversion {
     type: string
     sql: ${TABLE}."OPERATINGSYSTEMVERSION" ;;
+    hidden: yes
   }
 
   dimension: pagebrand {
     type: string
     sql: ${TABLE}."PAGEBRAND" ;;
+    hidden: yes
   }
 
   dimension: pagename {
     type: string
     sql: ${TABLE}."PAGENAME" ;;
+    hidden: yes
   }
 
   dimension: pagepath {
     type: string
     sql: ${TABLE}."PAGEPATH" ;;
+    hidden: yes
   }
 
   dimension: pagesection {
     type: string
     sql: ${TABLE}."PAGESECTION" ;;
+    hidden: yes
   }
 
   dimension: pagesitename {
     type: string
     sql: ${TABLE}."PAGESITENAME" ;;
+    hidden: yes
   }
 
   dimension: pagetitle {
     type: string
     sql: ${TABLE}."PAGETITLE" ;;
+    hidden: yes
   }
 
   dimension: pagetype {
     type: string
     sql: ${TABLE}."PAGETYPE" ;;
+    hidden: yes
   }
 
   dimension: pageurl {
     type: string
     sql: ${TABLE}."PAGEURL" ;;
+    hidden: yes
   }
 
   dimension: partnercid {
     type: string
     sql: ${TABLE}."PARTNERCID" ;;
+    hidden: yes
   }
 
   dimension: productsdigitaltype {
     type: string
     sql: ${TABLE}."PRODUCTSDIGITALTYPE" ;;
+    hidden: yes
   }
 
   dimension: productsdiscipline {
     type: string
     sql: ${TABLE}."PRODUCTSDISCIPLINE" ;;
+    hidden: yes
   }
 
   dimension: productsformat {
     type: string
     sql: ${TABLE}."PRODUCTSFORMAT" ;;
+    hidden: yes
   }
 
   dimension: registered {
     type: string
     sql: ${TABLE}."REGISTERED" ;;
+    hidden: yes
   }
 
   dimension: rsrc {
@@ -297,21 +328,25 @@ view: ga_dashboarddata {
   dimension: schoolname {
     type: string
     sql: ${TABLE}."SCHOOLNAME" ;;
+    hidden: yes
   }
 
   dimension: schooltype {
     type: string
     sql: ${TABLE}."SCHOOLTYPE" ;;
+    hidden: yes
   }
 
   dimension: state {
     type: string
     sql: ${TABLE}."STATE" ;;
+    hidden: yes
   }
 
   dimension: timeonscreen {
     type: number
     sql: ${TABLE}."TIMEONSCREEN" ;;
+    hidden: yes
   }
 
   dimension: totals_hits {
@@ -323,26 +358,31 @@ view: ga_dashboarddata {
   dimension: totals_pageviews {
     type: number
     sql: ${TABLE}."TOTALS_PAGEVIEWS" ;;
+    hidden: yes
   }
 
   dimension: totals_timeonsite {
     type: number
     sql: ${TABLE}."TOTALS_TIMEONSITE" ;;
+    hidden: yes
   }
 
   dimension: totals_visits {
     type: number
     sql: ${TABLE}."TOTALS_VISITS" ;;
+    hidden: yes
   }
 
   dimension: urlrequested {
     type: string
     sql: ${TABLE}."URLREQUESTED" ;;
+    hidden: yes
   }
 
   dimension: useracqdate {
     type: string
     sql: ${TABLE}."USERACQDATE" ;;
+    hidden: yes
   }
 
   dimension: userid {
@@ -376,6 +416,7 @@ view: ga_dashboarddata {
   dimension: visitnumber {
     type: number
     sql: ${TABLE}."VISITNUMBER" ;;
+    hidden: yes
   }
 
   dimension: visitstarttime {
