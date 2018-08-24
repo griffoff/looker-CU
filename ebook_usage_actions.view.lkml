@@ -1,5 +1,7 @@
 view: ebook_usage_actions {
     derived_table: {
+      persist_for: "24 hours"
+
       sql:
           WITH combined_ebook_data AS
            (SELECT
