@@ -31,6 +31,87 @@ view: ga_dashboarddata {
     sql: ${TABLE}."EVENTACTION" ;;
   }
 
+  dimension: Added_content{
+    label: "Event Dimensions"
+    type: string
+    sql: case when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Add To My Content Position%' then 'Added Content To Dashboard'
+              when eventaction like 'Search%'  then 'Searched Items'
+              when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 'ebook launched'
+              when eventaction like 'Dashboard Course Launched Name%' then 'courseware launched'
+              when eventaction like 'Explore Catalog%' then 'catalog explored'
+              when eventaction like 'Rent From Chegg%' OR eventaction like 'Exclusive Partner Clicked' then 'Clicked on Chegg'
+              ELSE 'Other' END
+    ;;
+  }
+
+#   dimension: search_event{
+#     group_label: "Event Dimensions"
+#     type: string
+#     sql: case when eventaction like 'Search%'  then 'Searched Items' END  ;;
+#   }
+#
+#   dimension: ebook_launches{
+#     group_label: "Event Dimensions"
+#     type: string
+#     sql: case when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 'ebook launched' end   ;;
+#   }
+#
+#   dimension: courseware_launches{
+#     group_label: "Event Dimensions"
+#     type: string
+#     sql: case when eventaction like 'Dashboard Course Launched Name%' then 'courseware launched' end   ;;
+#   }
+#
+#   dimension: catalog_clicked{
+#     group_label: "Event Dimensions"
+#     type: string
+#     sql: case when eventaction like 'Explore Catalog%' then 'catalog explored' end   ;;
+#   }
+#
+#   dimension: rent_chegg_clicked{
+#     group_label: "Event Dimensions"
+#     type: string
+#     sql: case when eventaction like 'Rent From Chegg%' OR eventaction like 'Exclusive Partner Clicked' then 'Clicked on Chegg' end   ;;
+#   }
+
+  measure: AddTodash_events{
+    label: "Added Content"
+    type: sum
+    sql: case when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Add To My Content Position%' then 1 else 0 end   ;;
+  }
+
+  measure: Search_events{
+    label: "# searchs"
+    type: sum
+    sql: case when eventaction like 'Search%'  then 1 else 0 end   ;;
+  }
+
+  measure: ebook_launch{
+    label: "# eBooks launched"
+    type: sum
+    sql: case when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 1 else 0 end   ;;
+  }
+
+  measure: courseware_launch{
+    label: "# Courseware launched"
+    type: sum
+    sql: case when eventaction like 'Dashboard Course Launched Name%' then 1 else 0 end   ;;
+  }
+
+  measure: catalog_clicks{
+    label: "# Clicks on catalog"
+    type: sum
+    sql: case when eventaction like 'Explore Catalog%' then 1 else 0 end   ;;
+  }
+
+  measure: rent_chegg_clicks{
+    label: "# Rent From Chegg Clicks"
+    type: sum
+    sql: case when eventaction like 'Rent From Chegg%' then 1 else 0 end   ;;
+  }
+
+
+
   dimension: eventcategory {
     type: string
     sql: ${TABLE}."EVENTCATEGORY" ;;
@@ -298,8 +379,8 @@ view: ga_dashboarddata {
   }
 
   dimension: visitstarttime {
-    type: number
-    sql: ${TABLE}."VISITSTARTTIME" ;;
+    type: date
+    sql:TO_TIMESTAMP(${TABLE}."VISITSTARTTIME");;
   }
 
   measure: count_clicks {

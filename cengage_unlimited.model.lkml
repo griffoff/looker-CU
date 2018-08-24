@@ -19,12 +19,17 @@ explore: raw_subscription_event {
 
   join: raw_olr_provisioned_product {
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
-    relationship: many_to_many
+    relationship: many_to_one
   }
 }
 
 explore: ga_dashboarddata {
   label: "CU Dashboard"
+
+  join: raw_subscription_event {
+    sql_on: ${ga_dashboarddata.userssoguid} = ${raw_subscription_event.user_sso_guid} ;;
+    relationship: many_to_one
+  }
 }
 
 
