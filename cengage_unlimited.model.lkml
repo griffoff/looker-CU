@@ -28,6 +28,7 @@ explore: ga_dashboarddata {
 
   join: raw_subscription_event {
     sql_on: ${ga_dashboarddata.userssoguid} = ${raw_subscription_event.user_sso_guid} ;;
+    type: full_outer
     relationship: many_to_one
   }
 #   join: ebook_usage_actions {
