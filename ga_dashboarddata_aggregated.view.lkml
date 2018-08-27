@@ -19,7 +19,7 @@ view: ga_dashboarddata_aggregated {
   dimension: count_click_buckets {
     label: "Ga Dashboard Clicks by Action Buckets"
     type:  tier
-    tiers: [1, 2, 6, 10]
+    tiers: [1, 2, 5, 8, 11]
     style:  integer
     sql:  ${count} ;;
   }
@@ -31,8 +31,3 @@ view: ga_dashboarddata_aggregated {
   }
 
 }
-
-
-
-
-
