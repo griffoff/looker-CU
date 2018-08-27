@@ -30,6 +30,14 @@ explore: ga_dashboarddata {
     sql_on: ${ga_dashboarddata.userssoguid} = ${raw_subscription_event.user_sso_guid} ;;
     relationship: many_to_one
   }
+#   join: ebook_usage_actions {
+#     sql_on: ${ebook_usage_actions.user_sso_guid} = ${ga_dashboarddata.userssoguid} ;;
+#     relationship: many_to_many
+#   }
+}
+
+explore: ga_dashboarddata_aggregated {
+  label: "CU Dashboard Aggregated"
 }
 
 
