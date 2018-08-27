@@ -62,7 +62,8 @@ view: ga_dashboarddata {
               when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
               when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
               when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
-              ELSE 'Other' END
+              when eventaction IS NOT NULL then 'Other'
+              ELSE NULL END
     ;;
   }
 
