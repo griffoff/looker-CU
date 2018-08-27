@@ -472,4 +472,6 @@ view: ga_dashboarddata {
     type: count
     drill_fields: [hostname, schoolname, pagesitename, pagename]
   }
+
+
 }
