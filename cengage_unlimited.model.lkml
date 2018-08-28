@@ -33,12 +33,6 @@ explore: ga_dashboarddata {
   }
   }
 
-  explore: dashboard_activity_overtime {
-    from: ga_dashboarddata
-
-  }
-
-
 #   join: ebook_usage_actions {
 #     sql_on: ${ebook_usage_actions.user_sso_guid} = ${ga_dashboarddata.userssoguid} ;;
 #     relationship: many_to_many

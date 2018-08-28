@@ -26,10 +26,17 @@ view: raw_subscription_event {
   }
 
   dimension: latest_subscription {
-    label: "Current sub status"
+    label: "Current subscription status"
     description: "filter used to retrive the latest subscription status for a user"
     type: yesno
     sql: ${TABLE}.latest_filter = 'yes'  ;;
+  }
+
+  dimension: earliest_subscription {
+    label: "Start subcription status"
+    description: "filter used to retrive the earliest subscription status for a user"
+    type: yesno
+    sql: ${TABLE}.earliest_filter = 'yes'  ;;
   }
 
   dimension: change_in_state {
