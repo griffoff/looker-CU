@@ -10,15 +10,22 @@ view: raw_subscription_event {
 
     SELECT
       *
+      ,CASE WHEN latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
     FROM state
-    WHERE latest_record = 1
-    AND state.user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist);;
+    WHERE state.user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist);;
   }
 
   dimension: _hash {
     type: string
     sql: ${TABLE}."_HASH" ;;
     hidden: yes
+  }
+
+  filter: latest_subscription {
+    label: "latest sub status"
+    description: "filter used to retrive the latest subscription status for a user"
+    type: yesno
+    sql: ${TABLE}.latest_filter = 'yes'  ;;
   }
 
   dimension_group: _ldts {
