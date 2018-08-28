@@ -36,7 +36,8 @@ view: dashboardbuckets {
             DISTINCT userssoguid
           FROM prod.raw_ga.ga_dashboarddata
           WHERE userssoguid IS NOT NULL
-          AND LOWER(eventcategory) IN ('dashboard','course key registration','access code registration', 'videos'))
+          AND LOWER(eventcategory) IN ('dashboard','course key registration','access code registration', 'videos')
+          AND TO_TIMESTAMP(VISITSTARTTIME) >= '08-01-2018')
 
           ,user_action_combinations AS (
           SELECT
@@ -68,7 +69,7 @@ view: dashboardbuckets {
                       ELSE 'Other' END AS actions
             FROM prod.raw_ga.ga_dashboarddata
             WHERE LOWER(eventcategory) IN ('dashboard','course key registration','access code registration', 'videos')
-            AND userssoguid IS NOT NULL
+            AND userssoguid IS NOT NULL AND TO_TIMESTAMP(VISITSTARTTIME) > '08-01-2018'
             )
 
 
