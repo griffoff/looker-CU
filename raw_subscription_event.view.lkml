@@ -33,7 +33,7 @@ view: raw_subscription_event {
   }
 
   dimension: earliest_subscription {
-    label: "Start subcription status"
+    label: "Earliest subcription status"
     description: "filter used to retrive the earliest subscription status for a user"
     type: yesno
     sql: ${TABLE}.earliest_filter = 'yes'  ;;
@@ -166,7 +166,7 @@ view: raw_subscription_event {
 
   dimension: weeks_since_subscription_start {
     type: number
-    sql: datediff(week, current_timestamp(), ${subscription_start_date})  ;;
+    sql: datediff(week, to_timestamp(${ga_dashboarddata.visitstarttime}), ${subscription_start_date})  ;;
   }
 
   measure: count {
