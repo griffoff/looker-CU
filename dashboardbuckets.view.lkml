@@ -1,6 +1,7 @@
 view: dashboardbuckets {
   derived_table: {
-    sql: WITH action_items AS (
+    sql:
+      WITH action_items AS (
           SELECT 0 AS count ,'Added Content To Dashboard' AS action_name
           UNION
           SELECT 0 AS count ,'Searched Items With Results' AS action_name
@@ -42,30 +43,30 @@ view: dashboardbuckets {
             ai.action_name
             ,ai.count
             ,uu.userssoguid
-            FROM action_items ai
-            CROSS JOIN unique_users uu
+          FROM action_items ai
+          CROSS JOIN unique_users uu
           )
 
           ,gmt_actions AS (
           SELECT
             userssoguid
             ,CASE
-                      when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Add To My Content Position%' then 'Added Content To Dashboard'
-                      when eventaction like 'Search Term%'  then 'Searched Items With Results'
-                      when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 'ebook launched'
-                      when eventaction like 'Dashboard Course Launched Name%' then 'courseware launched'
-                      when eventaction like 'Explore Catalog%' then 'catalog explored'
-                      when eventaction like 'Rent From Chegg%'  then 'Rented from Chegg'
-                      when  eventaction like 'Exclusive Partner Clicked' then 'One month Chegg clicks'
-                      when eventaction like 'Search Bar No%'  then 'No Results Search'
-                      when eventaction like 'Support Clicked' then 'Support Clicked'
-                      when eventaction like '%FAQ%' then 'FAQ Clicked'
-                      when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Buy Now Button Click' then 'Clicked on UPGRADE (yellow banner)'
-                      when eventcategory like 'Course Key Registration' then 'Course Key Registration'
-                      when eventcategory like 'Access Code Registration' then 'Access Code Registration'
-                      when eventcategory like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
-                      ELSE 'Other' END AS actions
-            FROM prod.raw_ga.ga_dashboarddata )
+                WHEN eventaction LIKE 'Calls To Action (CTAs)' AND eventlabel LIKE 'Add To My Content Position%' THEN 'Added Content To Dashboard'
+                WHEN eventaction LIKE 'Search Term%'  THEN 'Searched Items With Results'
+                WHEN eventaction LIKE 'Calls To Action (CTAs)' AND LOWER(eventlabel) LIKE 'dashboard%ebook%' THEN 'ebook launched'
+                WHEN eventaction LIKE 'Dashboard Course Launched Name%' THEN 'courseware launched'
+                WHEN eventaction LIKE 'Explore Catalog%' THEN 'catalog explored'
+                WHEN eventaction LIKE 'Rent From Chegg%'  THEN 'Rented from Chegg'
+                WHEN  eventaction LIKE 'Exclusive Partner Clicked' THEN 'One month Chegg clicks'
+                WHEN eventaction LIKE 'Search Bar No%'  THEN 'No Results Search'
+                WHEN eventaction LIKE 'Support Clicked' THEN 'Support Clicked'
+                WHEN eventaction LIKE '%FAQ%' THEN 'FAQ Clicked'
+                WHEN eventaction LIKE 'Calls To Action (CTAs)' AND eventlabel LIKE 'Buy Now Button Click' THEN 'Clicked on UPGRADE (yellow banner)'
+                WHEN eventcategory LIKE 'Course Key Registration' THEN 'Course Key Registration'
+                WHEN eventcategory LIKE 'Access Code Registration' THEN 'Access Code Registration'
+                WHEN eventcategory LIKE 'Videos' AND eventaction LIKE 'Meet Cengage Unlimited' THEN 'CU videos viewed'
+                ELSE 'Other' END AS actions
+          FROM prod.raw_ga.ga_dashboarddata )
 
 
           SELECT
