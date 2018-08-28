@@ -5,6 +5,8 @@ view: raw_subscription_event {
         TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') AS sub_start_date
         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time DESC) AS latest_record
         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time ASC) AS earliest_record
+        ,LEAD(subscription_state) over(partition by user_sso_guid order by local_time) as change_in_state
+        ,LEAD(subscription_start) over(partition by user_sso_guid order by local_time) as change_in_start_date
         ,*
     FROM Unlimited.Raw_Subscription_event
     )
@@ -23,11 +25,21 @@ view: raw_subscription_event {
     hidden: yes
   }
 
-  filter: latest_subscription {
-    label: "latest sub status"
+  dimension: latest_subscription {
+    label: "Current sub status"
     description: "filter used to retrive the latest subscription status for a user"
     type: yesno
     sql: ${TABLE}.latest_filter = 'yes'  ;;
+  }
+
+  dimension: change_in_state {
+    label: "Subscription State Change"
+    sql: ${TABLE}.change_in_state ;;
+  }
+
+  dimension: change_in_start_date {
+    label: "Subscription Start Date Change"
+    sql: ${TABLE}.change_in_start_date ;;
   }
 
   dimension_group: _ldts {
