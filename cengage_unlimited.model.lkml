@@ -51,6 +51,12 @@ explore: ga_dashboarddata {
 
 explore: dashboardbuckets {
   label: "CU Dashboard Actions Bucketed"
+
+  join: ga_dashboarddata {
+    sql_on: ${ga_dashboarddata.userssoguid}=${dashboardbuckets.userssoguid} ;;
+    relationship: many_to_many
+    type: left_outer
+  }
 }
 explore: ga_dashboarddata_aggregated {
   label: "CU Dashboard Aggregated"
