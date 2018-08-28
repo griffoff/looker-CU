@@ -59,10 +59,6 @@ explore: dashboardbuckets {
     type: left_outer
   }
 }
-explore: ga_dashboarddata_aggregated {
-  label: "CU Dashboard Aggregated"
-}
-
 
 explore: additional_info_products {
   label: "Provisioned Products Buckets"
@@ -139,8 +135,6 @@ explore: ebook_usage2 {}
       sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action} AND ${ebook_usage_actions.source} = ${ebook_mapping.source} ;;
       relationship: many_to_one
     }
-
-
   }
 
 
