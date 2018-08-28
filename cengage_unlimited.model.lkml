@@ -37,8 +37,19 @@ explore: ga_dashboarddata {
 #     sql_on: ${ebook_usage_actions.user_sso_guid} = ${ga_dashboarddata.userssoguid} ;;
 #     relationship: many_to_many
 #   }
-}
-explore: dashboard_bucketed {
+
+
+# explore: dashboard_actions {
+#   join: ga_dashboarddata {
+#     type: cross
+#     relationship: one_to_many
+#     sql_on: ${dashboard_actions.action_name} = ${ga_dashboarddata.Added_content} ;;
+  }
+
+
+
+
+explore: dashboardbuckets {
   label: "CU Dashboard Actions Bucketed"
 }
 explore: ga_dashboarddata_aggregated {

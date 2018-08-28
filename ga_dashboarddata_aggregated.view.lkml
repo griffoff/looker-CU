@@ -3,8 +3,8 @@
 view: ga_dashboarddata_aggregated {
     derived_table: {
       explore_source: ga_dashboarddata {
-        column: userssoguid { field: raw_subscription_event.user_sso_guid }
-        column: Added_content {}
+        column: userssoguid {}
+
         column: one_month_chegg_clicks {}
         column: catalog_clicks {}
         column: courseware_launch {}
@@ -22,9 +22,7 @@ view: ga_dashboarddata_aggregated {
       }
     }
     dimension: userssoguid {}
-    dimension: Added_content {
-      label: "Ga Dashboarddata Event Dimensions"
-    }
+
     dimension: one_month_chegg_clicks {
       label: "Ga Dashboarddata # 1 Month Chegg Clicks"
       type: number
