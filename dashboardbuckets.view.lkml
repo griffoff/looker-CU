@@ -1,6 +1,7 @@
 view: dashboardbuckets {
   derived_table: {
-    sql: WITH action_items AS (
+    sql:
+      WITH action_items AS (
           SELECT 0 AS count ,'Added Content To Dashboard' AS action_name
           UNION
           SELECT 0 AS count ,'Searched Items With Results' AS action_name
@@ -44,8 +45,8 @@ view: dashboardbuckets {
             ai.action_name
             ,ai.count
             ,uu.userssoguid
-            FROM action_items ai
-            CROSS JOIN unique_users uu
+          FROM action_items ai
+          CROSS JOIN unique_users uu
           )
 
           ,gmt_actions AS (
@@ -71,7 +72,6 @@ view: dashboardbuckets {
             WHERE LOWER(eventcategory) IN ('dashboard','course key registration','access code registration', 'videos')
             AND userssoguid IS NOT NULL AND TO_TIMESTAMP(VISITSTARTTIME) > '08-01-2018'
             )
-
 
           SELECT
             auc.userssoguid
