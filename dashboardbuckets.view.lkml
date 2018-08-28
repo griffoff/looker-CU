@@ -35,7 +35,8 @@ view: dashboardbuckets {
           SELECT
             DISTINCT userssoguid
           FROM prod.raw_ga.ga_dashboarddata
-          WHERE userssoguid IS NOT NULL)
+          WHERE userssoguid IS NOT NULL
+          AND LOWER(eventcategory) IN ('dashboard','course key registration','access code registration', 'videos'))
 
           ,user_action_combinations AS (
           SELECT
@@ -56,7 +57,7 @@ view: dashboardbuckets {
                       when eventaction like 'Dashboard Course Launched Name%' then 'courseware launched'
                       when eventaction like 'Explore Catalog%' then 'catalog explored'
                       when eventaction like 'Rent From Chegg%'  then 'Rented from Chegg'
-                      when  eventaction like 'Exclusive Partner Clicked' then 'One month Chegg clicks'
+                      when eventaction like 'Exclusive Partner Clicked' then 'One month Chegg clicks'
                       when eventaction like 'Search Bar No%'  then 'No Results Search'
                       when eventaction like 'Support Clicked' then 'Support Clicked'
                       when eventaction like '%FAQ%' then 'FAQ Clicked'
@@ -65,7 +66,10 @@ view: dashboardbuckets {
                       when eventcategory like 'Access Code Registration' then 'Access Code Registration'
                       when eventcategory like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
                       ELSE 'Other' END AS actions
-            FROM prod.raw_ga.ga_dashboarddata )
+            FROM prod.raw_ga.ga_dashboarddata
+            WHERE LOWER(eventcategory) IN ('dashboard','course key registration','access code registration', 'videos')
+            AND userssoguid IS NOT NULL
+            )
 
 
           SELECT
@@ -76,6 +80,7 @@ view: dashboardbuckets {
           LEFT OUTER JOIN gmt_actions gmt
           ON auc.userssoguid = gmt.userssoguid
           AND auc.action_name = gmt.actions
+          WHERE auc.userssoguid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist)
           GROUP BY 1, 2
        ;;
   }
