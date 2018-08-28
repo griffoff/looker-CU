@@ -4,6 +4,7 @@ view: raw_subscription_event {
     SELECT
         TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') AS sub_start_date
         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time DESC) AS latest_record
+        ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time ASC) AS earliest_record
         ,*
     FROM Unlimited.Raw_Subscription_event
     )
@@ -11,6 +12,7 @@ view: raw_subscription_event {
     SELECT
       *
       ,CASE WHEN latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
+      ,CASE WHEN earliest_record = 1 THEN 'yes' ELSE 'no' END AS earliest_filter
     FROM state
     WHERE state.user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist);;
   }
@@ -141,6 +143,11 @@ view: raw_subscription_event {
   dimension: days_until_expiry {
     type: number
     sql: datediff(day, current_timestamp(), ${subscription_end_raw})  ;;
+  }
+
+  dimension: weeks_since_subscription_start {
+    type: number
+    sql: datediff(week, current_timestamp(), ${subscription_start_date})  ;;
   }
 
   measure: count {

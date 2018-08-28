@@ -31,6 +31,12 @@ explore: ga_dashboarddata {
     type: full_outer
     relationship: many_to_one
   }
+  }
+
+  explore: dashboard_activity_overtime {
+    from: ga_dashboarddata
+
+  }
 
 
 #   join: ebook_usage_actions {
@@ -44,7 +50,8 @@ explore: ga_dashboarddata {
 #     type: cross
 #     relationship: one_to_many
 #     sql_on: ${dashboard_actions.action_name} = ${ga_dashboarddata.Added_content} ;;
-  }
+
+
 
 
 
