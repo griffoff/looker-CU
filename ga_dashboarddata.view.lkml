@@ -51,10 +51,10 @@ view: ga_dashboarddata {
     type: string
     sql: case when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Add To My Content Position%' then 'Added Content To Dashboard'
               when eventaction like 'Search Term%'  then 'Searched Items With Results'
-              when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 'ebook launched'
-              when eventaction like 'Dashboard Course Launched Name%' then 'courseware launched'
-              when eventaction like 'Explore Catalog%' then 'catalog explored'
-              when eventaction like 'Rent From Chegg%'  then 'Rented from Chegg'
+              when eventaction like 'Calls To Action (CTAs)' and LOWER(eventlabel) like 'dashboard%ebook%' then 'eBook launched'
+              when eventaction like 'Dashboard Course Launched Name%' then 'Courseware launched'
+              when eventaction like 'Explore Catalog%' then 'Catalog explored'
+              when eventaction like 'Rent From Chegg%'  then 'Rented from Chegg clicks'
               when  eventaction like 'Exclusive Partner Clicked' then 'One month Chegg clicks'
               when eventaction like 'Search Bar No%'  then 'No Results Search'
               when eventaction like 'Support Clicked' then 'Support Clicked'
@@ -63,7 +63,11 @@ view: ga_dashboarddata {
               when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
               when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
               when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
-              ELSE 'Other'
+              when ${pagepath} like '%print-options%' and ${eventaction} IS NULL then 'Print Options Clicked'
+              when ${pagepath} like '%explore-catalog%' and ${eventaction} IS NULL then 'Explore Catalog Clicked'
+              when ${pagepath} like '%exclusive-partners%' and ${eventaction} IS NULL then 'Study Resources Clicked'
+              when ${pagepath} like '%my-dashboard/authenticated%' and ${eventaction} IS NULL then 'Logged Into Dashboard Home'
+              ELSE 'Other Clicks'
               END
     ;;
   }

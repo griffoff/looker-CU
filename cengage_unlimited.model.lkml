@@ -31,6 +31,10 @@ explore: ga_dashboarddata {
     type: full_outer
     relationship: many_to_one
   }
+  join: raw_olr_provisioned_product {
+    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
+    relationship: many_to_one
+  }
   }
 
 #   join: ebook_usage_actions {

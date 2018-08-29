@@ -7,13 +7,14 @@ derived_table: {
               JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
-                  AND prod."source" like 'unlimited'
+                --  AND prod."source" like 'unlimited'
                   and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.CLTS_EXCLUDED_USERS);;
 }
 
   dimension: _hash {
      type: string
      sql: ${TABLE}."_HASH" ;;
+    hidden: yes
    }
 
   dimension: pp_name {
