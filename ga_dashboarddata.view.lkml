@@ -63,8 +63,8 @@ view: ga_dashboarddata {
               when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
               when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
               when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
-              when eventaction IS NOT NULL then 'Other'
-              ELSE NULL END
+              ELSE 'Other'
+              END
     ;;
   }
 
@@ -461,6 +461,12 @@ view: ga_dashboarddata {
   dimension: visitstarttime {
     type: date
     sql:TO_TIMESTAMP(${TABLE}."VISITSTARTTIME");;
+  }
+
+  dimension: event_date {
+    description: "Date on which a user did an event"
+    type: date_time
+    sql: TO_DATE(TO_TIMESTAMP(((${TABLE}."VISITSTARTTIME"*1000) + ${hits_time})/1000)) ;;
   }
 
   measure: count_clicks {

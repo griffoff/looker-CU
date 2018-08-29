@@ -47,6 +47,7 @@ view: raw_subscription_event {
   dimension: change_in_start_date {
     label: "Subscription Start Date Change"
     sql: ${TABLE}.change_in_start_date ;;
+    type: date
   }
 
   dimension_group: _ldts {
