@@ -64,7 +64,25 @@ explore: additional_info_products {
 
 explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"
+
 }
+
+
+##### Fair Useage #####
+explore: ebook_usage_aggregated {}
+explore: ebook_usage_aggregated_by_week {}
+
+explore: coursewares_activated_week {}
+explore: coursewares_activated {}
+
+explore: device_changes {}
+explore: device_changes_all_time {}
+
+explore: unique_cities_per_user_per_week{}
+explore: unique_cities_per_user {}
+explore: weeks_above_threshhold_cities {}
+
+explore: courseware_activations_per_user {}
 
 explore: fair_use_tracking {
   label: "Fair Use Tracking"
@@ -77,21 +95,18 @@ join: fair_use_indicators {
   sql_on: ${indicators.indicator_id} = ${fair_use_indicators.indicator_id};;
   relationship: one_to_many
 }
-  join: fair_use_indicators_aggregated {
-    sql_on: ${indicators.indicator_id} = ${fair_use_indicators_aggregated.indicator_count} ;;
-    relationship: one_to_many
+join: fair_use_indicators_aggregated {
+  sql_on: ${indicators.indicator_id} = ${fair_use_indicators_aggregated.indicator_count} ;;
+  relationship: one_to_many
 }
 }
 
 explore: fair_use_tracking_vitalsource {}
 
-
 explore: fair_use_indicators {}
 
 explore: fair_use_indicators_aggregated {
   label: "Fair Use Indicators agg"}
-
-
 
 explore: ind {
   from: indicators
@@ -103,20 +118,23 @@ explore: ind {
   }}
 
 
+
+##### Raw Snowflake Tables #####
 explore: provisioned_product {
 from: raw_olr_provisioned_product
 join: raw_subscription_event {
   sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
   relationship: many_to_one
 }
+
 join:  raw_vitalsource_event {
   sql_on: ${provisioned_product.user_sso_guid} = ${raw_vitalsource_event.user_sso_guid} ;;
   relationship: many_to_many
-
 }
  }
 
 
+##### Ebook Usage #####
   explore: ebook_usage_actions {
     join: raw_subscription_event {
       type: full_outer
@@ -130,27 +148,3 @@ join:  raw_vitalsource_event {
       relationship: many_to_one
     }
   }
-
-
-explore: ebook_usage_aggregated {}
-explore: ebook_usage_aggregated_by_week {}
-explore: coursewares_activated_week {}
-explore: coursewares_activated {}
-explore: device_changes {}
-explore: device_changes_all_time {}
-explore: unique_cities_per_user_per_week{}
-explore: unique_cities_per_user {}
-explore: weeks_above_threshhold_cities {}
-
-explore: courseware_activations_per_user {}
-
-# explore: ebook_usage {
-#   from: raw_vitalsource_event
-#   join: raw_mt_resource_interactions {
-#     sql: ${ebook_usage.user_sso_guid} = ${raw_mt_resource_interactions.user_identifier};;
-#     sql_where: ${raw_mt_resource_interactions.event_category} = 'READING' AND ${raw_mt_resource_interactions.event_action} = 'VIEW' ;;
-#   }
-
-#   join: ga_mobiledata {
-#     sql: ${raw_vitalsource_event.user_sso_guid} = ${ga_mobiledata.userssoguid} ;;
-#   }
