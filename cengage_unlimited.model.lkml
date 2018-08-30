@@ -49,9 +49,12 @@ explore: ga_dashboarddata {
 #     relationship: one_to_many
 #     sql_on: ${dashboard_actions.action_name} = ${ga_dashboarddata.Added_content} ;;
 
+explore: dashboard_use_over_time {
+}
 
+explore: dashboard_use_over_time_bucketed {}
 
-
+explore: db_use_over_time {}
 
 
 explore: dashboardbuckets {
