@@ -69,7 +69,7 @@ view: ga_dashboarddata {
               when ${pagepath} like '%print-options%' and ${eventaction} IS NULL then 'Print Options Clicked'
               when ${pagepath} like '%explore-catalog%' and ${eventaction} IS NULL then 'Explore Catalog Clicked'
               when ${pagepath} like '%exclusive-partners%' and ${eventaction} IS NULL then 'Study Resources Clicked'
-              when ${pagepath} like '%my-dashboard/authenticated%' and ${eventaction} IS NULL then 'Logged Into Dashboard Home'
+              when ${pagepath} like '%my-dashboard/authenticated%' and ${eventaction} IS NULL then 'My Home Clicked'
               ELSE 'Other Clicks'
               END
     ;;

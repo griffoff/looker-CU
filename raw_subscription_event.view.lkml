@@ -29,14 +29,14 @@ view: raw_subscription_event {
   }
 
   dimension: latest_subscription {
-    label: "Current subscription status"
+    label: "Current subscription record"
     description: "filter used to retrive the latest subscription status for a user"
     type: yesno
     sql: ${TABLE}.latest_filter = 'yes'  ;;
   }
 
   dimension: earliest_subscription {
-    label: "Earliest subcription status"
+    label: "Earliest subcription record"
     description: "filter used to retrive the earliest subscription status for a user"
     type: yesno
     sql: ${TABLE}.earliest_filter = 'yes'  ;;
