@@ -25,7 +25,7 @@ view: dashboard_use_over_time {
               SELECT
                 userssoguid
                 ,MIN(TO_DATE(TO_TIMESTAMP(((VISITSTARTTIME*1000) + hits_time )/1000) )) AS first_login
-                ,DATEDIFF(day, first_login, DATEADD(day, -1, current_timestamp())) AS days_since_first_login
+                ,DATEDIFF(day, first_login, DATEADD(day, 0, current_timestamp())) AS days_since_first_login
               FROM prod.raw_ga.ga_dashboarddata
               WHERE userssoguid IS NOT NULL
               GROUP BY 1 )
