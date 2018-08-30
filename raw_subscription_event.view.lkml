@@ -12,11 +12,14 @@ view: raw_subscription_event {
     )
 
     SELECT
-      *
+      state.*
       ,CASE WHEN latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
       ,CASE WHEN earliest_record = 1 THEN 'yes' ELSE 'no' END AS earliest_filter
     FROM state
-    WHERE state.user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist);;
+    LEFT JOIN unlimited.vw_user_blacklist bk
+    ON state.user_sso_guid = bk.user_sso_guid
+    WHERE bk.user_sso_guid IS NULL
+    ;;
   }
 
   dimension: _hash {
