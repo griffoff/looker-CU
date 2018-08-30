@@ -81,7 +81,9 @@ view: dashboardbuckets {
           LEFT OUTER JOIN gmt_actions gmt
           ON auc.userssoguid = gmt.userssoguid
           AND auc.action_name = gmt.actions
-          WHERE auc.userssoguid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist)
+          LEFT JOIN unlimited.vw_user_blacklist bk
+          ON auc.userssoguid = bk.user_sso_guid
+          WHERE bk.user_sso_guid IS NULL
           GROUP BY 1, 2
        ;;
   }
