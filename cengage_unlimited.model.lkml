@@ -6,9 +6,30 @@ include: "*.view.lkml"         # include all views in this project
 include: "/core/common.lkml"
 
 
-explore:raw_fair_use_logins
-{
-  label: "CMP Dashboard"
+
+
+
+##### Raw Snowflake Tables #####
+explore: additional_info_products {
+  label: "Provisioned Products Buckets"
+}
+
+explore: raw_olr_provisioned_product {
+  label: "CU Provisioned Product"
+
+}
+
+explore: provisioned_product {
+  from: raw_olr_provisioned_product
+  join: raw_subscription_event {
+    sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join:  raw_vitalsource_event {
+    sql_on: ${provisioned_product.user_sso_guid} = ${raw_vitalsource_event.user_sso_guid} ;;
+    relationship: many_to_many
+  }
 }
 
 explore: raw_subscription_event {
@@ -17,7 +38,11 @@ explore: raw_subscription_event {
     relationship: many_to_one
   }
 }
+##### END  Raw Snowflake Tables #####
 
+
+
+##### Dashboard #####
 explore: ga_dashboarddata {
   label: "CU Dashboard"
   join: raw_subscription_event {
@@ -31,19 +56,6 @@ explore: ga_dashboarddata {
   }
   }
 
-#   join: ebook_usage_actions {
-#     sql_on: ${ebook_usage_actions.user_sso_guid} = ${ga_dashboarddata.userssoguid} ;;
-#     relationship: many_to_many
-#   }
-
-
-# explore: dashboard_actions {
-#   join: ga_dashboarddata {
-#     type: cross
-#     relationship: one_to_many
-#     sql_on: ${dashboard_actions.action_name} = ${ga_dashboarddata.Added_content} ;;
-
-
 explore: dashboard_use_over_time {}
 
 explore: dashboard_use_over_time_bucketed {}
@@ -56,16 +68,8 @@ explore: dashboardbuckets {
     type: left_outer
   }
 }
+##### End Dashboard #####
 
-explore: additional_info_products {
-  label: "Provisioned Products Buckets"
-}
-
-
-explore: raw_olr_provisioned_product {
-  label: "CU Provisioned Product"
-
-}
 
 
 ##### Fair Useage #####
@@ -117,21 +121,14 @@ explore: ind {
     relationship: one_to_many
   }}
 
+  explore:raw_fair_use_logins
+  {
+    label: "CMP Dashboard"
+  }
+##### End Fair Useage #####
 
 
-##### Raw Snowflake Tables #####
-explore: provisioned_product {
-from: raw_olr_provisioned_product
-join: raw_subscription_event {
-  sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
-  relationship: many_to_one
-}
 
-join:  raw_vitalsource_event {
-  sql_on: ${provisioned_product.user_sso_guid} = ${raw_vitalsource_event.user_sso_guid} ;;
-  relationship: many_to_many
-}
- }
 
 
 ##### Ebook Usage #####
@@ -148,3 +145,4 @@ join:  raw_vitalsource_event {
       relationship: many_to_one
     }
   }
+##### End Ebook Usage #####
