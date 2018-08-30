@@ -29,7 +29,7 @@ view: dashboard_use_over_time_bucketed {
 
   dimension: usage_percentage_buckets {
     type:  tier
-    tiers: [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    tiers: [10, 26, 51, 76]
     style:  integer
     sql:  ${percent_days_active_m} ;;
   }
