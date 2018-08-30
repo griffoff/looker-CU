@@ -6,13 +6,6 @@ include: "*.view.lkml"         # include all views in this project
 include: "/core/common.lkml"
 
 
-
-
-explore:raw_fair_use_logins_distinct
-{
-  label: "CMP Dashboard Distinct"
-}
-
 explore:raw_fair_use_logins
 {
   label: "CMP Dashboard"
