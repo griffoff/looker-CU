@@ -1,6 +1,6 @@
 view: ebook_usage_aggregated {
   derived_table: {
-    explore_source: ebook_usage {
+    explore_source: ebook_usage_actions {
       column: user_sso_guid {}
       column: unique_product_count {}
     }

@@ -5,6 +5,9 @@ include: "*.view.lkml"         # include all views in this project
 
 include: "/core/common.lkml"
 
+
+
+
 explore:raw_fair_use_logins_distinct
 {
   label: "CMP Dashboard Distinct"
@@ -51,9 +54,6 @@ explore: ga_dashboarddata {
 explore: dashboard_use_over_time {}
 
 explore: dashboard_use_over_time_bucketed {}
-
-
-
 
 explore: dashboardbuckets {
   label: "CU Dashboard Actions Bucketed"
@@ -122,9 +122,6 @@ join:  raw_vitalsource_event {
 
 }
  }
-
-explore: ebook_usage {}
-explore: ebook_usage2 {}
 
 
   explore: ebook_usage_actions {
