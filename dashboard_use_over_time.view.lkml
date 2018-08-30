@@ -13,11 +13,19 @@ view: dashboard_use_over_time {
             --WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist)
             )
 
+          ,days_active AS
+              (SELECT
+                userssoguid
+                ,COUNT( DISTINCT(DATE_TRUNC(day, (TO_DATE(TO_TIMESTAMP(((VISITSTARTTIME*1000) + hits_time )/1000) ))))) AS num_days_active
+              FROM prod.raw_ga.ga_dashboarddata
+              GROUP BY 1)
+
 
          ,first_login AS (
               SELECT
                 userssoguid
                 ,MIN(TO_DATE(TO_TIMESTAMP(((VISITSTARTTIME*1000) + hits_time )/1000) )) AS first_login
+                ,DATEDIFF(day, first_login, DATEADD(day, -1, current_timestamp())) AS days_since_first_login
               FROM prod.raw_ga.ga_dashboarddata
               WHERE userssoguid IS NOT NULL
               GROUP BY 1 )
@@ -26,6 +34,9 @@ view: dashboard_use_over_time {
               SELECT
                 ga.userssoguid
                 ,fl.first_login
+                ,fl.days_since_first_login
+                ,da.num_days_active
+                ,(da.num_days_active / fl.days_since_first_login ) * 100 AS percent_days_active
                 ,TO_DATE(TO_TIMESTAMP(((VISITSTARTTIME*1000) + hits_time )/1000) ) AS visitstarttime
                 ,DATEDIFF('day',  fl.first_login, (TO_DATE(TO_TIMESTAMP(((ga.VISITSTARTTIME*1000) + hits_time )/1000) ))) AS event_age
                 ,ga.eventaction
@@ -35,13 +46,19 @@ view: dashboard_use_over_time {
               FROM prod.raw_ga.ga_dashboarddata ga
               JOIN first_login fl
               ON ga.userssoguid = fl.userssoguid
-              AND ga.userssoguid IS NOT NULL)
+              AND ga.userssoguid IS NOT NULL
+              JOIN days_active da
+              ON ga.userssoguid = da.userssoguid)
+
 
         SELECT
             s.*
             ,CASE WHEN s.latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
             ,CASE WHEN s.earliest_record = 1 THEN 'yes' ELSE 'no' END AS earliest_filter
             ,d.first_login
+            ,d.days_since_first_login
+            ,d.num_days_active
+            ,d.percent_days_active
             ,d.visitstarttime
             ,d.event_age
             ,d.eventaction
@@ -49,8 +66,10 @@ view: dashboard_use_over_time {
             ,d.eventcategory
             ,d.pagepath
           FROM state s
-           JOIN dashboard d
+          JOIN dashboard d
           ON s.user_sso_guid = d.userssoguid
+
+
           LEFT JOIN unlimited.vw_user_blacklist bk
           ON s.user_sso_guid = bk.user_sso_guid
           WHERE bk.user_sso_guid IS NULL
@@ -59,10 +78,15 @@ view: dashboard_use_over_time {
 
   dimension: days_since_first_login {
     type: number
-    sql: datediff(day, ${first_login}, DATEADD(day, -1, current_timestamp())) ;;
     }
 
+  dimension: num_days_active {
+    type: number
+  }
 
+  dimension: percent_days_active {
+    type: number
+  }
 
   dimension: latest_subscription {
     label: "Current subscription status"
@@ -206,9 +230,9 @@ view: dashboard_use_over_time {
     sql: ${event_age} ;;
   }
 
-  measure: percent_days_active {
+  measure: percent_days_active_m {
     type: number
-    sql: (${event_day_count} / ${days_since_first_login}) * 100.00 ;;
+    sql: ( num_days_active / days_since_first_login) * 100.00 ;;
     value_format: "#.00\%"
   }
 
