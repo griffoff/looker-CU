@@ -16,7 +16,6 @@ explore:raw_fair_use_logins
 }
 
 explore: raw_subscription_event {
-
   join: raw_olr_provisioned_product {
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
     relationship: many_to_one
@@ -25,7 +24,6 @@ explore: raw_subscription_event {
 
 explore: ga_dashboarddata {
   label: "CU Dashboard"
-
   join: raw_subscription_event {
     sql_on: ${ga_dashboarddata.userssoguid} = ${raw_subscription_event.user_sso_guid} ;;
     type: full_outer
@@ -49,17 +47,16 @@ explore: ga_dashboarddata {
 #     relationship: one_to_many
 #     sql_on: ${dashboard_actions.action_name} = ${ga_dashboarddata.Added_content} ;;
 
-explore: dashboard_use_over_time {
-}
+
+explore: dashboard_use_over_time {}
 
 explore: dashboard_use_over_time_bucketed {}
 
-explore: db_use_over_time {}
+
 
 
 explore: dashboardbuckets {
   label: "CU Dashboard Actions Bucketed"
-
   join: ga_dashboarddata {
     sql_on: ${ga_dashboarddata.userssoguid}=${dashboardbuckets.userssoguid} ;;
     relationship: many_to_many
@@ -70,7 +67,7 @@ explore: dashboardbuckets {
 explore: additional_info_products {
   label: "Provisioned Products Buckets"
 }
-#
+
 
 explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"

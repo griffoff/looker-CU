@@ -168,10 +168,10 @@ view: raw_subscription_event {
     sql: datediff(day, current_timestamp(), ${subscription_end_raw})  ;;
   }
 
-  dimension: weeks_since_subscription_start {
-    type: number
-    sql: datediff(week, to_timestamp(${ga_dashboarddata.visitstarttime}), ${subscription_start_date})  ;;
-  }
+#   dimension: weeks_since_subscription_start {
+#     type: number
+#     sql: datediff(week, to_timestamp(${ga_dashboarddata.visitstarttime}), ${subscription_start_date})  ;;
+#   }
 
   measure: count {
     type: count
