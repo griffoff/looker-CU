@@ -44,16 +44,19 @@ view: raw_subscription_event {
 
   dimension: change_in_state {
     label: "Subscription State Change"
+    description: "Displays what subscription state a user changed to."
     sql: ${TABLE}.change_in_state ;;
   }
 
   dimension: change_in_start_date {
     label: "Subscription Start Date Change"
+    description: "Displays the date that a user subscription state changed."
     sql: ${TABLE}.change_in_start_date ;;
     type: date
   }
 
   dimension_group: _ldts {
+    description: "Displays the most recent time the data was refreshed."
     type: time
     timeframes: [
       raw,
