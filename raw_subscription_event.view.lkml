@@ -56,7 +56,6 @@ view: raw_subscription_event {
   }
 
   dimension_group: _ldts {
-    description: "Displays the most recent time the data was refreshed."
     type: time
     timeframes: [
       raw,
@@ -83,6 +82,7 @@ view: raw_subscription_event {
   }
 
   dimension_group: local {
+    description: "The local time at which the subscription event occurred"
     type: time
     timeframes: [
       raw,
@@ -121,6 +121,7 @@ view: raw_subscription_event {
   }
 
   dimension_group: subscription_end {
+    description: "The date at which the current subscription will end"
     type: time
     timeframes: [
       raw,
@@ -135,6 +136,7 @@ view: raw_subscription_event {
   }
 
   dimension_group: subscription_start {
+    description: "The date at which the current subscription started"
     type: time
     timeframes: [
       raw,
@@ -148,9 +150,8 @@ view: raw_subscription_event {
     sql: ${TABLE}."SUBSCRIPTION_START" ;;
   }
 
-
-
   dimension: subscription_state {
+    description: "The subscription state"
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE";;
   }
@@ -167,6 +168,7 @@ view: raw_subscription_event {
   }
 
   dimension: days_until_expiry {
+    description: "The number of days until the subscription will expire"
     type: number
     sql: datediff(day, current_timestamp(), ${subscription_end_raw})  ;;
   }
@@ -182,6 +184,7 @@ view: raw_subscription_event {
   }
 
   measure: count_subscription {
+    description: "A count of the unique user guids which represents the number of unique subscriptions"
     label: "# subscriptions"
     type: count_distinct
     sql: ${TABLE}.user_sso_guid ;;
