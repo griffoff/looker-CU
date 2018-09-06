@@ -53,6 +53,7 @@ GROUP BY 1, 2 ;;
   measure: user_count {
     type: count_distinct
     sql: ${userssoguid} ;;
+    drill_fields: [userssoguid, week]
   }
 
 
