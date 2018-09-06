@@ -146,3 +146,7 @@ explore: ind {
     }
   }
 ##### End Ebook Usage #####
+
+explore: total_users {
+  label: "users"
+}
