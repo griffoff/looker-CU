@@ -12,7 +12,7 @@ view: total_users {
   SELECT DISTINCT pp.user_sso_guid, context_id
     from prod.unlimited.raw_olr_provisioned_product pp
     Where context_id IS NOT NULL
-    AND date_added::date BETWEEN '2018-08-01' AND '2018-09-06'
+    AND date_added::date BETWEEN '2018-08-01' AND CURRENT_DATE()
   )
   , activations as (
    select distinct
