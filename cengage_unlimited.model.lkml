@@ -85,6 +85,7 @@ explore: device_changes_all_time {}
 explore: unique_cities_per_user_per_week{}
 explore: unique_cities_per_user {}
 explore: weeks_above_threshhold_cities {}
+explore: fair_use_weeks_above_threshhold_devices {}
 
 explore: courseware_activations_per_user {}
 
