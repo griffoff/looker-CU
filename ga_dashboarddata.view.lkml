@@ -47,7 +47,7 @@ view: ga_dashboarddata {
     description: "The term a user searched for which did not return results"
     type: string
     label: "No Result Search Terms"
-    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Bar No%' then split_part(${eventlabel},'|',1) else ${eventlabel} END;;
+    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Bar No%' then LOWER(split_part(${eventlabel},'|',1)) else ${eventlabel} END;;
   }
 
   dimension: Added_content{
