@@ -40,14 +40,14 @@ view: ga_dashboarddata {
     description: "The term a user searched for which returned results"
     type: string
     label: "Search Terms"
-    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Term%' then split_part(${eventlabel},'|',1) else ${eventlabel} END;;
+    sql: case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Term%' then LOWER(split_part(${eventlabel},'|',1)) else ${eventlabel} END;;
   }
 
   dimension: search_term_with_no_results{
     description: "The term a user searched for which did not return results"
     type: string
     label: "No Result Search Terms"
-    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Bar No%' then split_part(${eventlabel},'|',1) else ${eventlabel} END;;
+    sql:  case when ${eventcategory} like 'Dashboard' and eventaction like 'Search Bar No%' then LOWER(split_part(${eventlabel},'|',1)) else ${eventlabel} END;;
   }
 
   dimension: Added_content{
@@ -290,7 +290,7 @@ view: ga_dashboarddata {
   dimension: mobiledevicebranding {
     type: string
     sql: ${TABLE}."MOBILEDEVICEBRANDING" ;;
-    hidden: yes
+    hidden: no
   }
 
   dimension: operatingsystem {
