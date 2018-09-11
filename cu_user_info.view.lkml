@@ -14,6 +14,7 @@ view: cu_user_info {
     convert_tz: no
     datatype: date
     sql: ${TABLE}."CU_END_SSO" ;;
+    hidden: yes
   }
 
   dimension_group: cu_start_sso {
@@ -29,6 +30,7 @@ view: cu_user_info {
     convert_tz: no
     datatype: date
     sql: ${TABLE}."CU_START_SSO" ;;
+    hidden: yes
   }
 
   dimension: cu_state_sso {
