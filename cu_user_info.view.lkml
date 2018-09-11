@@ -39,8 +39,20 @@ view: cu_user_info {
   }
 
   dimension: email {
+    group_label: "PII"
     type: string
-    sql: ${TABLE}."EMAIL" ;;
+    sql:
+    CASE WHEN '{{ _user_attributes["pii_visibility_enabled"] }}' = 'yes' THEN
+    ${TABLE}.email
+    ELSE
+    MD5(${TABLE}.email || 'salt')
+    END ;;
+    html:
+    {% if _user_attributes["pii_visibility_enabled"]  == 'yes' %}
+    {{ value }}
+    {% else %}
+    [Masked]
+    {% endif %}  ;;
   }
 
   dimension: entity_id {
@@ -54,18 +66,41 @@ view: cu_user_info {
   }
 
   dimension: first_name {
+    group_label: "PII"
     type: string
-    sql: ${TABLE}."FIRST_NAME" ;;
+    sql: CASE WHEN '{{ _user_attributes["pii_visibility_enabled"] }}' = 'yes' THEN
+    ${TABLE}."FIRST_NAME"
+    ELSE
+    MD5(${TABLE}."FIRST_NAME" || 'salt')
+    END ;;
+    html:
+    {% if _user_attributes["pii_visibility_enabled"]  == 'yes' %}
+    {{ value }}
+    {% else %}
+    [Masked]
+    {% endif %}  ;;
   }
 
   dimension: guid {
+    group_label: "PII"
     type: string
     sql: ${TABLE}."GUID" ;;
   }
 
   dimension: last_name {
+    group_label: "PII"
     type: string
-    sql: ${TABLE}."LAST_NAME" ;;
+    sql: CASE WHEN '{{ _user_attributes["pii_visibility_enabled"] }}' = 'yes' THEN
+    ${TABLE}."LAST_NAME"
+    ELSE
+    MD5(${TABLE}."LAST_NAME" || 'salt')
+    END ;;
+    html:
+    {% if _user_attributes["pii_visibility_enabled"]  == 'yes' %}
+    {{ value }}
+    {% else %}
+    [Masked]
+    {% endif %}  ;;
   }
 
   dimension: merged_guid {
