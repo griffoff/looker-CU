@@ -154,3 +154,7 @@ explore: ind {
 explore: total_users {
   label: "users"
 }
+
+explore: cu_user_info {
+  label: "CU user info"
+}
