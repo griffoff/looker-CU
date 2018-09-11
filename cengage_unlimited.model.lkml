@@ -54,6 +54,11 @@ explore: ga_dashboarddata {
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
     relationship: many_to_one
   }
+
+  join: cu_user_info {
+    sql_on:  ${ga_dashboarddata.userssoguid} = ${cu_user_info.guid}  ;;
+    relationship: many_to_one
+  }
   }
 
 explore: dashboard_use_over_time {}
@@ -127,8 +132,7 @@ explore: ind {
     label: "CMP Dashboard"
   }
 
-  explore: Fair_use_device_id {
-  }
+
 ##### End Fair Useage #####
 
 
