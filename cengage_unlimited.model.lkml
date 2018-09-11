@@ -132,6 +132,7 @@ explore: ind {
     label: "CMP Dashboard"
   }
 
+explore: fair_use_device_id {}
 
 ##### End Fair Useage #####
 
