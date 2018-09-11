@@ -59,6 +59,11 @@ explore: ga_dashboarddata {
     sql_on:  ${ga_dashboarddata.userssoguid} = ${cu_user_info.guid}  ;;
     relationship: many_to_one
   }
+
+  join: instiution_star_rating {
+    sql_on: ${cu_user_info.guid} = ${instiution_star_rating.entity_} ;;
+    relationship: many_to_one
+  }
   }
 
 explore: dashboard_use_over_time {}
