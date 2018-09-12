@@ -61,7 +61,7 @@ explore: ga_dashboarddata {
   }
 
   join: instiution_star_rating {
-    sql_on: ${cu_user_info.guid} = ${instiution_star_rating.entity_} ;;
+    sql_on: ${cu_user_info.entity_id} = ${instiution_star_rating.entity_} ;;
     relationship: many_to_one
   }
   }
