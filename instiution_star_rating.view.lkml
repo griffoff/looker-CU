@@ -12,6 +12,7 @@ view: instiution_star_rating {
   }
 
   dimension: star_rating_2_nd_pass {
+    label: "MOAT Star Rating"
     type: number
     sql: ${TABLE}."STAR_RATING_2_ND_PASS" ;;
   }
