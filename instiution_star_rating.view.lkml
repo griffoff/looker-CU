@@ -1,5 +1,5 @@
 view: instiution_star_rating {
-  sql_table_name: CU.INSTIUTION_STAR_RATING ;;
+  sql_table_name: UPLOADS.CU.INSTIUTION_STAR_RATING ;;
 
   dimension: entity_ {
     type: number
