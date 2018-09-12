@@ -5,7 +5,7 @@ view: fair_use_device_id {
           ,p.isbn13
           ,g.geonetwork_metro
           ,g.fullvisitorid
-          ,g.visitstarttime
+          ,TO_TIMESTAMP(g.visitstarttime) AS visit_start_time
           ,LAG(g.geonetwork_metro) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lag_city
           ,LEAD(g.geonetwork_metro) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lead_city
           ,LAG(g.fullvisitorid) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lag_device
@@ -33,7 +33,7 @@ view: fair_use_device_id {
   dimension: userssoguid {
     type: string
     sql: ${TABLE}."USERSSOGUID" ;;
-    drill_fields: [isbn13, geonetwork_metro, fullvisitorid, visitstarttime, detail*]
+    drill_fields: [isbn13, geonetwork_metro, fullvisitorid, visit_start_time, detail*]
   }
 
   dimension: isbn13 {
@@ -51,10 +51,9 @@ view: fair_use_device_id {
     sql: ${TABLE}."FULLVISITORID" ;;
   }
 
-  dimension: visitstarttime {
+  dimension: visit_start_time {
     type: number
-    sql: ${TABLE}."VISITSTARTTIME" ;;
-  }
+     }
 
   dimension: lag_city {
     type: string
@@ -100,7 +99,7 @@ view: fair_use_device_id {
       isbn13,
       geonetwork_metro,
       fullvisitorid,
-      visitstarttime,
+      visit_start_time,
       lag_city,
       lead_city,
       lag_device,
