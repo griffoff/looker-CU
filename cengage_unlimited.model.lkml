@@ -138,7 +138,7 @@ explore: ind {
   }
 
 explore: fair_use_device_id {}
-
+  explore: fair_use_deviceid2 {}
 ##### End Fair Useage #####
 
 
