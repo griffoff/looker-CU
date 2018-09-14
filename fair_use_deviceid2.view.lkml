@@ -24,7 +24,7 @@ view: fair_use_deviceid2 {
       AND ((eventaction LIKE '%Calls%'AND LOWER(eventlabel) LIKE 'dashboard%ebook%' ) OR eventaction LIKE '%Course Launched Name%')
       AND userssoguid <> '0'
       AND userssoguid <> ''
-      AND userssoguid IS NOT NULL;
+      AND userssoguid IS NOT NULL
        ;;
   }
 
