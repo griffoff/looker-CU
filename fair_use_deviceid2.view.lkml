@@ -12,6 +12,8 @@ view: fair_use_deviceid2 {
           ,TO_TIMESTAMP(g.visitstarttime) AS visit_start_time
           ,LAG(g.geonetwork_metro) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lag_city
           ,LAG(g.fullvisitorid) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lag_device
+          ,COUNT(DISTINCT g.geonetwork_metro) OVER (PARTITION BY g.userssoguid) as unique_cities
+          ,COUNT(DISTINCT g.geonetwork_metro) OVER (PARTITION BY g.userssoguid) as unique_devices
       FROM prod.raw_ga.ga_dashboarddata g
       LEFT JOIN prod.stg_clts.products p
           ON p.title = SPLIT(g.eventlabel, '|')[1]
@@ -30,6 +32,14 @@ view: fair_use_deviceid2 {
 
   measure: count {
     type: count
+  }
+
+  dimension: unique_cities {
+    type: number
+  }
+
+  dimension: unique_devices {
+    type: number
   }
 
   dimension: userssoguid {
@@ -83,12 +93,12 @@ view: fair_use_deviceid2 {
   }
 
 
-  measure: unique_cities {
+  measure: unique_cities_m {
     type:  count_distinct
     sql: ${city} ;;
   }
 
-  measure: unique_device_ids {
+  measure: unique_device_ids_m {
     type:  count_distinct
     sql: ${DeviceID} ;;
   }
