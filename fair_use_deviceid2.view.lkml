@@ -30,7 +30,6 @@ view: fair_use_deviceid2 {
 
   measure: count {
     type: count
-    drill_fields: [detail*]
   }
 
   dimension: userssoguid {
@@ -43,7 +42,7 @@ view: fair_use_deviceid2 {
     sql: ${TABLE}."TITLE" ;;
   }
 
-  dimension: ga_isbn {
+  dimension: isbn13 {
     type: string
     sql: ${TABLE}."GA_ISBN" ;;
   }
@@ -53,17 +52,17 @@ view: fair_use_deviceid2 {
     sql: ${TABLE}."LABEL" ;;
   }
 
-  dimension: type {
+  dimension: ebook_vs_courseware {
     type: string
     sql: ${TABLE}."TYPE" ;;
   }
 
-  dimension: geonetwork_metro {
+  dimension: city {
     type: string
     sql: ${TABLE}."GEONETWORK_METRO" ;;
   }
 
-  dimension: fullvisitorid {
+  dimension: DeviceID {
     type: string
     sql: ${TABLE}."FULLVISITORID" ;;
   }
@@ -86,33 +85,16 @@ view: fair_use_deviceid2 {
 
   measure: unique_cities {
     type:  count_distinct
-    sql: ${geonetwork_metro} ;;
+    sql: ${city} ;;
   }
 
   measure: unique_device_ids {
     type:  count_distinct
-    sql: ${fullvisitorid} ;;
+    sql: ${DeviceID} ;;
   }
 
   measure: unique_isbn13 {
     type:  count_distinct
-    sql: ${ga_isbn} ;;
-  }
-
-
-
-  set: detail {
-    fields: [
-      userssoguid,
-      title,
-      ga_isbn,
-      label,
-      type,
-      geonetwork_metro,
-      fullvisitorid,
-      visit_start_time_time,
-      lag_city,
-      lag_device
-    ]
+    sql: ${isbn13} ;;
   }
 }
