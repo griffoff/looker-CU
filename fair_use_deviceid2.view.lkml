@@ -27,6 +27,7 @@ view: fair_use_deviceid2 {
       AND userssoguid <> '0'
       AND userssoguid <> ''
       AND userssoguid IS NOT NULL
+      AND user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
        ;;
   }
 
