@@ -108,4 +108,9 @@ view: user_click_journey {
     type: count
     drill_fields: []
   }
+
+  measure: user_count {
+    type:  count_distinct
+    sql: ${user_sso_guid} ;;
+  }
 }
