@@ -492,14 +492,14 @@ view: ga_dashboarddata {
 
   dimension: visitstarttime {
     description: "The time this action was executed at"
-    type: date
+    type: date_time
     sql:TO_TIMESTAMP(${TABLE}."VISITSTARTTIME");;
   }
 
   dimension: event_date {
     description: "Date on which a user did an event"
     type: date_time
-    sql: TO_DATE(TO_TIMESTAMP(((${TABLE}."VISITSTARTTIME"*1000) + ${hits_time})/1000)) ;;
+    sql: TO_TIMESTAMP(((${TABLE}."VISITSTARTTIME"*1000) + ${hits_time})/1000) ;;
   }
 
   measure: count_clicks {
