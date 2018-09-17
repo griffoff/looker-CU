@@ -1,5 +1,10 @@
-view: events {
-  sql_table_name: dev.zpg.events ;;
+view: user_click_journey {
+  sql_table_name: ZPG.USER_CLICK_JOURNEY ;;
+
+  dimension: enrollment {
+    type: number
+    sql: ${TABLE}."ENROLLMENT" ;;
+  }
 
   dimension: event_action {
     type: string
@@ -9,6 +14,11 @@ view: events {
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
+  }
+
+  dimension: event_number {
+    type: number
+    sql: ${TABLE}."EVENT_NUMBER" ;;
   }
 
   dimension_group: event {

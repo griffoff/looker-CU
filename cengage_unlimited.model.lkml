@@ -145,7 +145,6 @@ explore: fair_use_device_id {}
 
 ##### User Event Journey ####
 
-explore: events {}
 
 
 ##### User Event Journey ####
