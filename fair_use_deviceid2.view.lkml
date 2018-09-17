@@ -13,7 +13,7 @@ view: fair_use_deviceid2 {
           ,LAG(g.geonetwork_metro) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lag_city
           ,LAG(g.fullvisitorid) OVER (PARTITION BY g.userssoguid, p.isbn13 ORDER BY g.visitstarttime) AS lag_device
           ,COUNT(DISTINCT g.geonetwork_metro) OVER (PARTITION BY g.userssoguid) as unique_cities
-          ,COUNT(DISTINCT g.geonetwork_metro) OVER (PARTITION BY g.userssoguid) as unique_devices
+          ,COUNT(DISTINCT g.fullvisitorid) OVER (PARTITION BY g.userssoguid) as unique_devices
       FROM prod.raw_ga.ga_dashboarddata g
       LEFT JOIN prod.stg_clts.products p
           ON p.title = SPLIT(g.eventlabel, '|')[1]
