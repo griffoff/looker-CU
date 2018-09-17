@@ -22,12 +22,15 @@ view: fair_use_deviceid2 {
       LEFT JOIN prod.unlimited.raw_olr_extended_iac iac
           ON pp.product_id = iac.pp_pid
           AND pp.user_type LIKE 'student'
+      LEFT JOIN prod.unlimited.clts_excluded_users eu
+        ON g.userssoguid = eu.user_sso_guid
+      WHERE eu.user_sso_guid IS NULL
       WHERE eventcategory = 'Dashboard'
       AND ((eventaction LIKE '%Calls%'AND LOWER(eventlabel) LIKE 'dashboard%ebook%' ) OR eventaction LIKE '%Course Launched Name%')
       AND userssoguid <> '0'
       AND userssoguid <> ''
       AND userssoguid IS NOT NULL
-      AND user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+
        ;;
   }
 
