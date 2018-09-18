@@ -6,21 +6,25 @@ view: as_user_journey {
           ,*
       FROM dev.zpg.all_events
       )
+      ,eve as (
+      Select *, case when event_type LIKE 'DASHBOARD' THEN event_action ELSE event_type END as event_type_updated from az_journey
+      )
       , lead_fuc as (
       Select *
-      ,LEAD (event_type, 1) over (partition by user_sso_guid order by event_time) as lead_event1
-      ,LEAD (event_type, 2) over (partition by user_sso_guid order by event_time) as lead_event2
-      ,LEAD (event_type, 3) over (partition by user_sso_guid order by event_time) as lead_event3
-      ,LEAD (event_type, 4) over (partition by user_sso_guid order by event_time) as lead_event4
-      ,LEAD (event_type, 5) over (partition by user_sso_guid order by event_time) as lead_event5
-      from az_journey  where
-      event_type NOT IN ('TIME-IN-MINDTAP','LOGIN','PAGE','ENGAGEMENT TIMER','FORMS','MARKETING','SAM%','PAGE EVENT','PAGE ERRORS','QUESTIA','EVENT','MINDAPP%','SCROLL%','STUDYHUB%','KALTURA','PDP%'
-      ,'PROGRESS','READSPEAKER','GLOSSARY','NAVIGATION%','RSS%','DICTIONARY','DIET%')
+      ,LEAD (event_type_updated, 1) over (partition by user_sso_guid order by event_time) as lead_event1
+      ,LEAD (event_type_updated, 2) over (partition by user_sso_guid order by event_time) as lead_event2
+      ,LEAD (event_type_updated, 3) over (partition by user_sso_guid order by event_time) as lead_event3
+      ,LEAD (event_type_updated, 4) over (partition by user_sso_guid order by event_time) as lead_event4
+      ,LEAD (event_type_updated, 5) over (partition by user_sso_guid order by event_time) as lead_event5
+      from eve  where
+      event_type_updated NOT IN ('TIME-IN-MINDTAP','LOGIN','PAGE','ENGAGEMENT TIMER','FORMS','MARKETING','SAM.APPIFICATION.PROD','PAGE EVENT','PAGE ERRORS','QUESTIA','EVENT','MINDAPP-EPORTFOLIO','SCROLL TRACKING - CENGAGE UNLIMITED','STUDYHUB.MINDAPP','KALTURA','ECOMMERCE'
+      ,'PDP ELEMENTS CLICKED','GOOGLE.DOC','ATP','ONENOTE','YOUSEEU','NETTUTORS','BOOKMARKS','EVERNOTE','ENROLLMENT'
+      ,'PROGRESS','READSPEAKER','GLOSSARY','NAVIGATION MENUS','RSSFEED','DICTIONARY','DIET.WELLNESS.PLUS','CONNECTYARD.LEARNER','OUTBOUND LINKS','MINDAPP-OFFICE-365','DLMT.IQ.STUDENTTESTCREATOR')
       --user_sso_guid = '95096707cdeb01a5:-6f9b3e57:15e7a7678ef:-587d'
       )
       Select * from lead_fuc where event_number = 1 and event_type = 'CUSUBSCRIPTION'
        ;;
-      persist_for: "12 hours"
+#       persist_for: "12 hours"
   }
 
   measure: count {
