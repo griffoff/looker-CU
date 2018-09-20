@@ -6,7 +6,15 @@ include: "*.view.lkml"         # include all views in this project
 include: "/core/common.lkml"
 
 
-
+explore: all_events {
+  view_label: "Cengage Unlmited - User Events"
+  join: all_events_diff {
+    view_label: "Event Category Analysis"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+}
 
 
 ##### Raw Snowflake Tables #####
