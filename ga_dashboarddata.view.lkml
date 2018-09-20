@@ -91,7 +91,7 @@ view: ga_dashboarddata {
     label: "# searchs"
     description: "The number of times a user or other grouping (by instituion, trial user, etc.) searched for a term which returned results"
     type: sum
-    sql: case when eventaction like 'Search With Results%'  then 1 else 0 end   ;;
+    sql: case when eventaction like 'Search Term%'  then 1 else 0 end   ;;
   }
 
   measure: noresult_search{
