@@ -32,6 +32,12 @@ view: all_events_diff {
 
   dimension: event_id {primary_key:yes hidden:yes}
 
+  dimension: event_0 {
+    type: string
+    label: "First Event"
+    sql: ${TABLE}."DIFF_EVENT_0" ;;
+  }
+
   dimension: event_1 {
     type: string
     sql: ${TABLE}."DIFF_EVENT_1" ;;

@@ -2,7 +2,6 @@ view: all_events {
   sql_table_name: ZPG.ALL_EVENTS ;;
 
   dimension: event_0 {
-    label: "First Event"
     type: string
     sql: ${TABLE}."EVENT_0" ;;
   }
