@@ -70,7 +70,8 @@ view: all_events {
       week,
       month,
       quarter,
-      year
+      year,
+      day_of_week
     ]
     sql: ${TABLE}."EVENT_TIME" ;;
   }
@@ -131,7 +132,15 @@ view: all_events {
   }
 
   measure: count {
+    label: "# events"
     type: count
-    drill_fields: [event_name]
+    drill_fields: [event_day_of_week, count]
+  }
+
+  measure: user_count {
+    label: "# people"
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
   }
 }
