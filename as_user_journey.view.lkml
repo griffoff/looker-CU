@@ -22,9 +22,11 @@ view: as_user_journey {
       ,'PROGRESS','READSPEAKER','GLOSSARY','NAVIGATION MENUS','RSSFEED','DICTIONARY','DIET.WELLNESS.PLUS','CONNECTYARD.LEARNER','OUTBOUND LINKS','MINDAPP-OFFICE-365','DLMT.IQ.STUDENTTESTCREATOR')
       --user_sso_guid = '95096707cdeb01a5:-6f9b3e57:15e7a7678ef:-587d'
       )
+
       Select * from lead_fuc where event_number = 1 and event_type = 'CUSUBSCRIPTION'
        ;;
-#       persist_for: "12 hours"
+      persist_for: "12 hours"
+
   }
 
   measure: count {
