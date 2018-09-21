@@ -32,6 +32,15 @@ view: all_events_diff {
 
   dimension: event_id {primary_key:yes hidden:yes}
 
+  dimension: first_event {
+    type: yesno
+  }
+
+  dimension: last_event {
+    type: yesno
+    hidden: yes
+  }
+
   dimension: event_0 {
     type: string
     label: "First Event"
