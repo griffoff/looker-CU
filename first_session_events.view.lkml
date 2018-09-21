@@ -24,6 +24,7 @@ view: first_session_events {
 
   dimension: event_type {
     type: string
+    sql: ${TABLE}."EVENT_TYPE" ;;
   }
 
 
@@ -117,6 +118,6 @@ view: first_session_events {
 
   measure: count {
     type: count
-    drill_fields: []
+    drill_fields: [user_sso_guid]
   }
 }

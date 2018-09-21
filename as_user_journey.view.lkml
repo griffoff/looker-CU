@@ -18,8 +18,7 @@ view: as_user_journey {
       ,'PROGRESS','READSPEAKER','GLOSSARY','NAVIGATION%','RSS%','DICTIONARY','DIET%')
       --user_sso_guid = '95096707cdeb01a5:-6f9b3e57:15e7a7678ef:-587d'
       )
-      Select * from lead_fuc where event_number = 1 and event_type = 'CUSUBSCRIPTION'
-       ;;
+      Select * from lead_fuc where event_number = 1 and event_type = 'CUSUBSCRIPTION';;
       persist_for: "12 hours"
   }
 
