@@ -94,6 +94,11 @@ view: raw_fair_use_logins {
     drill_fields: []
   }
 
+  measure: distinct_users {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
+
   measure: device_count {
     type: count_distinct
     sql:   ${TABLE}."DEVICE";;
