@@ -25,7 +25,7 @@ view: unique_cities_per_user_per_week {
       FROM cities
       WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
       GROUP BY user_sso_guid, week
-      LIMIT 100 ;;
+       ;;
   }
 
   dimension: user_sso_guid {

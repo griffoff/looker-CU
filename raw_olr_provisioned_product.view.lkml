@@ -7,13 +7,14 @@ derived_table: {
               JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
-                  AND prod."source" like 'unlimited'
+                --  AND prod."source" like 'unlimited'
                   and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.CLTS_EXCLUDED_USERS);;
 }
 
   dimension: _hash {
      type: string
      sql: ${TABLE}."_HASH" ;;
+    hidden: yes
    }
 
   dimension: pp_name {
@@ -21,10 +22,12 @@ derived_table: {
   }
 
   dimension: PP_LDAP_Group_name {
+
     label: "Group Name"
   }
 
   dimension: pp_product_type {
+    description: "Can be filtered on to differentiate between courseware and ebook usage"
     label: "Product Type"
   }
 
@@ -50,10 +53,12 @@ dimension_group: _ldts {
    }
 
    dimension: code_type {
+
      type: string
      sql: ${TABLE}."CODE_TYPE" ;;
    }
    dimension: context_id {
+    description: "Course registration key"
      type: string
      sql: ${TABLE}."CONTEXT_ID" ;;
    }
@@ -64,6 +69,7 @@ dimension_group: _ldts {
    }
 
   dimension_group: date_added {
+    description: "Date this product was provisioned i.e. added to the dashboard"
     type: time
     timeframes: [
       raw,
@@ -78,6 +84,7 @@ dimension_group: _ldts {
   }
 
   dimension_group: expiration {
+    description: "Date this product will expire"
     type: time
     timeframes: [
       raw,
@@ -102,6 +109,7 @@ dimension_group: _ldts {
   }
 
    dimension_group: local {
+    description: "Local time this product was provisioned"
      type: time
      timeframes: [
        raw,
@@ -151,11 +159,13 @@ dimension_group: _ldts {
   }
 
   dimension: source_id {
+    description: "The products contract ID"
     type: string
     sql: ${TABLE}."SOURCE_ID" ;;
   }
 
   dimension: status {
+    description: "The users CU status (trial, full, etc.) when the product was provisioned"
     sql:
       case
         when (source_id like 'TRIAL') then 'TRIAL_ACCESS'
@@ -175,12 +185,14 @@ dimension_group: _ldts {
 
   measure: product_count{
     label: "# Products Provisioned"
+    description: "Count of unique product ids"
     type: count_distinct
     drill_fields: [detail*]
     sql:  ${TABLE}.product_id;;
   }
 
   measure: user_count{
+    description: "Count of unique user guids"
     type: count_distinct
     sql:  ${TABLE}.user_sso_guid;;
   }
