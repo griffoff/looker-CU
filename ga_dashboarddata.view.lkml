@@ -68,6 +68,7 @@ view: ga_dashboarddata {
               when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Buy Now Button Click' then 'Clicked on UPGRADE (top yellow banner)'
               when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Upgrade Link%' then 'Clicked on UPGRADE (middle yellow banner)'
               when eventaction like 'Print Options Entire Catalog Clicked' then 'Searched Entire Cengage Catalog'
+              when eventaction like 'Study Resource Clicked' and eventlabel like 'Kaplan' then 'Clicked on Kaplan'
               when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
               when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
               when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
