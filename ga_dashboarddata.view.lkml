@@ -137,6 +137,13 @@ view: ga_dashboarddata {
     sql: case when eventaction like 'Exclusive Partner%' then 1 else 0 end   ;;
   }
 
+  measure: kaplan_clicks {
+    label: "# Kaplan clicks"
+    description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked on Kaplan links available under study resource tab"
+    type: sum
+    sql:  case when eventaction like 'Study Resource Clicked' and eventlabel like 'Kaplan' then 1 else 0 end;;
+  }
+
   measure: support_clicks{
     label: "# support clicks"
     description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked the support button "
