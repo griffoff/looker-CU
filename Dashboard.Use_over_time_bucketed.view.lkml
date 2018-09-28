@@ -37,6 +37,7 @@ view: dashboard_use_over_time_bucketed {
   measure: unique_users {
     type: count_distinct
     sql: user_sso_guid ;;
+    drill_fields: [user_sso_guid,usage_percentage_buckets]
   }
 
   }
