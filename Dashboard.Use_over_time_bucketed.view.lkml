@@ -14,6 +14,7 @@ view: dashboard_use_over_time_bucketed {
         value: "full^_access"
       }
     }
+    persist_for: "24 hours"
   }
   dimension: user_sso_guid {}
   dimension: num_days_active {
@@ -36,8 +37,8 @@ view: dashboard_use_over_time_bucketed {
 
   measure: unique_users {
     type: count_distinct
-    sql: user_sso_guid ;;
-    drill_fields: [user_sso_guid,usage_percentage_buckets]
+    sql: dashboard_use_over_time_bucketed.user_sso_guid ;;
+    drill_fields: [user_sso_guid,usage_percentage_buckets,raw_subcription_event.subscription_start]
   }
 
   }

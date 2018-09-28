@@ -76,7 +76,13 @@ explore: ga_dashboarddata {
 
 explore: dashboard_use_over_time {}
 
-explore: dashboard_use_over_time_bucketed {}
+explore: dashboard_use_over_time_bucketed {
+  join: raw_subscription_event {
+    sql_on: ${raw_subscription_event.user_sso_guid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
+    relationship: one_to_many
+    type: left_outer
+  }
+}
 
 explore: dashboardbuckets {
   label: "CU Dashboard Actions Bucketed"
