@@ -5,7 +5,6 @@ include: "*.view.lkml"         # include all views in this project
 
 include: "/core/common.lkml"
 
-
 explore: all_events {
   view_label: "Cengage Unlmited - User Events"
   join: all_events_diff {
@@ -13,6 +12,26 @@ explore: all_events {
     sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
     relationship: many_to_one
     type: inner
+  }
+  join: student_subscription_status {
+    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+}
+
+explore: event_analysis {
+  from: all_events
+  view_name: all_events
+  view_label: "Cengage Unlmited - User Analysis"
+  join: all_events_diff {
+    view_label: "Event Category Analysis"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+  join: student_profile {
+    sql_on: ${all_events.user_sso_guid} = ${student_profile.user_sso_guid} ;;
+    relationship: many_to_one
   }
 }
 

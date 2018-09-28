@@ -1,6 +1,9 @@
 connection: "snowflake_dev"
 
-include: "*.view"                       # include all views in this project
+include: "all_events.view.lkml"
+include: "first_session_events.view.lkml"
+include: "as_user_journey.view.lkml"
+include: "all_events_diff.view.lkml"
 #include: "my_dashboard.dashboard.lookml"   # include a LookML dashboard called my_dashboard
 explore: first_session_events {}
 
