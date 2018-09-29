@@ -103,4 +103,9 @@ view: raw_fair_use_logins {
     type: count_distinct
     sql:   ${TABLE}."DEVICE";;
   }
+
+  measure: distinct_days_used{
+    type: count_distinct
+    sql: ${_ldts_date} ;;
+  }
 }
