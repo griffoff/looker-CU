@@ -101,6 +101,10 @@ explore: dashboard_use_over_time_bucketed {
     relationship: one_to_many
     type: left_outer
   }
+  join: cu_user_info {
+    sql_on:  ${dashboard_use_over_time_bucketed.user_sso_guid} = ${cu_user_info.guid}  ;;
+    relationship: many_to_one
+  }
 }
 
 explore: dashboardbuckets {
