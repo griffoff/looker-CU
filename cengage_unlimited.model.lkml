@@ -197,7 +197,7 @@ explore: fair_use_device_id {}
 
      join: ebook_mapping {
        type: left_outer
-       sql_on: ${ebook_mapping.event} = ${ebook_usage_actions.event_action} AND  ${ebook_mapping.event_category} = ${ebook_usage_actions.event_category} ;;
+       sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action}  AND ${ebook_usage_actions.source} = ${ebook_mapping.source} ;;
        relationship: many_to_one
      }
   }

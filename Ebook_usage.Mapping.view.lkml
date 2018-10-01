@@ -8,12 +8,12 @@ view: ebook_mapping {
 
   dimension: common_action {
     type: string
-    sql: ${TABLE}."EVENT_ACTION" ;;
+    sql: ${TABLE}."EVENT" ;;
   }
 
-  dimension: event {
+  dimension: action {
     type: string
-    sql: ${TABLE}."EVENT" ;;
+    sql: ${TABLE}."EVENT_ACTION" ;;
   }
 
   dimension: event_category {
