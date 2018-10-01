@@ -191,6 +191,12 @@ view: raw_subscription_event {
     drill_fields: [detail*]
   }
 
+  measure: count_subscription_state{
+    label: "# subscription states"
+    type: count_distinct
+    sql: ${TABLE}.subscription_state ;;
+  }
+
   set: detail {
     fields: [
       user_sso_guid,

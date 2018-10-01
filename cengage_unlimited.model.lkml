@@ -5,7 +5,6 @@ include: "*.view.lkml"         # include all views in this project
 
 include: "/core/common.lkml"
 
-
 explore: all_events {
   view_label: "Cengage Unlmited - User Events"
   join: all_events_diff {
@@ -13,6 +12,26 @@ explore: all_events {
     sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
     relationship: many_to_one
     type: inner
+  }
+  join: student_subscription_status {
+    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+}
+
+explore: event_analysis {
+  from: all_events
+  view_name: all_events
+  view_label: "Cengage Unlmited - User Analysis"
+  join: all_events_diff {
+    view_label: "Event Category Analysis"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+  join: student_profile {
+    sql_on: ${all_events.user_sso_guid} = ${student_profile.user_sso_guid} ;;
+    relationship: many_to_one
   }
 }
 
@@ -76,7 +95,13 @@ explore: ga_dashboarddata {
 
 explore: dashboard_use_over_time {}
 
-explore: dashboard_use_over_time_bucketed {}
+explore: dashboard_use_over_time_bucketed {
+  join: raw_subscription_event {
+    sql_on: ${raw_subscription_event.user_sso_guid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
+    relationship: one_to_many
+    type: left_outer
+  }
+}
 
 explore: dashboardbuckets {
   label: "CU Dashboard Actions Bucketed"
@@ -143,6 +168,15 @@ explore: ind {
   explore:raw_fair_use_logins
   {
     label: "CMP Dashboard"
+    join: logins_last_30_days {
+      sql_on: ${raw_fair_use_logins.user_sso_guid} = ${logins_last_30_days.user_sso_guid} ;;
+      relationship: one_to_one
+    }
+
+    join: logins_last_7_days {
+      sql_on: ${raw_fair_use_logins.user_sso_guid} = ${logins_last_7_days.user_sso_guid} ;;
+      relationship: one_to_one
+    }
   }
 
 explore: fair_use_device_id {}

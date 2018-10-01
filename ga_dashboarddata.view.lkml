@@ -68,6 +68,7 @@ view: ga_dashboarddata {
               when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Buy Now Button Click' then 'Clicked on UPGRADE (top yellow banner)'
               when eventaction like 'Calls To Action (CTAs)' and eventlabel like 'Upgrade Link%' then 'Clicked on UPGRADE (middle yellow banner)'
               when eventaction like 'Print Options Entire Catalog Clicked' then 'Searched Entire Cengage Catalog'
+              when eventaction like 'Study Resource Clicked' and eventlabel like 'Kaplan' then 'Clicked on Kaplan'
               when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
               when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
               when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 'CU videos viewed'
@@ -134,6 +135,13 @@ view: ga_dashboarddata {
     description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked the one month Chegg button"
     type: sum
     sql: case when eventaction like 'Exclusive Partner%' then 1 else 0 end   ;;
+  }
+
+  measure: kaplan_clicks {
+    label: "# Kaplan clicks"
+    description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked on Kaplan links available under study resource tab"
+    type: sum
+    sql:  case when eventaction like 'Study Resource Clicked' and eventlabel like 'Kaplan' then 1 else 0 end;;
   }
 
   measure: support_clicks{

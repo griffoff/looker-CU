@@ -110,10 +110,10 @@ view: all_events {
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
   }
 
-  dimension: session_id_30 {
+  dimension: session_id {
     type: number
     value_format_name: id
-    sql: ${TABLE}."SESSION_ID_30" ;;
+    sql: ${TABLE}."SESSION_ID" ;;
   }
 
   dimension: system_category {
@@ -137,10 +137,61 @@ view: all_events {
     drill_fields: [event_day_of_week, count]
   }
 
+  measure: session_count {
+    label: "# sessions"
+    type: count_distinct
+    sql: ${session_id} ;;
+    drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
+  }
+
   measure: user_count {
     label: "# people"
     type: count_distinct
     sql: ${user_sso_guid} ;;
     drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
   }
+
+  measure: latest_event_time {
+    type: date_time
+    sql: max(${event_raw}) ;;
+  }
+
+  measure: first_event_time {
+    type: date_time
+    sql:min(${event_raw}) ;;
+  }
+
+  measure: days_total {
+    type: number
+    sql: datediff(hour, ${first_event_time}, ${latest_event_time}) / 24 ;;
+  }
+
+  measure: days_active {
+    type: count_distinct
+    sql: ${event_date} ;;
+  }
+
+  measure: days_active_per_week {
+    sql: ${days_active} / nullif((${days_total}/7), 0) ;;
+  }
+
+  measure: days_since_last_login {
+    type: number
+    sql: datediff(hour, ${latest_event_time}, current_timestamp()) / 24 ;;
+  }
+
+  measure: events_per_session {
+    sql: ${count} / nullif(${session_count}, 0) ;;
+  }
+
+  measure: recency {
+    sql: -${days_since_last_login}  ;;
+  }
+  measure: frequency {
+    sql: ${days_active_per_week} ;;
+  }
+  measure: intensity {
+    sql: ${events_per_session} ;;
+  }
+
 }
