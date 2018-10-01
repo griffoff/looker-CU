@@ -1,5 +1,5 @@
 view: all_events_diff {
-  view_label: "User Events Categorized"
+  view_label: "Student Events Categorized"
   sql_table_name: ZPG.ALL_EVENTS_DIFF{% parameter event_type %};;
 
   parameter: event_type {
