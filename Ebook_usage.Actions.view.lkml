@@ -11,9 +11,9 @@ view: ebook_usage_actions {
               ,event_action
               ,event_type AS event_category
               ,'VS' AS source
-              ,NULL AS reading_page_view
+              ,'VitalSource Reader' AS source_full_name
+              ,target_name::string AS page_number
               ,NULL AS reading_page_count
-              ,target_name
               ,search_term
             FROM unlimited.raw_vitalsource_event
             WHERE event_action NOT IN ('LoggedIn', 'NavigatedTo')
@@ -27,9 +27,9 @@ view: ebook_usage_actions {
               ,event_action
               ,event_category
               ,'MTR' AS source
-              ,reading_page_view
+              ,'MindTap Reader' AS source_full_name
+              ,reading_page_view::string AS page_number
               ,reading_page_count
-              ,NULL AS target_name
               ,NULL AS search_term
             FROM cap_er.prod.raw_mt_resource_interactions
             WHERE (event_category = 'READING' AND event_action = 'VIEW')
@@ -46,9 +46,9 @@ view: ebook_usage_actions {
             ,eventaction AS event_action
             ,eventcategory AS event_category
             ,'MTM' AS source
-            ,NULL AS reading_page_view
+            ,'MindTap Mobile Reader' AS source_full_name
+            ,NULL AS page_number
             ,NULL AS reading_page_count
-            ,NULL AS target_name
             ,NULL AS search_term
             FROM prod.raw_ga.ga_mobiledata
             WHERE ssoisbn IS NOT NULL
@@ -69,31 +69,41 @@ view: ebook_usage_actions {
 
 
 
-    dimension: read_page_view {
+    dimension: page_number {
       type: string
+      sql: TABLE."page_number" ;;
+      label: "Page Number Viewed"
+      description: "The number of the page viewed for a VitalSource or MindTap reader view"
     }
 
   dimension: reading_page_count {
-    type: number
+    type: string
+    sql: TABLE."reading_page_count" ;;
+    label: "Number of Pages"
+    description: "Number of pages in a MindTap Reader reading activity"
   }
 
-  dimension: target_name {
-    type: string
-  }
 
   dimension: search_term {
     type: string
+    sql: TABLE."search_term" ;;
+    label: "Search Term"
+    description: "Term searched for in a VitalSource Reader search event"
   }
 
 
   dimension: event_age_weeks {
     type: number
     sql: DATEDIFF(week, ${raw_subscription_event.subscription_start_date}, ${event_time_date})  ;;
+    label: "Weeks since subscription start"
+    description: "Number of weeks after the user's subscription start date to the event occuring"
   }
 
   dimension: event_age_days {
     type: number
     sql: DATEDIFF(day, ${raw_subscription_event.subscription_start_date}, ${event_time_date})  ;;
+    label: "Days since subscription start"
+    description: "Number of days after the user's subscription start date to the event occuring"
   }
 
 
@@ -109,27 +119,34 @@ view: ebook_usage_actions {
 
     dimension: ebook_id {
       type: string
+      label: "E-book Identifier"
+      description: "Ebook identifier: VBID for VitalSource, core_text_isbn for MindTap Reader, ssoisbn for MindTap Mobile Reader"
     }
 
     dimension: event_action {
       type: string
+      label: "User Action"
+      description: "A user action on a reader platform: https://wiki.cengage.com/display/cap/eBook+Reader+Events"
     }
 
     dimension: event_category {
       type: string
+      label: "Category of User Actions"
+      description: "Category of User Actions differeing accross reader"
     }
 
     dimension: source {
       type: string
+      label: "Reader Source Abbreviation"
+      description: "Which reader the event came from: MindTap Reader (MTR), MindTap Mobile Reader (MTM), or VitalSource Reader (VS)"
     }
 
-    dimension: unlimited_user {
-      type: number
-    }
-
-  dimension: internal_user {
-    type: number
+  dimension: source_full_name {
+    type: string
+    label: "Reader Source Name"
+    description: "Which reader the event came from: MindTap Reader, MindTap Mobile Reader, or VitalSource Reader"
   }
+
 
     measure: count {
       type: count

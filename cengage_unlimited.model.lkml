@@ -5,6 +5,9 @@ include: "*.view.lkml"         # include all views in this project
 
 include: "/core/common.lkml"
 
+
+######## User Experience Journey Start ###################
+
 explore: all_events {
   view_label: "Cengage Unlmited - User Events"
   join: all_events_diff {
@@ -35,6 +38,8 @@ explore: event_analysis {
   }
 }
 
+######## User Experience Journey End ###################
+
 
 ##### Raw Snowflake Tables #####
 explore: additional_info_products {
@@ -60,6 +65,8 @@ explore: provisioned_product {
 }
 
 explore: raw_subscription_event {
+  view_name: raw_subscription_event
+  view_label: "Raw Subscription Event"
   join: raw_olr_provisioned_product {
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
     relationship: many_to_one
@@ -187,16 +194,20 @@ explore: fair_use_device_id {}
   explore: fair_use_deviceid2 {}
 ##### End Fair Useage #####
 
-
+explore: test {
+  extends: [raw_subscription_event]
+}
 
 
 
 ##### Ebook Usage #####
-  explore: ebook_usage_actions {
-    join: raw_subscription_event {
-      type: full_outer
-      sql_on: ${ebook_usage_actions.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
-      relationship: many_to_one
+  explore: ebook_usage {
+    label: "Ebook Usage"
+    extends: [raw_subscription_event]
+    join: ebook_usage_actions {
+      sql_on:  ${raw_subscription_event.user_sso_guid} = ${ebook_usage_actions.user_sso_guid} ;;
+      type: left_outer
+      relationship: one_to_many
     }
 
      join: ebook_mapping {
@@ -204,6 +215,13 @@ explore: fair_use_device_id {}
        sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action}  AND ${ebook_usage_actions.source} = ${ebook_mapping.source} ;;
        relationship: many_to_one
      }
+
+    join: clts_excluded_users {
+      type: left_outer
+      relationship: many_to_one
+      sql_on: ${raw_subscription_event.user_sso_guid} = ${clts_excluded_users.user_sso_guid} ;;
+
+    }
   }
 ##### End Ebook Usage #####
 
