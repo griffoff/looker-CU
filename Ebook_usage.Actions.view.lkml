@@ -202,7 +202,7 @@ view: ebook_usage_actions {
     measure: number_of_downloads {
       group_label: "Action Counts"
       type: sum
-      sql: CASE WHEN ${ebook_mapping.common_action} = 'Search' THEN 1 ELSE 0 END ;;
+      sql: CASE WHEN ${ebook_mapping.common_action} = 'Download' THEN 1 ELSE 0 END ;;
     }
 
     measure: number_of_listen_tts {
