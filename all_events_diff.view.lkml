@@ -1,5 +1,5 @@
 view: all_events_diff {
-  view_label: "Next Different Event"
+  view_label: "User Events Categorized"
   sql_table_name: ZPG.ALL_EVENTS_DIFF{% parameter event_type %};;
 
   parameter: event_type {
@@ -33,6 +33,7 @@ view: all_events_diff {
   dimension: event_id {primary_key:yes hidden:yes}
 
   dimension: first_event {
+    label: "First event in a session"
     type: yesno
   }
 

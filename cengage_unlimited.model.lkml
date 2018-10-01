@@ -36,6 +36,10 @@ explore: event_analysis {
     sql_on: ${all_events.user_sso_guid} = ${student_profile.user_sso_guid} ;;
     relationship: many_to_one
   }
+  join: all_sessions {
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
+    relationship: many_to_one
+  }
 }
 
 ######## User Experience Journey End ###################
