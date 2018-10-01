@@ -151,14 +151,6 @@ explore: fair_use_device_id {}
 
 
 
-##### User Event Journey ####
-
-
-
-##### User Event Journey ####
-
-
-
 
 
 ##### Ebook Usage #####
@@ -169,11 +161,11 @@ explore: fair_use_device_id {}
       relationship: many_to_one
     }
 
-    join: ebook_mapping {
-      type: left_outer
-      sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action} AND ${ebook_usage_actions.source} = ${ebook_mapping.source} ;;
-      relationship: many_to_one
-    }
+     join: ebook_mapping {
+       type: left_outer
+       sql_on: ${ebook_mapping.event} = ${ebook_usage_actions.event_action} AND  ${ebook_mapping.event_category} = ${ebook_usage_actions.event_category} ;;
+       relationship: many_to_one
+     }
   }
 ##### End Ebook Usage #####
 

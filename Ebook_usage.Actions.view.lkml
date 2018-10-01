@@ -34,7 +34,7 @@ view: ebook_usage_actions {
             FROM cap_er.prod.raw_mt_resource_interactions
             WHERE (event_category = 'READING' AND event_action = 'VIEW')
             OR (event_category = 'BOOKMARKS' AND event_action ='CREATE')
-            OR event_category = 'HIGHTLIGHT'
+            OR (event_category = 'HIGHLIGHT')
             OR (event_category = 'QUICKNOTE' AND event_action = 'CREATE')
 
             UNION
@@ -149,62 +149,62 @@ view: ebook_usage_actions {
     measure: number_of_views {
       group_label: "Action Counts"
       type: sum
-      sql: CASE WHEN ${ebook_mapping.common_action} = 'View' THEN 1 ELSE 0 END ;;
+      sql: CASE WHEN ${ebook_mapping.event} = 'View' THEN 1 ELSE 0 END ;;
     }
 
-  measure: number_of_bookmarks {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Bookmark' THEN 1 ELSE 0 END ;;
-  }
+   measure: number_of_bookmarks {
+     group_label: "Action Counts"
+     type: sum
+     sql: CASE WHEN ${ebook_mapping.event} = 'Bookmark' THEN 1 ELSE 0 END ;;
+   }
 
-  measure: number_of_highlights {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Highlight' THEN 1 ELSE 0 END ;;
-  }
+   measure: number_of_highlights {
+     group_label: "Action Counts"
+     type: sum
+     sql: CASE WHEN ${ebook_mapping.event} = 'Highlight' THEN 1 ELSE 0 END ;;
+   }
 
-  measure: number_of_notes {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Note' THEN 1 ELSE 0 END ;;
-  }
+   measure: number_of_notes {
+     group_label: "Action Counts"
+     type: sum
+     sql: CASE WHEN ${ebook_mapping.event} = 'Note' THEN 1 ELSE 0 END ;;
+   }
 
-  measure: number_of_searches {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Search' THEN 1 ELSE 0 END ;;
-  }
+   measure: number_of_searches {
+     group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.event} = 'Search' THEN 1 ELSE 0 END ;;
+    }
 
-  measure: number_of_prints {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Print' THEN 1 ELSE 0 END ;;
-  }
+    measure: number_of_prints {
+      group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.event} = 'Print' THEN 1 ELSE 0 END ;;
+    }
 
-  measure: number_of_downloads {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Search' THEN 1 ELSE 0 END ;;
-  }
+    measure: number_of_downloads {
+      group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.event} = 'Search' THEN 1 ELSE 0 END ;;
+    }
 
-  measure: number_of_listen_tts {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Listen TTS' THEN 1 ELSE 0 END ;;
-  }
+    measure: number_of_listen_tts {
+      group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.event} = 'Listen TTS' THEN 1 ELSE 0 END ;;
+    }
 
-  measure: number_of_change_speed {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Change Speed' THEN 1 ELSE 0 END ;;
-  }
+    measure: number_of_change_speed {
+      group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.event} = 'Change Speed' THEN 1 ELSE 0 END ;;
+    }
 
-  measure: number_of_change_font {
-    group_label: "Action Counts"
-    type: sum
-    sql: CASE WHEN ${ebook_mapping.common_action} = 'Font Change' THEN 1 ELSE 0 END ;;
-  }
+    measure: number_of_change_font {
+      group_label: "Action Counts"
+      type: sum
+      sql: CASE WHEN ${ebook_mapping.event} = 'Font Change' THEN 1 ELSE 0 END ;;
+    }
 
 
   }

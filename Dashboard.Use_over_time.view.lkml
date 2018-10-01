@@ -70,7 +70,7 @@ view: dashboard_use_over_time {
           ON s.user_sso_guid = d.userssoguid
 
 
-          LEFT JOIN unlimited.vw_user_blacklist bk
+          LEFT JOIN prod.unlimited.clts_excluded_users bk
           ON s.user_sso_guid = bk.user_sso_guid
           WHERE bk.user_sso_guid IS NULL
  ;;
