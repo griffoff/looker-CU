@@ -168,6 +168,15 @@ explore: ind {
   explore:raw_fair_use_logins
   {
     label: "CMP Dashboard"
+    join: logins_last_30_days {
+      sql_on: ${raw_fair_use_logins.user_sso_guid} = ${logins_last_30_days.user_sso_guid} ;;
+      relationship: one_to_one
+    }
+
+    join: logins_last_7_days {
+      sql_on: ${raw_fair_use_logins.user_sso_guid} = ${logins_last_7_days.user_sso_guid} ;;
+      relationship: one_to_one
+    }
   }
 
 explore: fair_use_device_id {}
