@@ -19,6 +19,7 @@ derived_table: {
     from get_latest
     where reverse_order = 1
     ;;
+    persist_for: "6 hours"
 }
   dimension: user_sso_guid{primary_key:yes}
   dimension: subscription_status {}

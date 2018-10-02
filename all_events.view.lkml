@@ -3,12 +3,8 @@ view: all_events {
   sql_table_name: ZPG.ALL_EVENTS ;;
 
   dimension: first_event_in_session {
+    sql: ${TABLE}.event_no = 1 ;;
     type: yesno
-  }
-
-  dimension: last_event_in_session {
-    type: yesno
-    hidden: yes
   }
 
   dimension: event_0 {

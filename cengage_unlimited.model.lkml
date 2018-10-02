@@ -5,6 +5,7 @@ include: "*.view.lkml"         # include all views in this project
 
 include: "/core/common.lkml"
 
+case_sensitive: no
 
 ######## User Experience Journey Start ###################
 

@@ -32,19 +32,12 @@ view: all_events_diff {
 
   dimension: event_id {primary_key:yes hidden:yes}
 
-  dimension: first_event {
-    label: "First event in a session"
+  dimension: first_event_in_session {
     type: yesno
+    sql: ${TABLE}.event_no = 1 ;;
   }
-
-  dimension: last_event {
-    type: yesno
-    hidden: yes
-  }
-
   dimension: event_0 {
     type: string
-    label: "First Event"
     sql: ${TABLE}."DIFF_EVENT_0" ;;
   }
 

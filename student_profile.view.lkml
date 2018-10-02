@@ -24,7 +24,7 @@ view: student_profile {
         derived_column: intensity_prank {sql: PERCENT_RANK() OVER (ORDER BY intensity);;}
       }
 
-      persist_for: "24 hours"
+      persist_for: "6 hours"
     }
 
     dimension: user_sso_guid {
