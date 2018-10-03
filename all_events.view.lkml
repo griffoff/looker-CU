@@ -47,6 +47,11 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA" ;;
   }
 
+#   dimension: has_coursekey {
+#     type: yesno
+#     sql: ${event_data}:course_key is not null ;;
+#   }
+
   dimension: event_id {
     type: number
     sql: ${TABLE}."EVENT_ID" ;;

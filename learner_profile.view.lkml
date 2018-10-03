@@ -1,7 +1,7 @@
 include: "cengage_unlimited.model.lkml"
 
-view: student_profile {
-    view_label: "Student Usage Metrics"
+view: learner_profile {
+    view_label: "Learner Profile"
     derived_table: {
       explore_source: all_events {
         column: user_sso_guid {}
