@@ -10,31 +10,37 @@ view: all_events {
   dimension: event_0 {
     type: string
     sql: ${TABLE}."EVENT_0" ;;
+    group_label: "Proceding five events"
   }
 
   dimension: event_1 {
     type: string
     sql: ${TABLE}."EVENT_1" ;;
+    group_label: "Proceding five events"
   }
 
   dimension: event_2 {
     type: string
     sql: ${TABLE}."EVENT_2" ;;
+    group_label: "Proceding five events"
   }
 
   dimension: event_3 {
     type: string
     sql: ${TABLE}."EVENT_3" ;;
+    group_label: "Proceding five events"
   }
 
   dimension: event_4 {
     type: string
     sql: ${TABLE}."EVENT_4" ;;
+    group_label: "Proceding five events"
   }
 
   dimension: event_5 {
     type: string
     sql: ${TABLE}."EVENT_5" ;;
+    group_label: "Proceding five events"
   }
 
   dimension: event_action {
@@ -160,7 +166,7 @@ view: all_events {
 
   measure: days_total {
     type: number
-    sql: datediff(hour, ${first_event_time}, ${latest_event_time}) / 24 ;;
+    sql: CEIL(datediff(hour, ${first_event_time}, ${latest_event_time})/24, 0) ;;
   }
 
   measure: days_active {
@@ -169,7 +175,7 @@ view: all_events {
   }
 
   measure: days_active_per_week {
-    sql: ${days_active} / nullif((${days_total}/7), 0) ;;
+    sql: LEAST(${days_active}, ${days_total}) / GREATEST(nullif((${days_total}/7), 0), 1) ;;
   }
 
   measure: days_since_last_login {

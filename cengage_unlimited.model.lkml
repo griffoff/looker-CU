@@ -41,6 +41,29 @@ explore: event_analysis {
     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
     relationship: many_to_one
   }
+
+    join: all_weeks_cu_value {
+    sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
+    relationship: many_to_many
+  }
+
+  join: all_weeks_cu_value_sankey {
+    sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+}
+
+
+explore: all_sessions_cu_value {
+
+}
+
+explore: all_weeks_cu_value {
+
+}
+
+explore: all_weeks_cu_value_sankey {
+  label: "CU soft value"
 }
 
 ######## User Experience Journey End ###################
