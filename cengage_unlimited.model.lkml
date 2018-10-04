@@ -10,7 +10,7 @@ case_sensitive: no
 ######## User Experience Journey Start ###################
 
 explore: all_events {
-  view_label: "Cengage Unlmited - User Events"
+  view_label: "Cengage Unlimited - User Events"
   join: all_events_diff {
     view_label: "Event Category Analysis"
     sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
@@ -33,8 +33,8 @@ explore: event_analysis {
     relationship: many_to_one
     type: inner
   }
-  join: student_profile {
-    sql_on: ${all_events.user_sso_guid} = ${student_profile.user_sso_guid} ;;
+  join: learner_profile {
+    sql_on: ${all_events.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
     relationship: many_to_one
   }
   join: all_sessions {
