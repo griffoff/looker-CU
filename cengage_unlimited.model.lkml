@@ -51,8 +51,37 @@ explore: event_analysis {
     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
     relationship: many_to_one
   }
+
+  join: all_sessions_cu_value {
+    sql_on: ${all_sessions.session_id} = ${all_sessions_cu_value.session_id} ;;
+    relationship: one_to_one
+  }
 }
 
+
+explore: session_event_analysis {
+  from: all_sessions
+  view_name: all_sessions
+  view_label: "CU User Analysis"
+
+  join: learner_profile {
+    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: all_events {
+    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+    relationship: one_to_many
+  }
+
+  join: all_events_diff {
+    view_label: "Event Category Analysis"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+}
 
 explore: all_sessions_cu_value {
 
