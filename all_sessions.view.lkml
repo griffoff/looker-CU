@@ -133,6 +133,7 @@ view: all_sessions {
   dimension: session_id {
     type: number
     sql: ${TABLE}."SESSION_ID" ;;
+    primary_key: yes
   }
 
   dimension: session_length_mins {
