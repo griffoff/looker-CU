@@ -1,5 +1,7 @@
 connection: "snowflake_prod"
 
+
+
 include: "*.view.lkml"         # include all views in this project
 
 
@@ -59,7 +61,7 @@ explore: event_analysis {
 }
 
 
-explore: session_event_analysis {
+explore: session_analysis {
   from: all_sessions
   view_name: all_sessions
   view_label: "CU User Analysis"
@@ -81,7 +83,14 @@ explore: session_event_analysis {
     type: inner
   }
 
+  join: sessions_analysis_week {
+    sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
 }
+
+explore: sessions_analysis_week {}
 
 explore: all_sessions_cu_value {
 

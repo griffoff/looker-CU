@@ -34,6 +34,17 @@ view: learner_profile {
     dimension: session_count {
       type: number
     }
+
+  dimension: session_count_tier {
+    type: tier
+    tiers: [ 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    style: integer
+    sql: ${TABLE}."SESSION_COUNT" ;;
+  }
+
+
+
+
     dimension: days_active {
       type: number
     }

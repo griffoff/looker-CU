@@ -20,8 +20,6 @@ view: all_weeks_cu_value_sankey {
         }
       }
 
-
-
     dimension: age_in_weeks {
       type: number
     }
