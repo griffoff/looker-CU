@@ -140,6 +140,14 @@ view: all_sessions {
     sql: ${TABLE}."SESSION_LENGTH_MINS" ;;
   }
 
+  dimension: session_length_tier {
+    type: tier
+    tiers: [ 30, 60, 120, 180, 240]
+    style: integer
+    sql: ${TABLE}."SESSION_LENGTH_MINS" ;;
+  }
+
+
   dimension: session_no {
     type: number
     sql: ${TABLE}."SESSION_NO" ;;
@@ -241,6 +249,11 @@ view: all_sessions {
   measure:  average_searches{
     type: average
     sql:  ${number_of_searches};;
+  }
+
+  measure:  average_session_duration{
+    type: average
+    sql:  ${session_length_mins};;
   }
 
   measure: count {
