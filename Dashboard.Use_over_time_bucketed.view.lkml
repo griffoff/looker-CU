@@ -38,7 +38,7 @@ view: dashboard_use_over_time_bucketed {
   measure: unique_users {
     type: count_distinct
     sql: dashboard_use_over_time_bucketed.user_sso_guid ;;
-    drill_fields: [user_sso_guid,usage_percentage_buckets,raw_subcription_event.subscription_start,cu_user_info.email,cu_user_info.opt_out]
+    drill_fields: [user_sso_guid,usage_percentage_buckets,raw_subcription_event.subscription_start,cu_user_info.email,cu_user_info.first_name,cu_user_info.last_name,cu_user_info.opt_out]
   }
 
   }
