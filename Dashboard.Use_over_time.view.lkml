@@ -236,6 +236,14 @@ view: dashboard_use_over_time {
     value_format: "#.00\%"
   }
 
+  dimension: percent_days_active_buckets {
+    type: string
+    sql: CASE WHEN  ${TABLE}.percent_days_active > 75 THEN '75-100'
+      WHEN  ${TABLE}.percent_days_active > 50 THEN '50-75'
+      WHEN  ${TABLE}.percent_days_active > 25 THEN '25-50'
+      ELSE '0-25' END;;
+  }
+
   dimension: eventact {
     type: string
     sql: ${TABLE}."eventactions" ;;
