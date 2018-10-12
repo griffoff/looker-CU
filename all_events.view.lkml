@@ -159,6 +159,11 @@ view: all_events {
     drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
   }
 
+  measure: example_event_data {
+    type: string
+    sql: any_value(${event_data}) ;;
+  }
+
   measure: latest_event_time {
     type: date_time
     sql: max(${event_raw}) ;;
