@@ -193,6 +193,40 @@ view: all_sessions {
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
 
+  measure:  distinct_users{
+    type: count_distinct
+    sql:  ${user_sso_guid};;
+  }
+
+  measure: distinct_users_courseware {
+    type: count_distinct
+    sql: CASE WHEN ${number_of_courseware_events} > 1 THEN ${user_sso_guid} END ;;
+  }
+
+  measure: distinct_users_dashboard_clicks {
+    type: count_distinct
+    sql: CASE WHEN ${number_of_dashboard_clicks} > 1 THEN ${user_sso_guid} END ;;
+  }
+
+  measure: distinct_users_ebook_events {
+    type: count_distinct
+    sql: CASE WHEN ${number_of_ebook_events} > 1 THEN ${user_sso_guid} END ;;
+  }
+
+  measure: distinct_users_partner_clicks {
+    type: count_distinct
+    sql: CASE WHEN ${number_of_partner_clicks} > 1 THEN ${user_sso_guid} END ;;
+  }
+
+  measure: distinct_users_searches {
+    type: count_distinct
+    sql: CASE WHEN ${number_of_searches} > 1 THEN ${user_sso_guid} END ;;
+  }
+
+  measure: distinct_users_other_events {
+    type: count_distinct
+    sql: CASE WHEN ${other_events} > 1 THEN ${user_sso_guid} END ;;
+  }
 
 
   measure:  sum_courseware_events{
