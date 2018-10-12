@@ -7,29 +7,30 @@ case_sensitive: no
 ######## User Experience Journey Start ###################
 
 explore: all_events {
-  view_label: "Cengage Unlimited - User Events"
   join: all_events_diff {
     view_label: "Event Category Analysis"
     sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
     relationship: many_to_one
     type: inner
   }
+
   join: student_subscription_status {
     sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+  join: event_groups {
+    view_label: "User Events"
+    fields: [event_group]
+    sql_on: ${all_events.event_name} = ${event_groups.event_name} ;;
     relationship: many_to_one
   }
 }
 
 explore: event_analysis {
+  extends: [all_events]
   from: all_events
   view_name: all_events
-  view_label: "Cengage Unlmited - User Analysis"
-  join: all_events_diff {
-    view_label: "Event Category Analysis"
-    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
-    relationship: many_to_one
-    type: inner
-  }
+
   join: learner_profile {
     sql_on: ${all_events.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
     relationship: many_to_one
@@ -53,10 +54,13 @@ explore: event_analysis {
     sql_on: ${all_sessions.session_id} = ${all_sessions_cu_value.session_id} ;;
     relationship: one_to_one
   }
+
+
 }
 
 
 explore: session_analysis {
+  extends: [all_events]
   from: all_sessions
   view_name: all_sessions
   view_label: "CU User Analysis"
@@ -69,13 +73,6 @@ explore: session_analysis {
   join: all_events {
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
     relationship: one_to_many
-  }
-
-  join: all_events_diff {
-    view_label: "Event Category Analysis"
-    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
-    relationship: many_to_one
-    type: inner
   }
 
   join: sessions_analysis_week {
