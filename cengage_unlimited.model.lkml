@@ -1,10 +1,5 @@
 connection: "snowflake_prod"
-
-
-
 include: "*.view.lkml"         # include all views in this project
-
-
 include: "/core/common.lkml"
 
 case_sensitive: no
@@ -162,6 +157,10 @@ explore: ga_dashboarddata {
 
   join: instiution_star_rating {
     sql_on: ${cu_user_info.entity_id} = ${instiution_star_rating.entity_} ;;
+    relationship: many_to_one
+  }
+  join: dashboard_use_over_time {
+    sql_on: ${ga_dashboarddata.userssoguid} = ${dashboard_use_over_time.user_sso_guid} ;;
     relationship: many_to_one
   }
   }

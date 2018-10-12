@@ -257,6 +257,11 @@ view: all_sessions {
     sql:  ${session_length_mins};;
   }
 
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
+
   measure: count {
     type: count
     drill_fields: []
