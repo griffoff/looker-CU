@@ -298,3 +298,8 @@ explore: total_users {
 explore: cu_user_info {
   label: "CU user info"
 }
+### Search outcome
+
+explore: search_outcome {
+
+}
