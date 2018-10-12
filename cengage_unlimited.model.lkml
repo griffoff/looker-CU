@@ -21,7 +21,7 @@ explore: all_events {
   join: event_groups {
     view_label: "User Events"
     fields: [event_group]
-    sql_on: ${all_events.event_name} = ${event_groups.event_name} ;;
+    sql_on: UPPER(${all_events.event_name}) = UPPER(${event_groups.event_name}) ;;
     relationship: many_to_one
   }
 }
