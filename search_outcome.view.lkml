@@ -5,7 +5,7 @@ view: search_outcome {
         where product_platform like 'CU DASHBOARD' and event_action
       ilike '%SEARCH TERM%'-- and user_sso_guid like 'fd95a962ff3f5f1e:-6663148a:165cb0d4980:-7dd1'
 
-        //and user_sso_guid like '8cb033b2fc245569:580660e7:1659070b5f1:5e90'
+        --//and user_sso_guid like '8cb033b2fc245569:580660e7:1659070b5f1:5e90'
       )
       , ses_eve as (
       select
