@@ -36,6 +36,12 @@ view: search_outcome {
     drill_fields: [detail*]
   }
 
+  measure: count_distinct_search {
+    label: "# distinct search terms"
+    type: count_distinct
+    sql: ${search_term}  ;;
+  }
+
 
   dimension: search_outcome {
     type: string
