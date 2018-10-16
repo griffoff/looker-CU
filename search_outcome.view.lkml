@@ -26,7 +26,11 @@ view: search_outcome {
           ,event_time,event_id
         from ses_eve
         --group by user_sso_guid, session_id
-         ) select IFNULL(ADDED_FLAG,'N') AS SEARCH_OUTCOME, * from eve_ar where Search_term is NOT NULL
+         ) select IFNULL(ADDED_FLAG,'N') AS SEARCH_OUTCOME, ev.*,cat.category
+            from eve_ar ev
+            LEFT JOIN uploads.cu.search_category cat
+            ON ev.search_term = cat.search_term
+            where ev.Search_term is NOT NULL
        ;;
       persist_for: "12 hours"
   }
@@ -47,6 +51,11 @@ view: search_outcome {
   dimension: search_outcome {
     type: string
     sql: ${TABLE}."SEARCH_OUTCOME" ;;
+  }
+
+  dimension: category {
+    type: string
+    sql: CASE WHEN IS_Integer(Try_To_Numeric(${TABLE}."SEARCH_TERM")) = TRUE THEN 'ISBN' ELSE ${TABLE}."CATEGORY" END ;;
   }
 
   dimension: added_flag {
