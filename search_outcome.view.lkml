@@ -28,6 +28,7 @@ view: search_outcome {
         --group by user_sso_guid, session_id
          ) select IFNULL(ADDED_FLAG,'N') AS SEARCH_OUTCOME, * from eve_ar where Search_term is NOT NULL
        ;;
+      persist_for: "12 hours"
   }
 
   measure: count {
@@ -56,6 +57,20 @@ view: search_outcome {
   dimension: search_term {
     type: string
     sql: ${TABLE}."SEARCH_TERM" ;;
+  }
+
+  dimension: search_category {
+    case: {
+
+      when: {
+        sql: IS_Integer(Try_To_Numeric(${TABLE}."SEARCH_TERM")) = TRUE ;;
+        label: "ISBN"
+      }
+      when: {
+        sql: IS_Integer(Try_To_Numeric(${TABLE}."SEARCH_TERM")) IS NULL ;;
+        label: "Platform/Author/etc"
+      }
+    }
   }
 
   dimension: user_sso_guid {
