@@ -16,6 +16,11 @@ view: all_sessions {
     sql: ${TABLE}."CITIES" ;;
   }
 
+  dimension: first_city {
+    type: string
+    sql: ${TABLE}."CITIES"[0] ;;
+  }
+
   dimension: course_keys {
     type: string
     sql: ${TABLE}."COURSE_KEYS" ;;
@@ -53,7 +58,7 @@ view: all_sessions {
 
   dimension: ips {
     type: string
-    sql: ${TABLE}."IPS" ;;
+    sql: ${TABLE}."IPS"[0];;
   }
 
   dimension: last_event {
@@ -64,6 +69,22 @@ view: all_sessions {
   dimension: locations {
     type: string
     sql: ${TABLE}."LOCATIONS" ;;
+  }
+
+  dimension: lat {
+    type: string
+    sql:  ${TABLE}."LOCATIONS"[0]:lat ;;
+  }
+
+  dimension: lon {
+    type: string
+    sql:  ${TABLE}."LOCATIONS"[0]:lon ;;
+  }
+
+  dimension: lat_lon {
+    type: location
+    sql_latitude: ${TABLE}."LOCATIONS"[0]:lat ;;
+    sql_longitude: ${TABLE}."LOCATIONS"[0]:lon ;;
   }
 
   dimension: number_of_courseware_events {
@@ -106,9 +127,22 @@ view: all_sessions {
     sql: ${TABLE}."PRODUCTS" ;;
   }
 
+
+  dimension: country {
+    type: string
+    sql: ${TABLE}."LOCATIONS"[0]:country;;
+  }
+
   dimension: regions {
     type: string
     sql: ${TABLE}."REGIONS" ;;
+  }
+
+  dimension: first_state {
+    type: string
+    sql: REPLACE(${TABLE}."REGIONS"[1], '""', '');;
+    map_layer_name: us_states
+
   }
 
   dimension_group: session_end {

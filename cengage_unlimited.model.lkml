@@ -55,7 +55,10 @@ explore: event_analysis {
     relationship: one_to_one
   }
 
-
+  join: ip_locations {
+    sql_on: ${all_sessions.ips} = ${ip_locations.ip_address} ;;
+    relationship: one_to_one
+  }
 }
 
 
