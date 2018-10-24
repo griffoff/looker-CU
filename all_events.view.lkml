@@ -1,6 +1,6 @@
 view: all_events {
   view_label: "User Events"
-  sql_table_name: ZPG.ALL_EVENTS ;;
+  sql_table_name: ZPG.ALL_EVENTS_LOOKER ;;
 
   dimension: first_event_in_session {
     sql: ${TABLE}.event_no = 1 ;;

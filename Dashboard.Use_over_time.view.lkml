@@ -246,7 +246,7 @@ view: dashboard_use_over_time {
 
   dimension: eventact {
     type: string
-    sql: ${TABLE}."eventactions" ;;
+    sql: ${TABLE}."EVENTACTIONS" ;;
   }
 
   dimension: eventlabels {
@@ -267,27 +267,27 @@ view: dashboard_use_over_time {
   dimension: Added_content{
     label: "Event Dimensions"
     type: string
-    sql: case when eventact like 'Calls To Action (CTAs)' and eventlabel like 'Add To My Content Position%' then 'Added Content To Dashboard'
-              when eventact like 'Search Term%'  then 'Searched Items With Results'
-              when eventact like 'Calls To Action (CTAs)' and LOWER(eventlabels) like 'dashboard%ebook%' then 'eBook launched'
-              when eventact like 'Dashboard Course Launched Name%' then 'Courseware launched'
-              when eventact like 'Explore Catalog%' then 'Catalog explored'
-              when eventact like 'Rent From Chegg%'  then 'Rented from Chegg clicks'
-              when eventact like 'Exclusive Partner Clicked' OR eventact like 'One Month Free Clicked' then 'One month Free Chegg clicks'
-              when eventact like 'Print Options No Results' then 'Print Options N/A'
-              when eventact like 'Search Bar No%'  then 'No Results Search'
-              when eventact like 'Support Clicked' then 'Support Clicked'
-              when eventact like '%FAQ%' then 'FAQ Clicked'
-              when eventact like 'Calls To Action (CTAs)' and eventlabels like 'Buy Now Button Click' then 'Clicked on UPGRADE (top yellow banner)'
-              when eventact like 'Calls To Action (CTAs)' and eventlabels like 'Upgrade Link%' then 'Clicked on UPGRADE (middle yellow banner)'
-              when eventact like 'Print Options Entire Catalog Clicked' then 'Searched Entire Cengage Catalog'
+    sql: case when ${eventact} like 'Calls To Action (CTAs)' and eventlabels like 'Add To My Content Position%' then 'Added Content To Dashboard'
+              when ${eventact} like 'Search Term%'  then 'Searched Items With Results'
+              when ${eventact} like 'Calls To Action (CTAs)' and LOWER(eventlabels) like 'dashboard%ebook%' then 'eBook launched'
+              when ${eventact} like 'Dashboard Course Launched Name%' then 'Courseware launched'
+              when ${eventact} like 'Explore Catalog%' then 'Catalog explored'
+              when ${eventact} like 'Rent From Chegg%'  then 'Rented from Chegg clicks'
+              when ${eventact} like 'Exclusive Partner Clicked' OR ${eventact} like 'One Month Free Clicked' then 'One month Free Chegg clicks'
+              when ${eventact} like 'Print Options No Results' then 'Print Options N/A'
+              when ${eventact} like 'Search Bar No%'  then 'No Results Search'
+              when ${eventact} like 'Support Clicked' then 'Support Clicked'
+              when ${eventact} like '%FAQ%' then 'FAQ Clicked'
+              when ${eventact} like 'Calls To Action (CTAs)' and eventlabels like 'Buy Now Button Click' then 'Clicked on UPGRADE (top yellow banner)'
+              when ${eventact} like 'Calls To Action (CTAs)' and eventlabels like 'Upgrade Link%' then 'Clicked on UPGRADE (middle yellow banner)'
+              when ${eventact} like 'Print Options Entire Catalog Clicked' then 'Searched Entire Cengage Catalog'
               when ${eventcategory} like 'Course Key Registration' then 'Course Key Registration'
               when ${eventcategory} like 'Access Code Registration' then 'Access Code Registration'
-              when ${eventcategory} like 'Videos' and eventact like 'Meet Cengage Unlimited' then 'CU videos viewed'
-              when ${pagepath} like '%print-options%' and eventact IS NULL then 'Print Options Clicked'
-              when ${pagepath} like '%explore-catalog%' and eventact IS NULL then 'Explore Catalog Clicked'
-              when ${pagepath} like '%exclusive-partners%' and eventact IS NULL then 'Study Resources Clicked'
-              when ${pagepath} like '%my-dashboard/authenticated%' and eventact IS NULL then 'My Home Clicked'
+              when ${eventcategory} like 'Videos' and ${eventact} like 'Meet Cengage Unlimited' then 'CU videos viewed'
+              when ${pagepath} like '%print-options%' and ${eventact} IS NULL then 'Print Options Clicked'
+              when ${pagepath} like '%explore-catalog%' and ${eventact} IS NULL then 'Explore Catalog Clicked'
+              when ${pagepath} like '%exclusive-partners%' and ${eventact} IS NULL then 'Study Resources Clicked'
+              when ${pagepath} like '%my-dashboard/authenticated%' and ${eventact} IS NULL then 'My Home Clicked'
               ELSE 'Other Clicks'
               END
     ;;

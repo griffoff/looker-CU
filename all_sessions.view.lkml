@@ -1,5 +1,5 @@
 view: all_sessions {
-  sql_table_name: ZPG.ALL_SESSIONS ;;
+  sql_table_name: ZPG.ALL_SESSIONS_LOOKER ;;
 
   dimension: age_in_days {
     type: number
