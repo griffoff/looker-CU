@@ -3,10 +3,7 @@ view: ebook_usage_aggregated {
     explore_source: ebook_usage {
       column: user_sso_guid { field: ebook_usage_actions.user_sso_guid }
       column: unique_product_count { field: ebook_usage_actions.unique_product_count }
-      filters: {
-        field: clts_excluded_users.user_sso_guid
-        value: "NULL"
-      }
+
       filters: {
         field: raw_subscription_event.latest_subscription
         value: "Yes"

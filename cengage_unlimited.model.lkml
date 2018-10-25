@@ -196,6 +196,16 @@ explore: dashboardbuckets {
     type: left_outer
   }
 }
+
+explore: CU_Sandbox {
+  label: "CU Sandbox"
+  extends: [ebook_usage]
+  join: ga_dashboarddata {
+    sql_on: ${raw_subscription_event.user_sso_guid} = ${ga_dashboarddata.userssoguid} ;;
+    relationship: one_to_many
+ }
+}
+
 ##### End Dashboard #####
 
 
@@ -290,12 +300,6 @@ explore: test {
        relationship: many_to_one
      }
 
-    join: clts_excluded_users {
-      type: left_outer
-      relationship: many_to_one
-      sql_on: ${raw_subscription_event.user_sso_guid} = ${clts_excluded_users.user_sso_guid} ;;
-
-    }
   }
 ##### End Ebook Usage #####
 
