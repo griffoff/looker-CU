@@ -198,13 +198,13 @@ view: all_events {
   }
 
   measure: recency {
-    sql: -${days_since_last_login}  ;;
+    sql: -ROUND(${days_since_last_login}, 0)  ;;
   }
   measure: frequency {
-    sql: ${days_active_per_week} ;;
+    sql: ROUND(${days_active_per_week}, 1) ;;
   }
   measure: intensity {
-    sql: ${events_per_session} ;;
+    sql: ROUND(${events_per_session}, 1) ;;
   }
 
 }
