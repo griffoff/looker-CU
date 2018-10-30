@@ -1,6 +1,9 @@
 connection: "snowflake_prod"
 include: "*.view.lkml"         # include all views in this project
 include: "/core/common.lkml"
+include: "/cube/dims.lkml"
+include: "/cube/dim_course.view"
+include: "/cube/ga_mobiledata.view"
 
 case_sensitive: no
 
@@ -67,6 +70,12 @@ explore: session_analysis {
   from: all_sessions
   view_name: all_sessions
   view_label: "CU User Analysis"
+
+  join: dim_course {
+    sql: lateral flatten (${all_sessions.course_keys}) k
+    left join dim_course on k.value::string = dim_course.coursekey  ;;
+    relationship: many_to_one
+  }
 
   join: learner_profile {
     sql_on: ${all_sessions.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
@@ -317,14 +326,46 @@ explore: search_outcome {
 }
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
-join: aj_survey {
-  type: inner
-  relationship: many_to_one
-  sql_on: ${raw_olr_enrollment.user_sso_guid} = ${aj_survey.ga_dashboarddata_userssoguid} ;;
+  join: aj_survey {
+    type: inner
+    relationship: many_to_one
+    sql_on: ${raw_olr_enrollment.user_sso_guid} = ${aj_survey.ga_dashboarddata_userssoguid} ;;
+  }
+  join: raw_olr_provisioned_product {
+    type: left_outer
+    relationship: many_to_many
+    sql_on: ${raw_olr_enrollment.user_sso_guid} = ${raw_olr_provisioned_product.user_sso_guid} AND ${raw_olr_enrollment.course_key} = ${raw_olr_provisioned_product.context_id} ;;
+  }
 }
-join: raw_olr_provisioned_product {
-  type: left_outer
-  relationship: many_to_many
-  sql_on: ${raw_olr_enrollment.user_sso_guid} = ${raw_olr_provisioned_product.user_sso_guid} AND ${raw_olr_enrollment.course_key} = ${raw_olr_provisioned_product.context_id} ;;
-}
-}
+
+# MT Mobile Data
+
+explore: mobiledata {
+  from: dim_course
+  view_name: dim_course
+  label: "MT Mobile GA Data"
+  extends: [dim_course]
+
+  join: ga_mobiledata {
+    sql_on: ${dim_course.coursekey} = ${ga_mobiledata.coursekey};;
+    relationship: many_to_one
+  }
+
+  join: raw_subscription_event {
+    sql_on: ${ga_mobiledata.userssoguid}= ${raw_subscription_event.user_sso_guid} ;;
+    type: left_outer
+    relationship: many_to_one
+  }
+
+  join: raw_olr_provisioned_product {
+    sql_on: ${ga_mobiledata.userssoguid}= ${raw_olr_provisioned_product.user_sso_guid} ;;
+    type: left_outer
+    relationship: many_to_one
+  }
+
+# join: cu_user_info {
+#   sql_on: ${ga_mobiledata.userssoguid} = ${cu_user_info.guid} ;;
+#   relationship: many_to_one
+# }
+
+  }
