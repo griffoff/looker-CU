@@ -22,10 +22,13 @@ view: learner_profile {
 
         derived_column: frequency_prank {sql: PERCENT_RANK() OVER (ORDER BY frequency);;}
         derived_column: intensity_prank {sql: PERCENT_RANK() OVER (ORDER BY intensity);;}
+
       }
 
       persist_for: "6 hours"
     }
+
+    dimension: event_date {}
 
     dimension: user_sso_guid {
       primary_key: yes
@@ -45,6 +48,10 @@ view: learner_profile {
   dimension: active_user {
     type: string
     sql: CASE WHEN ${frequency_avg} >= 2 AND ${recency} >= -14 AND ${intensity_avg} > 4 THEN 'active' ELSE 'non-active' END;;
+  }
+
+  dimension: relative_day_number {
+    type: number
   }
 
 
