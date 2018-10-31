@@ -23,7 +23,7 @@ view: unique_cities_per_user_per_week {
         ,DATE_TRUNC('week', local_time) AS week
         ,COUNT(DISTINCT city) AS distinct_cities
       FROM cities
-      WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+      WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
       GROUP BY user_sso_guid, week
        ;;
   }

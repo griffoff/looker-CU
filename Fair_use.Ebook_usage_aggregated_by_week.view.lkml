@@ -53,7 +53,7 @@ view: ebook_usage_aggregated_by_week {
                           ,DATE_TRUNC('week', event_time) AS week
                           ,COUNT(DISTINCT ebook_id) AS unique_ebooks
                         FROM cengage_unlimited_users
-                        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+                        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
                         GROUP BY 1, 2 ;;
                 }
 

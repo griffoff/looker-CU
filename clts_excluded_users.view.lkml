@@ -1,5 +1,5 @@
 view: clts_excluded_users {
-  sql_table_name: UNLIMITED.CLTS_EXCLUDED_USERS ;;
+  sql_table_name: UNLIMITED.EXCLUDED_USERS ;;
 
   dimension_group: _ldts {
     type: time

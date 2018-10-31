@@ -34,7 +34,7 @@ view: weeks_above_threshhold_cities {
               ,COUNT(week) AS weeks_above_threshhold_cities
             FROM unique_cities
             WHERE unique_city_count > threshhold_cities
-            AND user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+            AND user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
             GROUP BY user_sso_guid
 
             ;;

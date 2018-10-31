@@ -18,7 +18,7 @@ view: coursewares_activated {
             AND prod.user_type like 'student'
             AND prod."source" like 'unlimited'
             --AND source_id <> '%trial%'
-        AND prod.user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+        AND prod.user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
         GROUP BY 1)
 
         SELECT
