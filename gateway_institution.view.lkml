@@ -3,11 +3,13 @@ view: gateway_institution {
 
 
   dimension: gw_institution_fk {
+    hidden: yes
     type: number
     sql: ${TABLE}."GW_INSTITUTION_FK" ;;
   }
 
   dimension: gw_timestamp {
+    hidden: yes
     type: number
     sql: ${TABLE}."GW_TIMESTAMP" ;;
   }
@@ -18,9 +20,16 @@ view: gateway_institution {
   }
 
   dimension: jde_institution_id {
+    hidden: yes
     type: number
-    primary_key: yes
     sql: ${TABLE}."JDE_INSTITUTION_ID" ;;
+  }
+
+  dimension: entity_no {
+    hidden: yes
+    type: string
+    primary_key: yes
+    sql: ${jde_institution_id}::string ;;
   }
 
   dimension: lms_type {
@@ -35,6 +44,6 @@ view: gateway_institution {
 
   measure: count {
     type: count
-    drill_fields: [jde_institution_id]
+    drill_fields: [entity_no, lms_type, lms_version, integration_type]
   }
 }

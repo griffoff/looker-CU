@@ -26,6 +26,13 @@ view: all_sessions {
     sql: ${TABLE}."COURSE_KEYS" ;;
   }
 
+  dimension: no_course_keys {
+    type: tier
+    tiers: [1, 2, 3]
+    style: integer
+    sql: array_size(${course_keys}) ;;
+  }
+
   dimension: cu_soft_value {
     type: number
     sql: ${TABLE}."CU_SOFT_VALUE" ;;

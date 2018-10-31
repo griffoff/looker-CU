@@ -66,14 +66,24 @@ explore: event_analysis {
 
 
 explore: session_analysis {
-  extends: [all_events]
+  label: "CU User Analysis"
+  extends: [all_events, dim_course]
   from: all_sessions
   view_name: all_sessions
-  view_label: "CU User Analysis"
 
   join: dim_course {
-    sql: lateral flatten (${all_sessions.course_keys}) k
-    left join dim_course on k.value::string = dim_course.coursekey  ;;
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: user_institution_map {
+    fields: []
+    sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: gateway_institution {
+    sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
     relationship: many_to_one
   }
 
