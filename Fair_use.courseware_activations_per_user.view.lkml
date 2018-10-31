@@ -23,7 +23,7 @@ view: courseware_activations_per_user {
         SELECT
           *
         FROM all_users
-        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users) ;;
+        WHERE user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users) ;;
   }
 
   parameter: timeframe_picker {

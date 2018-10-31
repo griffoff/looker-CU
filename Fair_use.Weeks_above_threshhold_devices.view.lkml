@@ -40,7 +40,7 @@ view: fair_use_weeks_above_threshhold_devices {
         ,COUNT(week) AS weeks_above_threshhold_devices
     FROM unique_devices
     WHERE unique_devices_count > threshhold_devices
-    AND userssoguid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.clts_excluded_users)
+    AND userssoguid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
     GROUP BY userssoguid
 
     ;;

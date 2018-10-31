@@ -186,6 +186,13 @@ view: ga_dashboarddata {
     sql: case when ${eventcategory} like 'Videos' and eventaction like 'Meet Cengage Unlimited' then 1 else 0 end  ;;
   }
 
+  measure: study_res_events {
+    label: "Student Resources Cliked"
+    description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked on study resources tab"
+    type: sum
+    sql: case when ${pagepath} like '%exclusive-partners%' then 1 else 0 end  ;;
+  }
+
 
   dimension: eventcategory {
     description: "A category of user action tagged in google tag manager"

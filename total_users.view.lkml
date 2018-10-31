@@ -50,7 +50,7 @@ view: total_users {
     JOIN recent_record rr
         ON rse.user_sso_guid = rr.user_sso_guid
     AND rse.subscription_start = rr.current_record
-    LEFT JOIN UNLIMITED.CLTS_EXCLUDED_USERS eu
+    LEFT JOIN UNLIMITED.EXCLUDED_USERS eu
     ON rse.user_sso_guid = eu.user_sso_guid
     WHERE eu.user_sso_guid IS NULL
 )
