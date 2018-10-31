@@ -22,7 +22,7 @@ view: fair_use_deviceid2 {
       LEFT JOIN prod.unlimited.raw_olr_extended_iac iac
           ON pp.product_id = iac.pp_pid
           AND pp.user_type LIKE 'student'
-      LEFT JOIN prod.unlimited.clts_excluded_users eu
+      LEFT JOIN prod.unlimited.excluded_users eu
         ON g.userssoguid = eu.user_sso_guid
       WHERE eu.user_sso_guid IS NULL
       AND eventcategory = 'Dashboard'

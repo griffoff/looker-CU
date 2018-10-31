@@ -8,7 +8,7 @@ derived_table: {
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
                 --  AND prod."source" like 'unlimited'
-                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.CLTS_EXCLUDED_USERS);;
+                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS);;
 }
 
   dimension: _hash {
