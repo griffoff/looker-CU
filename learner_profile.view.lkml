@@ -47,7 +47,7 @@ view: learner_profile {
 
   dimension: active_user {
     type: string
-    sql: CASE WHEN ${frequency_avg} >= 2 AND ${recency} >= -14 AND ${intensity_avg} > 4 THEN 'active' ELSE 'non-active' END;;
+    sql: CASE WHEN ${frequency} >= 2 AND ${recency} >= -14 AND ${intensity} > 4 THEN 'active' ELSE 'non-active' END;;
   }
 
   dimension: relative_day_number {
