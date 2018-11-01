@@ -49,6 +49,10 @@ view: learner_profile_2 {
     type: number
   }
 
+  dimension: relative_day_number {
+    type: number
+  }
+
   dimension: session_count_tier {
     type: tier
     tiers: [ 2, 3, 4, 5, 6, 7, 8, 9, 10]
