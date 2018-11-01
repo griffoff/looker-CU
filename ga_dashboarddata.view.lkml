@@ -365,7 +365,7 @@ view: ga_dashboarddata {
   dimension: pageurl {
     type: string
     sql: ${TABLE}."PAGEURL" ;;
-    hidden: yes
+    hidden: no
   }
 
   dimension: partnercid {
