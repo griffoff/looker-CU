@@ -166,6 +166,10 @@ view: all_sessions {
     sql: ${TABLE}."SESSION_END" ;;
   }
 
+  dimension: relative_day_number {
+    type: number
+  }
+
   dimension: session_gap_hours {
     type: number
     sql: ${TABLE}."SESSION_GAP_HOURS" ;;
