@@ -2,6 +2,15 @@ view: all_events {
   view_label: "User Events"
   sql_table_name: ZPG.ALL_EVENTS ;;
 
+
+
+
+  dimension: event_duration {
+    type:  number
+    sql: event_data:event_duration  / (60 * 60 * 24) ;;
+    value_format_name: duration_hms
+  }
+
   dimension: first_event_in_session {
     sql: ${TABLE}.event_no = 1 ;;
     type: yesno

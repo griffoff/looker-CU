@@ -5,6 +5,7 @@ include: "/cube/dims.lkml"
 include: "/cube/dim_course.view"
 include: "/cube/ga_mobiledata.view"
 
+
 case_sensitive: no
 
 ######## User Experience Journey Start ###################
