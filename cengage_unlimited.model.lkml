@@ -35,8 +35,8 @@ explore: event_analysis {
   from: all_events
   view_name: all_events
 
-  join: learner_profile {
-    sql_on: ${all_events.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+  join: learner_profile_2 {
+    sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
     relationship: many_to_one
   }
   join: all_sessions {
@@ -88,8 +88,8 @@ explore: session_analysis {
     relationship: many_to_one
   }
 
-  join: learner_profile {
-    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+  join: learner_profile_2 {
+    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
     relationship: many_to_one
   }
 

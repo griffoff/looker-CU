@@ -98,6 +98,12 @@ view: learner_profile_2 {
     type: number
   }
 
+  dimension: event_duration {
+    type:  number
+    sql: total_user_duration  / (60 * 60 * 24) ;;
+    value_format_name: duration_hms
+  }
+
   dimension: usage_category {
     case: {
       when: {
