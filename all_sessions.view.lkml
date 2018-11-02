@@ -1,19 +1,25 @@
 view: all_sessions {
-  sql_table_name: ZPG.ALL_SESSIONS_LOOKER ;;
+  sql_table_name: ZPG.ALL_SESSIONS ;;
 
   dimension: age_in_days {
     type: number
     sql: ${TABLE}."AGE_IN_DAYS" ;;
+    label: "Event age in days"
+    description: "Number of days since the first login and this event occurred"
   }
 
   dimension: age_in_weeks {
     type: number
     sql: ${TABLE}."AGE_IN_WEEKS" ;;
+    label: "Event age in weeks"
+    description: "Number of weeks since the first login and this event occurred"
+
   }
 
   dimension: cities {
     type: string
     sql: ${TABLE}."CITIES" ;;
+
   }
 
   dimension: first_city {
