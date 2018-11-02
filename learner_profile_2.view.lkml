@@ -24,6 +24,7 @@ view: learner_profile_2 {
 
   dimension: frequency_avg {
     type: number
+    label: "Average Frequency"
     }
 
   dimension: intensity_avg {
