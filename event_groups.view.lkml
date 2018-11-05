@@ -7,6 +7,8 @@ view: event_groups {
   dimension: _fivetran_deleted {
     type: yesno
     sql: ${TABLE}."_FIVETRAN_DELETED" ;;
+    label: "Fivetran deleted"
+    description: "TRUE if this recorded was deleted via Fivetran and FALSE if record still exists"
   }
 
   dimension_group: _fivetran_synced {
@@ -21,26 +23,35 @@ view: event_groups {
       year
     ]
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
+    label: "Fivetran synced"
+    description: "Timestamp of the last time fivetran synced the table"
   }
 
   dimension: _row {
     type: number
     sql: ${TABLE}."_ROW" ;;
+    label: "Row number"
+    description: "Row number of the record in the table"
   }
 
   dimension: event_group {
     type: string
     sql: COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **') ;;
+    label: "Event group"
+    description: "Classification hard coded in for grouping events according to different business purposes"
   }
 
   dimension: event_name {
     type: string
     primary_key: yes
     sql: ${TABLE}."EVENT_NAME" ;;
+    label: "Event name"
+    description: "Lowest level of classification hierarchy and meant to represent a user action in plain english i.e. 'Clicked Upgrade Button'"
   }
 
   measure: count {
     type: count
     drill_fields: [event_name]
+    label: "Count"
   }
 }
