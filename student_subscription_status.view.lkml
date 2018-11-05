@@ -21,9 +21,25 @@ derived_table: {
     ;;
     persist_for: "6 hours"
 }
-  dimension: user_sso_guid{primary_key:yes}
-  dimension: subscription_status {}
-  dimension: has_trial {type:yesno}
-  dimension: has_subscription {type: yesno}
-  dimension: trial_expired {type: yesno}
+  dimension: user_sso_guid{primary_key:yes
+    label: "User SSO GUID"}
+
+  dimension: subscription_status {
+    label: "Subscription status"
+    description: "Current subscription status"
+  }
+  dimension: has_trial {
+    type:yesno
+    label: "Has or had trial"
+    description: "TRUE if user has or ever had a trial and FALSE otherwise"
+    }
+  dimension: has_subscription {
+    label: "Has or had subscription"
+    description: "TURE if user has or ever had a subscription and FALSE otherwise"
+    type: yesno}
+
+  dimension: trial_expired {
+    label: "Trial expired"
+    description: "TRUE if user has ever had a trial expire and FALSE otherwise"
+    type: yesno}
 }
