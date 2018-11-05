@@ -159,7 +159,15 @@ view: user_institution_map {
 
   }
 
-  dimension: RSRC {}
-  dimension: user_sso_guid {}
-  dimension: entity_no {}
+  dimension: RSRC {
+    label: "RSRC"
+    description: "Source table of record"
+  }
+  dimension: user_sso_guid {
+    label: "User SSO GUID"
+  }
+  dimension: entity_no {
+    label: "Entity number"
+    description: "A unique identifier for academic institutions"
+  }
 }
