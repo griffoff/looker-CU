@@ -214,6 +214,15 @@ view: all_events {
   }
   measure: intensity {
     sql: ROUND(${events_per_session}, 1) ;;
+    label: "Intensity"
+    description: ""
+  }
+
+  measure: sum_of_event_duration{
+    type: sum
+    sql: event_data:event_duration  / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+    label: "Sum of event durations"
   }
 
 }

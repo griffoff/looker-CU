@@ -273,7 +273,7 @@ view: all_sessions {
 
   dimension: session_no_tier {
     type: tier
-    tiers: [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 20]
+    tiers: [ 2, 3, 6, 11, 16, 21]
     style: integer
     sql: ${TABLE}."SESSION_NO" ;;
     label: "Session number tiers"
@@ -447,9 +447,10 @@ view: all_sessions {
 
   measure:  average_session_duration{
     type: average
-    sql:  ${session_length_mins};;
+    sql:  ${session_length_mins} / ( 60 * 24);;
+    value_format_name: duration_hms
     label: "Average session duration (minutes)"
-    description: "Average session duration (minutes)"
+
   }
 
   measure: user_count {
