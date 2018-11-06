@@ -22,11 +22,23 @@ view: learner_profile {
 
         derived_column: frequency_prank {sql: PERCENT_RANK() OVER (ORDER BY frequency);;}
         derived_column: intensity_prank {sql: PERCENT_RANK() OVER (ORDER BY intensity);;}
-
       }
 
       persist_for: "6 hours"
     }
+
+     dimension: total_user_duration {
+      type:  number
+      sql: total_user_duration  / (60 * 60 * 24) ;;
+      value_format_name: duration_hms
+      label: "Total user duration"
+      description: "The total duration a user has spent doing something on one of the platforms"
+    }
+
+    dimension: contract_ids {
+    }
+
+
 
     dimension: event_date {}
 

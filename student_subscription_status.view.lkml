@@ -35,7 +35,7 @@ derived_table: {
     }
   dimension: has_subscription {
     label: "Has or had subscription"
-    description: "TURE if user has or ever had a subscription and FALSE otherwise"
+    description: "TRUE if user has or ever had a subscription and FALSE otherwise"
     type: yesno}
 
   dimension: trial_expired {

@@ -152,6 +152,16 @@ view: learner_profile_2 {
     description: "Usage categories for bucketing data by how frequently and intensly a user uses CU relative to other users"
   }
 
+  dimension: contract_ids {}
+  dimension: subscription_start {}
+  dimension: subscription_end {}
+  dimension: products {}
+  dimension: searches_with_results {}
+  dimension: searches_without_results {}
+  dimension: search_terms_with_results {}
+  dimension: search_terms_without_results {}
+  dimension: faq_clicks {}
+
 
 ### Measure's section ###
 
