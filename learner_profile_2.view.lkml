@@ -160,7 +160,37 @@ view: learner_profile_2 {
   dimension: searches_without_results {}
   dimension: search_terms_with_results {}
   dimension: search_terms_without_results {}
-  dimension: faq_clicks {}
+  dimension: trial_start_date  {}
+  dimension: trial_end_date {}
+  dimension: subscription_start_date {}
+  dimension: subscription_end_date {}
+  dimension: trial_sessions {}
+  dimension: subscription_sessions {}
+  dimension: trial_events_duration {
+    type:  number
+    sql: trial_events_duration  / (60 * 60 * 24) ;;
+    value_format_name: duration_hms
+  }
+  dimension: subscription_events_duration {
+    type:  number
+    sql: subscription_events_duration  / (60 * 60 * 24) ;;
+    value_format_name: duration_hms
+
+  }
+  dimension: total_months_cu_subscription {}
+
+#   dimension: trial_start_date {
+#     sql: ${student_subscription_status.trial_start_date_date} ;;
+#   }
+#
+#   dimension: subscription_start_date {
+#     sql: ${student_subscription_status.subscription_start_date_date} ;;
+#   }
+
+
+
+
+
 
 
 ### Measure's section ###

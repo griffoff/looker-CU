@@ -4,10 +4,12 @@ derived_table: {
     with get_latest as (
       select
             *
-            ,row_number() over (partition by user_sso_guid order by local_time desc) as reverse_order
-            ,max(case when subscription_state = 'trial_access' then 1 end) over (partition by user_sso_guid) = 1 as has_trial
-            ,max(case when subscription_state = 'full_access' then 1 end) over (partition by user_sso_guid) = 1 as has_subscription
-            ,max(case when subscription_state = 'trial_access' and subscription_end < current_timestamp() then 1 end) over (partition by user_sso_guid) = 1 as trial_expired
+         ,row_number() over (partition by user_sso_guid order by local_time desc) as reverse_order
+         ,MAX(case when subscription_state = 'trial_access' then 1 end) over (partition by user_sso_guid) = 1 as has_trial
+         ,MAX(CASE WHEN subscription_state = 'trial_access' THEN subscription_start END) OVER (PARTITION BY user_sso_guid) AS trial_start_date
+         ,MAX(case when subscription_state = 'full_access' then 1 end) over (partition by user_sso_guid) = 1 as has_subscription
+         ,MAX(CASE WHEN subscription_state = 'full_access' THEN subscription_start END) OVER (PARTITION BY user_sso_guid) AS subscription_start_date
+         ,MAX(case when subscription_state = 'trial_access' and subscription_end < current_timestamp() then 1 end) over (partition by user_sso_guid) = 1 as trial_expired
       from UNLIMITED.raw_subscription_event
     )
     select
@@ -42,4 +44,21 @@ derived_table: {
     label: "Trial expired"
     description: "TRUE if user has ever had a trial expire and FALSE otherwise"
     type: yesno}
+
+  dimension_group: trial_start_date {
+    sql: ${TABLE}.trial_start_date ;;
+    type: time
+    timeframes: [time, date, day_of_week, month, hour]
+    }
+
+
+  dimension_group: subscription_start_date {
+    sql: ${TABLE}.subscription_start_date ;;
+    type: time
+    timeframes: [time, date, day_of_week, month, hour]
+
+    description: "The time components of the timestamp when the user began their subscription"
+  }
+
+
 }
