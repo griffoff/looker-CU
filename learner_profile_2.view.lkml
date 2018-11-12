@@ -22,6 +22,22 @@ view: learner_profile_2 {
     group_label: "Activations"
   }
 
+  dimension: first_activation_date {
+    type: date
+  }
+
+  dimension: new_customer {
+    type: string
+    sql: CASE WHEN first_activation_date > '08/01/2018' AND subscription_status IN ('Full Access', 'Trial Access') THEN 'New Cengage Customer'
+              WHEN first_activation_date > '08/01/2018' AND subscription_status NOT IN ('Full Access', 'Trial Access') THEN 'Stand alone purchase after CU released'
+              WHEN first_activation_date < '08/01/2018' AND subscription_status IN ('Full Access', 'Trial Access')  THEN 'Returning Customer purchased CU'
+              WHEN first_activation_date < '08/01/2018' AND subscription_status NOT IN ('Full Access', 'Trial Access' )    THEN 'Returning Customer purchased stand alone after CU released'
+              ELSE 'other' END
+              ;;
+  }
+
+
+
   dimension: frequency_avg {
     label: "Frequency average (over all GUIDs)"
     description: "Average frequency calulcated accross all GUIDs (even if filters are applied)"
@@ -175,6 +191,7 @@ view: learner_profile_2 {
   dimension: searches_without_results {}
   dimension: search_terms_with_results {}
   dimension: search_terms_without_results {}
+  dimension: faq_clicks {}
   dimension: trial_start_date  {}
   dimension: trial_end_date {}
   dimension: subscription_start_date {}
