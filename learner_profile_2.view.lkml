@@ -7,6 +7,21 @@ view: learner_profile_2 {
 
   ### Dimension section ###
 
+  dimension: WA_activations {
+    type: number
+    group_label: "Activations"
+  }
+
+  dimension: MT_activations {
+    type: number
+    group_label: "Activations"
+  }
+
+  dimension: other_activations {
+    type: number
+    group_label: "Activations"
+  }
+
   dimension: frequency_avg {
     label: "Frequency average (over all GUIDs)"
     description: "Average frequency calulcated accross all GUIDs (even if filters are applied)"
@@ -178,6 +193,8 @@ view: learner_profile_2 {
 
   }
   dimension: total_months_cu_subscription {}
+
+  dimension: purchase_path {}
 
 #   dimension: trial_start_date {
 #     sql: ${student_subscription_status.trial_start_date_date} ;;
