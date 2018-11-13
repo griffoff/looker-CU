@@ -29,7 +29,7 @@ explore: all_events {
     relationship: many_to_one
   }
 }
-
+#  hello
 explore: event_analysis {
   extends: [all_events]
   from: all_events
