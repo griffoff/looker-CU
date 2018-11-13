@@ -2,6 +2,10 @@ view: all_events {
   view_label: "User Events"
   sql_table_name: ZPG.ALL_EVENTS ;;
 
+  dimension: iac_isbn {
+    sql: ${event_data}:iac_isbn ;;
+  }
+
   dimension: event_duration {
     type:  number
     sql: event_data:event_duration  / (60 * 60 * 24) ;;

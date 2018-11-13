@@ -103,6 +103,12 @@ explore: session_analysis {
     relationship: many_to_one
   }
 
+  join: products_v {
+    sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
+    relationship: many_to_one
+  }
+
+
 }
 
 explore: sessions_analysis_week {}
