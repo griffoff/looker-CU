@@ -1,6 +1,11 @@
+include: "/core/common.lkml"
 view: all_events {
   view_label: "User Events"
   sql_table_name: ZPG.ALL_EVENTS ;;
+
+  dimension: iac_isbn {
+    sql: ${event_data}:iac_isbn ;;
+  }
 
   dimension: event_duration {
     type:  number
@@ -108,7 +113,8 @@ view: all_events {
       month,
       quarter,
       year,
-      day_of_week
+      day_of_week,
+      hour_of_day
     ]
     sql: ${TABLE}."EVENT_TIME" ;;
     label: "Event timestamp UTC"
@@ -118,7 +124,8 @@ view: all_events {
   dimension: event_type {
     type: string
     sql: ${TABLE}."EVENT_TYPE" ;;
-    label: "The highest level in the hierarchy of event classicfication above event action"
+    label: "Event type"
+    description: "The highest level in the hierarchy of event classicfication above event action"
   }
 
   dimension: load_metadata {
