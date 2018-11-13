@@ -6,6 +6,35 @@ view: learner_profile_2 {
 
 
   ### Dimension section ###
+  dimension: courses {
+    label: "Courses"
+    description: "List of course keys the user has"
+  }
+
+  dimension: course_count {
+    label: "Courses"
+    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
+  }
+
+  dimension: all_products_added {
+    label: "All products added"
+    description: "List of all iac_isbn provisioned to dashboard from the provisioned product table"
+  }
+
+  dimension: total_ebooks_net_price_value {
+    label: "Total ebooks net value"
+    description: "Sum of the net price of all the ebooks provisioned to this users dashboard"
+  }
+
+  dimension: courseware_ebooks_net_price_value {
+    label: "Courseware ebook net value"
+    description: "Sum of the net price of all ebooks provisioned to this users dashboard where there was an associated course key"
+  }
+
+  dimension:  non_courseware_ebooks_net_price_value {
+    label: "Non-courseware ebook net value"
+    description: "Sum of the net price of all ebooks provisioned to this users dashboard where there was an associated course key"
+  }
 
   dimension: WA_activations {
     type: number
@@ -244,17 +273,33 @@ view: learner_profile_2 {
     description: "Number of times this user clicked the FAQ button"
   }
 
-  dimension: trial_start_date  {}
+  dimension: trial_start_date  {
+    label: "Trial start date"
+  }
 
-  dimension: trial_end_date {}
+  dimension: trial_end_date {
+    label: "Trial end date"
+  }
 
-  dimension: subscription_start_date {}
+  dimension: subscription_start_date {
+    label: "Subscription start date"
+    description: "Date onwhich this users full access CU subscription started"
+  }
 
-  dimension: subscription_end_date {}
+  dimension: subscription_end_date {
+    label: "Subscription start date"
+    description: "Date onwhich this users full access CU subscription started"
+  }
 
-  dimension: trial_sessions {}
+  dimension: trial_sessions {
+    label: "Trial sessions"
+    description: "Number of sessions while this user is in trial"
+  }
 
-  dimension: subscription_sessions {}
+  dimension: subscription_sessions {
+    label: "Subscription sessions"
+    description: "Number of sessions while this user is in full access CU subscription"
+  }
 
   dimension: trial_events_duration {
     type:  number
@@ -288,11 +333,6 @@ view: learner_profile_2 {
 #   dimension: subscription_start_date {
 #     sql: ${student_subscription_status.subscription_start_date_date} ;;
 #   }
-
-
-
-
-
 
 
 ### Measure's section ###

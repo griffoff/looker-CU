@@ -124,7 +124,8 @@ view: all_events {
   dimension: event_type {
     type: string
     sql: ${TABLE}."EVENT_TYPE" ;;
-    label: "The highest level in the hierarchy of event classicfication above event action"
+    label: "Event type"
+    description: "The highest level in the hierarchy of event classicfication above event action"
   }
 
   dimension: load_metadata {
