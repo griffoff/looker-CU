@@ -10,20 +10,28 @@ view: learner_profile_2 {
   dimension: WA_activations {
     type: number
     group_label: "Activations"
+    label: "WebAssign Activations"
+    description: "Number of WebAssign activations"
   }
 
   dimension: MT_activations {
     type: number
     group_label: "Activations"
+    label: "MindTap activations"
+    description: "Number of Mindtap activations"
   }
 
   dimension: other_activations {
     type: number
     group_label: "Activations"
+    label: "Other activations"
+    description: "Number of activations that aren't WebAssign or MindTap"
   }
 
   dimension: first_activation_date {
     type: date
+    label: "First activation date"
+    description: "The earliest date this user activated a product"
   }
 
   dimension: new_customer {
@@ -163,6 +171,14 @@ view: learner_profile_2 {
     description: "The total duration a user has spent doing something on one of the platforms"
   }
 
+  dimension: duration_tiers {
+    type: tier
+    sql: ${total_user_duration} * (24) ;;
+    tiers: [0.25, 0.5, 1, 2, 4, 8, 16, 24, 36, 48, 60, 72, 84, 96]
+    style: relational
+
+  }
+
   dimension: usage_category {
     case: {
       when: {
@@ -183,35 +199,87 @@ view: learner_profile_2 {
     description: "Usage categories for bucketing data by how frequently and intensly a user uses CU relative to other users"
   }
 
-  dimension: contract_ids {}
-  dimension: subscription_start {}
-  dimension: subscription_end {}
-  dimension: products {}
-  dimension: searches_with_results {}
-  dimension: searches_without_results {}
-  dimension: search_terms_with_results {}
-  dimension: search_terms_without_results {}
-  dimension: faq_clicks {}
+  dimension: contract_ids {
+    label: "Contract IDs"
+    description: "All of the contract IDs attached to this user"
+  }
+
+  dimension: subscription_start {
+    label: "Current subscription start date"
+    description: "The user's current subscription (trial or full) start date"
+  }
+
+  dimension: subscription_end {
+    label: "Current subscription end date"
+    description: "The user's current subscription (trial or full) end date"
+  }
+
+  dimension: products {
+    label: "Products"
+    description: "The product ISBN13s this user has provisioned to their dashboard"
+  }
+
+  dimension: searches_with_results {
+    label: "Searches with results"
+    description: "Number of searches by this user that returned results"
+  }
+
+  dimension: searches_without_results {
+    label: "Searches without results"
+    description: "Number of searches by this user that did not return results"
+  }
+
+  dimension: search_terms_with_results {
+    label: "Search terms with results"
+    description: "A list of search terms searched by this user that returned results"
+  }
+
+  dimension: search_terms_without_results {
+    label: "Search terms without results"
+    description: "A list of search terms searched by this user that did not return results"
+  }
+
+  dimension: faq_clicks {
+    label: "FAQ clicks"
+    description: "Number of times this user clicked the FAQ button"
+  }
+
   dimension: trial_start_date  {}
+
   dimension: trial_end_date {}
+
   dimension: subscription_start_date {}
+
   dimension: subscription_end_date {}
+
   dimension: trial_sessions {}
+
   dimension: subscription_sessions {}
+
   dimension: trial_events_duration {
     type:  number
     sql: trial_events_duration  / (60 * 60 * 24) ;;
     value_format_name: duration_hms
+    label: "Trial events duration"
+    description: "The sum of all event durations for this user while in CU trial access"
   }
   dimension: subscription_events_duration {
     type:  number
     sql: subscription_events_duration  / (60 * 60 * 24) ;;
     value_format_name: duration_hms
+    label: "Subscription events duration"
+    description: "The sum of all event durations for this user while in a full access CU subscription"
 
   }
-  dimension: total_months_cu_subscription {}
+  dimension: total_months_cu_subscription {
+    label: "Total months of CU subscription"
+    description: "Total number of months this user has had a CU subscription"
+  }
 
-  dimension: purchase_path {}
+  dimension: purchase_path {
+    label: "Purchase path"
+    description: "The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)"
+  }
 
 #   dimension: trial_start_date {
 #     sql: ${student_subscription_status.trial_start_date_date} ;;
@@ -253,6 +321,7 @@ view: learner_profile_2 {
     description: "Percentage ranked intensity calulcated accorss querried population (filtered results)"
     type: number
     sql: PERCENT_RANK() OVER (ORDER BY intensity);;}
+
 
   measure: count {
     type: count}

@@ -29,7 +29,7 @@ explore: all_events {
     relationship: many_to_one
   }
 }
-
+#  hello
 explore: event_analysis {
   extends: [all_events]
   from: all_events
@@ -102,6 +102,12 @@ explore: session_analysis {
     sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
     relationship: many_to_one
   }
+
+  join: products_v {
+    sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
+    relationship: many_to_one
+  }
+
 
 }
 
