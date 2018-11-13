@@ -156,6 +156,10 @@ explore: raw_subscription_event {
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
+  join: raw_olr_enrollment {
+    sql_on: ${raw_subscription_event.user_sso_guid} = ${raw_olr_enrollment.user_sso_guid} ;;
+    relationship: many_to_one
+  }
 }
 ##### END  Raw Snowflake Tables #####
 

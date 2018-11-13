@@ -4,6 +4,7 @@ view: raw_olr_enrollment {
   dimension: _hash {
     type: string
     sql: ${TABLE}."_HASH" ;;
+    primary_key: yes
   }
 
   dimension_group: _ldts {
