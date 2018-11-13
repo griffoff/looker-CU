@@ -1,3 +1,4 @@
+include: "/core/common.lkml"
 view: all_events {
   view_label: "User Events"
   sql_table_name: ZPG.ALL_EVENTS ;;
@@ -108,7 +109,8 @@ view: all_events {
       month,
       quarter,
       year,
-      day_of_week
+      day_of_week,
+      hour_of_day
     ]
     sql: ${TABLE}."EVENT_TIME" ;;
     label: "Event timestamp UTC"
