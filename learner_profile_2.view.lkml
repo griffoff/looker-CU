@@ -11,12 +11,12 @@ view: learner_profile_2 {
     description: "List of course keys the user has"
   }
 
-  dimension: course_count {
-    label: "Courses"
+  dimension: unique_courses {
+    label: "Courses (number of)"
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
   }
 
-  dimension: all_products_added {
+  dimension: all_products_add {
     label: "All products added"
     description: "List of all iac_isbn provisioned to dashboard from the provisioned product table"
   }
@@ -40,21 +40,21 @@ view: learner_profile_2 {
     type: number
     group_label: "Activations"
     label: "WebAssign Activations"
-    description: "Number of WebAssign activations"
+    description: "Number of WebAssign activations prior to CU launch on 08/01/2018"
   }
 
   dimension: MT_activations {
     type: number
     group_label: "Activations"
     label: "MindTap activations"
-    description: "Number of Mindtap activations"
+    description: "Number of Mindtap activations prior to CU launch on 08/01/2018"
   }
 
   dimension: other_activations {
     type: number
     group_label: "Activations"
     label: "Other activations"
-    description: "Number of activations that aren't WebAssign or MindTap"
+    description: "Number of activations that aren't WebAssign or MindTap prior to CU launch on 08/01/2018"
   }
 
   dimension: first_activation_date {
@@ -200,13 +200,19 @@ view: learner_profile_2 {
     description: "The total duration a user has spent doing something on one of the platforms"
   }
 
-  dimension: duration_tiers {
+  dimension: total_user_duration_tiers {
     type: tier
     sql: ${total_user_duration} * (24) ;;
     tiers: [0.25, 0.5, 1, 2, 4, 8, 16, 24, 36, 48, 60, 72, 84, 96]
     style: relational
 
   }
+
+  dimension: platforms_with_registrations {
+    label: "Platforms with registrations"
+    description: "A list of platforms this user has had registrations on"
+  }
+
 
   dimension: usage_category {
     case: {
@@ -243,10 +249,6 @@ view: learner_profile_2 {
     description: "The user's current subscription (trial or full) end date"
   }
 
-  dimension: products {
-    label: "Products"
-    description: "The product ISBN13s this user has provisioned to their dashboard"
-  }
 
   dimension: searches_with_results {
     label: "Searches with results"
@@ -287,8 +289,8 @@ view: learner_profile_2 {
   }
 
   dimension: subscription_end_date {
-    label: "Subscription start date"
-    description: "Date onwhich this users full access CU subscription started"
+    label: "Subscription end date"
+    description: "Date onwhich this users full access CU subscription ended"
   }
 
   dimension: trial_sessions {
