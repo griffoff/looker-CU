@@ -32,6 +32,7 @@ view: learner_profile_2 {
   }
 
   dimension:  non_courseware_ebooks_net_price_value {
+    type: number
     label: "Non-courseware ebook net value"
     description: "Sum of the net price of all ebooks provisioned to this users dashboard where there was an associated course key"
   }
