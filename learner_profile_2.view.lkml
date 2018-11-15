@@ -12,6 +12,7 @@ view: learner_profile_2 {
   }
 
   dimension: unique_courses {
+    type: number
     label: "Courses (number of)"
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
   }
@@ -27,6 +28,7 @@ view: learner_profile_2 {
   }
 
   dimension: courseware_ebooks_net_price_value {
+    type: number
     label: "Courseware ebook net value"
     description: "Sum of the net price of all ebooks provisioned to this users dashboard where there was an associated course key"
   }
@@ -329,6 +331,14 @@ view: learner_profile_2 {
     description: "The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)"
   }
 
+  dimension: non_courseware_user {
+    sql: CASE WHEN ${non_courseware_ebooks_net_price_value} > 0 THEN 'Non-courseware ebook user'
+              WHEN ${non_courseware_ebooks_net_price_value} <= 0
+                    OR ${non_courseware_ebooks_net_price_value} IS NULL THEN 'Courseware only user'
+                    END;;
+    type: string
+  }
+
 #   dimension: trial_start_date {
 #     sql: ${student_subscription_status.trial_start_date_date} ;;
 #   }
@@ -369,7 +379,49 @@ view: learner_profile_2 {
   measure: count {
     type: count}
 
+
   measure: average {
     type:  average
+  }
+
+  measure: average_cw_value {
+    type:  average
+    sql: ${courseware_ebooks_net_price_value} ;;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: average_non_cw_value {
+    type:  average
+    sql: ${non_courseware_ebooks_net_price_value};;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: average_total_ebook_value {
+    type:  average
+    sql: ${total_ebooks_net_price_value};;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: CU_users_with_cw_added{
+    type: count_distinct
+    sql: CASE WHEN ${unique_courses} > 0 THEN ${user_sso_guid} END;;
+  }
+
+  measure: CU_users_with_non_cw_added{
+    type: count_distinct
+    sql: CASE WHEN ${unique_courses} > 0 AND ${non_courseware_ebooks_net_price_value} > 0 THEN ${user_sso_guid} END;;
+  }
+
+  measure: percent_users_adding_non_cw {
+    type: number
+    sql: ${CU_users_with_non_cw_added} / ${CU_users_with_cw_added}  ;;
+    value_format: "0.00%"
+  }
+
+
+
+  measure: sum {
+    type: sum
+
   }
 }
