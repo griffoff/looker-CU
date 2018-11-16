@@ -238,18 +238,7 @@ explore: CU_Sandbox {
   }
 ##### End Ebook Usage #####
 
-explore: total_users {
-  label: "users"
-}
 
-explore: cu_user_info {
-  label: "CU user info"
-}
-### Search outcome
-
-explore: search_outcome {
-
-}
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
   label: "Product Research (AJ survey)"
