@@ -1,3 +1,6 @@
+explore: additional_info_products { label: "Provisioned Products Buckets"}
+
+
 view: additional_info_products {
   derived_table: {
     sql:

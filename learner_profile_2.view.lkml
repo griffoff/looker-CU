@@ -1,4 +1,5 @@
 include: "cengage_unlimited.model.lkml"
+include: "/core/common.lkml"
 
 view: learner_profile_2 {
   view_label: "Learner Profile"
@@ -534,6 +535,15 @@ view: learner_profile_2 {
     description: "Does this person use just courseware or other products or both?"
   }
 
+  dimension:  course_ware_duration {
+    sql: course_ware_duration ;;
+  }
+
+  dimension:  non_courseware_duration {
+    sql: non_courseware_duration / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+  }
+
 
 
 ### Measure's section ###
@@ -603,5 +613,18 @@ view: learner_profile_2 {
     sql: ${CU_users_with_non_cw_added} / ${CU_users_with_cw_added}  ;;
     value_format_name: percent_2
   }
+
+  measure: average_cw_duration {
+    type: average
+    sql: course_ware_duration / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+  }
+
+  measure: average_non_cw_duration {
+    type: average
+    sql: non_courseware_duration / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+  }
+
 
 }

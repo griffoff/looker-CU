@@ -29,7 +29,8 @@ explore: all_events {
     relationship: many_to_one
   }
 }
-#  hello
+
+
 explore: event_analysis {
   extends: [all_events]
   from: all_events
@@ -39,12 +40,13 @@ explore: event_analysis {
     sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
     relationship: many_to_one
   }
+
   join: all_sessions {
     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
     relationship: many_to_one
   }
 
-    join: all_weeks_cu_value {
+  join: all_weeks_cu_value {
     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
     relationship: many_to_many
   }
@@ -107,38 +109,15 @@ explore: session_analysis {
     sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
     relationship: many_to_one
   }
-
-
 }
 
-explore: sessions_analysis_week {}
-
-explore: all_sessions_cu_value {
-
-}
-
-explore: all_weeks_cu_value {
-
-}
-
-explore: all_weeks_cu_value_sankey {
-  label: "CU soft value"
-}
 
 ######## User Experience Journey End ###################
 
 
 ##### Raw Snowflake Tables #####
-explore: additional_info_products {
-  label: "Provisioned Products Buckets"
-}
-
-explore: raw_olr_provisioned_product {
-  label: "CU Provisioned Product"
-
-}
-
 explore: provisioned_product {
+  label: "VitalSource events"
   from: raw_olr_provisioned_product
   join: raw_subscription_event {
     sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
@@ -162,11 +141,13 @@ explore: raw_subscription_event {
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
-  join: raw_olr_enrollment {
-    sql_on: ${raw_subscription_event.user_sso_guid} = ${raw_olr_enrollment.user_sso_guid} ;;
+  join: sub_actv {
+    sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
     relationship: many_to_one
   }
 }
+
+
 ##### END  Raw Snowflake Tables #####
 
 
@@ -201,12 +182,11 @@ explore: ga_dashboarddata {
     sql_on: ${ga_dashboarddata.userssoguid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: many_to_one
   }
+}
 
-  }
-
-explore: dashboard_use_over_time {}
 
 explore: dashboard_use_over_time_bucketed {
+  label: "Dashboard Use Over Time Binned"
   join: raw_subscription_event {
     sql_on: ${raw_subscription_event.user_sso_guid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: one_to_many
@@ -240,74 +220,6 @@ explore: CU_Sandbox {
 
 
 
-##### Fair Useage #####
-explore: ebook_usage_aggregated {}
-explore: ebook_usage_aggregated_by_week {}
-
-explore: coursewares_activated_week {}
-explore: coursewares_activated {}
-
-explore: device_changes {}
-explore: device_changes_all_time {}
-
-explore: unique_cities_per_user_per_week{}
-explore: unique_cities_per_user {}
-explore: weeks_above_threshhold_cities {}
-explore: fair_use_weeks_above_threshhold_devices {}
-
-explore: courseware_activations_per_user {}
-
-explore: fair_use_tracking {
-  label: "Fair Use Tracking"
-}
-
-explore: indicators {
-  label: "Indicators"
-
-join: fair_use_indicators {
-  sql_on: ${indicators.indicator_id} = ${fair_use_indicators.indicator_id};;
-  relationship: one_to_many
-}
-join: fair_use_indicators_aggregated {
-  sql_on: ${indicators.indicator_id} = ${fair_use_indicators_aggregated.indicator_count} ;;
-  relationship: one_to_many
-}
-}
-
-explore: fair_use_tracking_vitalsource {}
-
-explore: fair_use_indicators {}
-
-explore: fair_use_indicators_aggregated {
-  label: "Fair Use Indicators agg"}
-
-explore: ind {
-  from: indicators
-  label: "Ind"
-
-  join: fair_use_indicators {
-    sql_on: ${ind.indicator_id} = ${fair_use_indicators.indicator_id};;
-    relationship: one_to_many
-  }}
-
-  explore:raw_fair_use_logins
-  {
-    label: "CMP Dashboard"
-    join: logins_last_30_days {
-      sql_on: ${raw_fair_use_logins.user_sso_guid} = ${logins_last_30_days.user_sso_guid} ;;
-      relationship: one_to_one
-    }
-
-    join: logins_last_7_days {
-      sql_on: ${raw_fair_use_logins.user_sso_guid} = ${logins_last_7_days.user_sso_guid} ;;
-      relationship: one_to_one
-    }
-  }
-
-explore: fair_use_device_id {}
-  explore: fair_use_deviceid2 {}
-##### End Fair Useage #####
-
 
 ##### Ebook Usage #####
   explore: ebook_usage {
@@ -328,20 +240,10 @@ explore: fair_use_device_id {}
   }
 ##### End Ebook Usage #####
 
-explore: total_users {
-  label: "users"
-}
 
-explore: cu_user_info {
-  label: "CU user info"
-}
-### Search outcome
-
-explore: search_outcome {
-
-}
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
+  label: "Product Research (AJ survey)"
   join: aj_survey {
     type: inner
     relationship: many_to_one

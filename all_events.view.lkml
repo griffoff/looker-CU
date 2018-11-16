@@ -294,4 +294,16 @@ view: all_events {
     description: "Calcualted as the sum of event durations grouped by selected dimensions"
   }
 
+  measure: course_ware_duration {
+    type: sum
+    sql: CASE WHEN event_data:course_key IS NOT NULL THEN event_data:event_duration / (60 * 60 * 24) END   ;;
+    value_format_name: duration_dhm
+  }
+
+  measure: non_courseware_duration {
+    type: sum
+    sql: CASE WHEN event_data:course_key IS NULL THEN event_data:event_duration / (60 * 60 * 24) END  ;;
+    value_format_name: duration_dhm
+  }
+
 }

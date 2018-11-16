@@ -1,3 +1,7 @@
+explore: all_weeks_cu_value_sankey {
+  label: "CU soft value"
+}
+
 view: all_weeks_cu_value_sankey {
     derived_table: {
       persist_for: "24 hours"

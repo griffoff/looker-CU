@@ -19,11 +19,13 @@ view: raw_olr_enrollment {
       year
     ]
     sql: ${TABLE}."_LDTS" ;;
+    hidden: yes
   }
 
   dimension: _rsrc {
     type: string
     sql: ${TABLE}."_RSRC" ;;
+    hidden: yes
   }
 
   dimension: access_role {
