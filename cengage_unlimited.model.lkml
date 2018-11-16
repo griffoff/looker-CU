@@ -117,6 +117,7 @@ explore: session_analysis {
 
 ##### Raw Snowflake Tables #####
 explore: provisioned_product {
+  label: "VitalSource events"
   from: raw_olr_provisioned_product
   join: raw_subscription_event {
     sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
@@ -185,6 +186,7 @@ explore: ga_dashboarddata {
 
 
 explore: dashboard_use_over_time_bucketed {
+  label: "Dashboard Use Over Time Binned"
   join: raw_subscription_event {
     sql_on: ${raw_subscription_event.user_sso_guid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: one_to_many
