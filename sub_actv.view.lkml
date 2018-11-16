@@ -1,3 +1,5 @@
+explore: sub_actv {}
+
 view: sub_actv {
   derived_table: {
   sql:

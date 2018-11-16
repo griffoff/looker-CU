@@ -112,20 +112,10 @@ explore: session_analysis {
 }
 
 
-
 ######## User Experience Journey End ###################
 
 
 ##### Raw Snowflake Tables #####
-explore: additional_info_products {
-  label: "Provisioned Products Buckets"
-}
-
-explore: raw_olr_provisioned_product {
-  label: "CU Provisioned Product"
-
-}
-
 explore: provisioned_product {
   from: raw_olr_provisioned_product
   join: raw_subscription_event {
@@ -156,7 +146,7 @@ explore: raw_subscription_event {
   }
 }
 
-explore: sub_actv {}
+
 ##### END  Raw Snowflake Tables #####
 
 
