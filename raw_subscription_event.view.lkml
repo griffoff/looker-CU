@@ -16,9 +16,9 @@ view: raw_subscription_event {
       ,CASE WHEN latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
       ,CASE WHEN earliest_record = 1 THEN 'yes' ELSE 'no' END AS earliest_filter
     FROM state
-  --  LEFT JOIN unlimited.vw_user_blacklist bk
-  --  ON state.user_sso_guid = bk.user_sso_guid
-  --  WHERE bk.user_sso_guid IS NULL
+    LEFT JOIN unlimited.excluded_users bk
+    ON state.user_sso_guid = bk.user_sso_guid
+    WHERE bk.user_sso_guid IS NULL
     ;;
   }
 
