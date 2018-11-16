@@ -1,3 +1,5 @@
+explore: dashboard_use_over_time {}
+
 view: dashboard_use_over_time {
   derived_table: {
     sql: WITH

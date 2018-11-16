@@ -181,10 +181,8 @@ explore: ga_dashboarddata {
     sql_on: ${ga_dashboarddata.userssoguid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: many_to_one
   }
+}
 
-  }
-
-explore: dashboard_use_over_time {}
 
 explore: dashboard_use_over_time_bucketed {
   join: raw_subscription_event {
