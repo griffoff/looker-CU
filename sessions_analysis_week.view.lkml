@@ -1,3 +1,5 @@
+#explore: sessions_analysis_week {}
+
 view: sessions_analysis_week {
     derived_table: {
       explore_source: session_analysis {

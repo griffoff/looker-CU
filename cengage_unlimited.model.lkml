@@ -29,7 +29,8 @@ explore: all_events {
     relationship: many_to_one
   }
 }
-#  hello
+
+
 explore: event_analysis {
   extends: [all_events]
   from: all_events
@@ -39,12 +40,13 @@ explore: event_analysis {
     sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
     relationship: many_to_one
   }
+
   join: all_sessions {
     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
     relationship: many_to_one
   }
 
-    join: all_weeks_cu_value {
+  join: all_weeks_cu_value {
     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
     relationship: many_to_many
   }
@@ -107,18 +109,6 @@ explore: session_analysis {
     sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
     relationship: many_to_one
   }
-
-
-}
-
-explore: sessions_analysis_week {}
-
-explore: all_sessions_cu_value {
-
-}
-
-explore: all_weeks_cu_value {
-
 }
 
 explore: all_weeks_cu_value_sankey {

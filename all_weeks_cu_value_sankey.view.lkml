@@ -1,3 +1,4 @@
+
 view: all_weeks_cu_value_sankey {
     derived_table: {
       persist_for: "24 hours"
