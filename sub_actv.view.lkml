@@ -1,4 +1,4 @@
-explore: sub_actv {}
+explore: sub_actv {label: "Active subscriptions"}
 
 view: sub_actv {
   derived_table: {
