@@ -1,4 +1,5 @@
 include: "cengage_unlimited.model.lkml"
+include: "/core/common.lkml"
 
 view: learner_profile_2 {
   view_label: "Learner Profile"
@@ -11,12 +12,13 @@ view: learner_profile_2 {
     description: "List of course keys the user has"
   }
 
-  dimension: course_count {
-    label: "Courses"
+  dimension: unique_courses {
+    type: number
+    label: "Courses (number of)"
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
   }
 
-  dimension: all_products_added {
+  dimension: all_products_add {
     label: "All products added"
     description: "List of all iac_isbn provisioned to dashboard from the provisioned product table"
   }
@@ -27,11 +29,13 @@ view: learner_profile_2 {
   }
 
   dimension: courseware_ebooks_net_price_value {
+    type: number
     label: "Courseware ebook net value"
     description: "Sum of the net price of all ebooks provisioned to this users dashboard where there was an associated course key"
   }
 
   dimension:  non_courseware_ebooks_net_price_value {
+    type: number
     label: "Non-courseware ebook net value"
     description: "Sum of the net price of all ebooks provisioned to this users dashboard where there was an associated course key"
   }
@@ -40,21 +44,21 @@ view: learner_profile_2 {
     type: number
     group_label: "Activations"
     label: "WebAssign Activations"
-    description: "Number of WebAssign activations"
+    description: "Number of WebAssign activations prior to CU launch on 08/01/2018"
   }
 
   dimension: MT_activations {
     type: number
     group_label: "Activations"
     label: "MindTap activations"
-    description: "Number of Mindtap activations"
+    description: "Number of Mindtap activations prior to CU launch on 08/01/2018"
   }
 
   dimension: other_activations {
     type: number
     group_label: "Activations"
     label: "Other activations"
-    description: "Number of activations that aren't WebAssign or MindTap"
+    description: "Number of activations that aren't WebAssign or MindTap prior to CU launch on 08/01/2018"
   }
 
   dimension: first_activation_date {
@@ -200,13 +204,19 @@ view: learner_profile_2 {
     description: "The total duration a user has spent doing something on one of the platforms"
   }
 
-  dimension: duration_tiers {
+  dimension: total_user_duration_tiers {
     type: tier
     sql: ${total_user_duration} * (24) ;;
     tiers: [0.25, 0.5, 1, 2, 4, 8, 16, 24, 36, 48, 60, 72, 84, 96]
     style: relational
 
   }
+
+  dimension: platforms_with_registrations {
+    label: "Platforms with registrations"
+    description: "A list of platforms this user has had registrations on"
+  }
+
 
   dimension: usage_category {
     case: {
@@ -233,71 +243,111 @@ view: learner_profile_2 {
     description: "All of the contract IDs attached to this user"
   }
 
-  dimension: subscription_start {
-    label: "Current subscription start date"
-    description: "The user's current subscription (trial or full) start date"
-  }
-
-  dimension: subscription_end {
-    label: "Current subscription end date"
-    description: "The user's current subscription (trial or full) end date"
-  }
-
-  dimension: products {
-    label: "Products"
-    description: "The product ISBN13s this user has provisioned to their dashboard"
-  }
-
   dimension: searches_with_results {
-    label: "Searches with results"
+    group_label: "Searches"
+    label: "# Searches with results"
     description: "Number of searches by this user that returned results"
   }
 
   dimension: searches_without_results {
-    label: "Searches without results"
+    group_label: "Searches"
+    label: "# Searches without results"
+    description: "Number of searches by this user that did not return results"
+  }
+
+  dimension: searches_with_results_tier {
+    group_label: "Searches"
+    label: "# Searches with results"
+    type: tier
+    tiers: [1, 10, 20, 30]
+    style: integer
+    sql: ${searches_with_results} ;;
+    description: "Number of searches by this user that returned results"
+  }
+
+  dimension: searches_without_results_tier {
+    group_label: "Searches"
+    label: "# Searches without results"
+    type: tier
+    tiers: [1, 10, 20, 30]
+    style: integer
+    sql: ${searches_without_results} ;;
     description: "Number of searches by this user that did not return results"
   }
 
   dimension: search_terms_with_results {
+    group_label: "Searches"
     label: "Search terms with results"
     description: "A list of search terms searched by this user that returned results"
   }
 
   dimension: search_terms_without_results {
+    group_label: "Searches"
     label: "Search terms without results"
     description: "A list of search terms searched by this user that did not return results"
   }
 
   dimension: faq_clicks {
-    label: "FAQ clicks"
+    group_label: "FAQ Clicks"
+    label: "# FAQ clicks"
     description: "Number of times this user clicked the FAQ button"
   }
 
-  dimension: trial_start_date  {
-    label: "Trial start date"
+  dimension: faq_clicks_tier {
+    group_label: "FAQ Clicks"
+    label: "# FAQ clicks (buckets)"
+    type: tier
+    tiers: [1, 10, 20, 30]
+    style: integer
+    sql: ${faq_clicks} ;;
+    description: "Number of times this user clicked the FAQ button"
   }
 
-  dimension: trial_end_date {
-    label: "Trial end date"
+  dimension_group: subscription_start {
+    type: time
+    timeframes: [date, week, month, month_name]
+    label: "Current subscription start date"
+    description: "The user's current subscription state (trial or full) start date"
   }
 
-  dimension: subscription_start_date {
+  dimension_group: subscription_end {
+    type: time
+    timeframes: [date, week, month, month_name]
+    label: "Current subscription end date"
+    description: "The user's current subscription state (trial or full) end date"
+  }
+
+  dimension_group: trial_start  {
+    type: time
+    timeframes: [date, week, month, month_name]
+  }
+
+  dimension_group: trial_end {
+    type: time
+    timeframes: [date, week, month, month_name]
+  }
+
+  dimension_group: full_access_start {
+    type: time
+    timeframes: [date, week, month, month_name]
     label: "Subscription start date"
-    description: "Date onwhich this users full access CU subscription started"
+    description: "Date onw hich this users full access CU subscription started"
   }
 
-  dimension: subscription_end_date {
-    label: "Subscription start date"
-    description: "Date onwhich this users full access CU subscription started"
+  dimension_group: full_access_end {
+    type: time
+    timeframes: [date, week, month, month_name]
+    label: "Subscription end date"
+    description: "Date onwhich this users full access CU subscription ended"
   }
 
   dimension: trial_sessions {
-    label: "Trial sessions"
+    label: "# Trial sessions"
     description: "Number of sessions while this user is in trial"
   }
 
   dimension: subscription_sessions {
-    label: "Subscription sessions"
+    label: "# Full access sessions"
     description: "Number of sessions while this user is in full access CU subscription"
   }
 
@@ -305,14 +355,15 @@ view: learner_profile_2 {
     type:  number
     sql: trial_events_duration  / (60 * 60 * 24) ;;
     value_format_name: duration_hms
-    label: "Trial events duration"
+    label: "Time active during trial period"
+    # TO DO: better description
     description: "The sum of all event durations for this user while in CU trial access"
   }
   dimension: subscription_events_duration {
     type:  number
     sql: subscription_events_duration  / (60 * 60 * 24) ;;
     value_format_name: duration_hms
-    label: "Subscription events duration"
+    label: "Time active during full access"
     description: "The sum of all event durations for this user while in a full access CU subscription"
 
   }
@@ -326,13 +377,23 @@ view: learner_profile_2 {
     description: "The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)"
   }
 
-#   dimension: trial_start_date {
-#     sql: ${student_subscription_status.trial_start_date_date} ;;
-#   }
-#
-#   dimension: subscription_start_date {
-#     sql: ${student_subscription_status.subscription_start_date_date} ;;
-#   }
+  dimension: non_courseware_user {
+    sql: CASE WHEN ${non_courseware_ebooks_net_price_value} > 0 THEN 'Non-courseware ebook user'
+              WHEN ${non_courseware_ebooks_net_price_value} <= 0
+                    OR ${non_courseware_ebooks_net_price_value} IS NULL THEN 'Courseware only user'
+                    END;;
+    type: string
+  }
+
+  dimension:  course_ware_duration {
+    sql: course_ware_duration ;;
+  }
+
+  dimension:  non_courseware_duration {
+    sql: non_courseware_duration / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+  }
+
 
 
 ### Measure's section ###
@@ -364,9 +425,55 @@ view: learner_profile_2 {
 
 
   measure: count {
-    type: count}
-
-  measure: average {
-    type:  average
+    type: count
+    label: "# Students"
   }
+
+  measure: average_cw_value {
+    type:  average
+    sql: ${courseware_ebooks_net_price_value} ;;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: average_non_cw_value {
+    type:  average
+    sql: ${non_courseware_ebooks_net_price_value};;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: average_total_ebook_value {
+    type:  average
+    sql: ${total_ebooks_net_price_value};;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: CU_users_with_cw_added{
+    type: count_distinct
+    sql: CASE WHEN ${unique_courses} > 0 THEN ${user_sso_guid} END;;
+  }
+
+  measure: CU_users_with_non_cw_added{
+    type: count_distinct
+    sql: CASE WHEN ${unique_courses} > 0 AND ${non_courseware_ebooks_net_price_value} > 0 THEN ${user_sso_guid} END;;
+  }
+
+  measure: percent_users_adding_non_cw {
+    type: number
+    sql: ${CU_users_with_non_cw_added} / ${CU_users_with_cw_added}  ;;
+    value_format_name: percent_2
+  }
+
+  measure: average_cw_duration {
+    type: average
+    sql: course_ware_duration / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+  }
+
+  measure: average_non_cw_duration {
+    type: average
+    sql: non_courseware_duration / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+  }
+
+
 }
