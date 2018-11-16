@@ -1,4 +1,4 @@
-connection: "snowflake_prod"
+
 include: "*.view.lkml"         # include all views in this project
 include: "/core/common.lkml"
 include: "/cube/dims.lkml"
