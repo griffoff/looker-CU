@@ -111,9 +111,7 @@ explore: session_analysis {
   }
 }
 
-explore: all_weeks_cu_value_sankey {
-  label: "CU soft value"
-}
+
 
 ######## User Experience Journey End ###################
 
