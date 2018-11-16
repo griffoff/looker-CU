@@ -252,6 +252,7 @@ explore: search_outcome {
 }
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
+  label: "Product Research (AJ survey)"
   join: aj_survey {
     type: inner
     relationship: many_to_one
