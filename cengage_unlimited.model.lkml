@@ -29,7 +29,8 @@ explore: all_events {
     relationship: many_to_one
   }
 }
-#  hello
+
+
 explore: event_analysis {
   extends: [all_events]
   from: all_events
@@ -39,12 +40,13 @@ explore: event_analysis {
     sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
     relationship: many_to_one
   }
+
   join: all_sessions {
     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
     relationship: many_to_one
   }
 
-    join: all_weeks_cu_value {
+  join: all_weeks_cu_value {
     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
     relationship: many_to_many
   }
@@ -107,38 +109,15 @@ explore: session_analysis {
     sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
     relationship: many_to_one
   }
-
-
 }
 
-explore: sessions_analysis_week {}
-
-explore: all_sessions_cu_value {
-
-}
-
-explore: all_weeks_cu_value {
-
-}
-
-explore: all_weeks_cu_value_sankey {
-  label: "CU soft value"
-}
 
 ######## User Experience Journey End ###################
 
 
 ##### Raw Snowflake Tables #####
-explore: additional_info_products {
-  label: "Provisioned Products Buckets"
-}
-
-explore: raw_olr_provisioned_product {
-  label: "CU Provisioned Product"
-
-}
-
 explore: provisioned_product {
+  label: "VitalSource events"
   from: raw_olr_provisioned_product
   join: raw_subscription_event {
     sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
@@ -168,7 +147,7 @@ explore: raw_subscription_event {
   }
 }
 
-explore: sub_actv {}
+
 ##### END  Raw Snowflake Tables #####
 
 
@@ -203,12 +182,11 @@ explore: ga_dashboarddata {
     sql_on: ${ga_dashboarddata.userssoguid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: many_to_one
   }
+}
 
-  }
-
-explore: dashboard_use_over_time {}
 
 explore: dashboard_use_over_time_bucketed {
+  label: "Dashboard Use Over Time Binned"
   join: raw_subscription_event {
     sql_on: ${raw_subscription_event.user_sso_guid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: one_to_many
@@ -262,20 +240,10 @@ explore: CU_Sandbox {
   }
 ##### End Ebook Usage #####
 
-explore: total_users {
-  label: "users"
-}
 
-explore: cu_user_info {
-  label: "CU user info"
-}
-### Search outcome
-
-explore: search_outcome {
-
-}
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
+  label: "Product Research (AJ survey)"
   join: aj_survey {
     type: inner
     relationship: many_to_one

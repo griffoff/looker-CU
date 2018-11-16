@@ -1,3 +1,5 @@
+explore: total_users {label: "Users"}
+
 view: total_users {
 
   derived_table: {

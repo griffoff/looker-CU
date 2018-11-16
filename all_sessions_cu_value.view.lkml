@@ -1,3 +1,5 @@
+#explore: all_sessions_cu_value {}
+
 view: all_sessions_cu_value {
   sql_table_name: ZPG.ALL_SESSIONS_CU_VALUE ;;
 

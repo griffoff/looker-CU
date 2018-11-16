@@ -1,3 +1,5 @@
+explore: cu_user_info {label: "CU User Info"}
+
 view: cu_user_info {
   sql_table_name: UPLOADS.CU.CU_USER_INFO ;;
 

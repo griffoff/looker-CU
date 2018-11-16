@@ -1,3 +1,5 @@
+explore: search_outcome {label: "Search Outcome"}
+
 view: search_outcome {
   derived_table: {
     sql: with dis_ses as (
