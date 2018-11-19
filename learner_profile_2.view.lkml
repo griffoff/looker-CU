@@ -632,6 +632,10 @@ view: learner_profile_2 {
 
 ### Measure's section ###
 
+  measure: average_courses_added {
+    type: average_distinct
+    sql:  ;;
+  }
 
   measure: frequency_avg_filterable {
     label: "Average frequency"
