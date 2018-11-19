@@ -82,14 +82,14 @@ view: all_events {
 
   dimension: event_0p {
     type: string
-    sql: ${TABLE}."EVENT_0" ;;
+    sql: ${TABLE}."EVENT_0P" ;;
     group_label: "Succeeding five events"
     label: "Current event"
   }
 
   dimension: event_1p {
     type: string
-    sql: ${TABLE}."EVENT_1" ;;
+    sql: ${TABLE}."EVENT_1P" ;;
     group_label: "Succeeding five events"
     label: "Event 1"
     description: "The event one after the current event"
@@ -97,7 +97,7 @@ view: all_events {
 
   dimension: event_2p {
     type: string
-    sql: ${TABLE}."EVENT_2" ;;
+    sql: ${TABLE}."EVENT_2P" ;;
     group_label: "Succeeding five events"
     label: "Event 2"
     description: "The event two after the current event"
@@ -105,7 +105,7 @@ view: all_events {
 
   dimension: event_3p {
     type: string
-    sql: ${TABLE}."EVENT_3" ;;
+    sql: ${TABLE}."EVENT_3P" ;;
     group_label: "Succeeding five events"
     label: "Event 3"
     description: "The event three after the current event"
@@ -113,7 +113,7 @@ view: all_events {
 
   dimension: event_4p {
     type: string
-    sql: ${TABLE}."EVENT_4" ;;
+    sql: ${TABLE}."EVENT_4P" ;;
     group_label: "Succeeding five events"
     label: "Event 4"
     description: "The event four after the current event"
@@ -121,7 +121,7 @@ view: all_events {
 
   dimension: event_5p {
     type: string
-    sql: ${TABLE}."EVENT_5" ;;
+    sql: ${TABLE}."EVENT_5P" ;;
     group_label: "Succeeding five events"
     label: "Event 5"
     description: "The event five after the current event"
