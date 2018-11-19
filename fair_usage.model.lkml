@@ -1,5 +1,4 @@
-connection: "snowflake_prod"
-# include: "*.view.lkml"         # include all views in this project
+#  connection: "snowflake_prod"
 include: "/cengage_unlimited/Fair_use*"
 include: "/cengage_unlimited/raw_fair_use_login*"
 include: "/cengage_unlimited/fair_use_deviceid2.view"
@@ -10,7 +9,8 @@ include: "/cube/dim_course.view"
 include: "/cube/ga_mobiledata.view"
 include: "/cengage_unlimited/raw_subscription_event.view"
 include: "/cengage_unlimited/Ebook*"
-
+include: "/cengage_unlimited/cengage_unlimited.model.lkml"
+# include: "/cengage_unlimited/cengage_unlimited.lkml"
 
 
 ##### Fair Useage #####
@@ -80,22 +80,6 @@ explore:raw_fair_use_logins
 explore: fair_use_device_id {}
 explore: fair_use_deviceid2 {}
 
-explore: raw_subscription_event  {}
+# explore: raw_subscription_event  {}
+
 ##### End Fair Useage #####
-
-  explore: ebook_usage {
-    label: "Ebook Usage"
-    extends: [raw_subscription_event]
-    join: ebook_usage_actions {
-      sql_on:  ${raw_subscription_event.user_sso_guid} = ${ebook_usage_actions.user_sso_guid} ;;
-      type: left_outer
-      relationship: one_to_many
-    }
-
-    join: ebook_mapping {
-      type: left_outer
-      sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action}  AND ${ebook_usage_actions.source} = ${ebook_mapping.source} AND ${ebook_usage_actions.event_category} = ${ebook_mapping.event_category};;
-      relationship: many_to_one
-    }
-
-  }

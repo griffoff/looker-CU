@@ -1,3 +1,6 @@
+include: "/cengage_unlimited/Fair_use*"
+include: "/cengage_unlimited/Ebook*"
+
 view: ebook_usage_aggregated {
   derived_table: {
     explore_source: ebook_usage {

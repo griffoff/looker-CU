@@ -236,8 +236,8 @@ explore: CU_Sandbox {
        sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action}  AND ${ebook_usage_actions.source} = ${ebook_mapping.source} AND ${ebook_usage_actions.event_category} = ${ebook_mapping.event_category};;
        relationship: many_to_one
      }
-
   }
+
 ##### End Ebook Usage #####
 
 

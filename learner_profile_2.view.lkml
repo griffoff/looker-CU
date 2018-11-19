@@ -144,15 +144,19 @@ view: learner_profile_2 {
 
   dimension: new_customer {
     type: string
-    sql: CASE WHEN first_activation_date > '08/01/2018' AND subscription_status IN ('Full Access', 'Trial Access') THEN 'New Cengage Customer'
-              WHEN first_activation_date > '08/01/2018' AND subscription_status NOT IN ('Full Access', 'Trial Access') THEN 'Stand alone purchase after CU released'
-              WHEN first_activation_date < '08/01/2018' AND subscription_status IN ('Full Access', 'Trial Access')  THEN 'Returning Customer purchased CU'
-              WHEN first_activation_date < '08/01/2018' AND subscription_status NOT IN ('Full Access', 'Trial Access' )    THEN 'Returning Customer purchased stand alone after CU released'
+    sql: CASE WHEN first_activation_date > '08/01/2018' AND subscription_status = 'Full Access' THEN 'New Cengage Customer'
+              WHEN first_activation_date > '08/01/2018' AND subscription_status <> 'Full Access' THEN 'Stand alone purchase after CU released'
+              WHEN first_activation_date < '08/01/2018' AND subscription_status =  'Full Access'  THEN 'Returning Customer purchased CU'
+              WHEN first_activation_date < '08/01/2018' AND subscription_status <> 'Full Access'    THEN 'Returning Customer purchased stand alone after CU released'
               ELSE 'other' END
               ;;
     description: "Type of customer: new/returning/etc."
   }
 
+  dimension: latest_activation_date {
+    label: "Latest Activation Date"
+    description: "Most recent activation date"
+  }
 
 
   dimension: frequency_avg {
