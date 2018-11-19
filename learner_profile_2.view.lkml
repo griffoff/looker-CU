@@ -7,8 +7,9 @@ view: learner_profile_2 {
 
 
   set: details {
-    fields: [user_sso_guid, subscription_status, subscription_start_date, subscription_end_date
-      ,courseware_net_value_tier, non_courseware_net_value_tier
+    fields: [user_sso_guid, subscription_status, cu_subscription_length, subscription_start_date, subscription_end_date
+      ,total_products_net_value_tier, non_courseware_net_value
+      ,courses_enrolled, new_customer, first_activation_date
       ,products_added]
   }
 
@@ -19,10 +20,22 @@ view: learner_profile_2 {
     description: "List of course keys the user has"
   }
 
-  dimension: unique_courses {
+  dimension: courses_enrolled {
     group_label: "Courses"
     type: number
     label: "# Courses Enrolled"
+    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
+    sql: ${TABLE}.unique_courses ;;
+    alias: [unique_courses]
+  }
+
+  dimension: courses_enrolled_tier {
+    group_label: "Courses"
+    type: tier
+    style: integer
+    tiers: [1, 2, 3, 5]
+    sql: ${courses_enrolled} ;;
+    label: "# Courses Enrolled (buckets)"
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
   }
 
@@ -31,7 +44,7 @@ view: learner_profile_2 {
     label: "products added"
     description: "List of all iac_isbn provisioned to dashboard from the provisioned product table"
     drill_fields: [details*]
-    sql: ${TABLE}.all_products_add::string ;;
+    sql: array_to_string(${TABLE}.all_products_add, ', ') ;;
     alias: [all_products_add]
   }
 
@@ -138,20 +151,73 @@ view: learner_profile_2 {
 
   dimension_group: first_activation {
     type: time
-    timeframes: [date, month, year]
+    timeframes: [raw, date, month, year]
     description: "The earliest date this user activated any product with Cengage"
+    sql: ${TABLE}.first_activation_date ;;
   }
 
-  dimension: new_customer {
-    type: string
-    sql: CASE WHEN first_activation_date > '08/01/2018' AND subscription_status = 'Full Access' THEN 'New Cengage Customer'
-              WHEN first_activation_date > '08/01/2018' AND subscription_status <> 'Full Access' THEN 'Stand alone purchase after CU released'
-              WHEN first_activation_date < '08/01/2018' AND subscription_status =  'Full Access'  THEN 'Returning Customer purchased CU'
-              WHEN first_activation_date < '08/01/2018' AND subscription_status <> 'Full Access'    THEN 'Returning Customer purchased stand alone after CU released'
-              ELSE 'other' END
-              ;;
-    description: "Type of customer: new/returning/etc."
+#   dimension: new_customer {
+#     type: string
+#     sql: CASE WHEN first_activation_date > '2018-08-01' AND subscription_status IN ('Full Access', 'Trial Access') THEN 'New Cengage Customer'
+#               WHEN first_activation_date > '2018-08-01' AND subscription_status NOT IN ('Full Access', 'Trial Access') THEN 'Stand alone purchase after CU released'
+#               WHEN first_activation_date < '2018-08-01' AND subscription_status IN ('Full Access', 'Trial Access')  THEN 'Returning Customer purchased CU'
+#               WHEN first_activation_date < '2018-08-01' AND subscription_status NOT IN ('Full Access', 'Trial Access' )    THEN 'Returning Customer purchased stand alone after CU released'
+#               ELSE 'other' END
+#               ;;
+#     description: "Type of customer: new/returning/etc."
+#   }
+
+  dimension: is_new_customer {
+    group_label: "Customer Type"
+    hidden: no
+    type: yesno
+    sql: ${first_activation_raw} > '2018-08-01' or ${first_activation_raw} is null;;
   }
+
+  dimension: is_cu_subscriber {
+    group_label: "Customer Type"
+    hidden: no
+    type: yesno
+    sql: lower(${subscription_status}) = 'full access' ;;
+  }
+
+   dimension: new_customer {
+# <<<<<<< HEAD
+#     type: string
+#     sql: CASE WHEN first_activation_date > '08/01/2018' AND subscription_status = 'Full Access' THEN 'New Cengage Customer'
+#               WHEN first_activation_date > '08/01/2018' AND subscription_status <> 'Full Access' THEN 'Stand alone purchase after CU released'
+#               WHEN first_activation_date < '08/01/2018' AND subscription_status =  'Full Access'  THEN 'Returning Customer purchased CU'
+#               WHEN first_activation_date < '08/01/2018' AND subscription_status <> 'Full Access'    THEN 'Returning Customer purchased stand alone after CU released'
+#               ELSE 'other' END
+#               ;;
+#     description: "Type of customer: new/returning/etc."
+# =======
+    group_label: "Customer Type"
+    case: {
+      when: {
+        sql: ${is_new_customer} AND ${is_cu_subscriber};;
+        label: "New cengage customer purchased CU"
+        }
+      when: {
+        sql: ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
+        label: "New Customer purchased stand alone after CU released"
+      }
+      when: {
+        sql: NOT ${is_new_customer} AND ${is_cu_subscriber} ;;
+        label: "Returning customer purchased CU"
+      }
+      when: {
+        sql: ${first_activation_raw} is null ;;
+        label: "No subscription or Standalone"
+      }
+      when: {
+        sql: NOT ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
+        label: "Returning customer purchased stand alone after CU released"
+      }
+    }
+}
+
+
 
   dimension: latest_activation_date {
     label: "Latest Activation Date"
@@ -220,6 +286,16 @@ view: learner_profile_2 {
     label: "Contract IDs"
     description: "All of the contract IDs attached to this user"
   }
+
+  dimension: cu_subscription_length {
+    type: number
+    group_label: "CU Subscription"
+    label: "CU subscription Length"
+    description: "Current length of CU subscription"
+    sql: datediff(month, ${subscription_start_date}, ${subscription_end_date}) ;;
+    value_format: "0 \m\o\n\t\h\s"
+  }
+
 
   dimension: active_user {
     type: string
@@ -532,18 +608,22 @@ view: learner_profile_2 {
     sql: CASE
             WHEN ${non_courseware_net_value} > 0 THEN 'Non-courseware user'
             WHEN ${courseware_net_value} > 0 THEN 'Courseware only user'
-            WHEN ${non_courseware_net_value} is null and ${courseware_net_value} is null then 'No products in dashboard'
-            ELSE '?'
+            --WHEN ${non_courseware_net_value} is null and ${courseware_net_value} is null then 'No products in dashboard'
+            ELSE 'No products added to dashboard'
                     END;;
     type: string
     description: "Does this person use just courseware or other products or both?"
   }
 
-  dimension:  course_ware_duration {
-    sql: course_ware_duration ;;
+  dimension:  courseware_duration {
+    group_label: "Time spent in products"
+    sql: ${TABLE}.course_ware_duration ;;
+    value_format_name: duration_dhm
+    alias: [course_ware_duration]
   }
 
   dimension:  non_courseware_duration {
+    group_label: "Time spent in products"
     sql: non_courseware_duration / (60 * 60 * 24) ;;
     value_format_name: duration_dhm
   }
@@ -604,12 +684,12 @@ view: learner_profile_2 {
 
   measure: CU_users_with_cw_added{
     type: count_distinct
-    sql: CASE WHEN ${unique_courses} > 0 THEN ${user_sso_guid} END;;
+    sql: CASE WHEN ${courses_enrolled} > 0 THEN ${user_sso_guid} END;;
   }
 
   measure: CU_users_with_non_cw_added{
     type: count_distinct
-    sql: CASE WHEN ${unique_courses} > 0 AND ${non_courseware_net_value} > 0 THEN ${user_sso_guid} END;;
+    sql: CASE WHEN ${courses_enrolled} > 0 AND ${non_courseware_net_value} > 0 THEN ${user_sso_guid} END;;
   }
 
   measure: percent_users_adding_non_cw {
@@ -629,6 +709,5 @@ view: learner_profile_2 {
     sql: non_courseware_duration / (60 * 60 * 24) ;;
     value_format_name: duration_dhm
   }
-
 
 }
