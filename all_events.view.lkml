@@ -23,7 +23,7 @@ view: all_events {
   }
 
   dimension:search_outcome{
-    sql:  event_data:search_outcome ;;
+    sql:  event_data:search_outcome;;
   }
 
   dimension: event_0 {
