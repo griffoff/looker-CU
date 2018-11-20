@@ -521,7 +521,7 @@ view: learner_profile_2 {
   dimension_group: full_access_end {
     type: time
     timeframes: [date, week, month, month_name]
-    sql: ${TABLE}.subscription_start_date ;;
+    sql: ${TABLE}.subscription_end_date ;;
     description: "Date on which this users full access CU subscription ended"
   }
 
@@ -529,7 +529,7 @@ view: learner_profile_2 {
     group_label: "Sessions"
     label: "# Sessions"
     type: number
-    description: "Number of sessions this user has had with Cengage online. A session is defined as groups of activity where there is no more than 200 minutes gap"
+    description: "Number of sessions this user has had with Cengage online. A session is defined as groups of activity where there is no more than 30 minutes gap"
   }
 
   dimension: session_count_tier {
@@ -613,6 +613,11 @@ view: learner_profile_2 {
                     END;;
     type: string
     description: "Does this person use just courseware or other products or both?"
+  }
+
+  dimension: subscription_term_length {
+    type: number
+    sql: DATEDIFF(month, ${full_access_start_date}, ${full_access_end_date}) ;;
   }
 
   dimension:  courseware_duration {
