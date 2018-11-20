@@ -36,7 +36,7 @@ view: learner_profile_2 {
     tiers: [1, 2, 3, 5]
     sql: ${courses_enrolled} ;;
     label: "# Courses Enrolled (buckets)"
-    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
+    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment) bucketed"
   }
 
   dimension: products_added {
@@ -441,7 +441,7 @@ view: learner_profile_2 {
 
   dimension: searches_with_results_tier {
     group_label: "Searches"
-    label: "# Searches with results"
+    label: "# Searches with results (buckets)"
     type: tier
     tiers: [1, 10, 20, 30]
     style: integer
@@ -451,7 +451,7 @@ view: learner_profile_2 {
 
   dimension: searches_without_results_tier {
     group_label: "Searches"
-    label: "# Searches without results"
+    label: "# Searches without results (buckets)"
     type: tier
     tiers: [1, 10, 20, 30]
     style: integer
