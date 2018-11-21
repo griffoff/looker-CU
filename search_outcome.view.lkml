@@ -28,7 +28,9 @@ view: search_outcome {
           ,event_time,event_id
         from ses_eve
         --group by user_sso_guid, session_id
-         ) select IFNULL(ADDED_FLAG,'N') AS SEARCH_OUTCOME, ev.*,cat.category
+         ) select IFNULL(ADDED_FLAG,'N') AS SEARCH_OUTCOME,
+            count (*) over(partition by session_id ) as no_searches,
+            ev.*,cat.category
             from eve_ar ev
             LEFT JOIN uploads.cu.search_category cat
             ON ev.search_term = cat.search_term
@@ -49,6 +51,16 @@ view: search_outcome {
     sql: ${search_term}  ;;
   }
 
+  measure: count_distinct_user {
+    label: "# users"
+    type: count_distinct
+    sql: ${user_sso_guid}  ;;
+  }
+
+  dimension: no_searches {
+    type: number
+    sql: ${TABLE}.no_searches ;;
+  }
 
   dimension: search_outcome {
     type: string
