@@ -30,7 +30,6 @@ explore: all_events {
   }
 }
 
-
 explore: event_analysis {
   extends: [all_events]
   from: all_events
