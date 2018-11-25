@@ -476,8 +476,8 @@ measure: no_sessions {
 
   measure:  average_session_duration{
     type: average
-    sql:  ${session_length_mins};;
-   # value_format_name: duration_hms
+    sql:  ${session_length_mins} / (24 * 60);;
+    value_format_name: duration_hms
     label: "Average session duration (minutes)"
 
   }

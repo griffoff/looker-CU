@@ -356,9 +356,9 @@ view: all_events {
     description: "Calcualted as the sum of event durations grouped by selected dimensions"
   }
 
-  measure: sum_of_time_until_next_event{
+  measure: sum_of_time_to_next_event{
     type: sum
-    sql: event_data:time_until_next_event  / (60 * 60 * 24) ;;
+    sql: event_data:time_to_next_event  / (60 * 60 * 24) ;;
     value_format_name: duration_dhm
     label: "Sum of event durations (time to next event)"
     description: "Calcualted as the sum of event durations (time to next event) grouped by selected dimensions"
@@ -366,7 +366,7 @@ view: all_events {
 
   measure: search_event_duration{
     type: sum
-    sql: CASE WHEN (event_name ILIKE '%search%') THEN event_data:time_until_next_event END;;
+    sql: CASE WHEN (event_name ILIKE '%search%') THEN event_data:time_to_next_event END;;
 #     value_format_name: duration_dhm
     label: "Sum of search durations (time to next event)"
     description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
