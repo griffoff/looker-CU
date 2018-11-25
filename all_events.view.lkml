@@ -342,7 +342,7 @@ view: all_events {
 
   measure: sum_of_event_duration{
     type: sum
-    sql: event_data:event_duration  / (60 * 60 * 24) ;;
+    sql:event_data:event_duration / (60 * 60 * 24);;
     value_format_name: duration_dhm
     label: "Sum of event durations"
     description: "Calcualted as the sum of event durations grouped by selected dimensions"
