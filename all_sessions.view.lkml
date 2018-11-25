@@ -284,7 +284,7 @@ dimension: success_searches {}
 
 dimension: success_tier {
     type: tier
-    tiers: [1,5,10,20,100]
+    tiers: [1,2,5,10,20,100]
     style: integer
     sql: ${success_searches} ;;
   }
@@ -292,7 +292,7 @@ dimension: non_success_searches {}
 
 dimension: non_success_tier {
   type: tier
-  tiers: [1,5,10,20,100]
+  tiers: [1,2,5,10,20,100]
   style: integer
   sql: ${non_success_searches} ;;
 }
