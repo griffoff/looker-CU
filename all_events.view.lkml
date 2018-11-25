@@ -15,6 +15,14 @@ view: all_events {
     description: "An event's duration calculated for events such as reading, viewing, and app usage, but not given to individual click events"
   }
 
+  dimension: time_to_next_event {
+    type:  number
+    sql: event_data:time_until_next_event  / (60 * 60 * 24) ;;
+    value_format_name: duration_hms
+    label: "Event duration (time to next event)"
+    description: "An event's duration calculated for all event types as the time until the next event is fired"
+}
+
   dimension: first_event_in_session {
     sql: ${TABLE}.event_no = 1 ;;
     type: yesno
@@ -346,6 +354,22 @@ view: all_events {
     value_format_name: duration_dhm
     label: "Sum of event durations"
     description: "Calcualted as the sum of event durations grouped by selected dimensions"
+  }
+
+  measure: sum_of_time_to_next_event{
+    type: sum
+    sql: event_data:time_to_next_event  / (60 * 60 * 24) ;;
+    value_format_name: duration_dhm
+    label: "Sum of event durations (time to next event)"
+    description: "Calcualted as the sum of event durations (time to next event) grouped by selected dimensions"
+  }
+
+  measure: search_event_duration{
+    type: sum
+    sql: CASE WHEN (event_name ILIKE '%search%') THEN event_data:time_to_next_event END;;
+#     value_format_name: duration_dhm
+    label: "Sum of search durations (time to next event)"
+    description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
   }
 
   measure: course_ware_duration {

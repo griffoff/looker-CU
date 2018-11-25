@@ -284,7 +284,7 @@ dimension: success_searches {}
 
 dimension: success_tier {
     type: tier
-    tiers: [1,5,10,20,100]
+    tiers: [1,2,5,10,20,100]
     style: integer
     sql: ${success_searches} ;;
   }
@@ -292,7 +292,7 @@ dimension: non_success_searches {}
 
 dimension: non_success_tier {
   type: tier
-  tiers: [1,5,10,20,100]
+  tiers: [1,2,5,10,20,100]
   style: integer
   sql: ${non_success_searches} ;;
 }
@@ -476,7 +476,7 @@ measure: no_sessions {
 
   measure:  average_session_duration{
     type: average
-    sql:  ${session_length_mins} / ( 60 * 24);;
+    sql:  ${session_length_mins} / (24 * 60);;
     value_format_name: duration_hms
     label: "Average session duration (minutes)"
 

@@ -401,6 +401,72 @@ dimension: total_user_duration_tiers {
 
 }
 
+  dimension: total_user_duration_tier {
+    group_label: "Time spent online with Cengage"
+    case: {
+      when: {
+       sql: ${total_user_duration} * (24) < 0.25 AND  ${total_user_duration} * (24) > 0;;
+        label: "0 to 15 mins"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 0.5 AND  ${total_user_duration} * (24) > 0.25;;
+        label: "15 to 30 mins"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 1 AND  ${total_user_duration} * (24) > 0.5;;
+        label: "30 to 60 mins"
+      }
+
+      when: {
+        sql: ${total_user_duration} * (24) < 2 AND  ${total_user_duration} * (24) > 1;;
+        label: "1 to 2 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 4 AND  ${total_user_duration} * (24) > 2;;
+        label: "2 to 4 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 8 AND  ${total_user_duration} * (24) > 4;;
+        label: "4 to 8 hrs"
+      }
+
+      when: {
+        sql: ${total_user_duration} * (24) < 16 AND  ${total_user_duration} * (24) > 8;;
+        label: "8 to 16 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 24 AND  ${total_user_duration} * (24) > 16;;
+        label: "16 to 24 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 36 AND  ${total_user_duration} * (24) > 24;;
+        label: "24 to 36 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 48 AND  ${total_user_duration} * (24) > 36;;
+        label: "36 to 48 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 60 AND  ${total_user_duration} * (24) > 48;;
+        label: "48 to 60 hrs"
+      }
+
+      when: {
+        sql: ${total_user_duration} * (24) < 72 AND  ${total_user_duration} * (24) > 60;;
+        label: "60 to 72 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 84 AND  ${total_user_duration} * (24) > 72;;
+        label: "72 to 84 hrs"
+      }
+      when: {
+        sql: ${total_user_duration} * (24) < 96 AND  ${total_user_duration} * (24) > 84;;
+        label: "84 to 96 hrs"
+      }
+      else: "Great than 96 hrs"
+  }
+  }
+
 dimension: platforms_with_registrations {
   label: "Platforms with registrations"
   description: "A list of platforms this user has had registrations on"
