@@ -305,7 +305,7 @@ dimension: active_user {
 }
 
 dimension: relative_day_number {
-  label: "Number of different days (unique dates) logged in to CU"
+  label: "# of different days (unique dates) logged in to CU"
   description: "Calculated as a unique count of dates starting from and including the first login"
   type: number
 }
