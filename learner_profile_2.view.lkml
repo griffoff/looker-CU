@@ -254,7 +254,7 @@ dimension: intensity_prank {
 }
 
 dimension: days_since_first_login {
-  hidden: yes
+  hidden: no
   type: number
   sql: -DATEDIFF(d, current_date(), ${first_interaction_date} ) ;;
   label: "Days since first login"
