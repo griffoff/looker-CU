@@ -137,7 +137,6 @@ view: all_events {
 
 
 
-
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
@@ -365,9 +364,21 @@ view: all_events {
     description: "Calcualted as the sum of event durations (time to next event) grouped by selected dimensions"
   }
 
+  dimension: search_event_duration_dim {
+  type:  number
+    sql: CASE WHEN (event_name ILIKE '%search%' AND event_data:time_to_next_event > 10) THEN 10
+       WHEN (event_name ILIKE '%search%' AND event_data:time_to_next_event < 10) THEN event_data:time_to_next_event
+       ELSE NULL END;;
+
+#     value_format_name: duration_dhm
+    label: "Search durations (time to next event)"
+    description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
+  }
+
   measure: search_event_duration{
     type: sum
-    sql: CASE WHEN (event_name ILIKE '%search%') THEN event_data:time_to_next_event END;;
+    sql: CASE WHEN (CASE WHEN (event_name ILIKE '%search%') THEN event_data:time_to_next_event END) > 10 THEN 10 ELSE event_data:time_to_next_event END;;
+
 #     value_format_name: duration_dhm
     label: "Sum of search durations (time to next event)"
     description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
@@ -375,8 +386,8 @@ view: all_events {
 
   measure: avg_search_event_duration{
     type: average
-    sql: event_data:time_to_next_event  / (60 * 60 * 24);;
-    value_format_name: duration_dhm
+    sql: ${search_event_duration_dim}  / (60 * 60 * 24);;
+    value_format_name: duration_hms
     label: "Average search durations"
     description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
   }
