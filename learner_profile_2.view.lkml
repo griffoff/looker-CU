@@ -560,6 +560,7 @@ dimension_group: subscription_start {
   timeframes: [date, week, month, month_name]
   group_label: "Current subscription state start date"
   description: "The user's current subscription state (trial or full) start date"
+  sql:  ${TABLE}.subscription_start::timestamp_ntz ;;
 }
 
 dimension_group: subscription_end {
