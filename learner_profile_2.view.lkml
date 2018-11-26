@@ -254,7 +254,7 @@ dimension: intensity_prank {
 }
 
 dimension: days_since_first_login {
-  hidden: yes
+  hidden: no
   type: number
   sql: -DATEDIFF(d, current_date(), ${first_interaction_date} ) ;;
   label: "Days since first login"
@@ -305,7 +305,7 @@ dimension: active_user {
 }
 
 dimension: relative_day_number {
-  label: "Relative day number"
+  label: "# of different days (unique dates) logged in to CU"
   description: "Calculated as a unique count of dates starting from and including the first login"
   type: number
 }
@@ -695,9 +695,9 @@ dimension:  courseware_duration {
   alias: [course_ware_duration]
 }
 
-dimension:  non_courseware_duration {
+dimension:  non_course_ware_duration {
   group_label: "Time spent in products"
-  sql: non_courseware_duration / (60 * 60 * 24) ;;
+  sql: ${TABLE}.non_course_ware_duration / (60 * 60 * 24) ;;
   value_format_name: duration_dhm
 }
 
@@ -784,7 +784,7 @@ measure: average_cw_duration {
 
 measure: average_non_cw_duration {
   type: average
-  sql: non_courseware_duration / (60 * 60 * 24) ;;
+  sql: non_course_ware_duration / (60 * 60 * 24) ;;
   value_format_name: duration_dhm
 }
 

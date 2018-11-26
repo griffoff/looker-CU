@@ -255,6 +255,7 @@ view: all_events {
     label: "User SSO GUID"
   }
 
+
   measure: count {
     label: "# events"
     type: count
