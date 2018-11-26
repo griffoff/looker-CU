@@ -354,7 +354,7 @@ dimension: events_per_session {
 dimension_group: first_interaction {
   sql: ${TABLE}.first_event_time ;;
   type: time
-  timeframes: [time, date, day_of_week, month, hour]
+  timeframes: [raw, time, date, day_of_week, month, hour]
   description: "The time components of the timestamp when the user first logged in"
 }
 dimension_group: latest_interaction {

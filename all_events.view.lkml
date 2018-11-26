@@ -254,6 +254,25 @@ view: all_events {
     label: "User SSO GUID"
   }
 
+#   dimension_group: time_since_first_login {
+#     group_label: "Time since first login"
+#     sql_start: ${learner_profile_2.first_interaction_raw} ;;
+#     sql_end: ${event_time} ;;
+#     type: duration
+#     intervals: [hour, day, week, month]
+#   }
+#
+#   dimension: relative_age {
+#     label: ""
+#
+#   }
+
+#   dimension_group: time_since_first_login_test {
+#     label: "Time since first login test"
+#     sql: DATEDIFF(d,  ${learner_profile_2.first_interaction_raw}, ${event_time}) ;;
+#     type: duration
+#     intervals: [hour, day, week, month]
+#   }
 
   measure: count {
     label: "# events"
