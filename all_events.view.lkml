@@ -372,6 +372,14 @@ view: all_events {
     description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
   }
 
+  measure: avg_search_event_duration{
+    type: average
+    sql: event_data:time_to_next_event  / (60 * 60 * 24);;
+    value_format_name: duration_dhm
+    label: "Average search durations"
+    description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
+  }
+
   measure: course_ware_duration {
     type: sum
     sql: CASE WHEN event_data:course_key IS NOT NULL THEN event_data:event_duration / (60 * 60 * 24) END   ;;
