@@ -367,6 +367,7 @@ dimension: frequency {
   group_label: "RFI"
   type: number
   label: "Frequency"
+
   description: "Calculated as the average times a user logs in per week"
 }
 dimension: intensity {
@@ -379,6 +380,7 @@ dimension: recency {
   group_label: "RFI"
   type: number
   label: "Recency"
+  sql: -recency ;;
   description: "Calculated as the number of days since the user last logged in"
 }
 
