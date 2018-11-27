@@ -280,6 +280,10 @@ dimension_group: time_since_first_login {
 dimension: user_sso_guid {
   primary_key: yes
   label: "User SSO GUID"
+  link: {
+    label: "See this user's journey"
+    url: "/explore/cengage_unlimited/event_analysis?fields=all_events.product_platform,all_sessions.session_start_time,all_events.event_time,all_sessions.lat_lon,all_events.event_type,all_events.event_action,event_groups.event_group,all_events.event_name,all_events.event_data,all_events.sum_of_time_to_next_event&f[learner_profile_2.user_sso_guid]={{ value | url_encode }}&f[event_groups.event_group]=-Timers&sorts=all_events.event_time+desc&limit=500&toggle=vse"
+  }
 }
 
 dimension: subscription_status {
