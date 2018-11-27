@@ -94,6 +94,14 @@ view: learner_profile_2 {
     alias: [courseware_ebooks_net_price_value]
   }
 
+  dimension_group: time_since_first_log {
+    group_label: "Time since first event"
+    sql_start: ${learner_profile_2.first_interaction_raw} ;;
+    sql_end: ${all_events.event_time} ;;
+    type: duration
+    intervals: [hour, day, week, month]
+  }
+
   dimension: courseware_net_value_tier {
     group_label: "Provisioned Products"
     label: "Courseware net value (buckets)"
@@ -674,8 +682,9 @@ dimension: purchase_path {
 
 dimension: non_courseware_user {
   sql: CASE
-            WHEN ${non_courseware_net_value} > 0 THEN 'Non-courseware user'
-            WHEN ${courseware_net_value} > 0 THEN 'Courseware only user'
+            WHEN ${non_courseware_net_value} > 0 AND ${courseware_net_value} > 0 THEN 'Courseware and non-courseware user'
+           WHEN (${non_courseware_net_value} <= 0 OR ${non_courseware_net_value} IS NULL) AND ${courseware_net_value} > 0 THEN 'Courseware only user'
+          WHEN ${non_courseware_net_value} > 0 AND (${courseware_net_value} <= 0 OR ${courseware_net_value} IS NULL) THEN 'Non-courseware only user'
             --WHEN ${non_courseware_net_value} is null and ${courseware_net_value} is null then 'No products in dashboard'
             ELSE 'No products added to dashboard'
                     END;;
