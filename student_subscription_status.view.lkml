@@ -23,8 +23,10 @@ derived_table: {
     ;;
     persist_for: "6 hours"
 }
-  dimension: user_sso_guid{primary_key:yes
-    label: "User SSO GUID"}
+  dimension: user_sso_guid{
+    primary_key:yes
+    label: "User SSO GUID"
+    }
 
   dimension: subscription_status {
     label: "Subscription status"
@@ -35,15 +37,18 @@ derived_table: {
     label: "Has or had trial"
     description: "TRUE if user has or ever had a trial and FALSE otherwise"
     }
+
   dimension: has_subscription {
     label: "Has or had subscription"
     description: "TRUE if user has or ever had a subscription and FALSE otherwise"
-    type: yesno}
+    type: yesno
+    }
 
   dimension: trial_expired {
     label: "Trial expired"
     description: "TRUE if user has ever had a trial expire and FALSE otherwise"
-    type: yesno}
+    type: yesno
+    }
 
   dimension_group: trial_start_date {
     sql: ${TABLE}.trial_start_date ;;
@@ -56,7 +61,6 @@ derived_table: {
     sql: ${TABLE}.subscription_start_date ;;
     type: time
     timeframes: [time, date, day_of_week, month, hour]
-
     description: "The time components of the timestamp when the user began their subscription"
   }
 

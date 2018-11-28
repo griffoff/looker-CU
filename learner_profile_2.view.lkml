@@ -190,16 +190,6 @@ view: learner_profile_2 {
   }
 
   dimension: new_customer {
-# <<<<<<< HEAD
-#     type: string
-#     sql: CASE WHEN first_activation_date > '08/01/2018' AND subscription_status = 'Full Access' THEN 'New Cengage Customer'
-#               WHEN first_activation_date > '08/01/2018' AND subscription_status <> 'Full Access' THEN 'Stand alone purchase after CU released'
-#               WHEN first_activation_date < '08/01/2018' AND subscription_status =  'Full Access'  THEN 'Returning Customer purchased CU'
-#               WHEN first_activation_date < '08/01/2018' AND subscription_status <> 'Full Access'    THEN 'Returning Customer purchased stand alone after CU released'
-#               ELSE 'other' END
-#               ;;
-#     description: "Type of customer: new/returning/etc."
-# =======
   group_label: "Customer Type"
   case: {
     when: {
@@ -721,32 +711,42 @@ dimension:  non_course_ware_duration {
 
 measure: average_courses_added {
   type: average_distinct
-  sql:  ;;
 }
+
+  measure: recency_avg_filterable {
+    label: "Average recency"
+    description: "Average frequency calulcated accorss querried population (filtered results)"
+    type: number
+    sql: AVG(-recency) OVER () ;;
+    }
 
 measure: frequency_avg_filterable {
   label: "Average frequency"
   description: "Average frequency calulcated accorss querried population (filtered results)"
   type: number
-  sql: AVG(frequency) OVER () ;;}
+  sql: AVG(frequency) OVER () ;;
+  }
 
 measure: intensity_avg_filterable {
   label: "Average intensity"
   description: "Average intensity calulcated accorss querried population (filtered results)"
   type: number
-  sql: AVG(intensity) OVER ();;}
+  sql: AVG(intensity) OVER ();;
+  }
 
 measure: frequency_prank_filterable {
   label: "Percentage ranked frequency"
   description: "Percentage ranked frequency calulcated accorss querried population (filtered results)"
   type: number
-  sql: PERCENT_RANK() OVER (ORDER BY frequency);;}
+  sql: PERCENT_RANK() OVER (ORDER BY frequency);;
+  }
 
 measure: intensity_prank_filterable {
   label: "Percentage ranked intensity"
   description: "Percentage ranked intensity calulcated accorss querried population (filtered results)"
   type: number
-  sql: PERCENT_RANK() OVER (ORDER BY intensity);;}
+  sql: PERCENT_RANK() OVER (ORDER BY intensity);;
+  }
 
 
 measure: count {

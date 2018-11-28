@@ -346,19 +346,37 @@ view: all_events {
   }
 
   measure: recency {
-    sql: -ROUND(${days_since_last_login}, 0)  ;;
+    sql: CASE WHEN ROUND(${days_since_last_login}, 0) < 0 THEN 0 ELSE ROUND(${days_since_last_login}, 0) END ;;
+    type:  number
     label: "Recency"
     description: "Calculated as the number of days since the last login"
   }
   measure: frequency {
-    sql: ROUND(${days_active_per_week}, 1) ;;
+    sql: COALESCE(ROUND(${days_active_per_week}, 1),0) ;;
     label: "Frequency"
+    type:  number
     description: "Calculated as the average number of days active per week"
   }
   measure: intensity {
     sql: ROUND(${events_per_session}, 1) ;;
     label: "Intensity"
+    type:  number
     description: "Calculated as the average number of events per session"
+  }
+
+  measure: usage_score {
+    sql: (${recency} * -2) + (${intensity} * 2 ) + (${frequency} * 10) ;;
+    type: number
+    label: "Usage score"
+  }
+
+  measure: usage_score_prank {
+    sql: PERCENT_RANK() OVER (PARTITION BY ${event_week} ORDER BY ${usage_score}) ;;
+    type: number
+  }
+
+  measure: usage_classification {
+
   }
 
   measure: sum_of_event_duration{

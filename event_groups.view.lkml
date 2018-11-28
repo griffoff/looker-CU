@@ -41,7 +41,7 @@ view: event_groups {
     description: "Classification hard coded in for grouping events according to different business purposes"
   }
 
-  dimension: event_name {
+  dimension: event_names {
     type: string
     primary_key: yes
     sql: ${TABLE}."EVENT_NAME" ;;
@@ -51,7 +51,7 @@ view: event_groups {
 
   measure: count {
     type: count
-    drill_fields: [event_name]
+    drill_fields: [event_names]
     label: "Count"
   }
 }

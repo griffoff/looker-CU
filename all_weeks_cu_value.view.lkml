@@ -68,6 +68,7 @@ view: all_weeks_cu_value {
     primary_key: yes
   }
 
+
   dimension: cu_soft_value_tiers{
     type: string
     sql: CASE WHEN ${cu_soft_value_prank} < .34 THEN 'LOW'

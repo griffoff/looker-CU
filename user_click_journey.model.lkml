@@ -5,6 +5,11 @@ include: "first_session_events.view.lkml"
 include: "as_user_journey.view.lkml"
 include: "all_events_diff.view.lkml"
 #include: "my_dashboard.dashboard.lookml"   # include a LookML dashboard called my_dashboard
+# include: "usage_by_week.view.lkml"
+# include: "week_to_week_sankey.view.lkml"
+# include: "cengage_unlimited.model.lkml"
+
+
 explore: first_session_events {}
 
 explore: as_user_journey {}
@@ -17,3 +22,7 @@ explore: all_events {
     type: inner
   }
 }
+
+# explore: usage_by_week {}
+#
+# explore: week_to_week_sankey {}
