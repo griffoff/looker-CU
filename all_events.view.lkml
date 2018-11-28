@@ -397,8 +397,8 @@ view: all_events {
 
   dimension: search_event_duration_dim {
   type:  number
-    sql: CASE WHEN (event_name ILIKE '%search%' AND event_data:time_to_next_event > 10) THEN 10
-       WHEN (event_name ILIKE '%search%' AND event_data:time_to_next_event < 10) THEN event_data:time_to_next_event
+    sql: CASE WHEN (${event_name} ILIKE '%search%' AND event_data:time_to_next_event > 10) THEN 10
+       WHEN (${event_name} ILIKE '%search%' AND event_data:time_to_next_event < 10) THEN event_data:time_to_next_event
        ELSE NULL END;;
 
 #     value_format_name: duration_dhm
