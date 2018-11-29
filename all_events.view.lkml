@@ -166,17 +166,7 @@ view: all_events {
 
   dimension_group: event {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year,
-      day_of_week,
-      hour_of_day
-    ]
+    timeframes: [raw, time, date, week, month, quarter, year, day_of_week, hour_of_day]
     sql: ${TABLE}."EVENT_TIME" ;;
     label: "Event timestamp UTC"
     description: "Components of the events timestamp stored in TZ format"
@@ -198,15 +188,7 @@ view: all_events {
 
   dimension_group: local {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    timeframes: [raw, time,  date, week, month, quarter, year]
     sql: ${TABLE}."LOCAL_TIME" ;;
     label: "Local Time"
     description: "Components of the events local timestamp"
