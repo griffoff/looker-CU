@@ -300,3 +300,7 @@ explore: mobiledata {
 # }
 
   }
+
+################ MApped guids ###########################
+
+explore: vw_subscription_event_mapped_guids {}
