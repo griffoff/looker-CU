@@ -110,6 +110,20 @@ explore: session_analysis {
   }
 }
 
+access_grant: can_view_CU_prod_data {
+  user_attribute: access_grant_team
+  allowed_values: [ "yes" ]
+}
+
+###### new explore testing#########
+explore: cu_user_analysis_dev {
+  label: "testing"
+  # from: all_sessions
+  extends: [session_analysis]
+  required_access_grants: [can_view_CU_prod_data]
+  fields: [all_events.user_count,event_groups.event_group,all_events.event_month]
+}
+
 
 ######## User Experience Journey End ###################
 
@@ -286,3 +300,7 @@ explore: mobiledata {
 # }
 
   }
+
+################ MApped guids ###########################
+
+explore: vw_subscription_event_mapped_guids {}
