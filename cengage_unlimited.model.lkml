@@ -35,7 +35,7 @@ explore: all_events_prod {
 }
 
 
-explore: session_analysis {
+explore: session_analysis_prod {
   label: "CU User Analysis"
   extends: [all_events_prod, dim_course]
   from: all_sessions_prod
@@ -124,10 +124,12 @@ access_grant: can_view_CU_dev_data {
 }
 
 ###### new explore testing#########
-explore: session_analysis_prod {
+explore: all_events_dev {
   label: "testing Dev"
-  extends: [session_analysis]
+  extends: [all_events_prod]
   required_access_grants: [can_view_CU_dev_data]
+
+
 }
 
 ################################################## End of DEV Explores #######################################################

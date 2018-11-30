@@ -1,8 +1,8 @@
-include: "all_events.view"
+include: "all_events_prod.view"
 
 view: all_events_dev {
   sql_table_name: zpg.all_events ;;
- extends: [all_events]
+ extends: [all_events_prod]
 
 
   dimension: event_duration {
