@@ -119,7 +119,7 @@ access_grant: can_view_CU_dev_data {
 explore: cu_user_analysis_dev {
   label: "testing"
   extends: [session_analysis]
-
+  sql_table_name: cu_user_analysis.all_sessions ;;
   required_access_grants: [can_view_CU_prod_data]
   fields: [all_events.user_count,event_groups.event_group,all_events.event_month]
 }
@@ -151,6 +151,31 @@ explore: all_events_dev {
   from: all_events_dev
   view_name: all_events
   required_access_grants: [can_view_CU_dev_data]
+
+explore: all_events_prod {
+  from: all_events
+  sql_table_name: cu_user_analysis.all_events ;;
+  join: all_events_diff {
+    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
+    view_label: "Event Category Analysis PROD"
+    sql_on: ${all_events_prod.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+  join: student_subscription_status {
+    sql_on: ${all_events_prod.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
+    sql_table_name: cu_user_analysis.student_subscription_status ;;
+  }
+  join: event_groups {
+    view_label: "User Events PROD"
+    fields: [event_group]
+    sql_on: UPPER(${all_events_prod.event_name}) like UPPER(${event_groups.event_names}) ;;
+    relationship: many_to_one
+  }
+  required_access_grants: [can_view_CU_prod_data]
+
 }
 
 
@@ -385,8 +410,8 @@ explore: mobiledata {
 #   relationship: many_to_one
 # }
 
-  }
+}}
 
 ################ MApped guids ###########################
 
-explore: vw_subscription_event_mapped_guids {}
+# explore: vw_subscription_event_mapped_guids {}
