@@ -96,10 +96,10 @@ view: learner_profile_2 {
 
   dimension_group: time_since_first_log {
     group_label: "Time since first event"
-    sql_start: ${learner_profile_2.first_interaction_raw} ;;
+    sql_start: ${first_interaction_time} ;;
     sql_end: ${all_events.event_time} ;;
     type: duration
-    intervals: [hour, day, week, month]
+    intervals: [ hour, day, week, month]
   }
 
   dimension: courseware_net_value_tier {
@@ -262,7 +262,7 @@ dimension: days_since_first_login {
 dimension_group: time_since_first_login {
   group_label: "Time since first login"
   type: duration
-  sql_start: ${first_interaction_date} ;;
+  sql_start: ${TABLE}.first_interaction_date ;;
   sql_end: current_date() ;;
   intervals: [day, week, month, year]
 }
@@ -354,7 +354,7 @@ dimension: events_per_session {
   description: "Calculated as the average number of events per session by a user"
 }
 dimension_group: first_interaction {
-  sql: ${TABLE}.first_event_time ;;
+  sql: ${TABLE}.first_event_time
   type: time
   timeframes: [raw, time, date, day_of_week, month, hour]
   description: "The time components of the timestamp when the user first logged in"
@@ -710,7 +710,8 @@ dimension:  non_course_ware_duration {
 ### Measure's section ###
 
 measure: average_courses_added {
-  type: average_distinct
+  type: average
+  sql: ${TABLE}.unique_courses ;;
 }
 
   measure: recency_avg_filterable {
