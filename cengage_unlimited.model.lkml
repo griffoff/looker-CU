@@ -119,12 +119,117 @@ access_grant: can_view_CU_prod_data {
 explore: cu_user_analysis_dev {
   label: "testing"
   extends: [session_analysis]
+
   required_access_grants: [can_view_CU_prod_data]
   fields: [all_events.user_count,event_groups.event_group,all_events.event_month]
 }
 
+explore: all_events2 {
+  from:  all_events
+  sql_table_name: cu_user_analysis.all_events ;;
+  label: "test3"
+
+  join: all_sessions {
+    sql_on: ${all_events2.session_id} = ${all_sessions.session_id} ;;
+    relationship: many_to_one
+    sql_table_name: cu_user_analysis.all_sessions ;;
+  }
+
+  required_access_grants: [can_view_CU_prod_data]
+  fields: [all_events2.user_sso_guid, all_events2.event_name, all_sessions.country, all_sessions.course_keys]
+
+}
 
 ######## User Experience Journey End ###################
+
+
+######## User Experience Journey Start PROD ###################
+
+explore: all_events_prod {
+  from: all_events
+  sql_table_name: cu_user_analysis.all_events ;;
+  join: all_events_diff {
+    sql_table_name: cu_user_analysis.all_events_diff ;;
+    view_label: "Event Category Analysis PROD"
+    sql_on: ${all_events_prod.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+  join: student_subscription_status {
+    sql_on: ${all_events_prod.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
+    sql_table_name: cu_user_analysis.student_subscription_status ;;
+  }
+  join: event_groups {
+    view_label: "User Events PROD"
+    fields: [event_group]
+    sql_on: UPPER(${all_events_prod.event_name}) like UPPER(${event_groups.event_names}) ;;
+    relationship: many_to_one
+  }
+  required_access_grants: [can_view_CU_prod_data]
+
+}
+
+
+explore: session_analysis_prod {
+  label: "CU User Analysis PROD"
+  extends: [all_events, dim_course]
+  from: all_sessions
+  sql_table_name: cu_user_analysis.all_sessions ;;
+  view_name: all_sessions
+
+  join: dim_course {
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: user_institution_map {
+    fields: []
+    sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: gateway_institution {
+    sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+    relationship: many_to_one
+  }
+
+  join: learner_profile_2 {
+    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
+    relationship: many_to_one
+    sql_table_name: cu_user_analysis.learner_profile ;;
+  }
+
+  join: all_events {
+    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+    relationship: one_to_many
+    sql_table_name: cu_user_analysis.all_events ;;
+  }
+
+  join: sessions_analysis_week {
+    sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
+    relationship: many_to_one
+    sql_table_name: cu_user_analysis.session_analysis_week ;;
+  }
+
+  join: products_v {
+    sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
+    relationship: many_to_one
+  }
+
+  required_access_grants: [can_view_CU_prod_data]
+}
+
+
+
+
+
+
+######## User Experience Journey End PROD ###################
+
+
+
 
 
 ##### Raw Snowflake Tables #####
