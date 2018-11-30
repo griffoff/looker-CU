@@ -1,9 +1,9 @@
 include: "cengage_unlimited.model.lkml"
 include: "/core/common.lkml"
 
-view: learner_profile_2 {
+view: learner_profile_prod {
   view_label: "Learner Profile"
-  sql_table_name: zpg.learner_profile ;;
+  sql_table_name: CU_USER_ANALYSIS.learner_profile ;;
 
 
   set: details {

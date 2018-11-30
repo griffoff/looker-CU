@@ -1,6 +1,6 @@
-view: all_events_diff {
+view: all_events_diff_prod {
   view_label: "Student Events Categorized"
-  sql_table_name: ZPG.ALL_EVENTS_DIFF{% parameter event_type %};;
+  sql_table_name: CU_USER_ANALYSIS.ALL_EVENTS_DIFF{% parameter event_type %};;
 
   parameter: event_type {
     label: "Select type of events to view"

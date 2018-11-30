@@ -9,78 +9,44 @@ include: "/cube/ga_mobiledata.view"
 case_sensitive: no
 
 ######## User Experience Journey Start ###################
+explore: all_events {}
 
-explore: all_events {
-  join: all_events_diff {
+explore: all_events_prod {
+  label: "all events prod"
+  join: all_events_diff_prod {
     view_label: "Event Category Analysis"
-    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    sql_on: ${all_events_prod.event_id} = ${all_events_diff_prod.event_id} ;;
     relationship: many_to_one
     type: inner
   }
 
-  join: student_subscription_status {
-    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+  join: student_subscription_status_prod {
+    sql_on: ${all_events_prod.user_sso_guid} = ${student_subscription_status_prod.user_sso_guid} ;;
     relationship: many_to_one
   }
   join: event_groups {
     view_label: "User Events"
     fields: [event_group]
-    sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
+    sql_on: UPPER(${all_events_prod.event_name}) like UPPER(${event_groups.event_names}) ;;
     relationship: many_to_one
-  }
-}
-
-explore: event_analysis {
-  extends: [all_events]
-  from: all_events
-  view_name: all_events
-
-  join: learner_profile_2 {
-    sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
-    relationship: many_to_one
-  }
-
-  join: all_sessions {
-    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
-    relationship: many_to_one
-  }
-
-  join: all_weeks_cu_value {
-    sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
-    relationship: many_to_many
-  }
-
-  join: all_weeks_cu_value_sankey {
-    sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
-    relationship: many_to_one
-  }
-
-  join: all_sessions_cu_value {
-    sql_on: ${all_sessions.session_id} = ${all_sessions_cu_value.session_id} ;;
-    relationship: one_to_one
-  }
-
-  join: ip_locations {
-    sql_on: ${all_sessions.ips} = ${ip_locations.ip_address} ;;
-    relationship: one_to_one
   }
 }
 
 
 explore: session_analysis {
   label: "CU User Analysis"
-  extends: [all_events, dim_course]
-  from: all_sessions
-  view_name: all_sessions
+  extends: [all_events_prod, dim_course]
+  from: all_sessions_prod
+  view_name: all_sessions_prod
 
   join: dim_course {
-    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    sql_on: ${all_sessions_prod.course_keys}[0] = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
   join: user_institution_map {
     fields: []
-    sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    sql_on: ${all_sessions_prod.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
     relationship: many_to_one
   }
 
@@ -89,26 +55,66 @@ explore: session_analysis {
     relationship: many_to_one
   }
 
-  join: learner_profile_2 {
-    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
+  join: learner_profile_prod {
+    sql_on: ${all_sessions_prod.user_sso_guid} = ${learner_profile_prod.user_sso_guid} ;;
     relationship: many_to_one
   }
 
-  join: all_events {
-    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+  join: all_events_prod {
+    sql_on: ${all_sessions_prod.session_id} = ${all_events_prod.session_id} ;;
     relationship: one_to_many
   }
 
   join: sessions_analysis_week {
-    sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
+    sql_on: ${all_sessions_prod.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
     relationship: many_to_one
   }
 
   join: products_v {
-    sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
+    sql_on: ${all_events_prod.iac_isbn} = ${products_v.isbn13} ;;
     relationship: many_to_one
   }
 }
+
+
+# explore: event_analysis {
+#   extends: [all_events]
+#   from: all_events
+#   view_name: all_events
+#
+#   join: learner_profile_2 {
+#     sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: all_sessions {
+#     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: all_weeks_cu_value {
+#     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
+#     relationship: many_to_many
+#   }
+#
+#   join: all_weeks_cu_value_sankey {
+#     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: all_sessions_cu_value {
+#     sql_on: ${all_sessions.session_id} = ${all_sessions_cu_value.session_id} ;;
+#     relationship: one_to_one
+#   }
+#
+#   join: ip_locations {
+#     sql_on: ${all_sessions.ips} = ${ip_locations.ip_address} ;;
+#     relationship: one_to_one
+#   }
+# }
+
+
+
 
 access_grant: can_view_CU_dev_data {
   user_attribute: access_grant_team
@@ -116,117 +122,115 @@ access_grant: can_view_CU_dev_data {
 }
 
 ###### new explore testing#########
-explore: cu_user_analysis_dev {
-  label: "testing"
+explore: session_analysis_prod {
+  label: "testing Dev"
   extends: [session_analysis]
-  sql_table_name: cu_user_analysis.all_sessions ;;
-  required_access_grants: [can_view_CU_prod_data]
-  fields: [all_events.user_count,event_groups.event_group,all_events.event_month]
+  required_access_grants: [can_view_CU_dev_data]
 }
 
-explore: all_events2 {
-  from:  all_events
-  sql_table_name: cu_user_analysis.all_events ;;
-  label: "test3"
-
-  join: all_sessions {
-    sql_on: ${all_events2.session_id} = ${all_sessions.session_id} ;;
-    relationship: many_to_one
-    sql_table_name: cu_user_analysis.all_sessions ;;
-  }
-
-  required_access_grants: [can_view_CU_prod_data]
-  fields: [all_events2.user_sso_guid, all_events2.event_name, all_sessions.country, all_sessions.course_keys]
-
-}
+# explore: all_events2 {
+#   from:  all_events
+#   sql_table_name: cu_user_analysis.all_events ;;
+#   label: "test3"
+#
+#   join: all_sessions {
+#     sql_on: ${all_events2.session_id} = ${all_sessions.session_id} ;;
+#     relationship: many_to_one
+#     sql_table_name: cu_user_analysis.all_sessions ;;
+#   }
+#
+#   required_access_grants: [can_view_CU_prod_data]
+#   fields: [all_events2.user_sso_guid, all_events2.event_name, all_sessions.country, all_sessions.course_keys]
+#
+# }
 
 ######## User Experience Journey End ###################
 
 
 ######## User Experience Journey Start PROD ###################
 
-explore: all_events_dev {
-  extends: [all_events]
-  label: "All Events Devlopment"
-  from: all_events_dev
-  view_name: all_events
-  required_access_grants: [can_view_CU_dev_data]
+# explore: all_events_dev {
+#   extends: [all_events]
+#   label: "All Events Devlopment"
+#   from: all_events_dev
+#   view_name: all_events
+#   required_access_grants: [can_view_CU_dev_data]
+#
+# explore: all_events_prod {
+#   from: all_events_prod
+#   sql_table_name: cu_user_analysis.all_events ;;
+#   join: all_events_diff {
+#     sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
+#     view_label: "Event Category Analysis PROD"
+#     sql_on: ${all_events_prod.event_id} = ${all_events_diff.event_id} ;;
+#     relationship: many_to_one
+#     type: inner
+#   }
 
-explore: all_events_prod {
-  from: all_events
-  sql_table_name: cu_user_analysis.all_events ;;
-  join: all_events_diff {
-    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
-    view_label: "Event Category Analysis PROD"
-    sql_on: ${all_events_prod.event_id} = ${all_events_diff.event_id} ;;
-    relationship: many_to_one
-    type: inner
-  }
-
-  join: student_subscription_status {
-    sql_on: ${all_events_prod.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
-    relationship: many_to_one
-    sql_table_name: cu_user_analysis.student_subscription_status ;;
-  }
-  join: event_groups {
-    view_label: "User Events PROD"
-    fields: [event_group]
-    sql_on: UPPER(${all_events_prod.event_name}) like UPPER(${event_groups.event_names}) ;;
-    relationship: many_to_one
-  }
-  required_access_grants: [can_view_CU_prod_data]
-
-}
+#   join: student_subscription_status {
+#     sql_on: ${all_events_prod.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+#     relationship: many_to_one
+#     sql_table_name: cu_user_analysis.student_subscription_status ;;
+#   }
+#   join: event_groups {
+#     view_label: "User Events PROD"
+#     fields: [event_group]
+#     sql_on: UPPER(${all_events_prod.event_name}) like UPPER(${event_groups.event_names}) ;;
+#     relationship: many_to_one
+#   }
+#   required_access_grants: [can_view_CU_prod_data]
+#
+# }
 
 
-explore: session_analysis_prod {
-  label: "CU User Analysis PROD"
-  extends: [all_events, dim_course]
-  from: all_sessions
-  sql_table_name: cu_user_analysis.all_sessions ;;
-  view_name: all_sessions
-
-  join: dim_course {
-    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
-
-  join: user_institution_map {
-    fields: []
-    sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
-    relationship: many_to_one
-  }
-
-  join: gateway_institution {
-    sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
-    relationship: many_to_one
-  }
-
-  join: learner_profile_2 {
-    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
-    relationship: many_to_one
-    sql_table_name: cu_user_analysis.learner_profile ;;
-  }
-
-  join: all_events {
-    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
-    relationship: one_to_many
-    sql_table_name: cu_user_analysis.all_events ;;
-  }
-
-  join: sessions_analysis_week {
-    sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
-    relationship: many_to_one
-    sql_table_name: cu_user_analysis.session_analysis_week ;;
-  }
-
-  join: products_v {
-    sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
-    relationship: many_to_one
-  }
-
-  required_access_grants: [can_view_CU_prod_data]
-}
+# explore: session_analysis_prod {
+#   label: "CU User Analysis PROD"
+#   extends: [all_events, dim_course]
+#   from: all_sessions
+#   sql_table_name: cu_user_analysis.all_sessions ;;
+#   view_name: all_sessions
+#
+#   join: dim_course {
+#     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+#     relationship: many_to_many
+#   }
+#
+#   join: user_institution_map {
+#     fields: []
+#     sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: gateway_institution {
+#     sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: learner_profile_2 {
+#     sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
+#     relationship: many_to_one
+#     sql_table_name: cu_user_analysis.learner_profile ;;
+#   }
+#
+#   join: all_events {
+#     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+#     relationship: one_to_many
+#     sql_table_name: cu_user_analysis.all_events ;;
+#   }
+#
+#   join: sessions_analysis_week {
+#     sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
+#     relationship: many_to_one
+#     sql_table_name: cu_user_analysis.session_analysis_week ;;
+#   }
+#
+#   join: products_v {
+#     sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
+#     relationship: many_to_one
+#   }
+#
+#   required_access_grants: [can_view_CU_prod_data]
+# }
 
 
 
@@ -410,7 +414,7 @@ explore: mobiledata {
 #   relationship: many_to_one
 # }
 
-}}
+}
 
 ################ MApped guids ###########################
 
