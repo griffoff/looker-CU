@@ -8,6 +8,8 @@ include: "/cube/ga_mobiledata.view"
 
 case_sensitive: no
 
+######################### Start of PROD Explores #########################################################################3
+
 ######## User Experience Journey Start ###################
 explore: all_events {}
 
@@ -77,45 +79,45 @@ explore: session_analysis {
 }
 
 
-# explore: event_analysis {
-#   extends: [all_events]
-#   from: all_events
-#   view_name: all_events
-#
-#   join: learner_profile_2 {
-#     sql_on: ${all_events.user_sso_guid} = ${learner_profile_2.user_sso_guid} ;;
-#     relationship: many_to_one
-#   }
-#
-#   join: all_sessions {
-#     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
-#     relationship: many_to_one
-#   }
-#
-#   join: all_weeks_cu_value {
-#     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
-#     relationship: many_to_many
-#   }
-#
-#   join: all_weeks_cu_value_sankey {
-#     sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
-#     relationship: many_to_one
-#   }
-#
-#   join: all_sessions_cu_value {
-#     sql_on: ${all_sessions.session_id} = ${all_sessions_cu_value.session_id} ;;
-#     relationship: one_to_one
-#   }
-#
-#   join: ip_locations {
-#     sql_on: ${all_sessions.ips} = ${ip_locations.ip_address} ;;
-#     relationship: one_to_one
-#   }
-# }
+explore: event_analysis {
+  extends: [all_events]
+  from: all_events
+  view_name: all_events
 
+  join: learner_profile_prod {
+    sql_on: ${all_events.user_sso_guid} = ${learner_profile_prod.user_sso_guid} ;;
+    relationship: many_to_one
+  }
 
+  join: all_sessions_prod {
+    sql_on: ${all_events.session_id} = ${all_sessions_prod.session_id} ;;
+    relationship: many_to_one
+  }
 
+  join: all_weeks_cu_value {
+    sql_on: ${all_sessions_prod.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
+    relationship: many_to_many
+  }
 
+  join: all_weeks_cu_value_sankey {
+    sql_on: ${all_sessions_prod.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: all_sessions_cu_value {
+    sql_on: ${all_sessions_prod.session_id} = ${all_sessions_cu_value.session_id} ;;
+    relationship: one_to_one
+  }
+
+  join: ip_locations {
+    sql_on: ${all_sessions_prod.ips} = ${ip_locations.ip_address} ;;
+    relationship: one_to_one
+  }
+}
+
+################################################# End of PROD Explores ###########################################
+
+################################################ Start of DEV Explores #############################################
 access_grant: can_view_CU_dev_data {
   user_attribute: access_grant_team
   allowed_values: [ "yes" ]
@@ -127,6 +129,8 @@ explore: session_analysis_prod {
   extends: [session_analysis]
   required_access_grants: [can_view_CU_dev_data]
 }
+
+################################################## End of DEV Explores #######################################################
 
 # explore: all_events2 {
 #   from:  all_events
