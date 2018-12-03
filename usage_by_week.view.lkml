@@ -2,7 +2,7 @@ explore: usage_by_week {}
 
 view: usage_by_week {
     derived_table: {
-      explore_source: session_analysis {
+      explore_source: session_analysis_dev {
         column: user_sso_guid { field: all_events.user_sso_guid }
         column: recency { field: all_events.recency }
         column: intensity { field: all_events.intensity }

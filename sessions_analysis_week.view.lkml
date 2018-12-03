@@ -2,7 +2,7 @@
 
 view: sessions_analysis_week {
     derived_table: {
-      explore_source: session_analysis {
+      explore_source: session_analysis_dev {
         column: user_sso_guid {field: all_sessions.user_sso_guid }
         column: age_in_weeks { field: all_sessions.age_in_weeks }
         column: sum_courseware_events { field: all_sessions.sum_courseware_events }

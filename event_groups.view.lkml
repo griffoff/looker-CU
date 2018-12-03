@@ -1,4 +1,5 @@
 view: event_groups {
+  view_label: "Events"
 #   sql_table_name: UPLOADS.CU.EVENT_GROUPS ;;
 
   derived_table: {
@@ -35,6 +36,7 @@ view: event_groups {
   }
 
   dimension: event_group {
+    group_label: "Event Hierarchy"
     type: string
     sql: COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **') ;;
     label: "Event group"

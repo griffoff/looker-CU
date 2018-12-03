@@ -14,19 +14,8 @@ case_sensitive: no
 
 explore: all_events {
   label: "all events prod"
-  join: all_events_diff {
-    view_label: "Event Category Analysis"
-    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
-    relationship: many_to_one
-    type: inner
-  }
 
-  join: student_subscription_status {
-    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
-    relationship: many_to_one
-  }
   join: event_groups {
-    view_label: "User Events"
     fields: [event_group]
     sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
     relationship: many_to_one
@@ -78,16 +67,19 @@ explore: session_analysis {
 
 
 explore: event_analysis {
-  extends: [all_events]
-  from: all_events
+  label: "Event Analysis"
+  extends: [all_events_dev]
+  from: all_events_dev
   view_name: all_events
 
   join: learner_profile {
+  from: learner_profile_dev
     sql_on: ${all_events.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
     relationship: many_to_one
   }
 
   join: all_sessions {
+    from: all_sessions_dev
     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
     relationship: many_to_one
   }
@@ -129,12 +121,26 @@ explore: all_events_dev {
   extends: [all_events]
   from: all_events_dev
 
+#   join: all_events_diff {
+#     from:  all_events_diff_dev
+#   }
+
   join: all_events_diff {
-    from:  all_events_diff_dev
+    from: all_events_diff_dev
+    view_label: "Event Category Analysis"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
   }
+
+#   join: student_subscription_status {
+#     from: student_subscription_status_dev
+#   }
 
   join: student_subscription_status {
     from: student_subscription_status_dev
+    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
   }
 }
 
