@@ -1,7 +1,7 @@
 # include: "/core/common.lkml"
 view: all_events {
   view_label: "User Events"
-  sql_table_name: zpg.ALL_EVENTS ;;
+  sql_table_name: cu_user_analysis.ALL_EVENTS ;;
 
     dimension: iac_isbn {
       sql: ${event_data}:iac_isbn ;;
