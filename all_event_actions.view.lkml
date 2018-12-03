@@ -1,5 +1,5 @@
 view: all_event_actions {
-  sql_table_name: CU_user_analysis.ALL_EVENT_ACTIONS ;;
+  sql_table_name: zpg.ALL_EVENT_ACTIONS ;;
 
   dimension_group: earliest_event {
     type: time
