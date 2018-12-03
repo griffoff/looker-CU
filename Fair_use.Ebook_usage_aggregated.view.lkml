@@ -1,5 +1,4 @@
-include: "/cengage_unlimited/Fair_use*"
-include: "/cengage_unlimited/Ebook*"
+include: "/cengage_unlimited/cengage_unlimited.model"
 
 view: ebook_usage_aggregated {
   derived_table: {
@@ -30,6 +29,5 @@ view: ebook_usage_aggregated {
   measure: count_users {
     type:  count_distinct
     sql: ${user_sso_guid};;
-
   }
 }

@@ -6,4 +6,5 @@ view: all_sessions_dev {
   label: "all sessions dev"
   sql_table_name: zpg.all_sessions ;;
 
+
 }

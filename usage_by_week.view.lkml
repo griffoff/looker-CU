@@ -11,7 +11,7 @@ view: usage_by_week {
         column: usage_score { field: all_events.usage_score }
         column: usage_score_prank { field: all_events.usage_score_prank }
         filters: {
-          field: learner_profile_2.subscription_status
+          field: learner_profile.subscription_status
           value: "Full Access"
         }
       }

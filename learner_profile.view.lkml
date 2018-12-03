@@ -18,6 +18,7 @@ view: learner_profile {
     group_label: "Courses"
     label: "Course Keys"
     description: "List of course keys the user has"
+    sql: ${TABLE}.courses ;;
   }
 
   dimension: courses_enrolled {
