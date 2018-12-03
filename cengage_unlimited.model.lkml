@@ -11,7 +11,7 @@ case_sensitive: no
 ######################### Start of PROD Explores #########################################################################3
 
 ######## User Experience Journey Start ###################
-explore: all_events {}
+#explore: all_events {}
 
 explore: all_events {
   label: "all events prod"
