@@ -12,6 +12,7 @@ case_sensitive: no
 
 ######## User Experience Journey Start ###################
 
+
 explore: all_events {
   label: "all events prod"
   join: all_events_diff {
