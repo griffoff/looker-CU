@@ -1,4 +1,4 @@
-include: "learner_profile_prod.view"
+include: "learner_profile.view"
 
 view: learner_profile_dev {
   extends: [learner_profile]

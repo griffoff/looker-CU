@@ -1,4 +1,4 @@
-include: "student_subscription_status_prod.view"
+include: "student_subscription_status.view"
 
 view: student_subscription_status_dev {
   extends: [student_subscription_status]

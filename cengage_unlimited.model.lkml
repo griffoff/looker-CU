@@ -35,7 +35,7 @@ explore: all_events {
 }
 
 
-explore: session_analysis_prod {
+explore: session_analysis {
   label: "CU User Analysis Prod"
   extends: [all_events, dim_course]
   from: all_sessions

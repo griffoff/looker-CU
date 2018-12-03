@@ -1,4 +1,4 @@
-include: "all_events_diff_prod.view"
+include: "all_events_diff.view"
 
 view: all_events_diff_dev {
   extends: [all_events_diff]
