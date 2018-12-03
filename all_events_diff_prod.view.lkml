@@ -1,4 +1,4 @@
-view: all_events_diff_prod {
+view: all_events_diff {
   view_label: "Student Events Categorized"
   sql_table_name: CU_USER_ANALYSIS.ALL_EVENTS_DIFF{% parameter event_type %};;
 

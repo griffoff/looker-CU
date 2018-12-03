@@ -13,23 +13,23 @@ case_sensitive: no
 ######## User Experience Journey Start ###################
 explore: all_events {}
 
-explore: all_events_prod {
+explore: all_events {
   label: "all events prod"
-  join: all_events_diff_prod {
+  join: all_events_diff {
     view_label: "Event Category Analysis"
-    sql_on: ${all_events_prod.event_id} = ${all_events_diff_prod.event_id} ;;
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
     relationship: many_to_one
     type: inner
   }
 
   join: student_subscription_status_prod {
-    sql_on: ${all_events_prod.user_sso_guid} = ${student_subscription_status_prod.user_sso_guid} ;;
+    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status_prod.user_sso_guid} ;;
     relationship: many_to_one
   }
   join: event_groups {
     view_label: "User Events"
     fields: [event_group]
-    sql_on: UPPER(${all_events_prod.event_name}) like UPPER(${event_groups.event_names}) ;;
+    sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
     relationship: many_to_one
   }
 }
@@ -37,7 +37,7 @@ explore: all_events_prod {
 
 explore: session_analysis_prod {
   label: "CU User Analysis Prod"
-  extends: [all_events_prod, dim_course]
+  extends: [all_events, dim_course]
   from: all_sessions
   view_name: all_sessions
 
@@ -62,8 +62,8 @@ explore: session_analysis_prod {
     relationship: many_to_one
   }
 
-  join: all_events_prod {
-    sql_on: ${all_sessions.session_id} = ${all_events_prod.session_id} ;;
+  join: all_events {
+    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
     relationship: one_to_many
   }
 
@@ -73,7 +73,7 @@ explore: session_analysis_prod {
   }
 
   join: products_v {
-    sql_on: ${all_events_prod.iac_isbn} = ${products_v.isbn13} ;;
+    sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
     relationship: many_to_one
   }
 }
