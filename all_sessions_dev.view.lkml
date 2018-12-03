@@ -2,7 +2,7 @@ include: "all_sessions_prod.view"
 
 
 view: all_sessions_dev {
-  extends: [all_sessions_prod]
+  extends: [all_sessions]
   label: "all sessions dev"
   sql_table_name: zpg.ALL_Sessions ;;
   # # You can specify the table name if it's different from the view name:

@@ -38,17 +38,17 @@ explore: all_events_prod {
 explore: session_analysis_prod {
   label: "CU User Analysis Prod"
   extends: [all_events_prod, dim_course]
-  from: all_sessions_prod
-  view_name: all_sessions_prod
+  from: all_sessions
+  view_name: all_sessions
 
   join: dim_course {
-    sql_on: ${all_sessions_prod.course_keys}[0] = ${dim_course.coursekey} ;;
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
   join: user_institution_map {
     fields: []
-    sql_on: ${all_sessions_prod.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
     relationship: many_to_one
   }
 
@@ -58,17 +58,17 @@ explore: session_analysis_prod {
   }
 
   join: learner_profile_prod {
-    sql_on: ${all_sessions_prod.user_sso_guid} = ${learner_profile_prod.user_sso_guid} ;;
+    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_prod.user_sso_guid} ;;
     relationship: many_to_one
   }
 
   join: all_events_prod {
-    sql_on: ${all_sessions_prod.session_id} = ${all_events_prod.session_id} ;;
+    sql_on: ${all_sessions.session_id} = ${all_events_prod.session_id} ;;
     relationship: one_to_many
   }
 
   join: sessions_analysis_week {
-    sql_on: ${all_sessions_prod.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
+    sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
     relationship: many_to_one
   }
 
@@ -89,28 +89,28 @@ explore: event_analysis {
     relationship: many_to_one
   }
 
-  join: all_sessions_prod {
-    sql_on: ${all_events.session_id} = ${all_sessions_prod.session_id} ;;
+  join: all_sessions {
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
     relationship: many_to_one
   }
 
   join: all_weeks_cu_value {
-    sql_on: ${all_sessions_prod.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
+    sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value.user_sso_guid} ;;
     relationship: many_to_many
   }
 
   join: all_weeks_cu_value_sankey {
-    sql_on: ${all_sessions_prod.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
+    sql_on: ${all_sessions.user_sso_guid} = ${all_weeks_cu_value_sankey.user_sso_guid} ;;
     relationship: many_to_one
   }
 
   join: all_sessions_cu_value {
-    sql_on: ${all_sessions_prod.session_id} = ${all_sessions_cu_value.session_id} ;;
+    sql_on: ${all_sessions.session_id} = ${all_sessions_cu_value.session_id} ;;
     relationship: one_to_one
   }
 
   join: ip_locations {
-    sql_on: ${all_sessions_prod.ips} = ${ip_locations.ip_address} ;;
+    sql_on: ${all_sessions.ips} = ${ip_locations.ip_address} ;;
     relationship: one_to_one
   }
 }

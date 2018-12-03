@@ -1,4 +1,4 @@
-view: all_sessions_prod {
+view: all_sessions {
   sql_table_name: CU_USER_ANALYSIS.ALL_SESSIONS ;;
 
   dimension: age_in_days {
