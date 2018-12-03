@@ -1,4 +1,4 @@
-connection: "snowflake_prod"
+connection: "snowflake_googlesheets"
 include: "all_events.view.lkml"
 include: "all_event_actions.view.lkml"
 
