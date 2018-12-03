@@ -36,7 +36,7 @@ explore: all_events_prod {
 
 
 explore: session_analysis_prod {
-  label: "CU User Analysis"
+  label: "CU User Analysis Prod"
   extends: [all_events_prod, dim_course]
   from: all_sessions_prod
   view_name: all_sessions_prod
@@ -149,11 +149,45 @@ join: event_groups {
 }
 
 explore: session_analysis_dev {
-  label: "session analysis Dev"
-  extends: [session_analysis_prod]
-  required_access_grants: [can_view_CU_dev_data]
+  label: "CU User Analysis Dev"
+  from: all_sessions_dev
+  extends: [all_events_dev,dim_course]
+  # view_name: all_sessions_dev
 
-join: all_events_dev {
+  join: dim_course {
+    sql_on: ${all_sessions_dev.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: user_institution_map {
+    fields: []
+    sql_on: ${all_sessions_dev.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: gateway_institution {
+    sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+    relationship: many_to_one
+  }
+
+  join: learner_profile_dev {
+    sql_on: ${all_sessions_dev.user_sso_guid} = ${learner_profile_dev.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: all_events_dev {
+    sql_on: ${all_sessions_dev.session_id} = ${all_events_dev.session_id} ;;
+    relationship: one_to_many
+  }
+
+  join: sessions_analysis_week {
+    sql_on: ${all_sessions_dev.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: products_v {
+    sql_on: ${all_events_dev.iac_isbn} = ${products_v.isbn13} ;;
+    relationship: many_to_one
   }
 }
 
