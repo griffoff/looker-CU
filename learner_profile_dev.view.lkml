@@ -1,7 +1,7 @@
 include: "learner_profile_prod.view"
 
 view: learner_profile_dev {
-  extends: [learner_profile_prod]
+  extends: [learner_profile]
   label: "learner_profile dev"
   sql_table_name: ZPG.learner_profile ;;
   # # You can specify the table name if it's different from the view name:

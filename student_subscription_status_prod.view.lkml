@@ -1,4 +1,4 @@
-view: student_subscription_status_prod {
+view: student_subscription_status {
 sql_table_name: CU_USER_ANALYSIS.STUDENT_SUBSCRIPTION_STATUS ;;
 
 # derived_table: {

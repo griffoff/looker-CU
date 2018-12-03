@@ -11,7 +11,6 @@ case_sensitive: no
 ######################### Start of PROD Explores #########################################################################3
 
 ######## User Experience Journey Start ###################
-explore: all_events {}
 
 explore: all_events {
   label: "all events prod"
@@ -22,8 +21,8 @@ explore: all_events {
     type: inner
   }
 
-  join: student_subscription_status_prod {
-    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status_prod.user_sso_guid} ;;
+  join: student_subscription_status {
+    sql_on: ${all_events.user_sso_guid} = ${student_subscription_status.user_sso_guid} ;;
     relationship: many_to_one
   }
   join: event_groups {
@@ -57,8 +56,8 @@ explore: session_analysis_prod {
     relationship: many_to_one
   }
 
-  join: learner_profile_prod {
-    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile_prod.user_sso_guid} ;;
+  join: learner_profile {
+    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
     relationship: many_to_one
   }
 
@@ -84,8 +83,8 @@ explore: event_analysis {
   from: all_events
   view_name: all_events
 
-  join: learner_profile_prod {
-    sql_on: ${all_events.user_sso_guid} = ${learner_profile_prod.user_sso_guid} ;;
+  join: learner_profile {
+    sql_on: ${all_events.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
     relationship: many_to_one
   }
 

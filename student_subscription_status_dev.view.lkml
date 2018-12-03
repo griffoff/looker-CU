@@ -1,7 +1,7 @@
 include: "student_subscription_status_prod.view"
 
 view: student_subscription_status_dev {
-  extends: [student_subscription_status_prod]
+  extends: [student_subscription_status]
   label: "student_subscription_status DEV"
   sql_table_name: zpg.student_subscription_status ;;
   # # You can specify the table name if it's different from the view name:
