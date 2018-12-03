@@ -1,4 +1,4 @@
-connection: "cengage_unlimited_googlesheets"
+connection: "snowflake_googlesheets"
 include: "all_events.view.lkml"
 include: "all_event_actions.view.lkml"
 
