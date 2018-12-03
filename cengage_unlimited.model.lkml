@@ -126,10 +126,35 @@ access_grant: can_view_CU_dev_data {
 ###### new explore testing#########
 explore: all_events_dev {
   label: "testing Dev"
-  extends: [all_events_prod]
   required_access_grants: [can_view_CU_dev_data]
 
+join: all_events_diff_dev {
+  view_label: "Event Category Analysis"
+  sql_on: ${all_events_dev.event_id} = ${all_events_diff_dev.event_id} ;;
+  relationship: many_to_one
+  type: inner
+}
 
+join: student_subscription_status_dev {
+  sql_on: ${all_events_dev.user_sso_guid} = ${student_subscription_status_dev.user_sso_guid} ;;
+  relationship: many_to_one
+}
+join: event_groups {
+  view_label: "User Events"
+  fields: [event_group]
+  sql_on: UPPER(${all_events_dev.event_name}) like UPPER(${event_groups.event_names}) ;;
+  relationship: many_to_one
+}
+
+}
+
+explore: session_analysis_dev {
+  label: "session analysis Dev"
+  extends: [session_analysis_prod]
+  required_access_grants: [can_view_CU_dev_data]
+
+join: all_events_dev {
+  }
 }
 
 ################################################## End of DEV Explores #######################################################
