@@ -39,7 +39,10 @@ view: learner_profile {
     group_label: "CU Subscription"
     label: "CU subscription Length"
     description: "Current length of CU subscription"
-    sql: datediff(month, ${subscription_start_date}, ${subscription_end_date}) ;;
+    sql: CASE WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 3 THEN 4
+            WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 11 THEN 12
+            WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 23 THEN 24
+            ELSE datediff(month, ${subscription_start_date}, ${subscription_end_date}) END;;
     value_format: "0 \m\o\n\t\h\s"
   }
 
