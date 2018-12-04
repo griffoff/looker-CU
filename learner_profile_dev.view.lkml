@@ -13,6 +13,8 @@ view: learner_profile_dev {
     sql: ${TABLE}.courses ;;
   }
 
+
+
   dimension: courses_enrolled {
     group_label: "Courses"
     type: number

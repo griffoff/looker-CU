@@ -99,15 +99,6 @@ view: learner_profile {
     }
   }
 
-  dimension: courses_enrolled {
-    group_label: "Courses"
-    type: number
-    label: "# Courses Enrolled"
-    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
-    sql: ${TABLE}.unique_courses ;;
-    alias: [unique_courses]
-  }
-
   dimension: searches_with_results {
     group_label: "Searches"
     label: "# Searches with results"
