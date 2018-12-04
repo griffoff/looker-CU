@@ -24,6 +24,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_TYPE" ;;
     label: "Event type"
     description: "The highest level in the hierarchy of event classicfication above event action"
+    hidden: yes
   }
 
   dimension: product_platform {
@@ -31,6 +32,7 @@ view: all_events {
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
     label: "Product platform"
     description: "I.e. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
+    hidden: yes
   }
 
   dimension: session_id {
@@ -87,6 +89,7 @@ view: all_events {
     sql: ${user_sso_guid} ;;
     drill_fields: [system_category, product_platform, event_type, event_action, count]
     description: "Measure for counting unique users (drill fields)"
+    hidden: yes
   }
 
   measure: count {
