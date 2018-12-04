@@ -1,5 +1,5 @@
 include: "all_events.view"
-
+include: "/core/common.lkml" # formats
 view: all_events_dev {
   sql_table_name: zpg.all_events ;;
  extends: [all_events]
@@ -251,6 +251,11 @@ view: all_events_dev {
     sql: datediff(hour, ${latest_event_time}, current_timestamp()) / 24 ;;
     label: "Days since last login"
     description: "Calculated as number of days since last login"
+  }
+
+  measure: session_count {
+    type: count_distinct
+    sql: ${session_id} ;;
   }
 
   measure: events_per_session {

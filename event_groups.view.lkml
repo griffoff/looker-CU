@@ -36,7 +36,7 @@ view: event_groups {
   }
 
   dimension: event_group {
-    group_label: "Event Hierarchy"
+    group_label: "Event Classification"
     type: string
     sql: COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **') ;;
     label: "Event group"

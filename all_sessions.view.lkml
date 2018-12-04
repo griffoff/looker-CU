@@ -29,7 +29,7 @@ view: all_sessions {
 
   dimension: number_of_courseware_events {
     type: number
-    group_label: "Event aggregations"
+    group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_COURSEWARE_EVENTS" ;;
     label: "Number of courseware events"
     description: "Number of courseware related events in the given session"
@@ -37,7 +37,7 @@ view: all_sessions {
 
   dimension: number_of_dashboard_clicks {
     type: number
-    group_label: "Event aggregations"
+    group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_DASHBOARD_CLICKS" ;;
     label: "Number of dashboard events"
     description: "Number of dashboard related events in the given session"
@@ -45,7 +45,7 @@ view: all_sessions {
 
   dimension: number_of_ebook_events {
     type: number
-    group_label: "Event aggregations"
+    group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_EBOOK_EVENTS" ;;
     label: "Number of ebook events"
     description: "Number of ebook related events in the given session"
@@ -53,7 +53,7 @@ view: all_sessions {
 
   dimension: number_of_partner_clicks {
     type: number
-    group_label: "Event aggregations"
+    group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_PARTNER_CLICKS" ;;
     label: "Number of partner click events"
     description: "Number of partner related events (Chegg, Kaplan, etc.) in the given session"
@@ -61,26 +61,50 @@ view: all_sessions {
 
   dimension: number_of_searches {
     type: number
-    group_label: "Event aggregations"
+    group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_SEARCHES" ;;
     label: "Number of search events"
     description: "Number of search events in the given session"
   }
 
   dimension: session_length_mins {
+    group_label: "Session Info"
     type: number
     sql: ${TABLE}."SESSION_LENGTH_MINS" ;;
     label: "Session length (minutes)"
     description: "Length of the given session in minutes"
+    value_format: "0 \m\i\n\u\t\e\s"
   }
 
-  dimension: session_length_tier {
+  dimension: session_length_mins_tier {
+    group_label: "Session Info"
     type: tier
     tiers: [ 30, 60, 120, 180, 240]
     style: integer
-    sql: ${TABLE}."SESSION_LENGTH_MINS" ;;
+    sql: ${session_length_mins} ;;
+    label: "Session length (minutes) tiers"
+    description: "Tiers for bucketing session lengths in minutes"
+    value_format: "0 \m\i\n\u\t\e\s"
+  }
+
+  dimension: session_length_tier {
+    group_label: "Session Info"
+    type: tier
+    tiers: [ 0.0208333333, 0.04166666666, 0.08333333333, 0.125, 0.16666666666]
+    style: relational
+    sql: ${session_length} ;;
     label: "Session length tiers"
-    description: "Tiers for bucketing session lengths"
+    description: "Tiers for bucketing session lengths (formated as HH:mm:ss)"
+    value_format_name:  duration_hms
+  }
+
+  dimension: session_length {
+    group_label: "Session Info"
+    type: number
+    sql: ${TABLE}."SESSION_LENGTH_MINS" / 60 / 24 ;;
+    label: "Session length"
+    description: "Length of the given session (formated as HH:mm:ss)"
+    value_format_name: duration_hms
   }
 
   dimension_group: session_start {
@@ -107,38 +131,50 @@ view: all_sessions {
   }
 
   measure:  average_courseware_events{
+    group_label: "Event Counts"
     type: average
     sql:  ${number_of_courseware_events};;
-    label: "Average number of courseware events"
+    label: "# Courseware events (avg)"
     description: "Average number of courseware events"
   }
 
   measure:  average_dashboard_clicks {
+    group_label: "Event Counts"
     type: average
     sql:  ${number_of_dashboard_clicks};;
-    label: "Average number of dashboard click events"
+    label: "# Dashboard click events (avg)"
     description: "Average number of dashboard click events"
   }
 
   measure:  average_ebook_events{
+    group_label: "Event Counts"
     type: average
     sql:  ${number_of_ebook_events};;
-    label: "Average number of ebook events"
+    label: "# Ebook events (avg)"
     description: "Average number of ebook events"
   }
 
   measure:  average_partner_clicks{
+    group_label: "Event Counts"
     type: average
     sql:  ${number_of_partner_clicks};;
-    label: "Average number of partner click events"
+    label: "# Partner click events (avg)"
     description: "Average number of partner click events"
   }
 
   measure:  average_searches{
+    group_label: "Event Counts"
     type: average
     sql:  ${number_of_searches};;
-    label: "Average number of search events"
+    label: "# Search events (avg)"
     description: "Average number of search events"
+  }
+
+  measure: count {
+    label: "# Sessions"
+    type: count
+    description: "Number of sessions
+    - A session is defined as all activities and events by a single user with no more than 30 minutes between one event and the next"
   }
 
 }
