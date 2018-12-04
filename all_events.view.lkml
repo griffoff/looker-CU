@@ -19,6 +19,20 @@ view: all_events {
     hidden: yes
   }
 
+  dimension: event_type {
+    type: string
+    sql: ${TABLE}."EVENT_TYPE" ;;
+    label: "Event type"
+    description: "The highest level in the hierarchy of event classicfication above event action"
+  }
+
+  dimension: product_platform {
+    type: string
+    sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    label: "Product platform"
+    description: "I.e. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
+  }
+
   dimension: session_id {
     type: number
     value_format_name: id
@@ -67,6 +81,14 @@ view: all_events {
     description: "Components of the events local timestamp"
   }
 
+  measure: user_count {
+    label: "  people"
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    drill_fields: [system_category, product_platform, event_type, event_action, count]
+    description: "Measure for counting unique users (drill fields)"
+  }
+
   measure: count {
     label: "# Events"
     type: count
@@ -81,6 +103,4 @@ view: all_events {
 # #     drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
 #     description: "Measure for counting unique sessions (drill fields)"
 #   }
-
-
- }
+}

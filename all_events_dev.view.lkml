@@ -126,8 +126,6 @@ view: all_events_dev {
     description: "The event five after the current event"
   }
 
-
-
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
@@ -148,12 +146,6 @@ view: all_events_dev {
     description: "Components of the events timestamp stored in TZ format"
   }
 
-  dimension: event_type {
-    type: string
-    sql: ${TABLE}."EVENT_TYPE" ;;
-    label: "Event type"
-    description: "The highest level in the hierarchy of event classicfication above event action"
-  }
 
   dimension: load_metadata {
     type: string
@@ -167,13 +159,6 @@ view: all_events_dev {
     sql: ${TABLE}."PLATFORM_ENVIRONMENT" ;;
     label: "Platform environment"
     description: "Development platofrm i.e. production, staging, development, etc."
-  }
-
-  dimension: product_platform {
-    type: string
-    sql: ${TABLE}."PRODUCT_PLATFORM" ;;
-    label: "Product platform"
-    description: "I.e. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
   }
 
   dimension: user_environment {
@@ -201,7 +186,7 @@ view: all_events_dev {
     label: "  people"
     type: count_distinct
     sql: ${user_sso_guid} ;;
-    drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
+    drill_fields: [event_time, system_category, event_action, event_data, count]
     description: "Measure for counting unique users (drill fields)"
   }
 
