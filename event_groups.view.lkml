@@ -38,7 +38,12 @@ view: event_groups {
   dimension: event_group {
     group_label: "Event Classification"
     type: string
-    sql: COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **') ;;
+#    sql: COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **') ;;
+    sql: case
+          when ${all_events.event_name} like 'Subscription:%'
+          then ${all_events.event_name}
+          else COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **')
+          end;;
     label: "Event group"
     description: "Classification hard coded in for grouping events according to different business purposes"
   }
