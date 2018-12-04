@@ -170,6 +170,7 @@ view: learner_profile {
 
   dimension: non_courseware_user {
     group_label: "Customer Type"
+    label: "Courseware vs non-courseware user"
     sql: CASE
             WHEN ${non_courseware_net_value} > 0 AND ${courseware_net_value} > 0 THEN 'Courseware and non-courseware user'
            WHEN (${non_courseware_net_value} <= 0 OR ${non_courseware_net_value} IS NULL) AND ${courseware_net_value} > 0 THEN 'Courseware only user'
