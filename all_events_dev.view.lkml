@@ -9,6 +9,32 @@ view: all_events_dev {
     sql: ${event_data}:iac_isbn ;;
   }
 
+  dimension: referral_host {
+    type: string
+    sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
+  }
+
+  dimension: referral_host_type {
+    type: string
+    sql:  case
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%bing%' then 'Bing'
+        when ${referral_host} like '%yahoo%' then 'Yahoo'
+        when ${referral_host} like '%msn.%' then 'MSN'
+        when ${referral_host} like '%aol.%' then 'AOL'
+        when ${referral_host} like '%moodle%' then 'Moodle'
+        when ${referral_host} like '%blackboard%' or ${referral_host} like 'bblearn%' then 'Blackboard'
+        when ${referral_host} like '%d2l%' then 'D2L'
+        when ${referral_host} like '%canvas%' then 'Canvas'
+        when ${referral_host} like '%ilearn%' then 'ILearn'
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%qualtrics%' then 'Qualtrics'
+        when ${referral_host} like 'gateway.cengage%' then 'Gateway'
+        when ${referral_host} like '%.edu' then 'Other EDU'
+        else ${referral_host}
+       end;;
+  }
+
   dimension: event_duration {
     type:  number
     sql: event_data:event_duration  / (60 * 60 * 24) ;;

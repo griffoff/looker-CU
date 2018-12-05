@@ -20,6 +20,16 @@ view: learner_profile {
     }
   }
 
+  dimension: purchase_path {
+    group_label: "CU Subscription"
+    label: "Purchase path"
+    description: "
+    *****   WORK IN PROGRESS ******
+    The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)
+    *****   WORK IN PROGRESS ******"
+    sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
+  }
+
   dimension: days_active {
     group_label: "Days Active"
     type: number
@@ -172,6 +182,32 @@ view: learner_profile {
                     END;;
     type: string
     description: "Does this person use just courseware or other products or both?"
+  }
+
+  dimension: products_added {
+    group_label: "Provisioned Products"
+    label: "products added"
+    description: "List of all iac_isbn provisioned to dashboard from the provisioned product table"
+    drill_fields: [details*]
+    sql: array_to_string(${TABLE}.all_products_add, ', ') ;;
+    alias: [all_products_add]
+  }
+
+  dimension: products_added_count {
+    group_label: "Provisioned Products"
+    type: number
+    label: "# products"
+    sql: array_size(${TABLE}.all_products_add) ;;
+    description: "Number of different iac_isbn provisioned to dashboard"
+  }
+
+  dimension: products_added_tier {
+    group_label: "Provisioned Products"
+    label: "# products (buckets)"
+    type: tier
+    style: integer
+    tiers: [1, 2, 5, 10]
+    sql: ${products_added_count} ;;
   }
 
   measure: count {
