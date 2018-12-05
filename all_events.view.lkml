@@ -51,7 +51,7 @@ view: all_events {
 
   dimension: search_term {
     group_label: "Search"
-    sql: ${TABLE}.search_term ;;
+    sql: event_data:search_term ;;
   }
 
   dimension: system_category {
