@@ -34,32 +34,6 @@ view: learner_profile_dev {
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment) bucketed"
   }
 
-  dimension: products_added {
-    group_label: "Provisioned Products"
-    label: "products added"
-    description: "List of all iac_isbn provisioned to dashboard from the provisioned product table"
-    drill_fields: [details*]
-    sql: array_to_string(${TABLE}.all_products_add, ', ') ;;
-    alias: [all_products_add]
-  }
-
-  dimension: products_added_count {
-    group_label: "Provisioned Products"
-    type: number
-    label: "# products"
-    sql: array_size(${TABLE}.all_products_add) ;;
-    description: "Number of different iac_isbn provisioned to dashboard"
-  }
-
-  dimension: products_added_tier {
-    group_label: "Provisioned Products"
-    label: "# products (buckets)"
-    type: tier
-    style: integer
-    tiers: [1, 2, 5, 10]
-    sql: ${products_added_count} ;;
-  }
-
   dimension: total_products_net_value {
     group_label: "Provisioned Products"
     label: "Total net value"
