@@ -45,8 +45,13 @@ view: all_events {
   }
 
   dimension:search_outcome{
-    group_label: "search"
+    group_label: "Search"
     sql:  event_data:search_outcome;;
+  }
+
+  dimension: search_term {
+    group_label: "Search"
+    sql: event_data:search_term ;;
   }
 
   dimension: system_category {
