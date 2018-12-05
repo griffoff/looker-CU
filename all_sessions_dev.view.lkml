@@ -7,12 +7,6 @@ view: all_sessions_dev {
   sql_table_name: zpg.all_sessions ;;
 
 
-  dimension: age_in_days {
-    type: number
-    sql: ${TABLE}."AGE_IN_DAYS" ;;
-    label: "Session age in days"
-    description: "Number of days since the first login and this session occurred"
-  }
 
   dimension: age_in_weeks {
     type: number
