@@ -9,6 +9,16 @@ view: all_events_dev {
     sql: ${event_data}:iac_isbn ;;
   }
 
+  dimension: referral_host {
+    type: string
+    sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
+  }
+
+  dimension: referral_host_type {
+    type: string
+    sql: split_part(${referral_host}, '.', -1);;
+  }
+
   dimension: event_duration {
     type:  number
     sql: event_data:event_duration  / (60 * 60 * 24) ;;
