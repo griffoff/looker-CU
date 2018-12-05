@@ -21,6 +21,7 @@ view: learner_profile {
   }
 
   dimension: purchase_path {
+    group_label: "CU Subscription"
     label: "Purchase path"
     description: "
     *****   WORK IN PROGRESS ******
