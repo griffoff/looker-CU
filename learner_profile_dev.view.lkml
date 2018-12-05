@@ -150,8 +150,49 @@ view: learner_profile_dev {
 #   }
 
 
+  dimension: searches_with_results {
+    group_label: "Searches"
+    label: "# Searches with results"
+    description: "Number of searches by this user that returned results"
+  }
 
+  dimension: searches_without_results {
+    group_label: "Searches"
+    label: "# Searches without results"
+    description: "Number of searches by this user that did not return results"
+  }
 
+  dimension: searches_with_results_tier {
+    group_label: "Searches"
+    label: "# Searches with results (buckets)"
+    type: tier
+    tiers: [1, 10, 20, 30]
+    style: integer
+    sql: ${searches_with_results} ;;
+    description: "Number of searches by this user that returned results"
+  }
+
+  dimension: searches_without_results_tier {
+    group_label: "Searches"
+    label: "# Searches without results (buckets)"
+    type: tier
+    tiers: [1, 10, 20, 30]
+    style: integer
+    sql: ${searches_without_results} ;;
+    description: "Number of searches by this user that did not return results"
+  }
+
+  dimension: search_terms_with_results {
+    group_label: "Searches"
+    label: "Search terms with results"
+    description: "A list of search terms searched by this user that returned results"
+  }
+
+  dimension: search_terms_without_results {
+    group_label: "Searches"
+    label: "Search terms without results"
+    description: "A list of search terms searched by this user that did not return results"
+  }
 
   dimension: latest_activation_date {
     label: "Latest Activation Date"
