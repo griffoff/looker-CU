@@ -181,6 +181,9 @@ view: all_events_dev {
 #       intervals: [hour, day, week, month]
 #     }
 
+  dimension: event_action {
+    hidden: no
+  }
 
   measure: user_count {
     label: "  people"
@@ -281,6 +284,37 @@ view: all_events_dev {
 
   measure: usage_classification {
 
+  }
+
+  measure: net_trials {
+    label: "Net New Trials"
+    type: sum
+    sql: case
+            when event_action = 'TRIAL EXPIRED'
+            then -1
+            when event_data:subscription_state = 'trial_access'
+            then
+              iff(event_data:prev_subscription_state = event_data:subscription_state, 0, 1)
+            when event_data:prev_subscription_state = 'trial_access'
+            then
+              iff(event_data:prev_subscription_state = event_data:subscription_state, 0, -1)
+            end;;
+  }
+
+  measure: net_subscriptions {
+    label: "Net New Subscriptions"
+    type: sum
+    sql: case
+            when event_action = 'TRIAL EXPIRED'
+            then 0
+            when event_data:subscription_state = 'full_access'
+            then
+              iff(event_data:prev_subscription_state = event_data:subscription_state, 0, 1)
+            when event_data:prev_subscription_state = 'full_access'
+            then iff(event_data:prev_subscription_state = event_data:subscription_state, 0, -1)
+            when event_data:subscription_state is not null
+            then 0
+          end;;
   }
 
   measure: sum_of_event_duration{
