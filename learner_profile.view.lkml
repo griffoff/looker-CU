@@ -20,6 +20,52 @@ view: learner_profile {
     }
   }
 
+  dimension: purchase_path {
+    group_label: "CU Subscription"
+    label: "Purchase path"
+    description: "
+    *****   WORK IN PROGRESS ******
+    The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)
+    *****   WORK IN PROGRESS ******"
+    sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
+  }
+
+  dimension: days_active {
+    group_label: "Days Active"
+    type: number
+    label: "Total days active"
+    description: "Calculated as the total number of days a user was active"
+  }
+
+  dimension: days_since_first_login {
+    hidden: no
+    type: number
+    sql: -DATEDIFF(d, current_date(), ${first_interaction_date} ) ;;
+    label: "Days since first login"
+    description: "Calculated as the number of days since the user first logged in"
+  }
+
+  dimension: percent_days_active {
+    type: number
+    sql: (${days_active} / ${days_since_first_login}) * 100;;
+    value_format: "#.00\%"
+  }
+
+  dimension_group: first_interaction {
+    sql: ${TABLE}.first_event_time ;;
+        type: time
+        timeframes: [raw, time, date, day_of_week, month, hour]
+        description: "The time components of the timestamp when the user first logged in"
+      }
+
+  dimension: days_active_tiers  {
+    type: tier
+    sql: ${percent_days_active} ;;
+    tiers: [10, 25, 50, 75]
+    style: integer
+  }
+
+
   dimension: subscription_status {
     group_label: "CU Subscription"
     label: "Subscription status"

@@ -34,12 +34,6 @@ view: learner_profile_dev {
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment) bucketed"
   }
 
-  dimension: purchase_path {
-    label: "Purchase path"
-    description: "The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)"
-    sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
-  }
-
   dimension: total_products_net_value {
     group_label: "Provisioned Products"
     label: "Total net value"
@@ -202,13 +196,7 @@ view: learner_profile_dev {
     type: number
   }
 
-  dimension: days_since_first_login {
-    hidden: no
-    type: number
-    sql: -DATEDIFF(d, current_date(), ${first_interaction_date} ) ;;
-    label: "Days since first login"
-    description: "Calculated as the number of days since the user first logged in"
-  }
+
 
   dimension_group: time_since_first_login {
     group_label: "Time since first login"
@@ -238,12 +226,7 @@ view: learner_profile_dev {
     type: number
   }
 # TODO: is above the same as below?
-  dimension: days_active {
-    group_label: "Days Active"
-    type: number
-    label: "Total days active"
-    description: "Calculated as the total number of days a user was active"
-  }
+
   dimension: days_active_per_week {
     type: number
     group_label: "Days Active"
@@ -279,18 +262,7 @@ view: learner_profile_dev {
     label: "Events per session"
     description: "Calculated as the average number of events per session by a user"
   }
-  dimension_group: first_interaction {
-    sql: ${TABLE}.first_event_time
-        type: time
-        timeframes: [raw, time, date, day_of_week, month, hour]
-        description: "The time components of the timestamp when the user first logged in"
-      }
-      dimension_group: latest_interaction {
-        sql: ${TABLE}.latest_event_time ;;
-    type: time
-    timeframes: [time, date, day_of_week, month, hour]
-    description: "The time components of the timestamp when the user most recently logged in"
-  }
+
   dimension: frequency {
     group_label: "RFI"
     type: number

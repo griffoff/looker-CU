@@ -33,16 +33,17 @@ explore: session_analysis {
 #     relationship: many_to_many
 #   }
 
-#   join: user_institution_map {
-#     fields: []
-#     sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
-#     relationship: many_to_one
-#   }
-#
-#   join: gateway_institution {
-#     sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
-#     relationship: many_to_one
-#   }
+join: user_institution_map {
+  fields: []
+  sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+  relationship: many_to_one
+}
+
+join: gateway_institution {
+  view_label: "Learner Profile"
+  sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+  relationship: many_to_one
+}
 
   join: learner_profile {
     sql_on: ${all_sessions.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
@@ -164,18 +165,6 @@ explore: session_analysis_dev {
      sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
      relationship: many_to_many
    }
-
-   join: user_institution_map {
-     fields: []
-     sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
-     relationship: many_to_one
-   }
-
-   join: gateway_institution {
-     sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
-     relationship: many_to_one
-   }
-
 
    join: sessions_analysis_week {
      sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;

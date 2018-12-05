@@ -42,6 +42,9 @@ view: user_institution_map {
         ;;
 
       sql_step:
+        delete from courses where entity_no = '-1';;
+
+      sql_step:
         create table if not exists user_institution
         (
           RSRC string
@@ -54,8 +57,10 @@ view: user_institution_map {
         )
         ;;
 
+      # identify coursekeys from user session data
+      # then from enrollments and activations
       sql_step:
-        merge into looker_scratch.user_institution ui
+        merge into user_institution ui
         using (
           select
             'SESSIONS'::string as RSRC
@@ -65,7 +70,7 @@ view: user_institution_map {
             ,array_agg(distinct c.course_key) as course_keys
             ,array_agg(distinct c.entity_no) as entities
             ,case when institution_count = 1 then any_value(c.entity_no) end as entity_no
-          from prod.zpg.all_sessions s
+          from ${all_sessions.SQL_TABLE_NAME} s
           cross join lateral flatten (s.course_keys, outer=>True) k
           left join courses c on k.value::string = c.course_key
           where user_sso_guid in (select user_sso_guid from user_institution where entity_no is null)
