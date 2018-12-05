@@ -20,6 +20,15 @@ view: learner_profile {
     }
   }
 
+  dimension: purchase_path {
+    label: "Purchase path"
+    description: "
+    *****   WORK IN PROGRESS ******
+    The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)
+    *****   WORK IN PROGRESS ******"
+    sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
+  }
+
   dimension: days_active {
     group_label: "Days Active"
     type: number

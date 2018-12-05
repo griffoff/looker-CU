@@ -15,9 +15,10 @@ view: gateway_institution {
   }
 
   dimension: integration_type {
+    group_label: "Gateway LMS Details"
     type: string
     sql: ${TABLE}."INTEGRATION_TYPE" ;;
-    label: "Integration type"
+    label: "LMS Integration type"
     description: "Name of the technical network connection between the LMS and Cengage gateway system"
   }
 
@@ -35,19 +36,22 @@ view: gateway_institution {
   }
 
   dimension: lms_type {
+    group_label: "Gateway LMS Details"
     type: string
     sql: ${TABLE}."LMS_TYPE" ;;
-    label: "Learning management system type"
+    label: "LMS type"
     description: "I.e. Canvas, Blackboard, etc."
   }
 
   dimension: lms_version {
+    group_label: "Gateway LMS Details"
     type: number
     sql: ${TABLE}."LMS_VERSION" ;;
-    label: "Learning management system version"
+    label: "LMS version"
   }
 
   measure: count {
+    hidden: yes
     type: count
     drill_fields: [entity_no, lms_type, lms_version, integration_type]
     label: "Count"

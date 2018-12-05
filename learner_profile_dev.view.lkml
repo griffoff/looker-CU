@@ -60,12 +60,6 @@ view: learner_profile_dev {
     sql: ${products_added_count} ;;
   }
 
-  dimension: purchase_path {
-    label: "Purchase path"
-    description: "The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)"
-    sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
-  }
-
   dimension: total_products_net_value {
     group_label: "Provisioned Products"
     label: "Total net value"
