@@ -10,6 +10,13 @@ view: all_sessions {
     description: "Unique session identifier"
   }
 
+  dimension: age_in_days {
+    type: number
+    sql: ${TABLE}."AGE_IN_DAYS" ;;
+    label: "Session age in days"
+    description: "Number of days since the first login and this session occurred"
+  }
+
 
   dimension: course_keys {
     type: string
