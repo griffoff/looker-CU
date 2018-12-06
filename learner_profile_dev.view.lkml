@@ -415,6 +415,7 @@ view: learner_profile_dev {
   dimension_group: trial_start  {
     type: time
     timeframes: [date, week, month, month_name]
+    sql: ${TABLE}.trial_start_date ;;
   }
 
   dimension_group: trial_end {
@@ -467,6 +468,15 @@ view: learner_profile_dev {
     sql: ${trial_sessions} ;;
     label: "# Trial sessions (buckets)"
     description: "Tiers for bucketing data by session counts"
+  }
+
+  dimension_group: trial_length {
+    group_label: "Trial Duration"
+    description: "How long after trial start did they convert to full access?"
+    type: duration
+    sql_start: ${trial_start_date} ;;
+    sql_end: ${full_access_start_date} ;;
+    intervals: [day, week]
   }
 
   dimension: subscription_sessions {
