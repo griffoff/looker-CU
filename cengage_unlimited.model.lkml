@@ -481,3 +481,10 @@ explore: mobiledata {
 ################ MApped guids ###########################
 
 # explore: vw_subscription_event_mapped_guids {}
+explore: active_users_sam {
+  join: raw_subscription_event {
+    type: inner
+    relationship: one_to_one
+    sql_on: ${active_users_sam.user_guid}=${raw_subscription_event.user_sso_guid} ;;
+  }
+}
