@@ -117,15 +117,7 @@ view: all_sessions {
   dimension_group: session_start {
     label: "Session"
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}."SESSION_START" ;;
   }
 

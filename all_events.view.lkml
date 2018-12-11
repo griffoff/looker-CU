@@ -46,11 +46,16 @@ view: all_events {
 
   dimension:search_outcome{
     group_label: "Search"
-    sql:  event_data:search_outcome;;
+    label: "Search outcome successful"
+    description: "True if search resulted in the user adding a product to their dashboard and false if not"
+    sql:   event_data:search_outcome = 'Y';;
+    type: yesno
   }
 
   dimension: search_term {
     group_label: "Search"
+    label: "Search term"
+    description: "The term the user searched for on this given search"
     sql: event_data:search_term ;;
   }
 

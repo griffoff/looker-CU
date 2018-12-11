@@ -40,7 +40,7 @@ view: gateway_institution {
     type: string
     sql: ${TABLE}."LMS_TYPE" ;;
     label: "LMS type"
-    description: "I.e. Canvas, Blackboard, etc."
+    description: "Type of learning management system the user uses i.e. Canvas, Blackboard, etc."
   }
 
   dimension: lms_version {
@@ -48,6 +48,7 @@ view: gateway_institution {
     type: number
     sql: ${TABLE}."LMS_VERSION" ;;
     label: "LMS version"
+    description: "The release version of the LMS software i.e. 1.1"
   }
 
   measure: count {

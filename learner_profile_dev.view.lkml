@@ -81,6 +81,33 @@ view: learner_profile_dev {
     value_format_name: usd_0
   }
 
+  dimension: courseware_net_val {
+    group_label: "Provisioned Products"
+    label: "Courses net value"
+    type: number
+    sql: ${courseware_net_value} ;;
+    value_format_name: usd_0
+  }
+
+
+  dimension: cost_savings {
+    group_label: "Cost savings"
+    label: "Cost savings"
+    description: "Difference between net price of user's provisioned courseware products and $120 (CU Subscription cost)"
+    sql:  ${courseware_net_value} - 120 ;;
+    type: number
+  }
+
+  dimension: cost_savings_tiers {
+    group_label: "Cost savings"
+    label: "Cost savings (buckets)"
+    description: "Cost savings bucketed"
+    sql:   ${cost_savings};;
+    type: tier
+    tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
+    style: relational
+  }
+
 
   dimension: WA_activations {
     type: number
@@ -302,6 +329,7 @@ view: learner_profile_dev {
     style: relational
 
   }
+
 
   dimension: total_user_duration_tier {
     group_label: "Time spent online with Cengage"
