@@ -86,15 +86,26 @@ with sub as (SELECT
     UNION ALL
     Select * from enrol_final
     )
-    Select * from final;;
+    select f.*,Case when sam.user_guid is NULL then 'N' ELSE 'Y' END AS SAM_USER,sam.user_guid
+        from final f
+        left join  uploads.zas.active_users_sam sam
+        ON f.user_sso_guid = sam.user_guid ;;
 
   }
   dimension: subscription_start{}
   dimension: subscription_end {}
-  dimension: user_sso_guid {}
+  dimension: user_sso_guid {
+    primary_key: yes
+  }
   dimension: local_date {}
   dimension: platform {}
   dimension: course_key {}
   dimension: pp_name{}
-
+  dimension: SAM_USER {}
+  dimension: user_guid {}
+  measure: count {
+    label: "# users"
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
 }

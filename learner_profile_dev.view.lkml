@@ -507,6 +507,11 @@ view: learner_profile_dev {
     intervals: [day, week]
   }
 
+#   measure: trial_length_to_subscription_length_correlation{
+#     type: number
+#     sql: corr(${cu_subscription_length}, ${days_trial_length}) ;;
+#   }
+
   dimension: subscription_sessions {
     group_label: "Sessions"
     label: "# Full access sessions"
