@@ -98,6 +98,14 @@ view: learner_profile_dev {
     type: number
   }
 
+  dimension: cost_savings_t {
+    group_label: "Cost savings"
+    label: "Cost savings all products"
+    description: "Difference between net price of user's provisioned products and $120 (CU Subscription cost)"
+    sql:  ${total_products_net_value} - 120 ;;
+    type: number
+  }
+
   dimension: cost_savings_tiers {
     group_label: "Cost savings"
     label: "Cost savings (buckets)"
@@ -107,6 +115,17 @@ view: learner_profile_dev {
     tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
     style: relational
   }
+
+  dimension: cost_savings_tiers_t {
+    group_label: "Cost savings"
+    label: "Cost savings all products (buckets)"
+    description: "Cost savings for all products bucketed"
+    sql:   ${cost_savings_t};;
+    type: tier
+    tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
+    style: relational
+  }
+
 
 
   dimension: WA_activations {
