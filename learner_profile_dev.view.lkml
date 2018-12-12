@@ -96,6 +96,7 @@ view: learner_profile_dev {
     description: "Difference between net price of user's provisioned courseware products and $120 (CU Subscription cost)"
     sql:  ${courseware_net_value} - 120 ;;
     type: number
+    value_format_name: usd_0
   }
 
   dimension: cost_savings_t {
@@ -104,6 +105,7 @@ view: learner_profile_dev {
     description: "Difference between net price of user's provisioned products and $120 (CU Subscription cost)"
     sql:  ${total_products_net_value} - 120 ;;
     type: number
+    value_format_name: usd_0
   }
 
   dimension: cost_savings_tiers {
