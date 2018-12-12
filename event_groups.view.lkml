@@ -14,15 +14,7 @@ view: event_groups {
 
   dimension_group: _fivetran_synced {
     type: time
-    timeframes: [
-      raw,
-      time,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
+    timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
     label: "Fivetran synced"
     description: "Timestamp of the last time fivetran synced the table"

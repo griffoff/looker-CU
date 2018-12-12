@@ -23,10 +23,7 @@ view: learner_profile {
   dimension: purchase_path {
     group_label: "CU Subscription"
     label: "Purchase path"
-    description: "
-    *****   WORK IN PROGRESS ******
-    The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other)
-    *****   WORK IN PROGRESS ******"
+    description: "WORK IN PROGRESS The path this user came through to purchase CU (course link, micro-site, student dashboard, product detail page, other) WORK IN PROGRESS"
     sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
   }
 
@@ -49,12 +46,16 @@ view: learner_profile {
     type: number
     sql: (${days_active} / ${days_since_first_login}) * 100;;
     value_format: "#.00\%"
+    group_label: "Days Active"
+    label: "% days active"
+    description: "Percentage of days since the user first logged in that the user was active"
   }
 
   dimension_group: first_interaction {
     sql: ${TABLE}.first_event_time ;;
         type: time
         timeframes: [raw, time, date, day_of_week, month, hour]
+        label: "First interaction"
         description: "The time components of the timestamp when the user first logged in"
       }
 
@@ -63,6 +64,8 @@ view: learner_profile {
     sql: ${percent_days_active} ;;
     tiers: [10, 25, 50, 75]
     style: integer
+    group_label: "Days Active"
+    label: "# days active (buckets)"
   }
 
 
@@ -70,11 +73,13 @@ view: learner_profile {
     group_label: "CU Subscription"
     label: "Subscription status"
     sql: coalesce(${TABLE}.subscription_status, 'Never tried CU');;
-    description: "Current CU Subscription State"
+    description: "Current CU subscription state"
   }
 
   dimension: is_cu_subscriber {
     group_label: "Customer Type"
+    label: "Is CU subscriber"
+    description: "True if user is currently a full access subscriber and false if they are not"
     hidden: no
     type: yesno
     sql: lower(${subscription_status}) = 'full access' ;;
@@ -84,7 +89,7 @@ view: learner_profile {
     type: number
     group_label: "CU Subscription"
     label: "CU subscription Length"
-    description: "Current length of CU subscription"
+    description: "Current length of CU subscription in months"
     sql: CASE WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 3 THEN 4
             WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 11 THEN 12
             WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 23 THEN 24
@@ -105,18 +110,22 @@ view: learner_profile {
     timeframes: [date, week, month, month_name]
     group_label: "Current subscription state end date"
     description: "The user's current subscription state (trial or full) end date"
+    label: "Subscription end"
   }
 
   dimension_group: first_activation {
     type: time
     timeframes: [raw, date, month, year]
     description: "The earliest date this user activated any product with Cengage"
+    label: "First product activation date"
     sql: ${TABLE}.first_activation_date ;;
     hidden: yes
   }
 
   dimension: is_new_customer {
     group_label: "Customer Type"
+    label: "Is new customer"
+    description: "True if the customer has not activated a product prior to the launch of CU on 2018-08-01"
     hidden: yes
     type: yesno
     sql: ${first_activation_raw} > '2018-08-01' or ${first_activation_raw} is null;;
@@ -124,6 +133,8 @@ view: learner_profile {
 
   dimension: new_customer {
     group_label: "Customer Type"
+    label: "New customer status"
+    description: "A status describing whether a customer is new or returning and whether or not they purchased CU"
     case: {
       when: {
         sql: ${is_new_customer} AND ${is_cu_subscriber};;
@@ -181,7 +192,7 @@ view: learner_profile {
             ELSE 'No products added to dashboard'
                     END;;
     type: string
-    description: "Does this person use just courseware or other products or both?"
+    description: "Has this user added to their CU dashboard just courseware products, just non-courseware products, both or none?"
   }
 
   dimension: products_added {
@@ -204,6 +215,7 @@ view: learner_profile {
   dimension: products_added_tier {
     group_label: "Provisioned Products"
     label: "# products (buckets)"
+    description: "Bucketing of number of products added to dashboard"
     type: tier
     style: integer
     tiers: [1, 2, 5, 10]

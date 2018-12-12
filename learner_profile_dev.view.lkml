@@ -81,6 +81,56 @@ view: learner_profile_dev {
     value_format_name: usd_0
   }
 
+  dimension: courseware_net_val {
+    group_label: "Provisioned Products"
+    label: "Courses net value"
+    type: number
+    sql: ${courseware_net_value} ;;
+    value_format_name: usd_0
+  }
+
+
+  dimension: cost_savings {
+    group_label: "Cost savings"
+    label: "Cost savings"
+    description: "Difference between net price of user's provisioned courseware products and $120 (CU Subscription cost)"
+    sql:  ${courseware_net_value} - 120 ;;
+    type: number
+    value_format_name: usd_0
+  }
+
+  dimension: cost_savings_t {
+    group_label: "Cost savings"
+    label: "Cost savings all products"
+    description: "Difference between net price of user's provisioned products and $120 (CU Subscription cost)"
+    sql:  ${total_products_net_value} - 120 ;;
+    type: number
+    value_format_name: usd_0
+  }
+
+  dimension: cost_savings_tiers {
+    group_label: "Cost savings"
+    label: "Cost savings (buckets)"
+    description: "Cost savings bucketed"
+    sql:   ${cost_savings};;
+    type: tier
+    tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
+    style: relational
+    value_format_name: usd_0
+  }
+
+  dimension: cost_savings_tiers_t {
+    group_label: "Cost savings"
+    label: "Cost savings all products (buckets)"
+    description: "Cost savings for all products bucketed"
+    sql:   ${cost_savings_t};;
+    type: tier
+    tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
+    style: relational
+    value_format_name: usd_0
+  }
+
+
 
   dimension: WA_activations {
     type: number
@@ -302,6 +352,7 @@ view: learner_profile_dev {
     style: relational
 
   }
+
 
   dimension: total_user_duration_tier {
     group_label: "Time spent online with Cengage"
