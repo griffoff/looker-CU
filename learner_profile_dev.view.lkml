@@ -116,6 +116,7 @@ view: learner_profile_dev {
     type: tier
     tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
     style: relational
+    value_format_name: usd_0
   }
 
   dimension: cost_savings_tiers_t {
@@ -126,6 +127,7 @@ view: learner_profile_dev {
     type: tier
     tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
     style: relational
+    value_format_name: usd_0
   }
 
 
