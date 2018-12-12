@@ -27,6 +27,10 @@ view: all_events_diff {
       label: "e-Book usage"
       value: "_EBOOK"
     }
+    allowed_value: {
+      label: "Dashboard Search"
+      value: "_SEARCH"
+    }
   }
 
   #sql_table_name: ZPG.ALL_EVENTS_DIFF ;;
