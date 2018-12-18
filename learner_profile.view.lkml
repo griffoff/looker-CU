@@ -90,16 +90,16 @@ view: learner_profile {
     group_label: "CU Subscription"
     label: "CU subscription Length"
     description: "Current length of CU subscription in months"
-    sql: CASE WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 3 THEN 4
-            WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 11 THEN 12
-            WHEN datediff(month, ${subscription_start_date}, ${subscription_end_date}) = 23 THEN 24
-            ELSE datediff(month, ${subscription_start_date}, ${subscription_end_date}) END;;
+    sql: CASE WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (3, 4) THEN 4
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (11, 12) THEN 12
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (23, 24) THEN 24
+            ELSE datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) END;;
     value_format: "0 \m\o\n\t\h\s"
   }
 
   dimension_group: subscription_start {
     type: time
-    timeframes: [date, week, month, month_name]
+    timeframes: [raw, date, week, month, month_name]
     group_label: "Current subscription state start date"
     description: "The user's current subscription state (trial or full) start date"
     sql:  ${TABLE}.subscription_start::timestamp_ntz ;;
@@ -107,7 +107,7 @@ view: learner_profile {
 
   dimension_group: subscription_end {
     type: time
-    timeframes: [date, week, month, month_name]
+    timeframes: [raw, date, week, month, month_name]
     group_label: "Current subscription state end date"
     description: "The user's current subscription state (trial or full) end date"
     label: "Subscription end"

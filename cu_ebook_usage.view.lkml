@@ -1,6 +1,12 @@
 view: cu_ebook_usage {
   sql_table_name: UNLIMITED.CU_EBOOK_USAGE ;;
 
+  dimension: pk {
+    sql: hash(${source}, ${user_sso_guid}, ${activity_raw}, ${institution_id}, ${eisbn}) ;;
+    primary_key: yes
+    hidden: yes
+  }
+
   dimension: activity_count {
     type: string
     sql: ${TABLE}."ACTIVITY_COUNT" ;;
