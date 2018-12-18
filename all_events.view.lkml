@@ -29,10 +29,11 @@ view: all_events {
 
   dimension: product_platform {
     type: string
+    group_label: "Event Classification"
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
-    label: "Product platform"
-    description: "I.e. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
-    hidden: yes
+    label: "Event Source"
+    description: "Where did this event come from? e.g. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
+    hidden: no
   }
 
   dimension: session_id {
@@ -94,7 +95,7 @@ view: all_events {
   }
 
   measure: user_count {
-    label: "  people"
+    label: "# people"
     type: count_distinct
     sql: ${user_sso_guid} ;;
     drill_fields: [system_category, product_platform, event_type, event_action, count]
