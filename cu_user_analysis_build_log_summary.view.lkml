@@ -1,15 +1,24 @@
-explore: cu_user_analysis_build_log {}
+explore: cu_user_analysis_build_log_summary {}
 
-view: cu_user_analysis_build_log {
-  sql_table_name: ZPG.cu_user_analysis_build_log ;;
+view: cu_user_analysis_build_log_summary {
+  sql_table_name: ZPG.CU_USER_ANALYSIS_BUILD_LOG_SUMMARY ;;
 
   dimension: build_step {
     type: string
     sql: ${TABLE}."BUILD_STEP" ;;
   }
 
-  dimension: date_day {
-    type: date
+  dimension_group: date_day {
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
     sql: ${TABLE}."DATE_DAY" ;;
   }
 
@@ -58,9 +67,14 @@ view: cu_user_analysis_build_log {
     sql: ${TABLE}."LAST_DATA_LOAD" ;;
   }
 
-  dimension: run {
-    type: number
+  dimension: run_time {
+    type: string
     sql: ${TABLE}."RUN_TIME" ;;
+  }
+
+  dimension: total_records {
+    type: string
+    sql: ${TABLE}."TOTAL_RECORDS" ;;
   }
 
   dimension: user_sso_guid_non_null {
