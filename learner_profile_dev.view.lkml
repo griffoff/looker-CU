@@ -53,13 +53,13 @@ view: learner_profile_dev {
     value_format_name: usd_0
   }
 
-  dimension_group: time_since_first_log {
-    group_label: "Time since first event"
-    sql_start: ${first_interaction_time} ;;
-    sql_end: ${all_events.event_time} ;;
-    type: duration
-    intervals: [ hour, day, week, month]
-  }
+#   dimension_group: time_since_first_log {
+#     group_label: "Time since first event"
+#     sql_start: ${first_interaction_time} ;;
+#     sql_end: ${all_events.event_time} ;;
+#     type: duration
+#     intervals: [ hour, day, week, month]
+#   }
 
   dimension: courseware_net_value_tier {
     group_label: "Provisioned Products"

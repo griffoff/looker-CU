@@ -10,4 +10,14 @@ explore: ipm_browser_event {
   description: "Contains client-side events
   that are captured when a message is presented to a user,
   and when a user interacts with the message"
+  join: ipm_campaign {
+    relationship: many_to_one
+    type: left_outer
+    sql_on: ${ipm_browser_event.message_id} = ${ipm_campaign.message_id} ;;
+  }
+  join: ipm_queue_event {
+    relationship: many_to_one
+    type: left_outer
+    sql_on: ${ipm_browser_event.message_id}=${ipm_browser_event.message_id} ;;
+  }
 }

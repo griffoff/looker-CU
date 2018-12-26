@@ -35,6 +35,12 @@ view: all_events_dev {
        end;;
   }
 
+  dimension: has_shadow_guid {
+    description: "Does a user have a shadow guid or not"
+    type: yesno
+    sql: ${TABLE}.original_user_sso_guid != ${TABLE}.user_sso_guid ;;
+  }
+
   dimension: event_duration {
     type:  number
     sql: event_data:event_duration  / (60 * 60 * 24) ;;
