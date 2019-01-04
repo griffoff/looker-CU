@@ -373,6 +373,14 @@ explore: ga_dashboarddata {
   }
 }
 
+explore: ga_dashboarddata_merged_2 {
+  label: "CU Dashboard mapped"
+  join: raw_subscription_event_merged_2 {
+    sql_on: ${ga_dashboarddata_merged_2.mapped_guid} = ${raw_subscription_event_merged_2.mapped_guid} ;;
+    type: full_outer
+    relationship: many_to_one
+  }
+  }
 
 explore: dashboard_use_over_time_bucketed {
   label: "Dashboard Use Over Time Binned"
