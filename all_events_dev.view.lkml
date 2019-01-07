@@ -41,6 +41,12 @@ view: all_events_dev {
     sql: ${TABLE}.original_user_sso_guid != ${TABLE}.user_sso_guid ;;
   }
 
+  dimension: original_guid {
+    type: string
+    sql: ${TABLE}.original_user_sso_guid;;
+    hidden: yes
+  }
+
   dimension: event_duration {
     type:  number
     sql: event_data:event_duration  / (60 * 60 * 24) ;;
@@ -228,7 +234,7 @@ view: all_events_dev {
   measure: user_count_before_mapping {
     label: "# guids (unmerged)"
     type: count_distinct
-    sql: ${user_sso_guid} ;;
+    sql: ${original_guid} ;;
     drill_fields: [event_time, system_category, event_action, event_data, count]
     description: "Measure for counting unique user ids before shadow guid mapping was applied"
   }
