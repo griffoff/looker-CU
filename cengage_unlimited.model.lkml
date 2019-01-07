@@ -70,7 +70,7 @@ join: gateway_institution {
 explore: event_analysis {
   label: "Event Analysis"
   extends: [all_events_dev]
-  from: all_events_dev
+  from: all_events
   view_name: all_events
 
   join: learner_profile {
