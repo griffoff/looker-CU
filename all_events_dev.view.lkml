@@ -218,11 +218,19 @@ view: all_events_dev {
   }
 
   measure: user_count {
-    label: "  people"
+    label: "# people"
     type: count_distinct
     sql: ${user_sso_guid} ;;
     drill_fields: [event_time, system_category, event_action, event_data, count]
     description: "Measure for counting unique users (drill fields)"
+  }
+
+  measure: user_count_before_mapping {
+    label: "# guids (unmerged)"
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    drill_fields: [event_time, system_category, event_action, event_data, count]
+    description: "Measure for counting unique users before shadow guid mapping was applied"
   }
 
   measure: example_event_data {

@@ -88,7 +88,7 @@ view: all_events {
   dimension_group: local {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year]
-    sql: ${TABLE}."LOCAL_TIME" ;;
+    sql: convert_timezone('UTC', ${TABLE}."LOCAL_TIME") ;;
     group_label: "Event Time"
     label: "Event"
     description: "Components of the events local timestamp"
