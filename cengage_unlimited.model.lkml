@@ -157,6 +157,11 @@ explore: session_analysis_dev {
     from: learner_profile_dev
   }
 
+  join: user_courses {
+    sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
   join: all_events {
     from: all_events_dev
   }

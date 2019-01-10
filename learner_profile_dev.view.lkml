@@ -28,7 +28,7 @@ view: learner_profile_dev {
     group_label: "Courses"
     type: tier
     style: integer
-    tiers: [1, 2, 3, 5]
+    tiers: [1, 2, 3]
     sql: ${courses_enrolled} ;;
     label: "# Courses Enrolled (buckets)"
     description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment) bucketed"
