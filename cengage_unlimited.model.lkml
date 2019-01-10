@@ -181,6 +181,10 @@ explore: session_analysis_dev {
      relationship: many_to_one
    }
 
+   join: cu_ebook_rollup {
+     sql_on:  ${learner_profile.user_sso_guid} = ${cu_ebook_rollup.mapped_guid} ;;
+    relationship:  one_to_one
+    }
 
 
 #   join: sessions_analysis_week {
