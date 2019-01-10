@@ -190,12 +190,25 @@ view: cu_ebook_rollup {
                 THEN mapped_guid END AS used_noncourseware_ebook_no_royalty
           ,CASE WHEN full_access * ebooks_opened_royalty > 0
                 THEN mapped_guid END AS used_noncourseware_ebook_royalty
-        FROM  ebook_usage_guid_total t
+        FROM  {% parameter table_name %} t
         LEFT JOIN dates d ON t.month = d.datevalue
         WHERE mapped_guid not in (select user_sso_guid from unlimited.excluded_users)
       )
       SELECT *
       FROM ebook_usage_output ;;
+  }
+
+  parameter: table_name {
+    type: unquoted
+    allowed_value: {
+      label: "Monthly"
+      value: "ebook_usage_guid_month"
+    }
+    allowed_value: {
+      label: "Total"
+      value: "ebook_usage_guid_total"
+    }
+
   }
 
   measure: count {
@@ -209,7 +222,54 @@ view: cu_ebook_rollup {
     drill_fields: [detail*]
   }
 
+  measure: sort_0 {
+    type: min
+    sql: ${month} ;;
+  }
 
+  measure: sort_1 {
+    type: min
+    sql: ${sort} ;;
+  }
+
+  measure: In_Trial_State_Everyone  {
+    type: count_distinct
+    sql: CASE WHEN trial = 1 THEN mapped_guid  END;;
+  }
+
+  measure: In_Trial_State_those_that_became_Full_access  {
+    type: count_distinct
+    sql: CASE WHEN trial = 1 AND subscribed = 1 THEN mapped_guid END;;
+  }
+
+  measure: In_Full_State  {
+    type: count_distinct
+    sql:CASE WHEN full_access = 1 THEN mapped_guid END;;
+  }
+  measure: Overall_of_those_that_eventually_paid  {
+    type: count_distinct
+    sql: CASE WHEN subscribed = 1 THEN mapped_guid END;;
+  }
+  measure: People_who_opene_up_at_least_one_ebook_one_or_more_times  {
+    type: count_distinct
+    sql: used_ebook;;
+  }
+  measure: People_who_used_only_courseware_related_ebooks  {
+    type: count_distinct
+    sql: used_courseware_ebook_only;;
+  }
+  measure: People_who_only_used_non_courseware_ebooks_while_in_trial_access  {
+    type: count_distinct
+    sql: used_noncourseware_ebook_trial_only;;
+  }
+  measure: People_who_only_used_non_courseware_ebooks_while_in_trial_access_but_not_enough_to_trigger_a_royalty  {
+    type: count_distinct
+    sql:used_noncourseware_ebook_no_royalty;;
+  }
+  measure:  People_who_only_used_non_courseware_ebooks_enough_to_potentially_trigger_a_royalty_event {
+    type: count_distinct
+    sql: used_noncourseware_ebook_royalty;;
+  }
 
 
   dimension: mapped_guid {
@@ -224,7 +284,7 @@ view: cu_ebook_rollup {
 
   dimension: calendarmonthname {
     type: string
-    sql: ${TABLE}."CALENDARMONTHNAME" ;;
+    sql: ${TABLE}."CALENDARMONTHNAME";;
   }
 
   dimension: subscription_state {
@@ -254,17 +314,19 @@ view: cu_ebook_rollup {
 
   dimension: ebook_usage_bucket {
     type: string
-    sql: ${TABLE}."EBOOK_USAGE_BUCKET" ;;
+    sql: COALESCE(${TABLE}."EBOOK_USAGE_BUCKET", 'overall_bucket') ;;
   }
 
   dimension: ebook_royalty_bucket {
     type: string
+#     sql: COALESCE(${TABLE}."EBOOK_ROYALTY_BUCKET", "TOTAL") ;;
+
     sql: ${TABLE}."EBOOK_ROYALTY_BUCKET" ;;
   }
 
   dimension: ebook_non_courseware_bucket {
     type: string
-    sql: ${TABLE}."EBOOK_NON_COURSEWARE_BUCKET" ;;
+    sql: COALESCE(${TABLE}."EBOOK_NON_COURSEWARE_BUCKET", "overall_bucket") ;;
   }
 
   dimension: used_ebook {
