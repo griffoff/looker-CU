@@ -591,6 +591,25 @@ view: learner_profile_dev {
   }
 
 
+dimension: returning_cu_customer {
+  group_label: "Customer Type"
+}
+
+dimension: purchased_standalone {
+  type: yesno
+  sql: ${full_access_end_date} < ${latest_activation_date}  ;;
+}
+
+dimension_group: time_in_current_status {
+  group_label: "Current subscription time in status"
+  type: duration
+  intervals: [day, week, month]
+  sql_start: ${subscription_start_date} ;;
+  sql_end: current_date() ;;
+}
+
+
+
 
 ### Measure's section ###
 

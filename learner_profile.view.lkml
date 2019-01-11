@@ -102,7 +102,7 @@ view: learner_profile {
   dimension_group: subscription_start {
     type: time
     timeframes: [raw, date, week, month, month_name]
-    group_label: "Current subscription state start date"
+    group_label: "Current subscription start date"
     description: "The user's current subscription state (trial or full) start date"
     sql:  ${TABLE}.subscription_start::timestamp_ntz ;;
   }
@@ -110,7 +110,7 @@ view: learner_profile {
   dimension_group: subscription_end {
     type: time
     timeframes: [raw, date, week, month, month_name]
-    group_label: "Current subscription state end date"
+    group_label: "Current subscription end date"
     description: "The user's current subscription state (trial or full) end date"
     label: "Subscription end"
   }
