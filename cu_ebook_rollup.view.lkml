@@ -8,7 +8,8 @@ view: cu_ebook_rollup {
               ,calendarmonthname
               ,datevalue
           FROM dw_ga.dim_date
-          WHERE academic_term = 'Fall 2019'
+          WHERE datevalue  BETWEEN {% parameter report_range_start %}  AND {% parameter report_range_end %}
+
       )
       -- generate a list of months to be included in the report
       ,months AS (
@@ -194,12 +195,33 @@ view: cu_ebook_rollup {
         LEFT JOIN dates d ON t.month = d.datevalue
         WHERE mapped_guid not in (select user_sso_guid from unlimited.excluded_users)
       )
-      SELECT *
+      SELECT
+            mapped_guid
+            ,month
+            ,COALESCE(calendarmonthname, 'TOTAL') AS calendarmonthname
+            ,subscription_state
+            ,trial
+            ,full_access
+            ,subscribed
+            ,sort
+            ,ebook_usage_bucket
+            ,COALESCE(ebook_royalty_bucket, 'TOTAL') AS ebook_royalty_bucket
+            ,ebook_non_courseware_bucket
+            ,used_ebook
+            ,used_courseware_ebook_only
+            ,used_noncourseware_ebook_trial_only
+            ,used_noncourseware_ebook_no_royalty
+            ,used_noncourseware_ebook_royalty
       FROM ebook_usage_output ;;
+
+  sql_trigger_value:  SELECT COUNT(*) FROM prod.zpg.CU_EBOOK_USAGE_SRC_TMP;;
   }
+
+
 
   parameter: table_name {
     type: unquoted
+    default_value: "ebook_usage_guid_total"
     allowed_value: {
       label: "Monthly"
       value: "ebook_usage_guid_month"
@@ -208,8 +230,19 @@ view: cu_ebook_rollup {
       label: "Total"
       value: "ebook_usage_guid_total"
     }
-
   }
+
+    parameter: report_range_start {
+      type: date
+      default_value: "2018-08-01"
+    }
+
+
+    parameter: report_range_end {
+      type: date
+      default_value: "2019-01-01"
+    }
+
 
   measure: count {
     type: count
