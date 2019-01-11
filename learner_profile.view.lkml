@@ -143,16 +143,16 @@ view: learner_profile {
         label: "New cengage customer purchased CU"
       }
       when: {
-        sql: ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
-        label: "New Customer purchased stand alone after CU released"
-      }
-      when: {
         sql: NOT ${is_new_customer} AND ${is_cu_subscriber} ;;
         label: "Returning customer purchased CU"
       }
       when: {
         sql: ${first_activation_raw} is null ;;
         label: "No subscription or Standalone"
+      }
+      when: {
+        sql: ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
+        label: "New Customer purchased stand alone after CU released"
       }
       when: {
         sql: NOT ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
