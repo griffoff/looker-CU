@@ -158,6 +158,33 @@ view: user_institution_map {
           ;;
 
         sql_step:
+          merge into user_institution ui
+          using (
+            select
+                'USER_COURSES'::string as RSRC
+                ,user_sso_guid
+                ,count(distinct c.course_key) as course_key_count
+                ,count(distinct c.entity_no) as institution_count
+                ,array_agg(distinct c.course_key) as course_keys
+                ,array_agg(distinct c.entity_no) as entities
+                ,case when institution_count = 1 then any_value(c.entity_no) end as entity_no
+            from ${user_courses.SQL_TABLE_NAME} uc
+            inner join courses c on uc.olr_course_key = c.course_key
+            where user_sso_guid in (select user_sso_guid from user_institution where entity_no is null)
+            or user_sso_guid not in (select user_sso_guid from user_institution)
+            group by user_sso_guid
+          ) i on ui.user_sso_guid = i.user_sso_guid
+          when matched and ui.entity_no is null then
+          update
+            set institution_count = i.institution_count
+            ,entity_no = i.entity_no
+            ,RSRC = i.RSRC
+          when not matched then
+          insert (RSRC, user_sso_guid, course_key_count, institution_count, course_keys, entities, entity_no)
+          values (i.RSRC, i.user_sso_guid, i.course_key_count, i.institution_count, i.course_keys, i.entities, i.entity_no)
+          ;;
+
+        sql_step:
           create or replace table ${SQL_TABLE_NAME} clone user_institution;;
     }
 
