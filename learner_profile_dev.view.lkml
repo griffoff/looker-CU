@@ -521,25 +521,26 @@ view: learner_profile_dev {
   dimension_group: trial_start  {
     type: time
     timeframes: [date, week, month, month_name]
-    sql: ${TABLE}.trial_start_date ;;
+    sql: ${TABLE}.latest_trial_start_date ;;
   }
 
   dimension_group: trial_end {
     type: time
     timeframes: [date, week, month, month_name]
+    sql: ${TABLE}.latest_trial_end_date ;;
   }
 
   dimension_group: full_access_start {
     type: time
     timeframes: [date, week, month, month_name]
-    sql: ${TABLE}.subscription_start_date ;;
+    sql: ${TABLE}.latest_full_access_subscription_start_date ;;
     description: "Date on which this users full access CU subscription started"
   }
 
   dimension_group: full_access_end {
     type: time
     timeframes: [date, week, month, month_name]
-    sql: ${TABLE}.subscription_end_date ;;
+    sql: ${TABLE}.latest_full_access_subscription_start_date ;;
     description: "Date on which this users full access CU subscription ended"
   }
 

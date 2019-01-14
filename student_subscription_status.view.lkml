@@ -52,19 +52,39 @@ sql_table_name: CU_USER_ANALYSIS.STUDENT_SUBSCRIPTION_STATUS ;;
     type: yesno
     }
 
-  dimension_group: trial_start_date {
-    sql: ${TABLE}.trial_start_date ;;
+  dimension_group: latest_trial_start_date {
+    sql: ${TABLE}.latest_trial_start_date ;;
     type: time
     timeframes: [time, date, day_of_week, month, hour]
+    alias: [trial_start_date]
+    description: "The time components of the timestamp when the user began their latest trial access subscription"
     }
 
-
-  dimension_group: subscription_start_date {
-    sql: ${TABLE}.subscription_start_date ;;
+  dimension_group: latest_trial_end_date {
+    sql: ${TABLE}.latest_trial_end_date ;;
     type: time
     timeframes: [time, date, day_of_week, month, hour]
-    description: "The time components of the timestamp when the user began their subscription"
+    alias: [trial_end_date]
+    description: "The time components of the timestamp when the user ended their latest trial access subscription"
   }
+
+
+  dimension_group: latest_full_access_subscription_start_date {
+    sql: ${TABLE}.latest_full_access_subscription_start_date ;;
+    type: time
+    timeframes: [time, date, day_of_week, month, hour]
+    description: "The time components of the timestamp when the user began their latest full access subscription"
+    alias: [subscription_start_date]
+  }
+
+  dimension_group: latest_full_access_subscription_end_date {
+    sql: ${TABLE}.latest_full_access_subscription_end_date ;;
+    type: time
+    timeframes: [time, date, day_of_week, month, hour]
+    description: "The time components of the timestamp when the user ended their latest full access subscription"
+    alias: [subscription_end_date]
+  }
+
 
 
 }
