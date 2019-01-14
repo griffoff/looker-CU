@@ -187,6 +187,7 @@ explore: session_analysis_dev {
     }
 
 
+
 #   join: sessions_analysis_week {
 #     sql_on: ${all_sessions_dev.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
 #     relationship: many_to_one

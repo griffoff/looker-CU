@@ -4,6 +4,14 @@ view: student_subscription_status_dev {
   extends: [student_subscription_status]
   label: "student_subscription_status DEV"
   sql_table_name: zpg.student_subscription_status ;;
+
+  dimension_group: most_recent_full_access_expired_date {
+    type: time
+    }
+
+  dimension_group: most_recent_trial_access_expired_date {
+    type: time
+  }
   # # You can specify the table name if it's different from the view name:
   # sql_table_name: my_schema_name.tester ;;
   #

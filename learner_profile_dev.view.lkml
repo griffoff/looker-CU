@@ -13,7 +13,10 @@ view: learner_profile_dev {
     sql: ${TABLE}.courses ;;
   }
 
-
+  dimension: marketing_segment_fb {
+    type: string
+    sql: ${TABLE}.marketing_segment_fb ;;
+  }
 
   dimension: courses_enrolled {
     group_label: "Courses"
