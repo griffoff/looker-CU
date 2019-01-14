@@ -540,7 +540,7 @@ view: learner_profile_dev {
   dimension_group: full_access_end {
     type: time
     timeframes: [date, week, month, month_name]
-    sql: ${TABLE}.latest_full_access_subscription_start_date ;;
+    sql: ${TABLE}.latest_full_access_subscription_end_date ;;
     description: "Date on which this users full access CU subscription ended"
   }
 
