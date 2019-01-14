@@ -102,7 +102,7 @@ view: learner_profile {
   dimension_group: subscription_start {
     type: time
     timeframes: [raw, date, week, month, month_name]
-    group_label: "Current subscription state start date"
+    group_label: "Current subscription start date"
     description: "The user's current subscription state (trial or full) start date"
     sql:  ${TABLE}.subscription_start::timestamp_ntz ;;
   }
@@ -110,7 +110,7 @@ view: learner_profile {
   dimension_group: subscription_end {
     type: time
     timeframes: [raw, date, week, month, month_name]
-    group_label: "Current subscription state end date"
+    group_label: "Current subscription end date"
     description: "The user's current subscription state (trial or full) end date"
     label: "Subscription end"
   }
@@ -143,16 +143,16 @@ view: learner_profile {
         label: "New cengage customer purchased CU"
       }
       when: {
-        sql: ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
-        label: "New Customer purchased stand alone after CU released"
-      }
-      when: {
         sql: NOT ${is_new_customer} AND ${is_cu_subscriber} ;;
         label: "Returning customer purchased CU"
       }
       when: {
         sql: ${first_activation_raw} is null ;;
         label: "No subscription or Standalone"
+      }
+      when: {
+        sql: ${is_new_customer} AND NOT ${is_cu_subscriber} ;;
+        label: "New Customer purchased stand alone after CU released"
       }
       when: {
         sql: NOT ${is_new_customer} AND NOT ${is_cu_subscriber} ;;

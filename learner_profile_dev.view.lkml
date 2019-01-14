@@ -22,19 +22,51 @@ view: learner_profile_dev {
     group_label: "Courses"
     type: number
     label: "# Courses Enrolled"
-    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment)"
-    sql: ${TABLE}.unique_courses ;;
+    description: "Number of courses the user has enrolled in (course keys found in OlR enrollments)"
+    sql: ${TABLE}.unique_courses_enrolled ;;
     alias: [unique_courses]
+  }
+
+  dimension: courses_activated {
+    group_label: "Courses"
+    type: number
+    label: "# Courses Activated"
+    description: "Number of courses the user has enrolled in (course keys found in OLR activations)"
+    sql: ${TABLE}.unique_courses_activated ;;
   }
 
   dimension: courses_enrolled_tier {
     group_label: "Courses"
     type: tier
     style: integer
-    tiers: [1, 2, 3]
+    tiers: [0, 1, 2, 3]
     sql: ${courses_enrolled} ;;
     label: "# Courses Enrolled (buckets)"
-    description: "Number of courses the user has enrolled in (course keys with event action: OLR enrollment) bucketed"
+    description: "Number of courses the user has enrolled in"
+  }
+
+  dimension: courses_activated_tier {
+    group_label: "Courses"
+    type: tier
+    style: integer
+    tiers: [0, 1, 2, 3]
+    sql: ${courses_activated} ;;
+    label: "# Courses Activated (buckets)"
+    description: "Number of courses the user has activated"
+  }
+
+  dimension: courseware_net_price_non_cu_activated {
+    type: number
+    group_label: "Courses"
+    description: "Total net cost of active courseware activated since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
+  }
+
+  dimension: courseware_net_price_non_cu_enrolled{
+    type: number
+    group_label: "Courses"
+    description: "Total net cost of active courseware enrolled in but not activated since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
   }
 
   dimension: total_products_net_value {
@@ -158,6 +190,26 @@ view: learner_profile_dev {
     sql: coalesce(${TABLE}.other_Activations, 0);;
     description: "Number of activations that aren't WebAssign or MindTap prior to CU launch on 08/01/2018"
   }
+
+
+  dimension: purchased_standalone {
+    description: "Did this person activate a course after the end of their last full access subscription?"
+    type: yesno
+    sql: ${full_access_end_date} < ${latest_activation_date}  ;;
+  }
+
+  dimension: returning_cu_customer {
+    group_label: "Customer Type"
+  }
+
+  dimension_group: time_in_current_status {
+    group_label: "Current subscription time in status"
+    type: duration
+    intervals: [day, week, month]
+    sql_start: ${subscription_start_date} ;;
+    sql_end: current_date() ;;
+  }
+
 
 #   dimension: new_customer {
 #     type: string
@@ -592,7 +644,6 @@ view: learner_profile_dev {
     sql: ${TABLE}.non_course_ware_duration / (60 * 60 * 24) ;;
     value_format_name: duration_dhm
   }
-
 
 
 ### Measure's section ###
