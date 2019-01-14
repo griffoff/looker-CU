@@ -195,7 +195,7 @@ view: learner_profile_dev {
   dimension: purchased_standalone {
     description: "Did this person activate a course after the end of their last full access subscription?"
     type: yesno
-    sql: ${full_access_end_date} < ${latest_activation_date}  ;;
+    sql: COALESCE(${TABLE}.latest_full_access_subscription_end_date, '2018-08-01') < ${TABLE}.latest_activation_date  ;;
   }
 
   dimension: returning_cu_customer {
