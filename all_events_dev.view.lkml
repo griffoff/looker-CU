@@ -206,6 +206,11 @@ view: all_events_dev {
     description: "Development platofrm i.e. production, staging, development, etc."
   }
 
+  dimension: event_subscription_state {
+    type: string
+    sql: COALESCE(${TABLE}.event_data:subscription_state::string, ${TABLE}.subscription_state);;
+    description: "Subscription state at the time of the event"
+  }
 
   dimension: relative_age {
     label: ""
