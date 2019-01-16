@@ -48,9 +48,8 @@ view: all_events {
   dimension:search_outcome{
     group_label: "Search"
     label: "Search outcome successful"
-    description: "True if search resulted in the user adding a product to their dashboard and false if not"
-    sql:   event_data:search_outcome = 'Y';;
-    type: yesno
+    description: "Y indicates search resulted in the user adding a product to their dashboard and N if not"
+    sql:   event_data:search_outcome;;
   }
 
   dimension: search_term {

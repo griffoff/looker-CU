@@ -163,7 +163,6 @@ view: all_events_dev {
     label: "Event 5"
     description: "The event five after the current event"
   }
-
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
