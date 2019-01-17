@@ -16,15 +16,21 @@ view: learner_profile_dev {
   dimension: marketing_segment_fb {
     type: string
     sql: CASE
-            WHEN courseware_net_price_non_cu_on_dashboard >= 120
-            THEN 'Students who have not paid but have courseware on dashboard >= $120'
-            WHEN courseware_net_price_non_cu_on_dashboard < 120 AND courseware_net_price_non_cu_on_dashboard <> 0 AND courseware_net_price_non_cu_on_dashboard IS NOT NULL
-            THEN 'Students who have not paid but have courseware on dashboard < $120'
+--             WHEN courseware_net_price_non_cu_on_dashboard >= 120
+--             THEN 'Students who have not paid but have courseware on dashboard >= $120'
+--             WHEN courseware_net_price_non_cu_on_dashboard < 120 AND courseware_net_price_non_cu_on_dashboard <> 0 AND courseware_net_price_non_cu_on_dashboard IS NOT NULL
+--             THEN 'Students who have not paid but have courseware on dashboard < $120'
             WHEN courseware_net_price_non_cu_activated >= 120
             THEN 'Students who have paid for standalone digital courseware >= $120'
-            WHEN courseware_net_price_non_cu_activated < 120 AND courseware_net_price_non_cu_activated <> 0 AND courseware_net_price_non_cu_activated IS NOT NULL
+            WHEN courseware_net_price_non_cu_activated < 120
             THEN 'Students who have paid for standalone digital courseware < $120'
-            ELSE NULL
+            WHEN courseware_net_price_non_cu_enrolled >= 120
+            THEN 'Students who have enrolled in courseware but not activated or added to dashboard >= $120'
+            WHEN courseware_net_price_non_cu_enrolled < 120
+            THEN 'Students who have enrolled in courseware but not activated or added to dashboard < $120'
+            WHEN courseware_net_price_non_cu_on_dashboard IS NOT NULL
+            THEN 'Students who have added courseware to dashboard, but have no enrollments or activations'
+            ELSE 'No enrollments or activations or courseware on dashboard'
          END
 ;;
   }
@@ -214,7 +220,10 @@ view: learner_profile_dev {
    dimension: purchased_standalone {
      description: "Did this person activate a course after the end of their last full access subscription?"
      type: yesno
-     sql:   ${user_courses.activation_date} > ${TABLE}.latest_full_access_subscription_end_date ;;
+     sql:  courseware_net_price_non_cu_activated IS NOT NULL;;
+
+#    ${user_courses.activation_date} > ${TABLE}.latest_full_access_subscription_end_date
+#            OR ${TABLE}.latest_full_access_subscription_end_date IS NULL AND  ${user_courses.activation_date} IS NOT NULL ;;
    }
 
   dimension: returning_cu_customer {
