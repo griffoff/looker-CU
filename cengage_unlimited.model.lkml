@@ -167,7 +167,7 @@ explore: session_analysis_dev {
   }
 
    join: dim_course {
-     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+     sql_on: ${user_courses.olr_course_key} = ${dim_course.olr_course_key} ;;
      relationship: many_to_many
    }
 
@@ -185,8 +185,6 @@ explore: session_analysis_dev {
      sql_on:  ${learner_profile.user_sso_guid} = ${cu_ebook_rollup.mapped_guid} ;;
     relationship:  one_to_one
     }
-
-
 
 #   join: sessions_analysis_week {
 #     sql_on: ${all_sessions_dev.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
