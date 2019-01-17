@@ -67,6 +67,36 @@ view: user_courses {
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
 
+  dimension: course_start_date {
+    type: date
+    }
+
+  dimension: course_end_date {
+    type: date
+  }
+
+  dimension: activation_date {
+    type: date
+  # intervals: [day, week, month]
+  }
+
+  dimension: isbn {
+    type: string
+  }
+
+  dimension: date_added {
+    type: date
+  }
+
+  dimension: enrollment_date {
+    type: date
+  }
+
+  dimension: net_price_on_dashboard {
+    type: number
+  }
+
+
   measure: count {
     type: count
     drill_fields: []

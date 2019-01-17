@@ -15,7 +15,18 @@ view: learner_profile_dev {
 
   dimension: marketing_segment_fb {
     type: string
-    sql: ${TABLE}.marketing_segment_fb ;;
+    sql: CASE
+            WHEN courseware_net_price_non_cu_on_dashboard >= 120
+            THEN 'Students who have not paid but have courseware on dashboard >= $120'
+            WHEN courseware_net_price_non_cu_on_dashboard < 120 AND courseware_net_price_non_cu_on_dashboard <> 0 AND courseware_net_price_non_cu_on_dashboard IS NOT NULL
+            THEN 'Students who have not paid but have courseware on dashboard < $120'
+            WHEN courseware_net_price_non_cu_activated >= 120
+            THEN 'Students who have paid for standalone digital courseware >= $120'
+            WHEN courseware_net_price_non_cu_activated < 120 AND courseware_net_price_non_cu_activated <> 0 AND courseware_net_price_non_cu_activated IS NOT NULL
+            THEN 'Students who have paid for standalone digital courseware < $120'
+            ELSE NULL
+         END
+;;
   }
 
   dimension: courses_enrolled {
@@ -67,6 +78,14 @@ view: learner_profile_dev {
     group_label: "Courses"
     description: "Total net cost of active courseware enrolled in but not activated since the end of a user's last CU subscription (i.e. not covered by CU)"
     value_format_name: usd_0
+  }
+
+  dimension: courseware_net_price_non_cu_on_dashboard{
+    type: number
+    group_label: "Courses"
+    description: "Total net cost of active courseware on the users dashboard since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
+    sql:  courseware_net_price_non_cu_on_dashboard::number;;
   }
 
   dimension: total_products_net_value {
@@ -192,11 +211,11 @@ view: learner_profile_dev {
   }
 
 
-  dimension: purchased_standalone {
-    description: "Did this person activate a course after the end of their last full access subscription?"
-    type: yesno
-    sql: COALESCE(${TABLE}.latest_full_access_subscription_end_date, '2018-08-01') < ${TABLE}.latest_activation_date  ;;
-  }
+   dimension: purchased_standalone {
+     description: "Did this person activate a course after the end of their last full access subscription?"
+     type: yesno
+     sql:   ${user_courses.activation_date} > ${TABLE}.latest_full_access_subscription_end_date ;;
+   }
 
   dimension: returning_cu_customer {
     group_label: "Customer Type"
@@ -518,26 +537,26 @@ view: learner_profile_dev {
   }
 
 
-  dimension_group: trial_start  {
+  dimension_group: latest_trial_start_date  {
     type: time
     timeframes: [date, week, month, month_name]
     sql: ${TABLE}.latest_trial_start_date ;;
   }
 
-  dimension_group: trial_end {
+  dimension_group: latest_trial_end_date {
     type: time
     timeframes: [date, week, month, month_name]
     sql: ${TABLE}.latest_trial_end_date ;;
   }
 
-  dimension_group: full_access_start {
+  dimension_group: latest_full_access_subscription_start_date {
     type: time
     timeframes: [date, week, month, month_name]
     sql: ${TABLE}.latest_full_access_subscription_start_date ;;
     description: "Date on which this users full access CU subscription started"
   }
 
-  dimension_group: full_access_end {
+  dimension_group: latest_full_access_subscription_end_date {
     type: time
     timeframes: [date, week, month, month_name]
     sql: ${TABLE}.latest_full_access_subscription_end_date ;;
@@ -581,8 +600,8 @@ view: learner_profile_dev {
     group_label: "Trial Duration"
     description: "How long after trial start did they convert to full access?"
     type: duration
-    sql_start: ${trial_start_date} ;;
-    sql_end: ${full_access_start_date} ;;
+    sql_start: ${TABLE}.latest_trial_start_date ;;
+    sql_end: ${TABLE}.latest_full_access_subscription_start_date ;;
     intervals: [day, week]
   }
 
