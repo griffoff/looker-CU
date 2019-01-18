@@ -67,9 +67,20 @@ view: learner_profile_dev {
     type: tier
     style: integer
     tiers: [0, 1, 2, 3]
-    sql: ${courses_activated} ;;
+    sql: COALESCE(${courses_activated}, 0) ;;
     label: "# Courses Activated (buckets)"
     description: "Number of courses the user has activated"
+  }
+
+  dimension: net_price_tier {
+    label: "Price of Courseware (buckets)"
+    description: "Net Price of Courseware either paid for or not yet paid for"
+    type: tier
+    style: integer
+    group_label: "Courses"
+    tiers: [0, 120, 180, 250, 500]
+    sql: COALESCE(${courseware_net_price_non_cu_on_dashboard}, ${courseware_net_price_non_cu_activated}, ${courseware_net_price_non_cu_on_dashboard}, 0) ;;
+    value_format_name: usd_0
   }
 
   dimension: courseware_net_price_non_cu_activated {
