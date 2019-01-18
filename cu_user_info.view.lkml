@@ -140,8 +140,8 @@ view: cu_user_info {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
-  measure: count {
-    type: count
-    drill_fields: [first_name, last_name, entity_name]
-  }
+#   measure: count {
+#     type: count
+#     drill_fields: [first_name, last_name, entity_name]
+#   }
 }

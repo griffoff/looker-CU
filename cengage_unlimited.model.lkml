@@ -12,6 +12,20 @@ case_sensitive: no
 
 ######## User Experience Journey Start ###################
 
+explore: learner_profile {
+  extension: required
+  join: merged_cu_user_info {
+    view_label: "Learner Profile - User Info"
+    sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+  join: live_subscription_status {
+    view_label: "Learner Profile - Live Subcsription Status"
+    sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+}
+
 explore: all_events {
   label: "all events prod"
 
@@ -69,7 +83,7 @@ join: gateway_institution {
 
 explore: event_analysis {
   label: "Event Analysis"
-  extends: [all_events_dev]
+  extends: [all_events_dev, learner_profile]
   from: all_events
   view_name: all_events
 
@@ -150,7 +164,7 @@ explore: session_analysis_dev {
 
   label: "CU User Analysis Dev"
   from: all_sessions_dev
-  extends: [session_analysis, all_events_dev, dim_course]
+  extends: [session_analysis, all_events_dev, dim_course, learner_profile]
   view_name: all_sessions
 
   join: learner_profile {
