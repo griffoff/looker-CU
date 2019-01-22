@@ -342,8 +342,9 @@ explore: provisioned_product {
 }
 
 explore: raw_subscription_event {
+  label: "Live Subscription Status"
   view_name: raw_subscription_event
-  view_label: "Raw Subscription Event"
+  view_label: "Subscription Status"
   join: raw_olr_provisioned_product {
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
     relationship: many_to_one
@@ -352,10 +353,10 @@ explore: raw_subscription_event {
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
-  join: sub_actv {
-    sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
-    relationship: many_to_one
-  }
+#   join: sub_actv {
+#     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
 }
 
 

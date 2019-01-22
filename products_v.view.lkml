@@ -1,4 +1,5 @@
 view: products_v {
+  view_label: "Product Information"
   sql_table_name: STG_CLTS.PRODUCTS_V ;;
 
   dimension: acquisition_ed_cd {

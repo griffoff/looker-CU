@@ -1,6 +1,8 @@
-explore: raw_olr_provisioned_product { label: "CU Provisioned Product"}
+explore: raw_olr_provisioned_product {
+  label: "CU Provisioned Product"}
 
 view: raw_olr_provisioned_product {
+  view_label: "Provisioned Product"
 #   sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
 derived_table: {
         sql:
