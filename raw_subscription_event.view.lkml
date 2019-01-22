@@ -73,8 +73,10 @@ view: raw_subscription_event {
 
   dimension: active {
     type: yesno
-    label: "Subscription Active"
-    description: "Whether the subscription state is active (subscription end is in the future)"
+    label: "Subscription State Active"
+    description: "Whether the subscription state is active (subscription end is in the future)
+    Use this as a filter to only include records that represet a user's current status
+    n.b. This applies to any subscription state (trial, cancelled, etc.) It DOES NOT reflect whether a subscription is a Full Access subscription or not."
   }
 
   dimension: next_status {
