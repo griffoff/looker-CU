@@ -38,6 +38,7 @@ view: cu_user_info {
   dimension: cu_state_sso {
     type: string
     sql: ${TABLE}."CU_STATE_SSO" ;;
+    hidden: yes
   }
 
   dimension: email {
@@ -60,6 +61,7 @@ view: cu_user_info {
   dimension: entity_id {
     type: number
     sql: ${TABLE}."ENTITY_ID" ;;
+    hidden: yes
   }
 
   dimension: entity_name {
@@ -86,7 +88,13 @@ view: cu_user_info {
   dimension: guid {
     group_label: "PII"
     type: string
-    sql: ${TABLE}."GUID" ;;
+    sql: ${TABLE}."MERGED_GUID" ;;
+  }
+
+  dimension: merged_guid {
+    group_label: "PII"
+    type: string
+    hidden: yes
   }
 
   dimension: last_name {
@@ -105,9 +113,11 @@ view: cu_user_info {
     {% endif %}  ;;
   }
 
-  dimension: merged_guid {
+  dimension: original_guid {
+    group_label: "PII"
     type: string
-    sql: ${TABLE}."MERGED_GUID" ;;
+    sql: ${TABLE}."GUID" ;;
+    hidden: yes
   }
 
   dimension: no_contact_user {
@@ -123,21 +133,25 @@ view: cu_user_info {
   dimension: provided_paid {
     type: string
     sql: ${TABLE}."PROVIDED_PAID" ;;
+    hidden: yes
   }
 
   dimension: provided_status {
     type: string
     sql: ${TABLE}."PROVIDED_STATUS" ;;
+    hidden: yes
   }
 
   dimension: user_region {
     type: string
     sql: ${TABLE}."USER_REGION" ;;
+    hidden: yes
   }
 
   dimension: user_type {
     type: string
     sql: ${TABLE}."USER_TYPE" ;;
+    hidden: yes
   }
 
 #   measure: count {
