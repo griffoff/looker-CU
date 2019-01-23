@@ -33,16 +33,16 @@ view: live_subscription_status {
   dimension: subscription_status {}
   dimension_group: subscription_start {
     type: time
-    timeframes: [raw, date, month, year]
+    timeframes: [raw, date, week, month, year]
   }
   dimension_group: subscription_end {
     type: time
-    timeframes: [raw, date, month, year]
+    timeframes: [raw, date, week, month, year]
   }
   dimension_group: local_time {
     label: "Last Updated"
     type: time
-    timeframes: [raw, date, month, year]
+    timeframes: [raw, date, week, month, year]
   }
   dimension: contract_id {}
 
