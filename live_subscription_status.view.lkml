@@ -46,6 +46,11 @@ view: live_subscription_status {
   }
   dimension: contract_id {}
 
+  dimension: is_trial {
+    sql: ${subscription_status} = 'Trial Access' ;;
+    hidden: yes
+  }
+
   measure: latest_data_date {
     description: "The latest time at which any subscription event has been received"
     type: date_time

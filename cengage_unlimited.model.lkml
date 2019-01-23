@@ -44,7 +44,7 @@ explore: learner_profile {
 # }
 
 explore: live_subscription_status {
-  extension: required
+  #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
 
@@ -66,6 +66,16 @@ explore: live_subscription_status {
   join: gateway_institution {
     view_label: "Learner Profile - LMS Info"
     sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+    relationship: many_to_one
+  }
+
+  join: raw_olr_provisioned_product {
+    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: many_to_one
+  }
+
+  join: products_v {
+    sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
 }
@@ -404,7 +414,7 @@ explore: provisioned_product {
 }
 
 explore: raw_subscription_event {
-  label: "Live Subscription Status"
+  label: "Raw Subscription Events"
   view_name: raw_subscription_event
   view_label: "Subscription Status"
   join: raw_olr_provisioned_product {

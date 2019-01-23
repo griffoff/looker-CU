@@ -92,8 +92,26 @@ view: learner_profile_dev {
 
   dimension: courseware_net_price_non_cu_enrolled{
     type: number
+    label: "Courseware net price (outside of CU subscription)"
     group_label: "Courses"
     description: "Total net cost of active courseware enrolled in but not activated since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
+  }
+
+  dimension: cu_price {
+    type: number
+    sql: 120 ;;
+    hidden: yes
+  }
+
+  dimension: potential_savings {
+    type: number
+    group_label: "Courses"
+    description: "Potential saving if student purchases CU"
+    sql: CASE
+          WHEN NOT ${live_subscription_status.is_trial} THEN NULL
+          WHEN ${courseware_net_price_non_cu_enrolled} >= ${cu_price} THEN ${courseware_net_price_non_cu_enrolled} - ${cu_price}
+          END;;
     value_format_name: usd_0
   }
 
