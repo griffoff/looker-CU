@@ -33,28 +33,28 @@ view: raw_subscription_event {
           e.*
           ,COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid
           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
-          ,FIRST_VALUE(subscription_status) over(partition by user_sso_guid order by local_time) as first_status
-          ,FIRST_VALUE(subscription_start) over(partition by user_sso_guid order by local_time) as first_start
-          ,LAST_VALUE(subscription_status) over(partition by user_sso_guid order by local_time) as current_status
-          ,LAST_VALUE(subscription_start) over(partition by user_sso_guid order by local_time) as current_start
-          ,LAST_VALUE(subscription_end) over(partition by user_sso_guid order by local_time) as current_end
-          ,LAG(subscription_status) over(partition by user_sso_guid order by local_time) as prior_status
-          ,LAG(subscription_start) over(partition by user_sso_guid order by local_time) as prior_start
-          ,LAG(subscription_end) over(partition by user_sso_guid order by local_time) as prior_end
+          ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
+          ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
+          ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
+          ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
+          ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
+          ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
+          ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
+          ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
           ,MAX(CASE
                 WHEN subscription_state = 'full_access'
                 /*    AND NOT cancelled  */
                 THEN subscription_start
-                END) over(partition by user_sso_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
+                END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
           ,MAX(CASE
                 WHEN subscription_state = 'full_access'
                 /*    AND NOT cancelled  */
                 THEN subscription_end
-                END) over(partition by user_sso_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
-          ,LEAD(subscription_status) over(partition by user_sso_guid order by local_time) as next_status
-          ,LEAD(subscription_start) over(partition by user_sso_guid order by local_time) as next_start
+                END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
+          ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
+          ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
           ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
-          ,MAX(local_time) over(partition by user_sso_guid) as latest_update
+          ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
       FROM subscription_event e
@@ -63,6 +63,7 @@ view: raw_subscription_event {
     SELECT state.*
     FROM state
     WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
+    AND  merged_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
     ;;
 
   }
