@@ -27,6 +27,7 @@ view: raw_subscription_event {
           *
           ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
         FROM unlimited.raw_Subscription_event e
+        WHERE UPPER(user_environment) = 'PRODUCTION'
       )
       ,state AS (
       SELECT
