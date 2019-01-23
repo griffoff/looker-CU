@@ -22,31 +22,47 @@ view: raw_subscription_event {
 #     ;;
 
   sql:
-    WITH state AS (
+    WITH subscription_event AS (
+        SELECT
+          *
+          ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
+        FROM unlimited.raw_Subscription_event e
+      )
+      ,state AS (
       SELECT
           e.*
           ,COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid
           ,REPLACE(INITCAP(subscription_state), '_', ' ') as subscription_status
-          ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
-          ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
-          ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
-          ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
-          ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
-          ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
-          ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_start
-          ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
-          ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
+          ,FIRST_VALUE(subscription_status) over(partition by user_sso_guid order by local_time) as first_status
+          ,FIRST_VALUE(subscription_start) over(partition by user_sso_guid order by local_time) as first_start
+          ,LAST_VALUE(subscription_status) over(partition by user_sso_guid order by local_time) as current_status
+          ,LAST_VALUE(subscription_start) over(partition by user_sso_guid order by local_time) as current_start
+          ,LAST_VALUE(subscription_end) over(partition by user_sso_guid order by local_time) as current_end
+          ,LAG(subscription_status) over(partition by user_sso_guid order by local_time) as prior_status
+          ,LAG(subscription_start) over(partition by user_sso_guid order by local_time) as prior_start
+          ,LAG(subscription_end) over(partition by user_sso_guid order by local_time) as prior_end
+          ,MAX(CASE
+                WHEN subscription_state = 'full_access'
+                /*    AND NOT cancelled  */
+                THEN subscription_start
+                END) over(partition by user_sso_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
+          ,MAX(CASE
+                WHEN subscription_state = 'full_access'
+                /*    AND NOT cancelled  */
+                THEN subscription_end
+                END) over(partition by user_sso_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
+          ,LEAD(subscription_status) over(partition by user_sso_guid order by local_time) as next_status
+          ,LEAD(subscription_start) over(partition by user_sso_guid order by local_time) as next_start
           ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
+          ,MAX(local_time) over(partition by user_sso_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
-      FROM unlimited.raw_Subscription_event e
+      FROM subscription_event e
       LEFT JOIN unlimited.sso_merged_guids m on e.user_sso_guid = m.shadow_guid
     )
     SELECT state.*
     FROM state
-    LEFT JOIN unlimited.excluded_users bk ON state.merged_guid = bk.user_sso_guid
-    WHERE bk.user_sso_guid IS NULL
-    --WHERE latest
+    WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
     ;;
 
   }
@@ -87,7 +103,7 @@ view: raw_subscription_event {
   }
 
   dimension_group: next_start {
-    group_label: "Previous Status Start Date"
+    group_label: "Next Status Start Date"
     description: "Displays the start time of the next subscription status record"
     sql: ${TABLE}.next_start_date ;;
     type: time
@@ -119,6 +135,13 @@ view: raw_subscription_event {
     group_label: "Current Start Date"
     description: "Displays the start time of the latest subscription status record"
     sql: ${TABLE}.first_date ;;
+    type: time
+    timeframes: [raw, date, month]
+  }
+
+  dimension_group: latest_update {
+    description: "Displays the last time of an event related to this user"
+    sql: ${TABLE}.latest_date ;;
     type: time
     timeframes: [raw, date, month]
   }
@@ -232,6 +255,45 @@ view: raw_subscription_event {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE";;
   }
+
+  dimension: previous_full_access_valid {
+    sql: ${TABLE}.previous_full_access_end  < ${subscription_end_raw}  ;;
+
+  }
+
+  dimension_group: previous_full_access_start {
+    #label: "Previous Full Access End"
+    description: "The date on which the preceding full access subscription started"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: CASE WHEN ${previous_full_access_valid} THEN ${TABLE}.previous_full_access_start END;;
+  }
+
+
+  dimension_group: previous_full_access_end {
+    #label: "Previous Full Access End"
+    description: "The date on which the preceding full access subscription ended"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      year
+    ]
+    sql: CASE WHEN ${previous_full_access_valid} THEN ${TABLE}.previous_full_access_end END;;
+  }
+
 
   dimension: subscription_status {
     description: "Friendlier subscription state description"

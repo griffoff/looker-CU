@@ -46,5 +46,11 @@ view: live_subscription_status {
   }
   dimension: contract_id {}
 
+  measure: latest_data_date {
+    description: "The latest time at which any subscription event has been received"
+    type: date_time
+    sql: max(${local_time_raw}) ;;
+  }
+
 
 }

@@ -20,13 +20,58 @@ explore: learner_profile {
     relationship: one_to_one
   }
   join: live_subscription_status {
-    view_label: "Learner Profile - Live Subcsription Status"
+    view_label: "Learner Profile - Live Subscription Status"
     sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
     relationship: one_to_one
+
+  }
+}
+
+# explore: learner_profile_dev {
+#   extends: [learner_profile]
+#   extension: required
+#   join: merged_cu_user_info {
+#     view_label: "Learner Profile - Dev - User Info"
+#     #sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
+#     #relationship: one_to_one
+#   }
+#   join: live_subscription_status {
+#     view_label: "Learner Profile - Dev - Live Subscription Status"
+#     #sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
+#     #relationship: one_to_one
+#
+#   }
+# }
+
+explore: live_subscription_status {
+  extension: required
+  from: live_subscription_status
+  view_name: live_subscription_status
+
+  join: merged_cu_user_info {
+    view_label: "Learner Profile - User Info"
+    sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+  join: learner_profile {
+    view_label: "Learner Profile"
+    sql_on:  ${live_subscription_status.user_sso_guid} = ${learner_profile.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+  join: user_institution_map {
+    fields: []
+    sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+  join: gateway_institution {
+    view_label: "Learner Profile - LMS Info"
+    sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+    relationship: many_to_one
   }
 }
 
 explore: all_events {
+  extension: required
   label: "all events prod"
 
   join: event_groups {
@@ -36,9 +81,31 @@ explore: all_events {
   }
 }
 
+explore: all_sessions {
+  extension: required
+  extends: [all_events]
+
+  join: all_events {
+    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+    relationship: one_to_many
+  }
+
+}
+
+explore: session_analysis_test {
+  label: "CU User Analysis Prod - Test"
+  extends: [live_subscription_status, all_sessions]
+  from: live_subscription_status
+
+  join: all_sessions {
+    sql_on: ${live_subscription_status.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+}
+
 explore: session_analysis {
   label: "CU User Analysis Prod"
-  extends: [all_events]
+  extends: [all_sessions]
   from: all_sessions
   view_name: all_sessions
 
@@ -64,10 +131,6 @@ join: gateway_institution {
     relationship: many_to_one
   }
 
-  join: all_events {
-    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
-    relationship: one_to_many
-  }
 
 #   join: sessions_analysis_week {
 #     sql_on: ${all_sessions.user_sso_guid} = ${sessions_analysis_week.user_sso_guid} ;;
@@ -161,7 +224,6 @@ explore: all_events_dev {
 
 
 explore: session_analysis_dev {
-
   label: "CU User Analysis Dev"
   from: all_sessions_dev
   extends: [session_analysis, all_events_dev, dim_course, learner_profile]
