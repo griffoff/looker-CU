@@ -1,9 +1,9 @@
 connection: "snowflake_prod"
 include: "*.view.lkml"         # include all views in this project
-include: "/core/common.lkml"
-include: "/cube/dims.lkml"
-include: "/cube/dim_course.view"
-include: "/cube/ga_mobiledata.view"
+include: "//core/common.lkml"
+include: "//cube/dims.lkml"
+include: "//cube/dim_course.view"
+include: "//cube/ga_mobiledata.view"
 
 
 case_sensitive: no
