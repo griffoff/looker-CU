@@ -230,6 +230,64 @@ view: learner_profile {
     drill_fields: [details*]
   }
 
+  dimension: marketing_segment_fb {
+    type: string
+    sql: CASE
+      --             WHEN courseware_net_price_non_cu_on_dashboard >= 120
+      --             THEN 'Students who have not paid but have courseware on dashboard >= $120'
+      --             WHEN courseware_net_price_non_cu_on_dashboard < 120 AND courseware_net_price_non_cu_on_dashboard <> 0 AND courseware_net_price_non_cu_on_dashboard IS NOT NULL
+      --             THEN 'Students who have not paid but have courseware on dashboard < $120'
+                  WHEN courseware_net_price_non_cu_activated >= 120
+                  THEN 'Students who have paid for standalone digital courseware >= $120'
+                  WHEN courseware_net_price_non_cu_activated < 120
+                  THEN 'Students who have paid for standalone digital courseware < $120'
+                  WHEN courseware_net_price_non_cu_enrolled >= 120
+                  THEN 'Students who have enrolled in courseware but not activated or added to dashboard >= $120'
+                  WHEN courseware_net_price_non_cu_enrolled < 120
+                  THEN 'Students who have enrolled in courseware but not activated or added to dashboard < $120'
+                  WHEN courseware_net_price_non_cu_on_dashboard IS NOT NULL
+                  THEN 'Students who have added courseware to dashboard, but have no enrollments or activations'
+                  ELSE 'No enrollments or activations or courseware on dashboard'
+               END
+      ;;
+  }
+
+
+  dimension: courseware_net_price_non_cu_activated {
+    type: number
+    group_label: "Courses"
+    description: "Total net cost of active courseware activated since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
+  }
+
+
+  dimension: courseware_net_price_non_cu_enrolled{
+    type: number
+    label: "Courseware net price (outside of CU subscription)"
+    group_label: "Courses"
+    description: "Total net cost of active courseware enrolled in but not activated since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
+  }
+
+  dimension: courseware_net_price_non_cu_on_dashboard{
+    type: number
+    group_label: "Courses"
+    description: "Total net cost of active courseware on the users dashboard since the end of a user's last CU subscription (i.e. not covered by CU)"
+    value_format_name: usd_0
+    sql:  courseware_net_price_non_cu_on_dashboard::number;;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
