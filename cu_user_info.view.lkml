@@ -42,7 +42,7 @@ view: cu_user_info {
   }
 
   dimension: email {
-    group_label: "PII"
+    group_label: "User Info - PII"
     type: string
     sql:
     CASE WHEN '{{ _user_attributes["pii_visibility_enabled"] }}' = 'yes' THEN
@@ -65,12 +65,13 @@ view: cu_user_info {
   }
 
   dimension: entity_name {
+    group_label: "User Info"
     type: string
     sql: ${TABLE}."ENTITY_NAME" ;;
   }
 
   dimension: first_name {
-    group_label: "PII"
+    group_label: "User Info - PII"
     type: string
     sql: CASE WHEN '{{ _user_attributes["pii_visibility_enabled"] }}' = 'yes' THEN
     ${TABLE}."FIRST_NAME"
@@ -86,7 +87,7 @@ view: cu_user_info {
   }
 
   dimension: guid {
-    group_label: "PII"
+    group_label: "User Info - PII"
     type: string
     sql: ${TABLE}."MERGED_GUID" ;;
   }
@@ -98,7 +99,7 @@ view: cu_user_info {
   }
 
   dimension: last_name {
-    group_label: "PII"
+    group_label: "User Info - PII"
     type: string
     sql: CASE WHEN '{{ _user_attributes["pii_visibility_enabled"] }}' = 'yes' THEN
     ${TABLE}."LAST_NAME"
@@ -114,7 +115,7 @@ view: cu_user_info {
   }
 
   dimension: original_guid {
-    group_label: "PII"
+    group_label: "User Info - PII"
     type: string
     sql: ${TABLE}."GUID" ;;
     hidden: yes

@@ -6,7 +6,7 @@ include: "//cube/dim_course.view"
 include: "//cube/ga_mobiledata.view"
 
 
-case_sensitive: no
+ case_sensitive: no
 
 ######################### Start of PROD Explores #########################################################################3
 
@@ -15,7 +15,7 @@ case_sensitive: no
 explore: learner_profile {
   extension: required
   join: merged_cu_user_info {
-    view_label: "Learner Profile - User Info"
+    view_label: "Learner Profile"
     sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
   }
@@ -27,29 +27,15 @@ explore: learner_profile {
   }
 }
 
-# explore: learner_profile_dev {
-#   extends: [learner_profile]
-#   extension: required
-#   join: merged_cu_user_info {
-#     view_label: "Learner Profile - Dev - User Info"
-#     #sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
-#     #relationship: one_to_one
-#   }
-#   join: live_subscription_status {
-#     view_label: "Learner Profile - Dev - Live Subscription Status"
-#     #sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
-#     #relationship: one_to_one
-#
-#   }
-# }
-
 explore: live_subscription_status {
   #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
+  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
 
   join: merged_cu_user_info {
-    view_label: "Learner Profile - User Info"
+    required_access_grants: [can_view_CU_dev_data]
+    view_label: "Learner Profile"
     sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
   }
@@ -64,17 +50,19 @@ explore: live_subscription_status {
     relationship: many_to_one
   }
   join: gateway_institution {
-    view_label: "Learner Profile - LMS Info"
-    sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
+    view_label: "Learner Profile"
+    sql_on: coalesce(${merged_cu_user_info.entity_id}, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no} ;;
     relationship: many_to_one
   }
 
   join: raw_olr_provisioned_product {
+    view_label: "Provisioned Products"
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
     relationship: many_to_one
   }
 
   join: products_v {
+    view_label: "Provisioned Products - Info"
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
@@ -102,8 +90,8 @@ explore: all_sessions {
 
 }
 
-explore: session_analysis_test {
-  label: "CU User Analysis Prod - Test"
+explore: session_analysis {
+  label: "CU User Analysis Prod"
   extends: [live_subscription_status, all_sessions]
   from: live_subscription_status
 
@@ -113,8 +101,9 @@ explore: session_analysis_test {
   }
 }
 
-explore: session_analysis {
-  label: "CU User Analysis Prod"
+explore: session_analysis_old {
+  hidden: yes
+  label: "CU User Analysis Prod - Old"
   extends: [all_sessions]
   from: all_sessions
   view_name: all_sessions
@@ -235,21 +224,26 @@ explore: all_events_dev {
 
 explore: session_analysis_dev {
   label: "CU User Analysis Dev"
-  from: all_sessions_dev
-  extends: [session_analysis, all_events_dev, dim_course, learner_profile]
-  view_name: all_sessions
+  from: live_subscription_status
+#   extends: [session_analysis, all_events_dev, dim_course, learner_profile]
+  extends: [session_analysis]
+  view_name: live_subscription_status
 
+  join: all_sessions {
+    from: all_sessions_dev
+#     sql_on: a = b ;;
+  }
   join: learner_profile {
     from: learner_profile_dev
+  }
+
+  join: all_events {
+    from: all_events_dev
   }
 
   join: user_courses {
     sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
     relationship: one_to_many
-  }
-
-  join: all_events {
-    from: all_events_dev
   }
 
    join: dim_course {
@@ -262,10 +256,11 @@ explore: session_analysis_dev {
      relationship: many_to_one
    }
 
-   join: products_v {
-     sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
-     relationship: many_to_one
-   }
+    join: products_v {
+      view_label: "Product Added to Dashboard - info"
+      sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
+      relationship: many_to_one
+    }
 
    join: cu_ebook_rollup {
      sql_on:  ${learner_profile.user_sso_guid} = ${cu_ebook_rollup.mapped_guid} ;;

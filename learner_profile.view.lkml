@@ -35,6 +35,7 @@ view: learner_profile {
   }
 
   dimension: days_since_first_login {
+    group_label: "First Interaction Date"
     hidden: no
     type: number
     sql: -DATEDIFF(d, current_date(), ${first_interaction_date} ) ;;
@@ -231,6 +232,8 @@ view: learner_profile {
   }
 
   dimension: marketing_segment_fb {
+    group_label: "User Info - Marketing"
+    label: "Paid/Unpaid courseware outside of CU subscription"
     type: string
     sql: CASE
       --             WHEN courseware_net_price_non_cu_on_dashboard >= 120

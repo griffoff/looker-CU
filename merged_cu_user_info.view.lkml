@@ -17,12 +17,18 @@ view: merged_cu_user_info {
   }
 
   dimension: user_sso_guid {
+    label: "User SSO GUID"
     sql: ${TABLE}.merged_guid ;;
     primary_key: yes
+    hidden: no
+  }
+
+  dimension: guid {
     hidden: yes
   }
 
   dimension: opt_out {
+    group_label: "User Info - Marketing"
     type: string
     case: {
       when: {label: "Yes" sql: ${TABLE}.opt_out = 'Y';;}
@@ -32,6 +38,7 @@ view: merged_cu_user_info {
   }
 
   dimension: no_contact_user {
+    group_label: "User Info - Marketing"
     type: string
     case: {
       when: {label: "Yes" sql: ${TABLE}.no_contact_user = 'Y';;}
