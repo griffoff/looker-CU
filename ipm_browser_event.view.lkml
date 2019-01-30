@@ -33,6 +33,7 @@ view: ipm_browser_event {
   dimension: prim_key {
     sql: CONCAT(${event_time},${user_sso_guid}) ;;
     primary_key: yes
+    hidden: yes
   }
 
   dimension: user_sso_guid {
