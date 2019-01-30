@@ -51,7 +51,7 @@ explore: live_subscription_status {
   }
   join: gateway_institution {
     view_label: "Learner Profile"
-    sql_on: coalesce(${merged_cu_user_info.entity_id}, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no} ;;
+    sql_on: coalesce(${merged_cu_user_info.entity_id}::string, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
 
