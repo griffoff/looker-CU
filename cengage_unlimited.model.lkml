@@ -88,6 +88,11 @@ explore: all_sessions {
     relationship: one_to_many
   }
 
+  join: dim_course {
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
 }
 
 explore: session_analysis {
@@ -108,10 +113,10 @@ explore: session_analysis_old {
   from: all_sessions
   view_name: all_sessions
 
-#   join: dim_course {
-#     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
-#     relationship: many_to_many
-#   }
+  join: dim_course {
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
 
 join: user_institution_map {
   fields: []

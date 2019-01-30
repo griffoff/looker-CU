@@ -280,6 +280,20 @@ view: learner_profile {
     sql:  courseware_net_price_non_cu_on_dashboard::number;;
   }
 
+  dimension: cu_price {
+    type: number
+    sql: 120 ;;
+    hidden: yes
+  }
+
+  measure: take_rate {
+    description: "% of people who bought CU whose courseware value was higher than the cost of a subscription"
+    type: number
+    sql: count(distinct CASE WHEN ${courseware_net_value} > ${cu_price} AND ${is_cu_subscriber} THEN ${user_sso_guid} END)
+        / count(distinct CASE WHEN ${courseware_net_value} > ${cu_price} THEN ${user_sso_guid} END)
+        ;;
+    value_format_name: percent_1
+  }
 
 
 
