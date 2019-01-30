@@ -56,12 +56,14 @@ explore: live_subscription_status {
   }
 
   join: raw_olr_provisioned_product {
+    fields: []
     view_label: "Provisioned Products"
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
     relationship: many_to_one
   }
 
   join: products_v {
+    fields: []
     view_label: "Provisioned Products - Info"
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
@@ -231,6 +233,7 @@ explore: session_analysis_dev {
   label: "CU User Analysis Dev"
   from: live_subscription_status
 #   extends: [session_analysis, all_events_dev, dim_course, learner_profile]
+  required_access_grants: [can_view_CU_dev_data]
   extends: [session_analysis]
   view_name: live_subscription_status
 
