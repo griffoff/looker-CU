@@ -51,6 +51,14 @@ view: live_subscription_status {
     hidden: yes
   }
 
+  dimension_group: time_in_current_status {
+    group_label: "Time at this status"
+    type: duration
+    intervals: [day, week, month]
+    sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
+    sql_end: current_date() ;;
+  }
+
   measure: latest_data_date {
     description: "The latest time at which any subscription event has been received"
     type: date_time

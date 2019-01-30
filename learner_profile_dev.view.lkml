@@ -265,6 +265,7 @@ view: learner_profile_dev {
     intervals: [day, week, month]
     sql_start: ${subscription_start_date} ;;
     sql_end: current_date() ;;
+    hidden: yes
   }
 
 
