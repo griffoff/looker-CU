@@ -30,6 +30,10 @@ view: ipm_browser_event {
     sql: ${TABLE}."EVENT_TIME" ;;
   }
 
+  dimension: prim_key {
+    sql: CONCAT(${event_time},${user_sso_guid}) ;;
+    primary_key: yes
+  }
 
   dimension: user_sso_guid {
     type: string
@@ -37,7 +41,8 @@ view: ipm_browser_event {
   }
 
   measure: count {
-    type: count
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
     drill_fields: []
   }
 }
