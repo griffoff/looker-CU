@@ -33,7 +33,7 @@ view: raw_subscription_event {
       SELECT
           e.*
           ,COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid
-          ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+          ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
           ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status

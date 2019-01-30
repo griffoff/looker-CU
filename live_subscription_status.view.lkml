@@ -65,5 +65,11 @@ view: live_subscription_status {
     sql: max(${local_time_raw}) ;;
   }
 
+  measure: student_count {
+    label: "# Students"
+    type: number
+    sql: COUNT(DISTINCT ${user_sso_guid}) ;;
+  }
+
 
 }
