@@ -20,6 +20,10 @@ view: learner_profile {
     }
   }
 
+  dimension: returning_cu_customer {
+    group_label: "Customer Type"
+  }
+
   dimension: purchase_path {
     group_label: "CU Subscription"
     label: "Purchase path"

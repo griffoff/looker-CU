@@ -197,10 +197,6 @@ view: learner_profile_dev {
     description: "Number of activations that aren't WebAssign or MindTap prior to CU launch on 08/01/2018"
   }
 
-  dimension: returning_cu_customer {
-    group_label: "Customer Type"
-  }
-
   dimension_group: time_in_current_status {
     group_label: "Current subscription time in status"
     type: duration
