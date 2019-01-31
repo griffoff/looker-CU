@@ -116,7 +116,7 @@ view: raw_subscription_event {
   dimension: first_status {
     label: "First Status"
     description: "Displays the first subscription status a user had."
-    sql: ${TABLE}.first_state ;;
+    sql: ${TABLE}.first_status ;;
   }
 
   dimension_group: first_start {
