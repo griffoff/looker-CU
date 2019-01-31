@@ -130,7 +130,7 @@ view: raw_subscription_event {
   dimension: current_status {
     label: "Current Status"
     description: "Displays the latest subscription status a user has."
-    sql: ${TABLE}.first_state ;;
+    sql: ${TABLE}.current_status ;;
   }
 
   dimension_group: current_start {
