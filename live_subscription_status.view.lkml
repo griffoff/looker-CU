@@ -24,9 +24,10 @@ view: live_subscription_status {
   }
 
   dimension: user_sso_guid {
+    label: "User SSO GUID"
     sql: ${TABLE}.merged_guid ;;
     primary_key: yes
-    hidden: yes
+    hidden: no
  }
 
   dimension: prior_status {}

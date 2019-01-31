@@ -261,15 +261,17 @@ view: learner_profile {
     group_label: "Courses"
     description: "Total net cost of active courseware activated since the end of a user's last CU subscription (i.e. not covered by CU)"
     value_format_name: usd_0
+    hidden: yes
   }
 
 
-  dimension: courseware_net_price_non_cu_enrolled{
+  dimension: courseware_net_price_non_cu_enrolled {
     type: number
     label: "Courseware net price (outside of CU subscription)"
     group_label: "Courses"
     description: "Total net cost of active courseware enrolled in but not activated since the end of a user's last CU subscription (i.e. not covered by CU)"
     value_format_name: usd_0
+    sql: COALESCE(${courseware_net_price_non_cu_activated}, courseware_net_price_non_cu_enrolled);;
   }
 
   dimension: courseware_net_price_non_cu_on_dashboard{
@@ -280,10 +282,67 @@ view: learner_profile {
     sql:  courseware_net_price_non_cu_on_dashboard::number;;
   }
 
+  dimension: purchased_standalone {
+    description: "Did this person activate a course after the end of their last full access subscription?"
+    type: yesno
+    sql:  courseware_net_price_non_cu_activated IS NOT NULL;;
+
+#    ${user_courses.activation_date} > ${TABLE}.latest_full_access_subscription_end_date
+#            OR ${TABLE}.latest_full_access_subscription_end_date IS NULL AND  ${user_courses.activation_date} IS NOT NULL ;;
+  }
+
   dimension: cu_price {
     type: number
     sql: 120 ;;
     hidden: yes
+  }
+
+  dimension: courses_enrolled {
+    group_label: "Courses"
+    type: number
+    label: "# Courses Enrolled"
+    description: "Number of courses the user has enrolled in (course keys found in OlR enrollments)"
+    sql: ${TABLE}.unique_courses_enrolled ;;
+    alias: [unique_courses]
+  }
+
+  dimension: courses_activated {
+    group_label: "Courses"
+    type: number
+    label: "# Courses Activated"
+    description: "Number of courses the user has enrolled in (course keys found in OLR activations)"
+    sql: ${TABLE}.unique_courses_activated ;;
+  }
+
+  dimension: courses_enrolled_tier {
+    group_label: "Courses"
+    type: tier
+    style: integer
+    tiers: [0, 1, 2, 3]
+    sql: ${courses_enrolled} ;;
+    label: "# Courses Enrolled (buckets)"
+    description: "Number of courses the user has enrolled in"
+  }
+
+  dimension: courses_activated_tier {
+    group_label: "Courses"
+    type: tier
+    style: integer
+    tiers: [0, 1, 2, 3]
+    sql: COALESCE(${courses_activated}, 0) ;;
+    label: "# Courses Activated (buckets)"
+    description: "Number of courses the user has activated"
+  }
+
+  dimension: net_price_tier {
+    label: "Price of Courseware (buckets)"
+    description: "Net Price of Courseware either paid for or not yet paid for"
+    type: tier
+    style: integer
+    group_label: "Courses"
+    tiers: [0, 120, 180, 250, 500]
+    sql: COALESCE(${TABLE}.courseware_net_price_non_cu_on_dashboard, ${TABLE}.learner_profile.courseware_net_price_non_cu_activated, ${TABLE}.courseware_net_price_non_cu_on_dashboard, 0) ;;
+    value_format_name: usd_0
   }
 
   measure: take_rate {

@@ -20,7 +20,7 @@ view: merged_cu_user_info {
     label: "User SSO GUID"
     sql: ${TABLE}.merged_guid ;;
     primary_key: yes
-    hidden: no
+    hidden: yes
   }
 
   dimension: guid {
