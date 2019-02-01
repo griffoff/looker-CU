@@ -76,6 +76,7 @@ view: ga_dashboarddata {
               when ${pagepath} like '%explore-catalog%' and ${eventaction} IS NULL then 'Explore Catalog Clicked'
               when ${pagepath} like '%exclusive-partners%' and ${eventaction} IS NULL then 'Study Resources Clicked'
               when ${pagepath} like '%my-dashboard/authenticated%' and ${eventaction} IS NULL then 'My Home Clicked'
+              when ${pagepath} like '%career-center%' and ${eventaction} IS NULL then 'Career Center Clicked'
               ELSE 'Other Clicks'
               END
     ;;
@@ -156,6 +157,13 @@ view: ga_dashboarddata {
     description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked the FAQ button "
     type: sum
     sql: case when eventaction like '%FAQ%' then 1 else 0 end   ;;
+  }
+
+  measure: careercenter_events {
+    label: "Career Center Cliked"
+    description: "The number of times a user or other grouping (by instituion, trial user, etc.) clicked on Career Center tab"
+    type: sum
+    sql: case when ${pagepath} like '%career-center%' then 1 else 0 end  ;;
   }
 
   measure: upgrade_clicks {
