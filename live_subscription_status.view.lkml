@@ -1,22 +1,6 @@
 include: "raw_subscription_event.view"
 view: live_subscription_status {
   derived_table: {
-#     sql:
-#       WITH state AS (
-#         SELECT
-#             e.*
-#             ,COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid
-#             ,REPLACE(INITCAP(subscription_state), '_', ' ') as subscription_status
-#             ,LAG(subscription_status) over(partition by user_sso_guid order by local_time) as prior_status
-#             ,LEAD(subscription_status) over(partition by user_sso_guid order by local_time) as next_status
-#             ,next_status IS NULL as latest
-#         FROM unlimited.raw_Subscription_event e
-#         LEFT JOIN unlimited.sso_merged_guids m on e.user_sso_guid = m.shadow_guid
-#       )
-#       SELECT *
-#       FROM state
-#       WHERE latest
-#       ;;
     sql:
       SELECT *
       FROM ${raw_subscription_event.SQL_TABLE_NAME}
@@ -70,6 +54,18 @@ view: live_subscription_status {
     label: "# Students"
     type: number
     sql: COUNT(DISTINCT ${user_sso_guid}) ;;
+  }
+
+  measure: subscriber_count {
+    label: "# Subscribers"
+    type: number
+    sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN ${user_sso_guid} END) ;;
+  }
+
+  measure: non_subscriber_count {
+    label: "# Non-subscribers"
+    type: number
+    sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN NULL ELSE ${user_sso_guid} END) ;;
   }
 
 
