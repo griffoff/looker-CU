@@ -19,6 +19,13 @@ view: all_events {
     hidden: yes
   }
 
+  dimension: event_subscription_state {
+    label: "Subscription State"
+    type: string
+    sql: COALESCE(${TABLE}.subscription_state, INITCAP(REPLACE(${TABLE}.event_data:subscription_state, '_', ' ')));;
+    description: "Subscription state at the time of the event"
+  }
+
   dimension: event_type {
     type: string
     sql: ${TABLE}."EVENT_TYPE" ;;
@@ -103,10 +110,26 @@ view: all_events {
   }
 
   measure: count {
+    group_label: "# Events"
     label: "# Events"
     type: count
 #     drill_fields: [event_day_of_week, count]
     description: "Measure for counting events (drill fields)"
+  }
+
+  measure: events_in_full_access {
+    group_label: "# Events"
+    label: "# Events while in full access"
+    type: number
+    sql: COUNT(CASE WHEN ${event_subscription_state} = 'Full Access' THEN 1 END) ;;
+  }
+
+  measure: events_in_locker {
+    group_label: "# Events"
+    label: "# Events while in locker status"
+    type: number
+    sql: COUNT(CASE WHEN ${event_subscription_state} = 'Provisional Locker' THEN 1 END) ;;
+
   }
 
 #   measure: session_count {
