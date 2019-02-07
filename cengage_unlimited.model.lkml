@@ -469,6 +469,11 @@ explore: ga_dashboarddata {
     sql_on: ${ga_dashboarddata.userssoguid} = ${dashboard_use_over_time_bucketed.user_sso_guid} ;;
     relationship: many_to_one
   }
+
+  join: products_v {
+    sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
+    relationship: many_to_one
+  }
 }
 
 explore: ga_dashboarddata_merged_2 {
