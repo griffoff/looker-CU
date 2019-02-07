@@ -594,3 +594,5 @@ explore: active_users_sam {
     sql_on: ${active_users_sam.user_guid}=${raw_subscription_event.user_sso_guid} ;;
   }
 }
+
+explore: client_activity_event {}
