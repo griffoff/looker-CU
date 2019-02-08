@@ -284,6 +284,26 @@ explore: session_analysis_dev {
 
 explore: courseware_activations_per_user {}
 
+
+
+explore: products_v {}
+
+
+
+
+
+explore: activations_courses_products {
+  label: "CU Take Rate Analysis - Strategy"
+  view_label: "Course info"
+
+join: raw_subscription_event {
+  view_label: "Subscription info"
+  sql_on: ${activations_courses_products.user_id} = ${raw_subscription_event.merged_guid};;
+  relationship: many_to_one
+}
+
+
+}
 ################################################## End of DEV Explores #######################################################
 
 # explore: all_events2 {

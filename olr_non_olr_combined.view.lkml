@@ -1,41 +1,40 @@
 view: olr_non_olr_combined {
   derived_table: {
-    sql: with orgs as (
-        select
-            actv_olr_id as activationid
-            ,DATE_TRUNC('week', actv_dt) as week
-            ,user_guid as user_id
+    sql: with orgs AS (
+        SELECT
+            actv_olr_id AS activationid
+            ,DATE_TRUNC('week', actv_dt) AS week
+            ,user_guid AS user_id
             ,organization
             ,platform
-            ,'OLR' as registrationtype
+            ,'OLR' AS registrationtype
             ,cu_flg
-        from stg_clts.activations_olr
-        where organization is not null
-        and latest
+        FROM stg_clts.activations_olr
+        WHERE organization is NOT NULL
+        AND latest
         --and in_actv_flg = 1
-        union all
-        select
+        UNION all
+        SELECT
             actv_non_olr_id
-            ,DATE_TRUNC('week', actv_dt) as week
+            ,DATE_TRUNC('week', actv_dt) AS week
             ,UNIQUE_USER_ID AS user_id
             ,organization
             ,platform
             ,'Non_OLR'
             ,cu_flg
-        from stg_clts.activations_non_olr
-        where organization is not null
-        and latest
+        FROM stg_clts.activations_non_olr
+        WHERE organization is NOT NULL
+        AND latest
         --and in_actv_flg = 1
         -- group by 1, 2, 3, 4, 6
       )
 
       SELECT
-        week
-        ,user_id
-        ,COUNT( activationid)
+        *
+
       FROM orgs
-      WHERE cu_flg = 'Y'
-      GROUP BY 1, 2
+      LEFT JOIN prod.stg_clts.olr_courses c ON a.context_id = c."#CONTEXT_ID"
+
  ;;
   }
 

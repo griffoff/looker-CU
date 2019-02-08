@@ -235,6 +235,7 @@ view: products_v {
   dimension: isbn13 {
     type: string
     sql: ${TABLE}."ISBN13" ;;
+    primary_key: yes
   }
 
   dimension: item_cd {
@@ -919,6 +920,12 @@ view: products_v {
   dimension: weight {
     type: string
     sql: ${TABLE}."WEIGHT" ;;
+  }
+
+  measure: sum_price {
+    label: "Net Price Sum"
+    type: sum
+    sql: ${net_price} ;;
   }
 
   measure: count {
