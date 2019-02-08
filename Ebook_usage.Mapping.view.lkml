@@ -1,5 +1,8 @@
 view: ebook_mapping {
-  sql_table_name: uploads.EBOOK_MAP.EBOOK_MAP ;;
+  derived_table: {
+    sql: Select * from uploads.EBOOK_USAGE.EBOOK_MAPPING where not _fivetran_deleted ;;
+  }
+
 
   dimension: source {
     type: string
@@ -10,21 +13,21 @@ view: ebook_mapping {
 
   dimension: common_action {
     type: string
-    sql: ${TABLE}."EVENT" ;;
-    label: "Reader Action"
-    description: "Reader actions as defined in the reader documentation on the wike at: /display/cap/eBook+Reader+Events"
+    sql: ${TABLE}."MAP" ;;
+    label: "Reader Event"
+    description: "Reader events as defined in the reader documentation on the wike at: /display/cap/eBook+Reader+Events"
   }
 
   dimension: action {
     type: string
-    sql: ${TABLE}."EVENT_ACTION" ;;
+    sql: ${TABLE}."ACTION" ;;
     label: "E-Book Reader specific action"
     description: "An action specific to the given e-book reader platform"
   }
 
   dimension: event_category {
     type: string
-    sql: ${TABLE}."EVENT_CATEGORY" ;;
+    sql: ${TABLE}."CATEGORY" ;;
     description: "A category of e-book actions specific to the given e-book reader platform"
   }
 

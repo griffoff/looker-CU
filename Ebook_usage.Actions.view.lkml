@@ -166,7 +166,7 @@ view: ebook_usage_actions {
     measure: number_of_views {
       group_label: "Action Counts"
       type: sum
-      sql: CASE WHEN ${ebook_mapping.common_action} = 'Page View' THEN 1 ELSE 0 END ;;
+      sql: CASE WHEN ${ebook_mapping.common_action} = 'View' THEN 1 ELSE 0 END ;;
     }
 
    measure: number_of_bookmarks {
