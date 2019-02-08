@@ -1,5 +1,5 @@
-include: "cengage_unlimited.model.lkml"
-include: "//core/common.lkml"
+# include: "cengage_unlimited.model.lkml"
+# include: "//core/common.lkml"
 
 view: learner_profile {
   view_label: "Learner Profile"
