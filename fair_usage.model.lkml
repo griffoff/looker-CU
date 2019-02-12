@@ -1,3 +1,4 @@
+include: "Fair_use.Indicator_names.view.lkml"
 #X# One of the following includes is likely needed in this file:
 # include: "Fair_use.Indicator_names.view.lkml"
 # include: "learner_profile_dev.view.lkml"
