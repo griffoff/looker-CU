@@ -68,6 +68,11 @@ explore: live_subscription_status {
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
+
+  join: user_courses {
+    sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
+    relationship: one_to_many
+  }
 }
 
 explore: all_events {
@@ -250,8 +255,7 @@ explore: session_analysis_dev {
   }
 
   join: user_courses {
-    sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
-    relationship: one_to_many
+    from: user_courses_dev
   }
 
    join: dim_course {
