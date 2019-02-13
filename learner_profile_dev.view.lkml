@@ -50,6 +50,48 @@ view: learner_profile_dev {
 #     value_format_name: usd_0
 #   }
 
+  parameter: no_of_groups {
+    label: "Select a number of groups"
+    description: "Select a number of groups to split the records into
+    the Assigned Group dimension will display a number between 1 and the number of groups chosen for every record in your dataset"
+    type: unquoted
+    allowed_value: {
+      label: "No split, all records in the same group"
+      value: "1"
+    }
+    allowed_value: {
+      label: "Split the dataset into 2 different groups"
+      value: "2"
+    }
+    allowed_value: {
+      label: "Split the dataset into 3 different groups"
+      value: "3"
+    }
+    allowed_value: {
+      label: "Split the dataset into 4 different groups"
+      value: "4"
+    }
+    default_value: "1"
+    view_label: "** MODELLING TOOLS **"
+    required_fields: [assigned_group]
+  }
+
+  dimension: assigned_group {
+    label: "Assigned Group"
+    description: ""
+    sql: uniform(1, {% parameter no_of_groups %}, random()) ;;
+    # calculation to make this number the same for a given guid
+    # Both versions require a known GUID field, the examples use a hard coded one which will need to be changed
+    # VERSION 1
+    # this version based on the guid itself, so may not be evenly distributed
+    # sql: (mod(abs(hash("olr_courses.instructor_guid")), {% parameter no_of_groups %})) + 1
+
+    # VERSION 2
+    # this version should be evenly distributed but will need to be a measure
+    # sql: mod(dense_rank() over (order by "olr_courses.instructor_guid"), {% parameter no_of_groups %}) + 1
+    view_label: "** MODELLING TOOLS **"
+  }
+
   dimension: cu_price {
     type: number
     sql: 120 ;;
