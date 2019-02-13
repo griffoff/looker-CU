@@ -59,6 +59,7 @@ view: discount_email_campaign_1 {
   dimension: discount_total {
     type: number
     sql: ${TABLE}."DISCOUNT_TOTAL" ;;
+    value_format: "usd_0"
   }
 
   dimension: discounted_isbn_list {
@@ -124,6 +125,21 @@ view: discount_email_campaign_1 {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
+
+  dimension: upgrade_amount_tiers {
+    type: tier
+    sql: ${amount_to_upgrade} ;;
+    tiers: [20, 40, 60, 80, 100]
+    style: integer
+    value_format_name: "usd_0"
+  }
+
+  measure: user_count {
+    type: count_distinct
+    sql: user_sso_guid ;;
+    drill_fields: []
+  }
+
 
   measure: count {
     type: count
