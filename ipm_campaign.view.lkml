@@ -1,5 +1,5 @@
 view: ipm_campaign {
-  sql_table_name: PROD.IPM_CAMPAIGN ;;
+  sql_table_name: IPM.PROD.IPM_CAMPAIGN ;;
 
 
   dimension: message_id {

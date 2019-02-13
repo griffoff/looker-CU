@@ -1,5 +1,5 @@
 view: ipm_queue_event {
-  sql_table_name: PROD.IPM_QUEUE_EVENT ;;
+  sql_table_name: IPM.PROD.IPM_QUEUE_EVENT ;;
 
 
   dimension_group: event {

@@ -1,5 +1,5 @@
 view: ipm_browser_event {
-  sql_table_name: PROD.IPM_BROWSER_EVENT ;;
+  sql_table_name: IPM.PROD.IPM_BROWSER_EVENT ;;
 
   dimension: message_id {
     type: string
