@@ -1,4 +1,3 @@
-explore: discount_email_campaign_1 {}
 
 view: discount_email_campaign_1 {
   sql_table_name: ZPG.DISCOUNT_EMAIL_CAMPAIGN_1 ;;
