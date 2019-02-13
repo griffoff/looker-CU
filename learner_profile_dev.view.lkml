@@ -51,7 +51,7 @@ view: learner_profile_dev {
 #   }
 
   parameter: no_of_groups {
-    label: "Select a number of groups"
+    label: "Select a number of groups to split the data into"
     description: "Select a number of groups to split the records into
     the Assigned Group dimension will display a number between 1 and the number of groups chosen for every record in your dataset"
     type: unquoted
@@ -60,15 +60,15 @@ view: learner_profile_dev {
       value: "1"
     }
     allowed_value: {
-      label: "Split the dataset into 2 different groups"
+      label: "2 groups: Split the dataset into 2 different groups"
       value: "2"
     }
     allowed_value: {
-      label: "Split the dataset into 3 different groups"
+      label: "3 groups: Split the dataset into 3 different groups"
       value: "3"
     }
     allowed_value: {
-      label: "Split the dataset into 4 different groups"
+      label: "4 groups: Split the dataset into 4 different groups"
       value: "4"
     }
     default_value: "1"
@@ -78,7 +78,13 @@ view: learner_profile_dev {
 
   dimension: assigned_group {
     label: "Assigned Group"
-    description: ""
+    description: "When data is split into groups, this field represents the group letter (A,B,etc.) to which a record belongs"
+    sql: CHAR(64+${assigned_group_no}) ;;
+  }
+
+  dimension: assigned_group_no {
+    label: "Assigned Group #"
+    description: "When data is split into groups, this field represents the group no (1, 2, etc.) to which a record belongs"
     sql: uniform(1, {% parameter no_of_groups %}, random()) ;;
     # calculation to make this number the same for a given guid
     # Both versions require a known GUID field, the examples use a hard coded one which will need to be changed
