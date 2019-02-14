@@ -625,3 +625,18 @@ explore: active_users_sam {
 }
 
 explore: client_activity_event {}
+
+
+############################ Discount email campaign ##################################
+
+explore: discount_email_campaign_1 {
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${discount_email_campaign_1.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+  join: discount_email_control_groups {
+    relationship: one_to_one
+    sql_on: ${discount_email_campaign_1.user_sso_guid} = ${discount_email_control_groups.discount_email_campaign_1_user_sso_guid};;
+  }
+}
