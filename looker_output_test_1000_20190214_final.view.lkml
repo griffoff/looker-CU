@@ -4,7 +4,7 @@ view: looker_output_test_1000_20190214_final {
   dimension: amount_to_upgrade {
     type: number
     sql: ${TABLE}."AMOUNT_TO_UPGRADE" ;;
-    value_format_name: "usd_2"
+    value_format_name: "usd"
   }
 
   dimension_group: api_call {
