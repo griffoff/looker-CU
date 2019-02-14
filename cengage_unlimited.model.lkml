@@ -641,8 +641,8 @@ explore: looker_output_test_1000_20190214_final {
     relationship: one_to_one
     sql_on: ${looker_output_test_1000_20190214_final.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
   }
-  join: discount_email_control_groups {
+  join: discount_email_control_groups_test_2 {
     relationship: one_to_one
-    sql_on: ${looker_output_test_1000_20190214_final.user_sso_guid} = ${discount_email_control_groups.discount_email_campaign_1_user_sso_guid};;
+    sql_on: ${looker_output_test_1000_20190214_final.user_sso_guid} = ${discount_email_control_groups_test_2.discount_info_test_1000_user_sso_guid};;
   }
 }
