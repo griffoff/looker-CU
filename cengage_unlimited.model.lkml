@@ -633,15 +633,16 @@ explore: client_activity_event {}
 
 
 ############################ Discount email campaign ##################################
-
-explore: discount_email_campaign_1 {
-
+# explore: looker_output_test_1000_20190214_final {}
+explore: looker_output_test_1000_20190214_final {
+  view_label: "Discount info (test 1000)"
+  label: "Discount email campaign"
   join: merged_cu_user_info {
     relationship: one_to_one
-    sql_on: ${discount_email_campaign_1.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+    sql_on: ${looker_output_test_1000_20190214_final.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
   }
   join: discount_email_control_groups {
     relationship: one_to_one
-    sql_on: ${discount_email_campaign_1.user_sso_guid} = ${discount_email_control_groups.discount_email_campaign_1_user_sso_guid};;
+    sql_on: ${looker_output_test_1000_20190214_final.user_sso_guid} = ${discount_email_control_groups.discount_email_campaign_1_user_sso_guid};;
   }
 }
