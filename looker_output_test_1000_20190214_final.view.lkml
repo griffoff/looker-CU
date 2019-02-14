@@ -2,8 +2,9 @@ view: looker_output_test_1000_20190214_final {
   sql_table_name: ZPG.LOOKER_OUTPUT_TEST_1000_20190214_FINAL ;;
 
   dimension: amount_to_upgrade {
-    type: string
+    type: number
     sql: ${TABLE}."AMOUNT_TO_UPGRADE" ;;
+    value_format_name: "usd_0"
   }
 
   dimension_group: api_call {
