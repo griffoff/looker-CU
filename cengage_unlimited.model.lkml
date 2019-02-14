@@ -34,7 +34,7 @@ explore: live_subscription_status {
   fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
 
   join: merged_cu_user_info {
-    required_access_grants: [can_view_CU_dev_data]
+    required_access_grants: [can_view_CU_pii_data]
     view_label: "Learner Profile"
     sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
@@ -199,6 +199,11 @@ explore: event_analysis {
 ################################################ Start of DEV Explores #############################################
 access_grant: can_view_CU_dev_data {
   user_attribute: access_grant_team
+  allowed_values: [ "yes" ]
+}
+
+access_grant: can_view_CU_pii_data {
+  user_attribute:access_pii_data
   allowed_values: [ "yes" ]
 }
 
