@@ -1,7 +1,12 @@
 explore: cu_user_info {label: "CU User Info"}
 
 view: cu_user_info {
-  sql_table_name: UPLOADS.CU.CU_USER_INFO ;;
+#   sql_table_name: UPLOADS.CU.CU_USER_INFO ;;
+  derived_table: {
+    sql: Select cu.*,coalesce(bl.flag,'N') from UPLOADS.CU.CU_USER_INFO cu
+      LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+      ON bl.entity_id = cu.entity_id;;
+  }
 
   dimension_group: cu_end_sso {
     type: time
@@ -17,6 +22,11 @@ view: cu_user_info {
     datatype: date
     sql: ${TABLE}."CU_END_SSO" ;;
     hidden: yes
+  }
+
+  filter: blacklist_flag {
+    label: "Entity Blacklist"
+    default_value: "N"
   }
 
   dimension_group: cu_start_sso {
