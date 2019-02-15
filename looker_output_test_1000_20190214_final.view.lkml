@@ -98,7 +98,7 @@ view: looker_output_test_1000_20190214_final {
   dimension: upgrade_amount_tiers {
     type: tier
     sql: ${amount_to_upgrade} ;;
-    tiers: [10, 20, 30, 40, 50, 60]
+    tiers: [0, 10, 20, 30, 40, 50, 60]
     style: integer
     value_format_name: "usd_0"
   }
