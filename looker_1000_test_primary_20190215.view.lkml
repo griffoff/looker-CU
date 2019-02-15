@@ -96,14 +96,14 @@ view: looker_1000_test_primary_20190215 {
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
 
-  dimension: discount_string {
+  dimension: amount_to_upgrade_string {
     type: string
     sql: CASE
             WHEN amount_to_upgrade = 0 THEN 'for free'
             ELSE CONCAT('for only $', ${amount_to_upgrade}::decimal(4,2)) END;;
   }
 
-  dimension: discount_tiers {
+  dimension: amount_to_upgrade_tiers {
     type: string
     sql: CASE
             WHEN ${amount_to_upgrade} = 0 THEN '0'

@@ -633,7 +633,40 @@ explore: client_activity_event {}
 
 
 ############################ Discount email campaign ##################################
+
 # explore: looker_output_test_1000_20190214_final {}
+explore: email_discount_campaign {
+  label: "Email Discount Campaign"
+  view_label: "Live subscription status"
+  from: live_subscription_status
+
+  join: students_email_campaign_criteria {
+    relationship: one_to_one
+    sql_on: ${email_discount_campaign.user_sso_guid} = ${students_email_campaign_criteria.user_guid} ;;
+  }
+  join: discount_info {
+    relationship: one_to_one
+    sql_on: ${email_discount_campaign.user_sso_guid} = ${discount_info.user_sso_guid} ;;
+  }
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${email_discount_campaign.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+   join: discount_email_campaign_control_groups {
+    relationship:  one_to_one
+    sql_on: ${email_discount_campaign.user_sso_guid} =  ${discount_email_campaign_control_groups.looker_1000_test_primary_20190215_user_guid};;
+}
+
+}
+explore: discount_info {}
+explore: discount_email_campaign_control_groups {}
+
+explore: students_email_campaign_criteria {
+  join: discount_info {
+    sql_on: ${students_email_campaign_criteria.user_guid} = ${discount_info.user_sso_guid}  ;;
+  }
+}
+
 explore: looker_output_test_1000_20190214_final {
   view_label: "Discount info (test 1000)"
   label: "Discount email campaign"
@@ -647,6 +680,16 @@ explore: looker_output_test_1000_20190214_final {
   }
 }
 
+
 explore: looker_1000_test_primary_20190215 {
   label: "Discount email campaign (test 1000)"
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${looker_1000_test_primary_20190215.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+  join: discount_email_campaign_control_groups {
+    relationship: one_to_one
+    sql_on: ${looker_1000_test_primary_20190215.user_sso_guid} = ${discount_email_campaign_control_groups.looker_1000_test_primary_20190215_user_guid};;
+  }
 }
