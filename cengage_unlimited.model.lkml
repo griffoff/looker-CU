@@ -646,3 +646,7 @@ explore: looker_output_test_1000_20190214_final {
     sql_on: ${looker_output_test_1000_20190214_final.user_sso_guid} = ${discount_email_control_groups_test_2.discount_info_test_1000_user_sso_guid};;
   }
 }
+
+explore: looker_1000_test_primary_20190215 {
+  label: "Discount email campaign (test 1000)"
+}
