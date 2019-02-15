@@ -31,6 +31,27 @@ view: learner_profile {
     sql: coalesce(${TABLE}.purchase_path, 'Unknown') ;;
   }
 
+  dimension: no_of_chegg_clicks {
+    group_label: "Exclusive Partner Clicks"
+    label: "Chegg Clicks"
+    description: "Number of times a user has clicked on the chegg from CU dashboard"
+    sql: ${TABLE}.no_of_chegg_clicks ;;
+  }
+
+  dimension: no_of_quizlet_clicks {
+    group_label: "Exclusive Partner Clicks"
+    label: "Quizlet Clicks"
+    description: "Number of times a user has clicked on the quizlet from CU dashboard"
+    sql: ${TABLE}.no_of_quizlet_clicks ;;
+  }
+
+  dimension: no_of_kaplan_clicks {
+    group_label: "Exclusive Partner Clicks"
+    label: "Kaplan Clicks"
+    description: "Number of times a user has clicked on the kaplan from CU dashboard"
+    sql: ${TABLE}.no_of_kaplan_clicks ;;
+  }
+
   dimension: days_active {
     group_label: "Days Active"
     type: number
