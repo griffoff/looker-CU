@@ -31,8 +31,8 @@ view: merged_cu_user_info {
     group_label: "User Info - Marketing"
     type: string
     case: {
-      when: {label: "Yes" sql: ${TABLE}.opt_out = 'Y';;}
-      when: {label: "No" sql: ${TABLE}.opt_out = 'N';;}
+      when: {label: "Yes" sql: LEFT( ${TABLE}.opt_out, 1) = 'Y';;}
+      when: {label: "No" sql: LEFT(${TABLE}.opt_out, 1) = 'N';;}
       else: "UNKNOWN"
     }
   }
@@ -41,8 +41,8 @@ view: merged_cu_user_info {
     group_label: "User Info - Marketing"
     type: string
     case: {
-      when: {label: "Yes" sql: ${TABLE}.no_contact_user = 'Y';;}
-      when: {label: "No" sql: ${TABLE}.no_contact_user = 'N';;}
+      when: {label: "Yes" sql: LEFT(${TABLE}.no_contact_user, 1) = 'Y';;}
+      when: {label: "No" sql: LEFT(${TABLE}.no_contact_user, 1) = 'N';;}
       else: "UNKNOWN"
     }
   }
