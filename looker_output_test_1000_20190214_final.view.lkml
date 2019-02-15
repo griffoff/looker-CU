@@ -95,8 +95,22 @@ view: looker_output_test_1000_20190214_final {
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
 
+  dimension: upgrade_amount_tiers {
+    type: tier
+    sql: ${amount_to_upgrade} ;;
+    tiers: [10, 20, 30, 40, 50, 60]
+    style: integer
+    value_format_name: "usd_0"
+  }
+
   measure: count {
     type: count
+    drill_fields: []
+  }
+
+  measure: user_count {
+    type: count_distinct
+    sql: user_sso_guid ;;
     drill_fields: []
   }
 }
