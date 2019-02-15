@@ -21,6 +21,7 @@ view: user_courses {
 
   dimension: product_type {
     type: string
+    description: "can be filtered on to differentiate between MT,WA,SAM,etc."
     sql: ${TABLE}."PRODUCT_TYPE" ;;
   }
 
@@ -31,11 +32,13 @@ view: user_courses {
   }
 
   dimension: enrollment_date {
+    label: "Date on which user enrolled into a course"
     type: date
   }
 
   measure: enrolled_courses {
     label: "# Users with Enrolled Courses"
+    description: "Number of users with an enrolled course"
     type: count_distinct
     sql: case when ${olr_enrollment_key} is not null then ${user_sso_guid} end;;
     value_format_name: decimal_0
