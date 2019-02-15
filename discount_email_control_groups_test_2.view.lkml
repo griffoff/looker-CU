@@ -26,6 +26,7 @@ view: discount_email_control_groups_test_2 {
 
   dimension: discount_info_test_1000_amount_to_upgrade {
     type: number
+    hidden: yes
     sql: ${TABLE}."DISCOUNT_INFO_TEST_1000_AMOUNT_TO_UPGRADE" ;;
   }
 
