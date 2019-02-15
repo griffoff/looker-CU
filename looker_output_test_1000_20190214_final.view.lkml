@@ -85,10 +85,10 @@ view: looker_output_test_1000_20190214_final {
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
   }
 
-#   dimension: user_guid {
-#     type: string
-#     sql: ${TABLE}."USER_GUID" ;;
-#   }
+  dimension: user_guid {
+    type: string
+    sql: ${TABLE}."USER_GUID" ;;
+  }
 
   dimension: user_sso_guid {
     type: string
