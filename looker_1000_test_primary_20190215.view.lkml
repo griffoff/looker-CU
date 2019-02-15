@@ -2,8 +2,9 @@ view: looker_1000_test_primary_20190215 {
   sql_table_name: ZPG.LOOKER_1000_TEST_PRIMARY_20190215 ;;
 
   dimension: amount_to_upgrade {
-    type: string
+    type: number
     sql: ${TABLE}."AMOUNT_TO_UPGRADE" ;;
+    value_format_name: "usd"
   }
 
   dimension_group: api_call {
@@ -93,6 +94,27 @@ view: looker_1000_test_primary_20190215 {
     type: string
     hidden: yes
     sql: ${TABLE}."USER_SSO_GUID" ;;
+  }
+
+  dimension: discount_string {
+    type: string
+    sql: CASE
+            WHEN amount_to_upgrade = 0 THEN 'for free'
+            ELSE CONCAT('for only $', ${amount_to_upgrade}::decimal(4,2)) END;;
+  }
+
+  dimension: discount_tiers {
+    type: string
+    sql: CASE
+            WHEN ${amount_to_upgrade} = 0 THEN '0'
+            WHEN ${amount_to_upgrade} < 10 THEN '$0.01-$9.99'
+            WHEN ${amount_to_upgrade} < 20 THEN '$10.00-$19.99'
+            WHEN ${amount_to_upgrade} < 30 THEN '$20.00-$29.99'
+            WHEN ${amount_to_upgrade} < 40 THEN '$30.00-$39.99'
+            WHEN ${amount_to_upgrade} < 50 THEN '$40.00-$49.99'
+            ELSE 'Huah'
+            END
+            ;;
   }
 
   measure: count {
