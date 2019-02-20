@@ -123,8 +123,8 @@ view: learner_profile {
 
   dimension: percent_days_active {
     type: number
-    sql: (${days_active} / ${days_since_first_login}) * 100;;
-    value_format: "#.00\%"
+    sql: ${days_active} / ${days_since_first_login};;
+    value_format_name:  percent_2
     group_label: "Days Active"
     label: "% days active"
     description: "Percentage of days since the user first logged in that the user was active"
@@ -140,11 +140,12 @@ view: learner_profile {
 
   dimension: days_active_tiers  {
     type: tier
-    sql: ${percent_days_active} ;;
+    sql: ${percent_days_active}*100 ;;
     tiers: [10, 25, 50, 75]
     style: integer
     group_label: "Days Active"
-    label: "# days active (buckets)"
+    value_format: "0\%"
+    label: "% days active (buckets)"
   }
 
 

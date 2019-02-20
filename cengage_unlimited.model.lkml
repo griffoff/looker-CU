@@ -656,6 +656,7 @@ explore: discount_email_campaign_control_groups {}
 explore: students_email_campaign_criteria {
   join: discount_info {
     sql_on: ${students_email_campaign_criteria.user_guid} = ${discount_info.user_sso_guid}  ;;
+    relationship: one_to_one
   }
 }
 
