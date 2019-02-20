@@ -4,6 +4,7 @@ include: "//core/common.lkml"
 include: "//cube/dims.lkml"
 include: "//cube/dim_course.view"
 include: "//cube/ga_mobiledata.view"
+include: "//core/access_grants_file.view"
 
 
  case_sensitive: no
@@ -197,15 +198,6 @@ explore: event_analysis {
 ################################################# End of PROD Explores ###########################################
 
 ################################################ Start of DEV Explores #############################################
-access_grant: can_view_CU_dev_data {
-  user_attribute: access_grant_team
-  allowed_values: [ "yes" ]
-}
-
-access_grant: can_view_CU_pii_data {
-  user_attribute:access_pii_data
-  allowed_values: [ "yes" ]
-}
 
 ###### new explore testing#########
 explore: all_events_dev {
