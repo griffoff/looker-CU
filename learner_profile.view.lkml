@@ -1,5 +1,5 @@
 # include: "cengage_unlimited.model.lkml"
-# include: "//core/common.lkml"
+ include: "//core/access_grants_file.view"
 
 view: learner_profile {
   view_label: "Learner Profile"
@@ -10,6 +10,59 @@ view: learner_profile {
       , non_courseware_net_value
       ,new_customer, first_activation_date]
   }
+
+
+  parameter: no_of_groups {
+    label: "Select a number of groups to split the data into"
+    description: "Select a number of groups to split the records into
+    the Assigned Group dimension will display a number between 1 and the number of groups chosen for every record in your dataset"
+    type: unquoted
+    allowed_value: {
+      label: "No split, all records in the same group"
+      value: "1"
+    }
+    allowed_value: {
+      label: "2 groups: Split the dataset into 2 different groups"
+      value: "2"
+    }
+    allowed_value: {
+      label: "3 groups: Split the dataset into 3 different groups"
+      value: "3"
+    }
+    allowed_value: {
+      label: "4 groups: Split the dataset into 4 different groups"
+      value: "4"
+    }
+    default_value: "1"
+    view_label: "** MODELLING TOOLS **"
+    required_fields: [assigned_group]
+    required_access_grants: [can_view_segment_parameters]
+  }
+
+  dimension: assigned_group {
+    label: "Assigned Group"
+    description: "When data is split into groups, this field represents the group letter (A,B,etc.) to which a record belongs"
+    sql: CHAR(64+${assigned_group_no}) ;;
+    required_access_grants: [can_view_segment_parameters]
+  }
+
+  dimension: assigned_group_no {
+    label: "Assigned Group #"
+    description: "When data is split into groups, this field represents the group no (1, 2, etc.) to which a record belongs"
+    sql: uniform(1, {% parameter no_of_groups %}, random()) ;;
+    # calculation to make this number the same for a given guid
+    # Both versions require a known GUID field, the examples use a hard coded one which will need to be changed
+    # VERSION 1
+    # this version based on the guid itself, so may not be evenly distributed
+    # sql: (mod(abs(hash("olr_courses.instructor_guid")), {% parameter no_of_groups %})) + 1
+
+    # VERSION 2
+    # this version should be evenly distributed but will need to be a measure
+    # sql: mod(dense_rank() over (order by "olr_courses.instructor_guid"), {% parameter no_of_groups %}) + 1
+    view_label: "** MODELLING TOOLS **"
+    required_access_grants: [can_view_segment_parameters]
+  }
+
 
   dimension: user_sso_guid {
     primary_key: yes
@@ -70,8 +123,8 @@ view: learner_profile {
 
   dimension: percent_days_active {
     type: number
-    sql: (${days_active} / ${days_since_first_login}) * 100;;
-    value_format: "#.00\%"
+    sql: ${days_active} / ${days_since_first_login};;
+    value_format_name:  percent_2
     group_label: "Days Active"
     label: "% days active"
     description: "Percentage of days since the user first logged in that the user was active"
@@ -87,11 +140,12 @@ view: learner_profile {
 
   dimension: days_active_tiers  {
     type: tier
-    sql: ${percent_days_active} ;;
+    sql: ${percent_days_active}*100 ;;
     tiers: [10, 25, 50, 75]
     style: integer
     group_label: "Days Active"
-    label: "# days active (buckets)"
+    value_format: "0\%"
+    label: "% days active (buckets)"
   }
 
 
