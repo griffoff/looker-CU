@@ -1,5 +1,5 @@
 view: students_email_campaign_criteria {
-  sql_table_name: ZPG.STUDENTS_EMAIL_CAMPAIGN_CRITERIA_20190215 ;;
+  sql_table_name: ZPG.student_email_campaign_criteria ;;
 
   dimension: activated_26_30_total {
     type: string
