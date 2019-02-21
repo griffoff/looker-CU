@@ -87,6 +87,7 @@ view: learner_profile {
   dimension: no_of_chegg_clicks {
     group_label: "Exclusive Partner Clicks"
     label: "Chegg Clicks"
+    type: number
     description: "Number of times a user has clicked on the chegg from CU dashboard"
     sql: ${TABLE}.no_of_chegg_clicks ;;
   }
@@ -94,6 +95,7 @@ view: learner_profile {
   dimension: no_of_quizlet_clicks {
     group_label: "Exclusive Partner Clicks"
     label: "Quizlet Clicks"
+    type: number
     description: "Number of times a user has clicked on the quizlet from CU dashboard"
     sql: ${TABLE}.no_of_quizlet_clicks ;;
   }
@@ -101,6 +103,7 @@ view: learner_profile {
   dimension: no_of_kaplan_clicks {
     group_label: "Exclusive Partner Clicks"
     label: "Kaplan Clicks"
+    type: number
     description: "Number of times a user has clicked on the kaplan from CU dashboard"
     sql: ${TABLE}.no_of_kaplan_clicks ;;
   }
