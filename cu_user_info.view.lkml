@@ -5,7 +5,7 @@ view: cu_user_info {
   derived_table: {
     sql: Select cu.*,coalesce(bl.flag,'N') from UPLOADS.CU.CU_USER_INFO cu
       LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
-      ON bl.entity_id = cu.entity_id;;
+      ON bl.entity_id::STRING = cu.entity_id::STRING;;
   }
 
   dimension_group: cu_end_sso {
