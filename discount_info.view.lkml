@@ -36,7 +36,7 @@ view: discount_info {
 
   dimension: amount_to_upgrade {
     type: string
-    sql: ${TABLE}."AMOUNT_TO_UPGRADE" ;;
+    sql: ${TABLE}."AMOUNT_TO_UPGRADE"::float ;;
   }
 
   dimension: cu_term_length {
@@ -52,6 +52,28 @@ view: discount_info {
   dimension: price_details {
     type: string
     sql: ${TABLE}."PRICE_DETAILS" ;;
+  }
+
+
+  dimension: amount_to_upgrade_string {
+    type: string
+    sql: CASE
+            WHEN amount_to_upgrade = 0 THEN 'for free'
+            ELSE CONCAT('for only $', ${amount_to_upgrade}) END;;
+  }
+
+  dimension: amount_to_upgrade_tiers {
+    type: string
+    sql: CASE
+            WHEN ${amount_to_upgrade} = 0 THEN '0'
+            WHEN ${amount_to_upgrade} < 10 THEN '$0.01-$9.99'
+            WHEN ${amount_to_upgrade} < 20 THEN '$10.00-$19.99'
+            WHEN ${amount_to_upgrade} < 30 THEN '$20.00-$29.99'
+            WHEN ${amount_to_upgrade} < 40 THEN '$30.00-$39.99'
+            WHEN ${amount_to_upgrade} < 50 THEN '$40.00-$49.99'
+            ELSE 'over $50.00'
+            END
+            ;;
   }
 
   set: detail {

@@ -644,9 +644,13 @@ explore: email_discount_campaign {
     relationship: one_to_one
     sql_on: ${email_discount_campaign.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
   }
-   join: discount_email_campaign_control_groups {
+  # join: upgrade_campaign_user_info_latest_20192021 {
+  #   relationship: one_to_one
+  #   sql_on: ${email_discount_campaign.user_sso_guid} = ${upgrade_campaign_user_info_latest_20192021.guid} ;;
+  # }
+   join: discount_email_control_groups {
     relationship:  one_to_one
-    sql_on: ${email_discount_campaign.user_sso_guid} =  ${discount_email_campaign_control_groups.looker_1000_test_primary_20190215_user_guid};;
+    sql_on: ${email_discount_campaign.user_sso_guid} =  ${discount_email_control_groups.students_email_campaign_criteria_user_guid};;
 }
 
 }

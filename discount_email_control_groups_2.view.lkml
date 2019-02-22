@@ -1,4 +1,4 @@
-view: discount_email_control_groups {
+view: discount_email_control_groups_2 {
   derived_table: {
     sql: SELECT * FROM uploads.cu.upgrades_guids_upload_full_send_02212019_ko
       ;;
