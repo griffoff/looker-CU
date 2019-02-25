@@ -74,6 +74,12 @@ explore: live_subscription_status {
     sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
     relationship: one_to_many
   }
+
+  join: dim_date {
+    view_label: "Live Subscription Status"
+    sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
+    relationship: one_to_one
+  }
 }
 
 explore: all_events {
@@ -112,6 +118,7 @@ explore: session_analysis {
     sql_on: ${live_subscription_status.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     relationship: one_to_many
   }
+
 }
 
 explore: session_analysis_old {
