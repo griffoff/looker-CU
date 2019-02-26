@@ -697,3 +697,12 @@ explore: looker_1000_test_primary_20190215 {
     sql_on: ${looker_1000_test_primary_20190215.user_sso_guid} = ${discount_email_campaign_control_groups.looker_1000_test_primary_20190215_user_guid};;
   }
 }
+
+explore: student_activities_20190226 {
+  extends: [dim_course]
+
+  join: dim_course {
+    sql_on: ${student_activities_20190226.course_key} = ${dim_course.olr_course_key} ;;
+    relationship: one_to_one
+  }
+}
