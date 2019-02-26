@@ -31,6 +31,11 @@ view: all_events_diff {
       label: "Dashboard Search"
       value: "_SEARCH"
     }
+    allowed_value: {
+      label: "IPM SUBSCRIPTION"
+      value: "_IPMSUBSCRIPTION"
+
+    }
   }
 
   #sql_table_name: ZPG.ALL_EVENTS_DIFF ;;
