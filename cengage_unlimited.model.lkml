@@ -175,6 +175,11 @@ explore: event_analysis {
     relationship: many_to_one
   }
 
+  join: ipm_campaign {
+    sql_on: ${ipm_campaign.message_id} = ${all_events.campaign_msg_id};;
+    relationship: one_to_many
+  }
+
   join: all_sessions {
     from: all_sessions_dev
     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;

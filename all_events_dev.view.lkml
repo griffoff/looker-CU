@@ -163,12 +163,6 @@ view: all_events_dev {
     label: "Event 5"
     description: "The event five after the current event"
   }
-  dimension: event_data {
-    type: string
-    sql: ${TABLE}."EVENT_DATA" ;;
-    label: "Event data"
-    description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
-  }
 
   dimension: has_coursekey {
     type: yesno

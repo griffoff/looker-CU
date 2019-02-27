@@ -34,6 +34,21 @@ view: all_events {
     hidden: yes
   }
 
+  dimension: event_data {
+    type: string
+    sql: ${TABLE}."EVENT_DATA" ;;
+    label: "Event data"
+    description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
+  }
+
+  dimension: campaign_msg_id{
+    type: string
+    sql: CASE WHEN ${event_name} ilike 'IPM%'
+          THEN ${event_data}:message_id
+          ELSE NULL
+          END;;
+  }
+
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
