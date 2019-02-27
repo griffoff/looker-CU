@@ -95,7 +95,7 @@ explore: all_events {
 
 explore: all_sessions {
   extension: required
-  extends: [all_events]
+  extends: [all_events, dim_course]
 
   join: all_events {
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
