@@ -54,6 +54,7 @@ view: live_subscription_status {
     label: "# Students"
     type: number
     sql: COUNT(DISTINCT ${user_sso_guid}) ;;
+    drill_fields: [user_sso_guid]
   }
 
   measure: subscriber_count {
