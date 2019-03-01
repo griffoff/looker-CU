@@ -711,3 +711,9 @@ explore: student_activities_20190226 {
     relationship: one_to_one
   }
 }
+
+# ----IPM ----
+
+explore: ipm_conversion {
+
+}
