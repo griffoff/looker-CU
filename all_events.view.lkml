@@ -67,6 +67,11 @@ view: all_events {
     hidden: yes
   }
 
+  dimension: search_flag {
+    label: "Dashboard Search Flags"
+    sql: CASE WHEN ${event_name} ilike 'Dashboard Search%' THEN 'Dashboard Search' ELSE 'No Dashboard Search' END ;;
+  }
+
   dimension:search_outcome{
     group_label: "Search"
     label: "Search outcome successful"
