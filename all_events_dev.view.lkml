@@ -419,4 +419,21 @@ view: all_events_dev {
       value_format_name: duration_dhm
     }
 
+  measure:  no_cu_users_searched{
+    label: "CU users that Searched"
+    type: count_distinct
+    sql: CASE WHEN ${event_name} ilike 'dashboard%search%result%' and ${event_subscription_state} ilike 'full access' THEN ${user_sso_guid} ELSE null end ;;
+  }
+
+  measure:  no_of_searches{
+    label: "No Of Searches"
+    type: count_distinct
+    sql:  CASE WHEN ${event_name} ilike 'dashboard%search%result%' and ${event_subscription_state} ilike 'full access' THEN ${event_id} ELSE null end ;;
+  }
+
+  measure:  no_success_searched{
+    label: "No Of Successful Searches"
+    type: count_distinct
+    sql: CASE WHEN ${event_data}:search_outcome ilike 'Y' and ${event_subscription_state} ilike 'full access' THEN ${event_id} ELSE null end;;
+  }
   }
