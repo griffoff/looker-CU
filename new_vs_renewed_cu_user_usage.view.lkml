@@ -52,12 +52,12 @@ view: new_vs_renewed_cu_user_usage {
 
   dimension: activations_on_or_prior_20181215 {
     type: number
-    sql: ${TABLE}."ACTIVATIONS_ON_OR_PRIOR_20181215" ;;
+    sql: COALESCE(${TABLE}."ACTIVATIONS_ON_OR_PRIOR_20181215", 0) ;;
   }
 
   dimension: activations_after_20181215 {
     type: number
-    sql: COALESCE(${TABLE}."ACTIVATIONS_AFTER_20181215",0) ;;
+    sql: COALESCE(${TABLE}."ACTIVATIONS_AFTER_20181215", 0) ;;
   }
 
   dimension: partner_clicks_count {
