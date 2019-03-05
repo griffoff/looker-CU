@@ -425,6 +425,18 @@ view: all_events_dev {
     sql: CASE WHEN ${event_name} ilike 'dashboard%search%result%' and ${event_subscription_state} ilike 'full access' THEN ${user_sso_guid} ELSE null end ;;
   }
 
+  measure:  no_of_searches_trial{
+    label: "No Of Searches for Trial"
+    type: count_distinct
+    sql:  CASE WHEN ${event_name} ilike 'dashboard%search%result%' and ${event_subscription_state} ilike 'trial access' THEN ${event_id} ELSE null end ;;
+  }
+
+  measure:  no_success_searched_trial{
+    label: "No Of Successful Searches Trial"
+    type: count_distinct
+    sql: CASE WHEN ${event_data}:search_outcome ilike 'Y' and ${event_subscription_state} ilike 'trial access' THEN ${event_id} ELSE null end;;
+  }
+
   measure:  no_of_searches{
     label: "No Of Searches"
     type: count_distinct
