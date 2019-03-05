@@ -11,6 +11,9 @@ view: course_link_page_clicks_trial {
                   ,COUNT(distinct case when event_action ilike 'unlimited%'  and event_data:event_label ilike 'false%' THEN event_id else NULL END ) as Clicked_A_La_Carte
                   ,COUNT(distinct case when event_name ilike '%UPGRADE%' THEN event_id else NULL end) as clicked_on_Upgrade
                   ,COUNT(distinct case when event_name ilike 'continue to course' THEN event_id else NULL end) as checked_out_courseware
+                  ,COUNT(distinct case when event_name ilike '%chegg%' OR event_name ilike 'Study Resource Clicked' THEN event_id else NULL end) as partner_clicked
+                  ,COUNT(distinct case when event_name ilike 'ebook launched' THEN event_id else NULL end) as ebooks_launched
+                  ,COUNT(distinct case when event_name ilike 'courseware launched' THEN event_id else NULL end) as courseware_launched
                   ,COUNT(DISTINCT CASE WHEN product_platform ILIKE 'cu dashboard' THEN event_id END) AS all_events
               FROM zpg.raw_subscription_event_merged_erroneous_removed r
               LEFT JOIN zpg.all_events e
@@ -103,6 +106,40 @@ view: course_link_page_clicks_trial {
     sql: ${TABLE}."CHECKED_OUT_COURSEWARE" ;;
   }
 
+  dimension: partner_clicked {
+    type: number
+    sql: ${TABLE}."PARTNER_CLICKED" ;;
+  }
+
+  measure: partner_clicked_m {
+    label: "Clicked on Partner links"
+    type: sum
+    sql: ${TABLE}."PARTNER_CLICKED" ;;
+  }
+
+  dimension: ebooks_launched {
+    type: number
+    sql: ${TABLE}."EBOOKS_LAUNCHED" ;;
+  }
+
+  measure: ebooks_launched_m {
+    label: "Ebooks Launched"
+    type: sum
+    sql: ${TABLE}."EBOOKS_LAUNCHED" ;;
+  }
+
+  dimension: courseware_launched {
+    type: number
+    sql: ${TABLE}."COURSEWARE_LAUNCHED" ;;
+  }
+
+  measure: courseware_launched_m {
+    label: "Courseware Launched"
+    type: sum
+    sql: ${TABLE}."COURSEWARE_LAUNCHED" ;;
+  }
+
+
   dimension: all_events {
     type: number
     sql: ${TABLE}."ALL_EVENTS" ;;
@@ -112,7 +149,8 @@ view: course_link_page_clicks_trial {
     type: sum
     label: "Other events"
     sql: ${TABLE}."ALL_EVENTS" - (checked_out_courseware + clicked_on_upgrade
-    + clicked_buy_cu + explored_myhome + register_pac);;
+    + clicked_buy_cu + explored_myhome + register_pac + partner_clicked + courseware_launched
+    + ebooks_launched);;
   }
 
   set: detail {
