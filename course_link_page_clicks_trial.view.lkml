@@ -43,6 +43,7 @@ view: course_link_page_clicks_trial {
   }
 
   measure: register_pac_m {
+    label: "register pac"
     type: sum
     sql: ${register_pac} ;;
   }
@@ -53,6 +54,7 @@ view: course_link_page_clicks_trial {
   }
 
   measure: explored_myhome_m {
+    label: "explored myhome"
     type: sum
     sql: ${TABLE}."EXPLORED_MYHOME" ;;
   }
@@ -63,6 +65,7 @@ view: course_link_page_clicks_trial {
   }
 
   measure: clicked_buy_cu_m {
+    label: "clicked buy cu"
     type: sum
     sql: ${TABLE}."CLICKED_BUY_CU" ;;
   }
@@ -73,6 +76,7 @@ view: course_link_page_clicks_trial {
   }
 
   measure: clicked_a_la_carte_m {
+    label: "clicked a la carte"
     type: sum
     sql: ${TABLE}."CLICKED_A_LA_CARTE" ;;
   }
@@ -83,6 +87,7 @@ view: course_link_page_clicks_trial {
   }
 
   measure: clicked_on_upgrade_m {
+    label: "clicked on upgrade"
     type: sum
     sql: ${TABLE}."CLICKED_ON_UPGRADE" ;;
   }
@@ -93,6 +98,7 @@ view: course_link_page_clicks_trial {
   }
 
   measure: checked_out_courseware_m {
+    label: "checked out courseware"
     type: sum
     sql: ${TABLE}."CHECKED_OUT_COURSEWARE" ;;
   }
