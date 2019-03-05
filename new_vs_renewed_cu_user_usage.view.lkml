@@ -11,6 +11,11 @@ view: new_vs_renewed_cu_user_usage {
     drill_fields: [detail*]
   }
 
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid_merged} ;;
+  }
+
   measure: average_study_tool_launches {
     label: "Average # of study tool launches per user"
     type: average
@@ -47,27 +52,28 @@ view: new_vs_renewed_cu_user_usage {
 
   dimension: activations_on_or_prior_20181215 {
     type: number
-    sql: ${TABLE}."ACTIVATIONS_ON_OR_PRIOR_20181215" ;;
+    sql: COALESCE(${TABLE}."ACTIVATIONS_ON_OR_PRIOR_20181215", 0) ;;
   }
 
   dimension: activations_after_20181215 {
     type: number
-    sql: ${TABLE}."ACTIVATIONS_AFTER_20181215" ;;
+    sql: COALESCE(${TABLE}."ACTIVATIONS_AFTER_20181215", 0) ;;
   }
 
   dimension: partner_clicks_count {
     type: number
-    sql: ${TABLE}."PARTNER_CLICKS_COUNT" ;;
+    sql: COALESCE(${TABLE}."PARTNER_CLICKS_COUNT", 0) ;;
+
   }
 
   dimension: study_tool_launches_count {
     type: number
-    sql: ${TABLE}."STUDY_TOOL_LAUNCHES_COUNT" ;;
+    sql: COALESCE(${TABLE}."STUDY_TOOL_LAUNCHES_COUNT",0) ;;
   }
 
   dimension: searches_count {
     type: number
-    sql: ${TABLE}."SEARCHES_COUNT" ;;
+    sql: COALESCE(${TABLE}."SEARCHES_COUNT",0) ;;
   }
 
   set: detail {
