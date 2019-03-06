@@ -22,7 +22,13 @@ view: trial_home_awareness_fall_spring_lms {
               WHERE r.subscription_state = 'trial_access'
               GROUP BY 1, 2, 3
           )
-          SELECT * FROM trial_users
+          SELECT
+            t.*
+            ,CASE WHEN r.subscription_state = 'full_access' THEN 'Purchased CU' ELSE 'Did not purchase CU' END AS purchased_cu
+          FROM trial_users t
+          LEFT JOIN zpg.raw_subscription_event_merged_erroneous_removed r
+            ON t.user_sso_guid_merged = r.user_sso_guid_merged
+            AND r.subscription_state = 'full_access'
        ;;
   }
 
@@ -31,6 +37,10 @@ view: trial_home_awareness_fall_spring_lms {
     drill_fields: [detail*]
   }
 
+  dimension: purchased_cu {
+    type: string
+    sql: ${TABLE}."PURCHASED_CU" ;;
+  }
 
 
   dimension: user_sso_guid_merged {
