@@ -60,7 +60,6 @@ view: course_link_page_clicks_trial_lms_vs_non
         )
         SELECT
             r.user_sso_guid_merged
-            ,DATEDIFF('day',r.subscription_start, e.event_time) AS day_in_trial
             ,CASE WHEN r.user_sso_guid_merged <> r.user_sso_guid THEN 'LMS User' ELSE 'Non-LMS User' END AS lms_vs_non_lms_user
             ,Count(distinct case when event_action ilike '%course page%' THEN event_id else null END) as Register_PAC
             ,Count(distinct case when event_name ilike 'back to Cu Home Page' THEN event_id else null END) as Explored_myHome
@@ -78,7 +77,7 @@ view: course_link_page_clicks_trial_lms_vs_non
             AND e.event_time >= r.subscription_start
             AND e.event_time <= r.subscription_end
         WHERE r.subscription_state = 'trial_access'
-        GROUP BY 1, 2, 3
+        GROUP BY 1, 2
  ;;
     }
 
@@ -104,11 +103,6 @@ view: course_link_page_clicks_trial_lms_vs_non
 #       type: string
 #       sql: ${TABLE}."FALL_VS_SPRING_USER" ;;
 #     }
-
-    dimension: day_in_trial {
-      type: number
-      sql: ${TABLE}."DAY_IN_TRIAL" ;;
-    }
 
     dimension: register_pac {
       type: number
@@ -278,7 +272,6 @@ view: course_link_page_clicks_trial_lms_vs_non
     set: detail {
       fields: [
         user_sso_guid_merged,
-        day_in_trial,
         register_pac,
         explored_myhome,
         clicked_buy_cu,
