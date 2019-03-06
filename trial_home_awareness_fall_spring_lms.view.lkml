@@ -29,7 +29,7 @@ view: trial_home_awareness_fall_spring_lms {
           LEFT JOIN zpg.raw_subscription_event_merged_erroneous_removed r
             ON t.user_sso_guid_merged = r.user_sso_guid_merged
             AND r.subscription_state = 'full_access'
-       ;;
+              ;;
   }
 
   measure: count {
