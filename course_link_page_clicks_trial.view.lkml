@@ -61,8 +61,8 @@ view: course_link_page_clicks_trial {
             r.user_sso_guid_merged
             ,DATEDIFF('day',r.subscription_start, e.event_time) AS day_in_trial
             ,CASE
-                WHEN r.subscription_start < '2018-12-15' AND r.subscription_start > '2018-08-01' THEN 'Fall 2018 user'
-                WHEN r.subscription_start > '2018-12-15' AND r.subscription_start < CURRENT_TIMESTAMP() THEN 'Spring 2018 user'
+                WHEN r.subscription_start < '2018-12-15' AND r.subscription_start > '2018-08-01' THEN 'Fall 2019 user'
+                WHEN r.subscription_start > '2018-12-15' AND r.subscription_start < CURRENT_TIMESTAMP() THEN 'Spring 2019 user'
                 WHEN r.subscription_start < '2018-08-01' THEN 'Before CU user'
                 ELSE 'Unknown' END AS fall_vs_spring_user
             ,Count(distinct case when event_action ilike '%course page%' THEN event_id else null END) as Register_PAC
