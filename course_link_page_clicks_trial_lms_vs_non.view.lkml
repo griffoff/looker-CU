@@ -112,7 +112,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: register_pac {
       type: number
-      sql: ${TABLE}."REGISTER_PAC" ;;
+      sql: COALESCE(${TABLE}."REGISTER_PAC", 0) ;;
     }
 
     measure: register_pac_average {
@@ -128,7 +128,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: explored_myhome {
       type: number
-      sql: ${TABLE}."EXPLORED_MYHOME" ;;
+      sql: COALESCE(${TABLE}."EXPLORED_MYHOME", 0) ;;
     }
 
     measure: explored_myhome_m {
@@ -145,7 +145,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: clicked_buy_cu {
       type: number
-      sql: ${TABLE}."CLICKED_BUY_CU" ;;
+      sql: COALESCE(${TABLE}."CLICKED_BUY_CU", 0) ;;
     }
 
     measure: clicked_buy_cu_m {
@@ -162,7 +162,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: clicked_a_la_carte {
       type: number
-      sql: ${TABLE}."CLICKED_A_LA_CARTE" ;;
+      sql: COALESCE(${TABLE}."CLICKED_A_LA_CARTE", 0) ;;
     }
 
     measure: clicked_a_la_carte_m {
@@ -179,7 +179,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: clicked_on_upgrade {
       type: number
-      sql: ${TABLE}."CLICKED_ON_UPGRADE" ;;
+      sql: COALESCE(${TABLE}."CLICKED_ON_UPGRADE", 0) ;;
     }
 
     measure: clicked_on_upgrade_m {
@@ -196,7 +196,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: checked_out_courseware {
       type: number
-      sql: ${TABLE}."CHECKED_OUT_COURSEWARE" ;;
+      sql: COALESCE(${TABLE}."CHECKED_OUT_COURSEWARE", 0) ;;
     }
 
     measure: checked_out_courseware_m {
@@ -213,7 +213,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: partner_clicked {
       type: number
-      sql: ${TABLE}."PARTNER_CLICKED" ;;
+      sql: COALESCE(${TABLE}."PARTNER_CLICKED", 0) ;;
     }
 
     measure: partner_clicked_m {
@@ -230,7 +230,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: ebooks_launched {
       type: number
-      sql: ${TABLE}."EBOOKS_LAUNCHED" ;;
+      sql: COALESCE(${TABLE}."EBOOKS_LAUNCHED", 0) ;;
     }
 
     measure: ebooks_launched_m {
@@ -247,7 +247,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: courseware_launched {
       type: number
-      sql: ${TABLE}."COURSEWARE_LAUNCHED" ;;
+      sql: COALESCE(${TABLE}."COURSEWARE_LAUNCHED", 0) ;;
     }
 
     measure: courseware_launched_m {
@@ -264,7 +264,7 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: all_events {
       type: number
-      sql: ${TABLE}."ALL_EVENTS" ;;
+      sql: COALESCE(${TABLE}."ALL_EVENTS", 0) ;;
     }
 
     measure: all_events_m {
