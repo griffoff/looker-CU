@@ -62,11 +62,6 @@ view: course_link_page_clicks_trial_lms_vs_non
             r.user_sso_guid_merged
             ,DATEDIFF('day',r.subscription_start, e.event_time) AS day_in_trial
             ,CASE WHEN r.user_sso_guid_merged <> r.user_sso_guid THEN 'LMS User' ELSE 'Non-LMS User' END AS lms_vs_non_lms_user
-            ,CASE
-                WHEN r.subscription_start < '2018-12-15' AND r.subscription_start > '2018-08-01' THEN 'Fall 2018 user'
-                WHEN r.subscription_start > '2018-12-15' AND r.subscription_start < CURRENT_TIMESTAMP() THEN 'Spring 2018 user'
-                WHEN r.subscription_start < '2018-08-01' THEN 'Before CU user'
-                ELSE 'Unknown' END AS fall_vs_spring_user
             ,Count(distinct case when event_action ilike '%course page%' THEN event_id else null END) as Register_PAC
             ,Count(distinct case when event_name ilike 'back to Cu Home Page' THEN event_id else null END) as Explored_myHome
             ,COUNT(distinct case when event_action ilike 'unlimited%'  and event_data:event_label ilike 'true%' THEN event_id else NULL END ) as Clicked_Buy_CU
@@ -83,7 +78,7 @@ view: course_link_page_clicks_trial_lms_vs_non
             AND e.event_time >= r.subscription_start
             AND e.event_time <= r.subscription_end
         WHERE r.subscription_state = 'trial_access'
-        GROUP BY 1, 2, 3, 4
+        GROUP BY 1, 2, 3
  ;;
     }
 
@@ -91,6 +86,8 @@ view: course_link_page_clicks_trial_lms_vs_non
       type: count
       drill_fields: [detail*]
     }
+
+
 
     dimension: user_sso_guid_merged {
       type: string
@@ -103,10 +100,10 @@ view: course_link_page_clicks_trial_lms_vs_non
     }
 
 
-    dimension: fall_vs_spring_user {
-      type: string
-      sql: ${TABLE}."FALL_VS_SPRING_USER" ;;
-    }
+#     dimension: fall_vs_spring_user {
+#       type: string
+#       sql: ${TABLE}."FALL_VS_SPRING_USER" ;;
+#     }
 
     dimension: day_in_trial {
       type: number
@@ -115,6 +112,11 @@ view: course_link_page_clicks_trial_lms_vs_non
 
     dimension: register_pac {
       type: number
+      sql: ${TABLE}."REGISTER_PAC" ;;
+    }
+
+    measure: register_pac_average {
+      type: average
       sql: ${TABLE}."REGISTER_PAC" ;;
     }
 
@@ -135,6 +137,12 @@ view: course_link_page_clicks_trial_lms_vs_non
       sql: ${TABLE}."EXPLORED_MYHOME" ;;
     }
 
+    measure: explored_myhome_average {
+      label: "explored myhome average"
+      type: average
+      sql: ${TABLE}."EXPLORED_MYHOME" ;;
+    }
+
     dimension: clicked_buy_cu {
       type: number
       sql: ${TABLE}."CLICKED_BUY_CU" ;;
@@ -143,6 +151,12 @@ view: course_link_page_clicks_trial_lms_vs_non
     measure: clicked_buy_cu_m {
       label: "clicked buy cu"
       type: sum
+      sql: ${TABLE}."CLICKED_BUY_CU" ;;
+    }
+
+    measure: clicked_buy_cu_average {
+      label: "clicked buy cu average"
+      type: average
       sql: ${TABLE}."CLICKED_BUY_CU" ;;
     }
 
@@ -157,6 +171,12 @@ view: course_link_page_clicks_trial_lms_vs_non
       sql: ${TABLE}."CLICKED_A_LA_CARTE" ;;
     }
 
+    measure: clicked_a_la_carte_average {
+      label: "clicked a la carte average"
+      type: average
+      sql: ${TABLE}."CLICKED_A_LA_CARTE" ;;
+    }
+
     dimension: clicked_on_upgrade {
       type: number
       sql: ${TABLE}."CLICKED_ON_UPGRADE" ;;
@@ -165,6 +185,12 @@ view: course_link_page_clicks_trial_lms_vs_non
     measure: clicked_on_upgrade_m {
       label: "clicked on upgrade"
       type: sum
+      sql: ${TABLE}."CLICKED_ON_UPGRADE" ;;
+    }
+
+    measure: clicked_on_upgrade_average {
+      label: "clicked on upgrade average"
+      type: average
       sql: ${TABLE}."CLICKED_ON_UPGRADE" ;;
     }
 
@@ -179,6 +205,12 @@ view: course_link_page_clicks_trial_lms_vs_non
       sql: ${TABLE}."CHECKED_OUT_COURSEWARE" ;;
     }
 
+    measure: checked_out_courseware_average {
+      label: "checked out courseware average"
+      type: average
+      sql: ${TABLE}."CHECKED_OUT_COURSEWARE" ;;
+    }
+
     dimension: partner_clicked {
       type: number
       sql: ${TABLE}."PARTNER_CLICKED" ;;
@@ -187,6 +219,12 @@ view: course_link_page_clicks_trial_lms_vs_non
     measure: partner_clicked_m {
       label: "Clicked on Partner links"
       type: sum
+      sql: ${TABLE}."PARTNER_CLICKED" ;;
+    }
+
+    measure: partner_clicked_average {
+      label: "Clicked on Partner links average"
+      type: average
       sql: ${TABLE}."PARTNER_CLICKED" ;;
     }
 
@@ -201,6 +239,12 @@ view: course_link_page_clicks_trial_lms_vs_non
       sql: ${TABLE}."EBOOKS_LAUNCHED" ;;
     }
 
+    measure: ebooks_launched_average {
+      label: "Ebooks Launched average"
+      type: average
+      sql: ${TABLE}."EBOOKS_LAUNCHED" ;;
+    }
+
     dimension: courseware_launched {
       type: number
       sql: ${TABLE}."COURSEWARE_LAUNCHED" ;;
@@ -212,6 +256,11 @@ view: course_link_page_clicks_trial_lms_vs_non
       sql: ${TABLE}."COURSEWARE_LAUNCHED" ;;
     }
 
+    measure: courseware_launched_average {
+      label: "Courseware Launched average"
+      type: average
+      sql: ${TABLE}."COURSEWARE_LAUNCHED" ;;
+    }
 
     dimension: all_events {
       type: number
