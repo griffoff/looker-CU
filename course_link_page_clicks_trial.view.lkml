@@ -70,6 +70,7 @@ view: course_link_page_clicks_trial {
             ,Count(distinct case when event_name ilike 'Print Options Clicked' THEN event_id else null END) as Explored_print_options
             ,Count(distinct case when event_name ilike 'Explore Catalog Clicked' THEN event_id else null END) as Explored_catalog
             ,Count(distinct case when event_name ilike 'Study Resources Tage Visited' THEN event_id else null END) as Explored_study_resources
+            ,Count(distinct case when event_name ilike 'Dashboard Search%' THEN event_id else null END) as Explored_search
             ,COUNT(distinct case when event_action ilike 'unlimited%'  and event_data:event_label ilike 'true%' THEN event_id else NULL END ) as Clicked_Buy_CU
             ,COUNT(distinct case when event_action ilike 'unlimited%'  and event_data:event_label ilike 'false%' THEN event_id else NULL END ) as Clicked_A_La_Carte
             ,COUNT(distinct case when event_name ilike '%UPGRADE%' THEN event_id else NULL end) as clicked_on_Upgrade
@@ -240,6 +241,16 @@ view: course_link_page_clicks_trial {
     sql: ${TABLE}."EXPLORED_STUDY_RESOURCES" ;;
   }
 
+  dimension: Explored_search {
+    type: number
+    sql: ${TABLE}."EXPLORED_SEARCH" ;;
+  }
+
+  measure: Explored_search_m {
+    label: "Explored Search"
+    type: sum
+    sql: ${TABLE}."EXPLORED_SEARCH" ;;
+  }
 
   dimension: all_events {
     type: number
@@ -251,7 +262,7 @@ view: course_link_page_clicks_trial {
     label: "Other events"
     sql: ${TABLE}."ALL_EVENTS" - (checked_out_courseware + clicked_on_upgrade
     + clicked_buy_cu + explored_myhome + register_pac + partner_clicked + courseware_launched
-    + ebooks_launched + Explored_print_options + Explored_catalog + Explored_study_resources);;
+    + ebooks_launched + Explored_print_options + Explored_catalog + Explored_study_resources + Explored_search);;
   }
 
   set: detail {
