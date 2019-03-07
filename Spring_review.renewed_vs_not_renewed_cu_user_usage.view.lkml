@@ -2,7 +2,7 @@ explore: spring_review_renewed_vs_not_renewed_cu_user_usage {}
 
 view: spring_review_renewed_vs_not_renewed_cu_user_usage {
   derived_table: {
-    sql: WITH
+    sql:  WITH
           raw_subscription_event_merged AS
           (
               SELECT
@@ -109,13 +109,13 @@ view: spring_review_renewed_vs_not_renewed_cu_user_usage {
                   e.user_sso_guid_merged
                   ,COUNT(DISTINCT CASE WHEN actv_dt <= '2018-12-15' THEN actv_isbn END) AS activations_on_or_prior_20181215
                   ,COUNT(DISTINCT CASE WHEN actv_dt > '2018-12-15' THEN actv_isbn END) AS activations_after_20181215
-                  ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN 1 END) AS partner_clicks_count
-                  ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN 1 END) AS study_tool_launches_count
-                  ,SUM(CASE WHEN ae.event_name ILIKE 'dashboard%results%' THEN 1 ELSE 0 END) AS searches_count
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN event_id END) AS partner_clicks_count
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN event_id END) AS study_tool_launches_count
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Dashboard Search - No Results', 'Dashboard Search - With Results')  THEN event_id END) AS searches_count
               FROM eligible_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
-              LEFT JOIN prod.zpg.all_events ae
+              LEFT JOIN prod.cu_user_analysis.all_events ae
                   ON e.user_sso_guid_merged = ae.user_sso_guid
               WHERE e.subscription_state_current = 'full_access' AND e.subscription_end_current > CURRENT_DATE()
               AND  ae.event_time > '2018-08-01' AND ae.event_time < '2018-12-15'
@@ -135,13 +135,13 @@ view: spring_review_renewed_vs_not_renewed_cu_user_usage {
                   e.user_sso_guid_merged
                   ,COUNT(DISTINCT CASE WHEN actv_dt <= '2018-12-15' THEN actv_isbn END) AS activations_on_or_prior_20181215
                   ,COUNT(DISTINCT CASE WHEN actv_dt > '2018-12-15' THEN actv_isbn END) AS activations_after_20181215
-                  ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN 1 END) AS partner_clicks_count
-                  ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN 1 END) AS study_tool_launches_count
-                  ,SUM(CASE WHEN ae.event_name ILIKE 'dashboard search%results%' THEN 1 END) AS searches_count
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN event_id END) AS partner_clicks_count
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN event_id END) AS study_tool_launches_count
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Dashboard Search - No Results', 'Dashboard Search - With Results')  THEN event_id END) AS searches_count
               FROM non_renewing_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
-              LEFT JOIN zpg.all_events ae
+              LEFT JOIN prod.cu_user_analysis.all_events ae
                   ON e.user_sso_guid_merged = ae.user_sso_guid
                   AND ae.event_time > e.subscription_start_current
                   AND ae.event_time < e.subscription_end_current
@@ -160,8 +160,10 @@ view: spring_review_renewed_vs_not_renewed_cu_user_usage {
                ,*
           FROM renewed_activations_and_dashboard_clicks
           )
-          SELECT * FROM renewed_and_non_renewed_activations_and_dashboard_use WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
-       ;;
+          SELECT
+            *
+          FROM renewed_and_non_renewed_activations_and_dashboard_use
+          WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users);;
   }
 
   measure: count {
