@@ -1,6 +1,6 @@
-explore:   spring_review_new_vs_renewed_cu_user_usage_2 {}
+explore: spring_review_renewed_vs_not_renewed_cu_user_usage {}
 
-view: spring_review_new_vs_renewed_cu_user_usage_2 {
+view: spring_review_renewed_vs_not_renewed_cu_user_usage {
   derived_table: {
     sql: WITH
           raw_subscription_event_merged AS
@@ -117,23 +117,19 @@ view: spring_review_new_vs_renewed_cu_user_usage_2 {
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
               LEFT JOIN prod.zpg.all_events ae
                   ON e.user_sso_guid_merged = ae.user_sso_guid
-                  AND ae.event_time >= e.local_time_current
-                  AND ae.event_time < e.subscription_end_current
               WHERE e.subscription_state_current = 'full_access' AND e.subscription_end_current > CURRENT_DATE()
-              AND ae.event_time > '2018-12-15' AND ae.event_time < CURRENT_TIMESTAMP()
+              AND  ae.event_time > '2018-08-01' AND ae.event_time < '2018-12-15'
               GROUP BY 1
           )
-          ,new_users AS
+          ,non_renewing_users AS
           (
               SELECT
                   *
-              FROM raw_subscription_event_merged_erroneous_removed
-              WHERE subscription_state_current = 'full_access'
-              AND subscription_start_current > '2018-12-15'
+              FROM eligible_users
+              WHERE subscription_state_current <> 'full_access'
               AND user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid_merged FROM renewed_activations_and_dashboard_clicks)
-              AND subscription_end_current > CURRENT_DATE()
           )
-          ,new_activations_and_dashboard_clicks AS
+          ,non_renew_activations_and_dashboard_clicks AS
           (
               SELECT
                   e.user_sso_guid_merged
@@ -142,29 +138,29 @@ view: spring_review_new_vs_renewed_cu_user_usage_2 {
                   ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN 1 END) AS partner_clicks_count
                   ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN 1 END) AS study_tool_launches_count
                   ,SUM(CASE WHEN ae.event_name ILIKE 'dashboard search%results%' THEN 1 END) AS searches_count
-              FROM new_users e
+              FROM non_renewing_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
               LEFT JOIN zpg.all_events ae
                   ON e.user_sso_guid_merged = ae.user_sso_guid
                   AND ae.event_time > e.subscription_start_current
                   AND ae.event_time < e.subscription_end_current
-              WHERE ae.event_time > '2018-12-15' AND ae.event_time < CURRENT_TIMESTAMP()
+              WHERE ae.event_time > '2018-08-01' AND ae.event_time < '2018-12-15'
               GROUP BY 1
           )
-          ,new_and_renewed_activations_and_dashboard_use AS
+          ,renewed_and_non_renewed_activations_and_dashboard_use AS
           (
           SELECT
-              'New CU user' AS new_vs_renewal_user
+              'Non-Renewal CU user' AS renewal_vs_non_renewal_user
               ,*
-          FROM new_activations_and_dashboard_clicks
+          FROM non_renew_activations_and_dashboard_clicks
           UNION
           SELECT
-              'Renewal CU user' AS new_vs_renewal_user
+              'Renewal CU user' AS renewal_vs_non_renewal_user
                ,*
           FROM renewed_activations_and_dashboard_clicks
           )
-          SELECT * FROM new_and_renewed_activations_and_dashboard_use WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
+          SELECT * FROM renewed_and_non_renewed_activations_and_dashboard_use WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
        ;;
   }
 
@@ -184,10 +180,10 @@ view: spring_review_new_vs_renewed_cu_user_usage_2 {
     sql: ${study_tool_launches_count} ;;
   }
 
-  measure: average_activations_after_20181215 {
-    label: "Average # of number of activations after December 15th, 2018 per user"
+  measure: average_activations_prior_20181215 {
+    label: "Average # of number of activations prior to December 15th, 2018 per user"
     type: average
-    sql: ${activations_after_20181215} ;;
+    sql: ${activations_on_or_prior_20181215} ;;
   }
 
   measure: average_partner_clicks_count {
@@ -202,9 +198,9 @@ view: spring_review_new_vs_renewed_cu_user_usage_2 {
     sql: ${searches_count} ;;
   }
 
-  dimension: new_vs_renewal_user {
+  dimension: renewal_vs_non_renewal_user {
     type: string
-    sql: ${TABLE}."NEW_VS_RENEWAL_USER" ;;
+    sql: ${TABLE}."RENEWAL_VS_NON_RENEWAL_USER" ;;
   }
 
   dimension: user_sso_guid_merged {
@@ -239,7 +235,6 @@ view: spring_review_new_vs_renewed_cu_user_usage_2 {
 
   set: detail {
     fields: [
-      new_vs_renewal_user,
       user_sso_guid_merged,
       activations_on_or_prior_20181215,
       activations_after_20181215,
