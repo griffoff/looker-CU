@@ -111,7 +111,7 @@ view: spring_review_renewed_vs_not_renewed_cu_user_usage {
                   ,COUNT(DISTINCT CASE WHEN actv_dt > '2018-12-15' THEN actv_isbn END) AS activations_after_20181215
                   ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN 1 END) AS partner_clicks_count
                   ,SUM(CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN 1 END) AS study_tool_launches_count
-                  ,SUM(CASE WHEN ae.event_name ILIKE 'dashboard%results%' THEN 1 END) AS searches_count
+                  ,SUM(CASE WHEN ae.event_name ILIKE 'dashboard%results%' THEN 1 ELSE 0 END) AS searches_count
               FROM eligible_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
