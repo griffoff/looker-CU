@@ -67,7 +67,7 @@ WITH
             ,r.subscription_start
             ,r.subscription_end
             ,r.subscription_term_length
-        ,LEAD(r.subscription_state, 1) OVER (PARTITION BY r.user_sso_guid_merged ORDER BY r.local_time) AS subscription_state_2
+            ,LEAD(r.subscription_state, 1) OVER (PARTITION BY r.user_sso_guid_merged ORDER BY r.local_time) AS subscription_state_2
             ,LEAD(r.subscription_start, 1) OVER (PARTITION BY r.user_sso_guid_merged ORDER BY r.local_time) AS subscription_start_2
             ,LEAD(r.subscription_end, 1) OVER (PARTITION BY r.user_sso_guid_merged ORDER BY r.local_time) AS subscription_end_2
             ,LEAD(r.subscription_state, 2) OVER (PARTITION BY r.user_sso_guid_merged ORDER BY r.local_time) AS subscription_state_3
