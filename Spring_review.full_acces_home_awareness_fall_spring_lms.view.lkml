@@ -4,22 +4,36 @@ view: spring_review_full_acces_home_awareness_fall_spring_lms {
     derived_table: {
       sql:
           WITH
-      raw_subscription_event_merged AS
+      distinct_primary AS
+      (
+          SELECT DISTINCT primary_guid FROM unlimited.sso_merged_guids
+      )
+      ,raw_subscription_event_merged AS
       (
           SELECT
               COALESCE(m.primary_guid, r.user_sso_guid) AS user_sso_guid_merged
+              ,m.primary_guid
               ,r.*
           FROM unlimited.raw_subscription_event r
           LEFT JOIN unlimited.sso_merged_guids m
               ON r.user_sso_guid = m.shadow_guid
           WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM prod.unlimited.excluded_users)
       )
+      ,raw_subscription_event_merged_2 AS
+      (
+        SELECT
+              CASE WHEN r.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
+              ,r.*
+          FROM raw_subscription_event_merged r
+          LEFT JOIN distinct_primary m2
+              ON  r.user_sso_guid = m2.primary_guid
+      )
       ,raw_subscription_event_merged_next_events AS
       (
       SELECT
            user_sso_guid_merged
           ,user_sso_guid
-          ,CASE WHEN user_sso_guid_merged <> user_sso_guid THEN 1 ELSE 0 END AS lms_user
+          ,lms_user
           ,local_time
           ,_ldts
           ,subscription_state
@@ -36,7 +50,7 @@ view: spring_review_full_acces_home_awareness_fall_spring_lms {
           ,LEAD(local_time, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_3
           ,LEAD(_ldts, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_3
           ,COUNT(DISTINCT subscription_state) OVER (PARTITION BY user_sso_guid_merged) AS number_of_subscription_states
-      FROM raw_subscription_event_merged
+      FROM raw_subscription_event_merged_2
       )
       ,raw_subscription_event_merged_erroneous_removed AS
       (
@@ -105,13 +119,7 @@ view: spring_review_full_acces_home_awareness_fall_spring_lms {
                 WHERE r.subscription_state = 'full_access'
                 GROUP BY 1, 2, 3
         )
-                SELECT * FROM full_access_users
---                  t.*
---                  ,CASE WHEN r.subscription_state = 'full_access' THEN 'Purchased CU' ELSE 'Did not purchase CU' END AS purchased_cu
---                FROM trial_users t
---                LEFT JOIN raw_subscription_event_merged_erroneous_removed r
---                  ON t.user_sso_guid_merged = r.user_sso_guid_merged
---                  AND r.subscription_state = 'full_access'
+        SELECT * FROM full_access_users
                     ;;
     }
 
