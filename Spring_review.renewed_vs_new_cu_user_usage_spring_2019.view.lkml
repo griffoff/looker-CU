@@ -1,6 +1,6 @@
-explore: spring_review_new_vs_renewed_cu_user_usage_3 {}
+explore: renewed_vs_new_cu_user_usage_spring_2019 {}
 
-view: spring_review_new_vs_renewed_cu_user_usage_3 {
+view: renewed_vs_new_cu_user_usage_spring_2019 {
   derived_table: {
     sql: WITH
           raw_subscription_event_merged AS
@@ -113,6 +113,10 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN event_id END) AS partner_clicks_count
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN event_id END) AS study_tool_launches_count
                   ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Dashboard Search - No Results', 'Dashboard Search - With Results')  THEN event_id END) AS searches_count
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Added Content To Dashboard')  THEN event_id END) AS added_content_to_dashboard
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Explore Catalog Clicked'), UPPER('Catalog explored')) THEN event_id END) AS browse_catalogue_clicks
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Courseware launched')) THEN event_id END) AS courseware_launches
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('eBook Launched')  THEN event_id END) AS ebook_launches
               FROM eligible_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
@@ -143,6 +147,10 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('One month Free Chegg Clicked'), UPPER('Rent from Chegg Clicked'), UPPER('study resource clicked')) THEN event_id END) AS partner_clicks_count
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('flashcards launched'), UPPER('test prep launched')) THEN event_id END) AS study_tool_launches_count
                   ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Dashboard Search - No Results', 'Dashboard Search - With Results')  THEN event_id END) AS searches_count
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Added Content To Dashboard')  THEN event_id END) AS added_content_to_dashboard
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Explore Catalog Clicked'), UPPER('Catalog explored')) THEN event_id END) AS browse_catalogue_clicks
+                  ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Courseware launched')) THEN event_id END) AS courseware_launches
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('eBook Launched')  THEN event_id END) AS ebook_launches
               FROM new_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
@@ -175,6 +183,7 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
   }
 
   dimension: new_vs_renewal_user {
+    label: "Renewal vs new user"
     type: string
     sql: ${TABLE}."NEW_VS_RENEWAL_USER" ;;
   }
@@ -184,12 +193,57 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
     sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
   }
 
+  dimension: added_content_to_dashboard {
+    type: string
+    sql:  ${TABLE}."ADDED_CONTENT_TO_DASHBOARD";;
+  }
+
+  measure: added_content_to_dashboard_avg {
+    label: "Average # of content added to dashboard"
+    type: average
+    sql:  ${TABLE}."ADDED_CONTENT_TO_DASHBOARD";;
+  }
+
+  dimension: browse_catalogue_clicks {
+    type: string
+    sql:  ${TABLE}."BROWSE_CATALOGUE_CLICKS";;
+  }
+
+  measure: browse_catalogue_clicks_avg {
+    label: "Average # of browse catalgue clicks"
+    type: average
+    sql:  ${TABLE}."BROWSE_CATALOGUE_CLICKS";;
+  }
+
+  dimension: courseware_launches {
+    type: string
+    sql:  ${TABLE}."COURSEWARE_LAUNCHES";;
+  }
+
+  measure: courseware_launches_avg {
+    label: "Average # of courseware launches"
+    type: average
+    sql:  ${TABLE}."COURSEWARE_LAUNCHES";;
+  }
+
+  dimension: ebook_launches {
+    type: string
+    sql:  ${TABLE}."EBOOK_LAUNCHES";;
+  }
+
+  measure: ebook_launches_avg {
+    label: "Average # of ebook launches"
+    type: average
+    sql:  ${TABLE}."EBOOK_LAUNCHES";;
+  }
+
   dimension: activations_on_or_prior_20181215 {
     type: number
     sql: ${TABLE}."ACTIVATIONS_ON_OR_PRIOR_20181215" ;;
   }
 
   measure: activations_on_or_prior_20181215_avg {
+    label: "Average # of activations on or prior to Dec 15, 2018"
     type: average
     sql: ${TABLE}."ACTIVATIONS_ON_OR_PRIOR_20181215" ;;
   }
@@ -200,6 +254,7 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
   }
 
   measure: activations_after_20181215_avg {
+    label: "Average # of activations after Dec 15, 2018"
     type: average
     sql: ${TABLE}."ACTIVATIONS_AFTER_20181215" ;;
   }
@@ -211,6 +266,7 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
   }
 
   measure: partner_clicks_count_avg {
+    label: "Average # of partner clicks"
     type: average
     sql: ${TABLE}."PARTNER_CLICKS_COUNT" ;;
   }
@@ -221,6 +277,7 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
   }
 
   measure: study_tool_launches_count_avg {
+    label: "Average # of study tool launches"
     type: average
     sql: ${TABLE}."STUDY_TOOL_LAUNCHES_COUNT" ;;
   }
@@ -231,6 +288,7 @@ view: spring_review_new_vs_renewed_cu_user_usage_3 {
   }
 
   measure: searches_count_avg {
+    label: "Average # of searches"
     type: average
     sql: ${TABLE}."SEARCHES_COUNT" ;;
   }
