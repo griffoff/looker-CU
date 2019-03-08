@@ -19,6 +19,7 @@ view: trial_home_awareness_fall_spring_lms {
     SELECT
          user_sso_guid_merged
         ,user_sso_guid
+        ,CASE WHEN user_sso_guid_merged <> user_sso_guid THEN 1 ELSE 0 END AS lms_user
         ,local_time
         ,_ldts
         ,subscription_state
@@ -45,6 +46,7 @@ view: trial_home_awareness_fall_spring_lms {
     SELECT
         user_sso_guid_merged
         ,user_sso_guid
+        ,MAX(lms_user) OVER (PARTITION BY user_sso_guid_merged) AS lms_user_status
         ,local_time
         ,subscription_state
         ,subscription_start
@@ -89,7 +91,8 @@ view: trial_home_awareness_fall_spring_lms {
           (
               SELECT
                   r.user_sso_guid_merged
-                  ,CASE WHEN r.user_sso_guid_merged <> r.user_sso_guid THEN 'LMS User' ELSE 'Non-LMS User' END AS lms_vs_non_lms_user
+                  ,r.lms_user_status
+                --  ,CASE WHEN r.user_sso_guid_merged <> r.user_sso_guid THEN 'LMS User' ELSE 'Non-LMS User' END AS lms_vs_non_lms_user
                   ,CASE
                       WHEN r.effective_from < '2018-12-15' AND r.effective_from > '2018-08-01' THEN 'Fall 2019 user'
                       WHEN r.effective_from > '2018-12-15' AND r.effective_from < CURRENT_TIMESTAMP() THEN 'Spring 2019 user'
@@ -131,9 +134,9 @@ view: trial_home_awareness_fall_spring_lms {
     sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
   }
 
-  dimension: lms_vs_non_lms_user {
+  dimension: lms_user_status {
     type: string
-    sql: ${TABLE}."LMS_VS_NON_LMS_USER" ;;
+    sql: CASE WHEN ${TABLE}."LMS_USER_STATUS" = 1 THEN 'LMS user' ELSE 'Non-LMS user' END;;
   }
 
   dimension: fall_vs_spring_user {
@@ -166,6 +169,6 @@ view: trial_home_awareness_fall_spring_lms {
 
 
   set: detail {
-    fields: [user_sso_guid_merged, lms_vs_non_lms_user, fall_vs_spring_user, explored_myhome, all_events]
+    fields: [user_sso_guid_merged, fall_vs_spring_user, explored_myhome, all_events]
   }
 }
