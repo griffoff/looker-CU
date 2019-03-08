@@ -23,9 +23,6 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
               ,subscription_state
               ,subscription_start
               ,subscription_end
-              ,subscription_start AS effective_from
-              ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time) AS next_event_time
-              ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
               ,LEAD(subscription_state, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_2
               ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_2
               ,LEAD(subscription_end, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_2
@@ -58,8 +55,9 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
               ,subscription_state_3
               ,subscription_start_3
               ,subscription_end_3
-              ,effective_from
-              ,effective_to
+              ,subscription_start AS effective_from
+              ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time) AS next_event_time
+              ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
               ,LAST_VALUE(subscription_state) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_state_current
               ,LAST_VALUE(subscription_start) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_start_current
               ,LAST_VALUE(subscription_end) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_end_current
