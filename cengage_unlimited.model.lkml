@@ -663,8 +663,7 @@ explore: email_discount_campaign {
    join: discount_email_control_groups {
     relationship:  one_to_one
     sql_on: ${email_discount_campaign.user_sso_guid} =  ${discount_email_control_groups.students_email_campaign_criteria_user_guid};;
-}
-
+  }
 }
 explore: discount_info {}
 explore: discount_email_campaign_control_groups {}
