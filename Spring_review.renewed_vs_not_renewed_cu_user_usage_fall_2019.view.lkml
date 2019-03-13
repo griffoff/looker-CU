@@ -1,4 +1,4 @@
-explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {}
+
 
 view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
   derived_table: {
@@ -177,7 +177,7 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
           SELECT
             *
           FROM renewed_and_non_renewed_activations_and_dashboard_use
-          WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users);;
+          WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users) ;;
   }
 
 

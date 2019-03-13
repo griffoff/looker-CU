@@ -716,3 +716,8 @@ explore: student_activities_20190226 {
 explore: ipm_conversion {
 
 }
+
+# --------------------------- Spring Review ----------------------------------
+
+explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
+}
