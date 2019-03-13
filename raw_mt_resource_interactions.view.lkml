@@ -124,6 +124,12 @@ view: raw_mt_resource_interactions {
     sql: ${TABLE}."USER_IDENTIFIER" ;;
   }
 
+  measure: user_count {
+    label: "# Users"
+    type: count_distinct
+    sql: ${user_identifier} ;;
+  }
+
   measure: count {
     type: count
     drill_fields: []
