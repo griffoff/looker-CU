@@ -485,6 +485,12 @@ explore: ga_dashboarddata {
     relationship: many_to_one
   }
 
+  join: cu_product_category {
+    view_label: "Product Category (PRoc)"
+    sql_on: ${cu_product_category.isbn_13} = ${raw_olr_provisioned_product.iac_isbn} ;;
+    relationship: many_to_one
+  }
+
   join: cu_user_info {
     sql_on:  ${ga_dashboarddata.userssoguid} = ${cu_user_info.guid}  ;;
     relationship: many_to_one
