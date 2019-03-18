@@ -1,4 +1,4 @@
-explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {}
+
 
 view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
   derived_table: {
@@ -114,6 +114,10 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Explore Catalog Clicked'), UPPER('Catalog explored')) THEN event_id END) AS browse_catalogue_clicks
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Courseware launched')) THEN event_id END) AS courseware_launches
                   ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('eBook Launched')  THEN event_id END) AS ebook_launches
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Print Options Clicked')  THEN event_id END) AS print_options_clicked
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Clicked on Career Center')  THEN event_id END) AS career_center_clicked
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name ILIKE 'Flashcard%launch%' OR ae.event_name ILIKE 'test%prep%launch%' THEN event_id END) AS flashcards_or_test_prep
+                  ,COUNT(DISTINCT CASE WHEN ae.event_data:search_outcome = 'Y'  THEN event_id END) AS successful_searches
               FROM eligible_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
@@ -144,6 +148,10 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Explore Catalog Clicked'), UPPER('Catalog explored')) THEN event_id END) AS browse_catalogue_clicks
                   ,COUNT(DISTINCT CASE WHEN UPPER(ae.event_name) IN (UPPER('Courseware launched')) THEN event_id END) AS courseware_launches
                   ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('eBook Launched')  THEN event_id END) AS ebook_launches
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name IN ('Print Options Clicked')  THEN event_id END) AS print_options_clicked
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name = 'Clicked on Career Center'  THEN event_id END) AS career_center_clicked
+                  ,COUNT(DISTINCT CASE WHEN ae.event_name ILIKE 'Flashcard%launch%' OR ae.event_name ILIKE 'test%prep%launch%' THEN event_id END) AS flashcards_or_test_prep
+                  ,COUNT(DISTINCT CASE WHEN ae.event_data:search_outcome = 'Y'  THEN event_id END) AS successful_searches
               FROM non_renewing_users e
               LEFT JOIN activations_merged a
                   ON e.user_sso_guid_merged = a.user_sso_guid_merged
@@ -169,8 +177,9 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
           SELECT
             *
           FROM renewed_and_non_renewed_activations_and_dashboard_use
-          WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users);;
+          WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users) ;;
   }
+
 
   measure: count {
     type: count
@@ -180,6 +189,50 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
   measure: user_count {
     type: count_distinct
     sql: ${user_sso_guid_merged} ;;
+  }
+
+  dimension: print_options_clicked {
+    type: number
+    sql:  ${TABLE}."PRINT_OPTIONS_CLICKED" ;;
+  }
+
+  measure: print_options_clicked_avg {
+    label: "Average # of print option clicks"
+    type: average
+    sql:  ${print_options_clicked} ;;
+  }
+
+  dimension: career_center_clicked {
+    type: number
+    sql:  ${TABLE}."CAREER_CENTER_CLICKED" ;;
+  }
+
+  measure: career_center_clicked_avg {
+    label: "Average # of career center clicks"
+    type: average
+    sql:  ${career_center_clicked} ;;
+  }
+
+  dimension: flashcards_or_test_prep {
+    type: number
+    sql:  ${TABLE}."FLASHCARDS_OR_TEST_PREP" ;;
+  }
+
+  measure: flashcards_or_test_prep_avg {
+    label: "Average # of flashcards or test prep clicks"
+    type: average
+    sql:  ${flashcards_or_test_prep} ;;
+  }
+
+  dimension: successful_searches {
+    type: number
+    sql:  ${TABLE}."SUCCESSFUL_SEARCHES" ;;
+  }
+
+  measure: successful_searches_avg {
+    label: "Average # of successful searches"
+    type: average
+    sql:  ${successful_searches} ;;
   }
 
   measure: average_study_tool_launches {
@@ -240,7 +293,7 @@ view: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
   }
 
   measure: browse_catalogue_clicks_avg {
-    label: "Average # of browse catalgue clicks"
+    label: "Average # of browse catalog clicks"
     type: average
     sql:  ${TABLE}."BROWSE_CATALOGUE_CLICKS";;
   }

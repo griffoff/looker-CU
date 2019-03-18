@@ -485,6 +485,12 @@ explore: ga_dashboarddata {
     relationship: many_to_one
   }
 
+  join: cu_product_category {
+    view_label: "Product Category (PRoc)"
+    sql_on: ${cu_product_category.isbn_13} = ${raw_olr_provisioned_product.iac_isbn} ;;
+    relationship: many_to_one
+  }
+
   join: cu_user_info {
     sql_on:  ${ga_dashboarddata.userssoguid} = ${cu_user_info.guid}  ;;
     relationship: many_to_one
@@ -663,8 +669,7 @@ explore: email_discount_campaign {
    join: discount_email_control_groups {
     relationship:  one_to_one
     sql_on: ${email_discount_campaign.user_sso_guid} =  ${discount_email_control_groups.students_email_campaign_criteria_user_guid};;
-}
-
+  }
 }
 explore: discount_info {}
 explore: discount_email_campaign_control_groups {}
@@ -716,4 +721,9 @@ explore: student_activities_20190226 {
 
 explore: ipm_conversion {
 
+}
+
+# --------------------------- Spring Review ----------------------------------
+
+explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
 }
