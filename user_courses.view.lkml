@@ -19,6 +19,24 @@ view: user_courses {
     hidden: yes
   }
 
+  dimension: olr_activation_key {
+    type: string
+    sql: ${TABLE}."OLR_ACTIVATION_KEY" ;;
+  }
+
+  dimension: olr_course_key {
+    type: string
+    sql: ${TABLE}."OLR_COURSE_KEY" ;;
+  }
+
+  dimension: course_start_date {
+    type: date
+  }
+
+  dimension: course_end_date {
+    type: date
+  }
+
   dimension: product_type {
     type: string
     description: "can be filtered on to differentiate between MT,WA,SAM,etc."
