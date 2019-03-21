@@ -583,12 +583,7 @@ explore: ebook_usage_aggregated {}
 
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
-  label: "Product Research (AJ survey)"
-  join: aj_survey {
-    type: inner
-    relationship: many_to_one
-    sql_on: ${raw_olr_enrollment.user_sso_guid} = ${aj_survey.ga_dashboarddata_userssoguid} ;;
-  }
+  label: "Raw Enrollments"
   join: raw_olr_provisioned_product {
     type: left_outer
     relationship: many_to_many
