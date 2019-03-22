@@ -10,37 +10,57 @@ WITH
             COALESCE(m.primary_guid, r.user_sso_guid) AS user_sso_guid_merged
             ,r.*
         FROM prod.unlimited.raw_subscription_event r
-        LEFT JOIN prod.unlimited.sso_merged_guids m
+        LEFT JOIN unlimited.sso_merged_guids m
             ON r.user_sso_guid = m.shadow_guid
+        WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM prod.unlimited.excluded_users)
     )
     ,raw_subscription_event_merged_next_events AS
-    (
-    SELECT
-        raw_subscription_event_merged.*
-        ,LEAD(subscription_state, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_2
-        ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_2
-        ,LEAD(subscription_end, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_2
-        ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_2
-        ,LEAD(subscription_state, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_3
-        ,LEAD(subscription_start, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_3
-        ,LEAD(subscription_end, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_3
-        ,LEAD(local_time, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_3
-    FROM raw_subscription_event_merged
-    WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM prod.unlimited.excluded_users)
-    )
-    ,raw_subscription_event_merged_erroneous_removed AS
     (
     SELECT
          user_sso_guid_merged
         ,user_sso_guid
         ,local_time
+        ,_ldts
+        ,subscription_state
+        ,subscription_start
+        ,subscription_end
+        ,subscription_start AS effective_from
+        ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time) AS next_event_time
+        ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
+        ,LEAD(subscription_state, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_2
+        ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_2
+        ,LEAD(subscription_end, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_2
+        ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_2
+        ,LEAD(_ldts, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_2
+        ,LEAD(subscription_state, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_3
+        ,LEAD(subscription_start, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_3
+        ,LEAD(subscription_end, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_3
+        ,LEAD(local_time, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_3
+        ,LEAD(_ldts, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_3
+        ,COUNT(DISTINCT subscription_state) OVER (PARTITION BY user_sso_guid_merged) AS number_of_subscription_states
+    FROM raw_subscription_event_merged
+    )
+    ,raw_subscription_event_merged_erroneous_removed AS
+    (
+    SELECT
+        user_sso_guid_merged
+        ,user_sso_guid
+        ,local_time
+        ,subscription_state
+        ,subscription_start
+        ,subscription_end
         ,local_time_2
-        , subscription_state
-        , subscription_state_2
-        , subscription_start
-        , subscription_start_2
-        , subscription_end
-        , subscription_end_2
+        ,ldts_2
+        ,subscription_state_2
+        ,subscription_start_2
+        ,subscription_end_2
+        ,local_time_3
+        ,ldts_3
+        ,subscription_state_3
+        ,subscription_start_3
+        ,subscription_end_3
+        ,effective_from
+        ,effective_to
         ,LAST_VALUE(subscription_state) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_state_current
         ,LAST_VALUE(subscription_start) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_start_current
         ,LAST_VALUE(subscription_end) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_end_current
@@ -55,7 +75,15 @@ WITH
     -- Filtering out shadow guid move (cancellation + new full access)
     -- Two extra cancel and full_access may have the same LDTS
     -- Add each statement as a case statement instead of in wheres
-    AND NOT (subscription_state = 'full_access' AND subscription_state_2 = 'cancelled' AND subscription_state_3 = 'full_access' AND user_sso_guid <> user_sso_guid_merged)
+    AND NOT (subscription_state = 'full_access'
+            AND subscription_state_2 = 'cancelled'
+            AND subscription_state_3 = 'full_access'
+            AND user_sso_guid <> user_sso_guid_merged
+            AND ldts_2 = ldts_3)
+    AND NOT (subscription_state = 'cancelled'
+            AND subscription_state_2 = 'full_access'
+            AND user_sso_guid <> user_sso_guid_merged
+            AND _ldts = ldts_2)
     )
     ,subscription_next_events AS
     (
