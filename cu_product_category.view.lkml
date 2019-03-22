@@ -1,6 +1,6 @@
 view: cu_product_category {
   derived_table: {
-    sql: Select * from UPLOADS.CU.CU_PRODUCTS_CATEGORY limit 10
+    sql: Select * from UPLOADS.CU.CU_PRODUCTS_CATEGORY
       ;;
   }
 

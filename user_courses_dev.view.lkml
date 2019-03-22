@@ -31,28 +31,11 @@ view: user_courses_dev {
     sql_end: CURRENT_DATE() ;;
   }
 
-  dimension: olr_activation_key {
-    type: string
-    sql: ${TABLE}."OLR_ACTIVATION_KEY" ;;
-  }
-
-  dimension: olr_course_key {
-    type: string
-    sql: ${TABLE}."OLR_COURSE_KEY" ;;
-  }
-
   dimension: session_count {
     type: string
     sql: ${TABLE}."SESSION_COUNT" ;;
   }
 
-  dimension: course_start_date {
-    type: date
-  }
-
-  dimension: course_end_date {
-    type: date
-  }
 
   dimension: activation_date {
     type: date
