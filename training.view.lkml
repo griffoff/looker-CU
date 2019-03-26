@@ -10,8 +10,9 @@ include: "*.view"
 # include all dashboards in this project
 
 
-explore: fruit_basket {}
-view: fruit_basket {
+explore: fruit_basket_training {}
+
+view: fruit_basket_training {
   derived_table: {
     sql: select 'apple' as fruit_name, 'red' as color, 'yes' as is_round,  1.25 as price_per_pound, 0.6 as weight, 0.75 as price union all
       select 'apple' as fruit_name, 'red' as color, 'yes' as is_round,  1.25 as price_per_pound, 0.55 as weight, 0.69 as price union all
