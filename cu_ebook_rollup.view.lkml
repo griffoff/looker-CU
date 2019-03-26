@@ -50,7 +50,7 @@ view: cu_ebook_rollup {
            ,LAG(LOCAL_TIME) OVER (PARTITION BY MAPPED_GUID ORDER BY LOCAL_TIME, SUBSCRIPTION_START, SUBSCRIPTION_END) AS PREV_TIME
            ,LEAD(LOCAL_TIME) OVER (PARTITION BY MAPPED_GUID ORDER BY LOCAL_TIME, SUBSCRIPTION_START, SUBSCRIPTION_END) AS NEXT_TIME
         FROM unlimited.raw_subscription_event AS raw_data
-        LEFT JOIN UNLIMITED.SSO_MERGED_GUIDS AS shadow ON raw_data.user_sso_guid = shadow.SHADOW_GUID
+        LEFT JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID AS shadow ON raw_data.user_sso_guid = shadow.PARTNER_GUID
         INNER JOIN dates d on raw_data.local_time::DATE = d.datevalue
         WHERE subscription_state in ('full_access', 'trial_access')
       )

@@ -6,7 +6,7 @@ view: spring_review_full_acces_home_awareness_fall_spring_lms {
           WITH
       distinct_primary AS
       (
-          SELECT DISTINCT primary_guid FROM unlimited.sso_merged_guids
+          SELECT DISTINCT primary_guid FROM unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
       )
       ,raw_subscription_event_merged AS
       (
@@ -15,8 +15,8 @@ view: spring_review_full_acces_home_awareness_fall_spring_lms {
               ,m.primary_guid
               ,r.*
           FROM unlimited.raw_subscription_event r
-          LEFT JOIN unlimited.sso_merged_guids m
-              ON r.user_sso_guid = m.shadow_guid
+          LEFT JOIN unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID m
+              ON r.user_sso_guid = m.partner_guid
           WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM prod.unlimited.excluded_users)
       )
       ,raw_subscription_event_merged_2 AS

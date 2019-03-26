@@ -15,8 +15,8 @@ with sub as (SELECT
      SUBSCRIPTION_END
    FROM
      UNLIMITED.RAW_SUBSCRIPTION_EVENT AS raw_data
-     LEFT OUTER JOIN UNLIMITED.SSO_MERGED_GUIDS as shadow
-       ON raw_data.USER_SSO_GUID = shadow.SHADOW_GUID
+     LEFT OUTER JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID as shadow
+       ON raw_data.USER_SSO_GUID = shadow.PARTNER_GUID
    ),state as( SELECT
         RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time DESC) AS latest_record
         ,*
@@ -31,8 +31,8 @@ with sub as (SELECT
              CU_flg
          FROM
             PROD.RAW_CLTS.ACTIVATIONS_OLR AS raw_data_act
-            LEFT OUTER JOIN UNLIMITED.SSO_MERGED_GUIDS as shadow
-                ON raw_data_act.USER_GUID = shadow.SHADOW_GUID
+            LEFT OUTER JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID as shadow
+                ON raw_data_act.USER_GUID = shadow.PARTNER_GUID
 
    ), sub_act as (
 
@@ -53,8 +53,8 @@ with sub as (SELECT
         ,'pp product' as platform
         ,iac.pp_name
     from PROD.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT raw_data
-    LEFT OUTER JOIN UNLIMITED.SSO_MERGED_GUIDS_NEW_20181218 as shadow
-       ON raw_data.USER_SSO_GUID = shadow.SHADOW_GUID
+    LEFT OUTER JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID as shadow
+       ON raw_data.USER_SSO_GUID = shadow.PARTNER_GUID
    JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC iac
                 ON iac.pp_pid = raw_data.product_id
                   AND raw_data.user_type like 'student'
@@ -71,8 +71,8 @@ with sub as (SELECT
         ,course_key
         ,'enrol' as platform
     from PROD.UNLIMITED.RAW_OLR_ENROLLMENT raw_data
-    LEFT OUTER JOIN UNLIMITED.SSO_MERGED_GUIDS as shadow
-       ON raw_data.USER_SSO_GUID = shadow.SHADOW_GUID
+    LEFT OUTER JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID as shadow
+       ON raw_data.USER_SSO_GUID = shadow.PARTNER_GUID
  )  ,enrol_final as ( select e.USER_SSO_GUID,state.subscription_start,state.subscription_end,local_time as local_date,'enrol' as platform,'enrol' as pp_name, course_key
                from enrol e
     join state

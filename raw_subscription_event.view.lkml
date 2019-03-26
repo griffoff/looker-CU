@@ -59,7 +59,7 @@ view: raw_subscription_event {
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
       FROM subscription_event e
-      LEFT JOIN unlimited.sso_merged_guids m on e.user_sso_guid = m.shadow_guid
+      LEFT JOIN unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID m on e.user_sso_guid = m.partner_guid
     )
     SELECT state.*
     FROM state
