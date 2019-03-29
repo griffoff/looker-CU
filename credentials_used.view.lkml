@@ -3,7 +3,7 @@ explore: sso_logins {
 }
 
 view: credentials_used {
-  sql_table_name: PROD.ZPG.CREDENTIALS_USED ;;
+  sql_table_name: IAM.PROD.CREDENTIALS_USED;;
 
   dimension_group: _ldts {
     type: time
