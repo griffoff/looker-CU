@@ -1,6 +1,3 @@
-explore: sso_logins {
-  from: credentials_used
-}
 
 view: credentials_used {
   sql_table_name: IAM.PROD.CREDENTIALS_USED;;

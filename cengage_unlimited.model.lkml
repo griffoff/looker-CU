@@ -726,3 +726,13 @@ explore: ipm_conversion {
 
 explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
 }
+
+#-----------sso -------------------
+explore: sso_logins {
+  from: credentials_used
+
+  join: iam_user_mutation {
+    relationship:one_to_many
+    sql_on: ${iam_user_mutation.user_sso_guid} = ${sso_logins.user_sso_guid} ;;
+  }
+}
