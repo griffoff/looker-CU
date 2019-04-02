@@ -208,6 +208,7 @@ dimension_group: _ldts {
 
   measure: count {
     type: count
+    hidden: yes
     drill_fields: []
   }
 

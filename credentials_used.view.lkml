@@ -1,9 +1,6 @@
-explore: sso_logins {
-  from: credentials_used
-}
 
 view: credentials_used {
-  sql_table_name: PROD.ZPG.CREDENTIALS_USED ;;
+  sql_table_name: IAM.PROD.CREDENTIALS_USED;;
 
   dimension_group: _ldts {
     type: time
