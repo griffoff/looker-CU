@@ -157,6 +157,7 @@ view: learner_profile {
     label: "Subscription status"
     sql: coalesce(${TABLE}.subscription_status, 'Never tried CU');;
     description: "Current CU subscription state"
+    hidden: yes
   }
 
   dimension: is_cu_subscriber {
