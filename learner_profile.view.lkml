@@ -312,6 +312,7 @@ view: learner_profile {
     type: count
     label: "# Students"
     drill_fields: [details*]
+    hidden: yes
   }
 
   dimension: marketing_segment_fb {

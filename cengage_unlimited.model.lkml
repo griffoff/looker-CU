@@ -32,7 +32,8 @@ explore: live_subscription_status {
   #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
-  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
+  view_label: "Learner Profile"
+  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid, ]
 
   join: merged_cu_user_info {
     required_access_grants: [can_view_CU_pii_data]
@@ -76,7 +77,7 @@ explore: live_subscription_status {
   }
 
   join: dim_date {
-    view_label: "Live Subscription Status"
+    view_label: "Learner Profile"
     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
     relationship: one_to_one
   }
