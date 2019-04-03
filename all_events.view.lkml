@@ -1,7 +1,7 @@
 # include: "/core/common.lkml"
 view: all_events {
   view_label: "Events"
-  sql_table_name: zpg.all_events_test ;;
+  sql_table_name: zpg.all_events ;;
 
   dimension: user_sso_guid {
     type: string
