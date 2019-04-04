@@ -1,6 +1,6 @@
 view: user_courses {
   view_label: "User Courses"
-  sql_table_name: CU_USER_ANALYSIS.USER_COURSES ;;
+  sql_table_name: zpg.USER_COURSES ;;
 
   dimension: captured_key {
     type: string

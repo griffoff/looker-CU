@@ -44,7 +44,7 @@ view: all_events_dev {
   dimension: original_guid {
     type: string
     sql: ${TABLE}.original_user_sso_guid;;
-    hidden: yes
+    hidden: no
   }
 
   dimension: event_duration {

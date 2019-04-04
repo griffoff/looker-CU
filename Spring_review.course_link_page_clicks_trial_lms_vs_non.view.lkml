@@ -11,8 +11,8 @@ view: course_link_page_clicks_trial_lms_vs_non
                 COALESCE(m.primary_guid, r.user_sso_guid) AS user_sso_guid_merged
                 ,r.*
             FROM unlimited.raw_subscription_event r
-            LEFT JOIN unlimited.sso_merged_guids m
-                ON r.user_sso_guid = m.shadow_guid
+            LEFT JOIN unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID m
+                ON r.user_sso_guid = m.partner_guid
             WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM prod.unlimited.excluded_users)
         )
         ,raw_subscription_event_merged_next_events AS

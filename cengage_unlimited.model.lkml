@@ -32,7 +32,8 @@ explore: live_subscription_status {
   #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
-  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
+  view_label: "Learner Profile"
+  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid, ]
 
   join: merged_cu_user_info {
     required_access_grants: [can_view_CU_pii_data]
@@ -76,7 +77,7 @@ explore: live_subscription_status {
   }
 
   join: dim_date {
-    view_label: "Live Subscription Status"
+    view_label: "Learner Profile"
     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
     relationship: one_to_one
   }
@@ -461,6 +462,10 @@ explore: raw_subscription_event {
     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
     relationship: many_to_one
   }
+  join: dim_date {
+    sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
+    relationship: many_to_one
+  }
 #   join: sub_actv {
 #     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
 #     relationship: many_to_one
@@ -583,12 +588,7 @@ explore: ebook_usage_aggregated {}
 
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
-  label: "Product Research (AJ survey)"
-  join: aj_survey {
-    type: inner
-    relationship: many_to_one
-    sql_on: ${raw_olr_enrollment.user_sso_guid} = ${aj_survey.ga_dashboarddata_userssoguid} ;;
-  }
+  label: "Raw Enrollments"
   join: raw_olr_provisioned_product {
     type: left_outer
     relationship: many_to_many
@@ -726,4 +726,14 @@ explore: ipm_conversion {
 # --------------------------- Spring Review ----------------------------------
 
 explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
+}
+
+#-----------sso -------------------
+explore: sso_logins {
+  from: credentials_used
+
+  join: iam_user_mutation {
+    relationship:one_to_many
+    sql_on: ${iam_user_mutation.user_sso_guid} = ${sso_logins.user_sso_guid} ;;
+  }
 }

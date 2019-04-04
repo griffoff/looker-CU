@@ -3,7 +3,7 @@
 
 view: learner_profile {
   view_label: "Learner Profile"
-  sql_table_name: CU_USER_ANALYSIS.learner_profile ;;
+  sql_table_name: zpg.learner_profile ;;
 
   set: details {
     fields: [user_sso_guid, subscription_status, cu_subscription_length, subscription_start_date, subscription_end_date
@@ -157,6 +157,7 @@ view: learner_profile {
     label: "Subscription status"
     sql: coalesce(${TABLE}.subscription_status, 'Never tried CU');;
     description: "Current CU subscription state"
+    hidden: yes
   }
 
   dimension: is_cu_subscriber {
@@ -311,6 +312,7 @@ view: learner_profile {
     type: count
     label: "# Students"
     drill_fields: [details*]
+    hidden: yes
   }
 
   dimension: marketing_segment_fb {

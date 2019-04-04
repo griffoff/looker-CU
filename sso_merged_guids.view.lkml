@@ -1,5 +1,5 @@
 view: sso_merged_guids {
-  sql_table_name: UNLIMITED.SSO_MERGED_GUIDS ;;
+  sql_table_name: UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID ;;
 
   set: guids {fields:[primary_guid, shadow_guid]}
 
@@ -29,7 +29,7 @@ view: sso_merged_guids {
 
   dimension: shadow_guid {
     type: string
-    sql: ${TABLE}."SHADOW_GUID" ;;
+    sql: ${TABLE}."PARTNER_GUID" ;;
   }
 
   measure: count {

@@ -59,7 +59,7 @@ view: raw_subscription_event {
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
       FROM subscription_event e
-      LEFT JOIN unlimited.sso_merged_guids m on e.user_sso_guid = m.shadow_guid
+      LEFT JOIN unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID m on e.user_sso_guid = m.partner_guid
     )
     SELECT state.*
     FROM state
@@ -122,7 +122,7 @@ view: raw_subscription_event {
   dimension_group: first_start {
     group_label: "First Start Date"
     description: "Displays the start time of the first subscription status record"
-    sql: ${TABLE}.first_date ;;
+    sql: ${TABLE}.first_start ;;
     type: time
     timeframes: [raw, date, month]
   }
@@ -136,7 +136,6 @@ view: raw_subscription_event {
   dimension_group: current_start {
     group_label: "Current Start Date"
     description: "Displays the start time of the latest subscription status record"
-    sql: ${TABLE}.first_date ;;
     type: time
     timeframes: [raw, date, month]
   }
@@ -151,7 +150,6 @@ view: raw_subscription_event {
   dimension_group: current_end {
     group_label: "Current End Date"
     description: "Displays the end time of the latest subscription status record"
-    sql: ${TABLE}.first_date ;;
     type: time
     timeframes: [raw, date, month]
   }

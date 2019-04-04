@@ -1,9 +1,9 @@
-# connection: "snowflake_ipm"
+ connection: "snowflake_ipm"
 
 include: "ipm_browser_event.view.lkml"
 include: "ipm_campaign.view.lkml"
 include: "ipm_queue_event.view.lkml"
-include: "cengage_unlimited.model.lkml"
+# include: "cengage_unlimited.model.lkml"
 
 explore: ipm_browser_event {
   label: "IPM User Events"
@@ -22,14 +22,14 @@ explore: ipm_browser_event {
   }
 }
 
-
-explore: session_analysis_ipm {
-  label: "CU User Analysis Prod IPM"
-  extends: [live_subscription_status, all_sessions]
-  from: live_subscription_status
-
-  join: all_sessions {
-    sql_on: ${live_subscription_status.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
-    relationship: one_to_many
-  }
-}
+#
+# explore: session_analysis_ipm {
+#   label: "CU User Analysis Prod IPM"
+#   extends: [live_subscription_status, all_sessions]
+#   from: live_subscription_status
+#
+#   join: all_sessions {
+#     sql_on: ${live_subscription_status.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
+#     relationship: one_to_many
+#   }
+# }
