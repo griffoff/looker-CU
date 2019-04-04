@@ -48,8 +48,8 @@ view: fivetran_trueup {
     sql: ${TABLE}."ENTITY_ID" ;;
   }
 
-  dimension: expiration_date {
-    type: string
+  dimension: cu_expiration_date {
+    type: date
     sql: ${TABLE}."EXPIRATION_DATE" ;;
   }
 
@@ -83,13 +83,8 @@ view: fivetran_trueup {
     sql: ${TABLE}."SEAT_GUID" ;;
   }
 
-  dimension: seat_used_date {
-    type: string
-    sql: ${TABLE}."SEAT_USED_DATE" ;;
-  }
-
-  dimension: start_date {
-    type: string
+  dimension: cu_activated_date {
+    type: date
     sql: ${TABLE}."START_DATE" ;;
   }
 
@@ -108,19 +103,49 @@ view: fivetran_trueup {
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
   }
 
-  measure: count {
-    type: count
-    drill_fields: [saws_entity_name]
+  dimension_group: seat_used {
+    type: time
+    timeframes: [time, date]
+    sql: ${TABLE}."SEAT_USED_DATE";;
   }
 
-  measure: count_of_unique_contract_ids {
+  measure: distinct_CU_enrollments_during_full_access_period {
+    label: "Distinct CU Enrollments During Full Access Period"
     type: count_distinct
-    sql: ${contract_id} ;;
+    sql: CASE WHEN ${seat_used_date} >= ${cu_activated_date}
+    and ${seat_used_date} < ${cu_expiration_date}
+    and ${contract_id} is not null
+    and ${contract_id} != 'TRIAL'
+    THEN ${cu_guid}
+    END ;;
   }
 
-  measure: count_of_unique_seat_guids {
+  measure: distinct_trial_students {
     type: count_distinct
-    sql: ${seat_guid} ;;
+    sql: CASE WHEN ${contract_id} = 'TRIAL'
+          THEN ${cu_guid}
+          END ;;
+  }
+
+  measure: sum__of_full_access_and_trial {
+    type: count_distinct
+    sql: CASE WHEN ${seat_used_date} >= ${cu_activated_date}
+    and ${seat_used_date} < ${cu_expiration_date}
+    and ${contract_id} is not null
+    or ${contract_id} = 'TRIAL'
+    THEN ${cu_guid}
+    END ;;
+  }
+
+  measure: enrollment_within_30_days{
+    label: "Enrollment Within 30 Days Prior To CU Activation"
+    type: count_distinct
+    sql: CASE WHEN ${seat_used_date} < ${cu_activated_date}
+    and ${seat_used_date} > DATEADD('day', -30, ${cu_activated_date})
+    and ${contract_id} is not null
+    and ${contract_id} != 'TRIAL'
+    THEN ${cu_guid}
+    END ;;
   }
 
 }
