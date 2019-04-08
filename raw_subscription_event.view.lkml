@@ -26,11 +26,14 @@ view: raw_subscription_event {
         SELECT
           *
           ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
-        FROM unlimited.raw_Subscription_event e
+        FROM prod.unlimited.raw_Subscription_event e
         WHERE UPPER(user_environment) = 'PRODUCTION'
-      )
+      ) --select * from subscription_event where user_sso_guid like '293269ae1817be40:-63ee92c7:1657820b8da:-38f3';
       ,prim_map AS(
         SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+      )
+      ,guid_mapping AS(
+        Select * from prim_map where latest
       )
       ,state AS (
       SELECT
@@ -61,12 +64,22 @@ view: raw_subscription_event {
           ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
-          ,m.partner_guid
+          ,m.partner_guid as partner1
       FROM subscription_event e
-      LEFT JOIN (Select * from prim_map where latest) m on e.user_sso_guid = m.primary_guid
+      LEFT JOIN guid_mapping m on e.user_sso_guid = m.partner_guid
+    ), states_merged2 as(
+    Select
+      ss.*
+      ,COALESCE(ss.partner1,m2.partner_guid) as partner_guid
+      from state ss
+      LEFT JOIN guid_mapping m2
+              ON ss.user_sso_guid = m2.primary_guid
     )
-    SELECT state.*
-    FROM state
+
+ --   Select partner_guid as part,merged_guid as primguid, * from states_merged2 where merged_guid ilike '35e773452fcd4f2d:a7d88bd:1613d8d2f1c:7e2c';
+
+    SELECT states_merged2.*
+    FROM states_merged2
     WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
     AND  merged_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
     ;;
