@@ -13,7 +13,7 @@ view: live_subscription_status {
     primary_key: yes
     hidden: no
  }
-
+  dimension: partner_guid {}
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {

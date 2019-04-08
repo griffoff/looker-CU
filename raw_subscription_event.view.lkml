@@ -29,6 +29,9 @@ view: raw_subscription_event {
         FROM unlimited.raw_Subscription_event e
         WHERE UPPER(user_environment) = 'PRODUCTION'
       )
+      ,prim_map AS(
+        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+      )
       ,state AS (
       SELECT
           e.*
@@ -58,8 +61,9 @@ view: raw_subscription_event {
           ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
+          ,m.partner_guid
       FROM subscription_event e
-      LEFT JOIN unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID m on e.user_sso_guid = m.partner_guid
+      LEFT JOIN (Select * from prim_map) m on e.user_sso_guid = m.primary_guid
     )
     SELECT state.*
     FROM state
@@ -73,6 +77,12 @@ view: raw_subscription_event {
     type: string
     sql: ${TABLE}."_HASH" ;;
     hidden: yes
+  }
+
+  dimension: partner_guid {
+    type: string
+    sql: ${TABLE}.partner_guid;;
+    hidden: no
   }
 
   dimension: latest_subscription {
