@@ -63,7 +63,7 @@ view: raw_subscription_event {
           ,prior_status IS NULL as earliest
           ,m.partner_guid
       FROM subscription_event e
-      LEFT JOIN (Select * from prim_map) m on e.user_sso_guid = m.primary_guid
+      LEFT JOIN (Select * from prim_map where latest) m on e.user_sso_guid = m.primary_guid
     )
     SELECT state.*
     FROM state
