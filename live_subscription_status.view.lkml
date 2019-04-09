@@ -14,6 +14,7 @@ view: live_subscription_status {
     hidden: no
  }
   dimension: partner_guid {}
+  dimension: lms_user {}
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {

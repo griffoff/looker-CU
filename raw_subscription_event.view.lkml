@@ -78,7 +78,8 @@ view: raw_subscription_event {
 
  --   Select partner_guid as part,merged_guid as primguid, * from states_merged2 where merged_guid ilike '35e773452fcd4f2d:a7d88bd:1613d8d2f1c:7e2c';
 
-    SELECT states_merged2.*
+    SELECT states_merged2.*,
+      CASE WHEN states_merged2.partner_guid IS NOT NULL THEN 'yes' ELSE 'no' END AS lms_user
     FROM states_merged2
     WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
     AND  merged_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
@@ -96,6 +97,12 @@ view: raw_subscription_event {
     type: string
     sql: ${TABLE}.partner_guid;;
     hidden: no
+  }
+
+  dimension: lms_user {
+    type: string
+    sql: ${TABLE}.lms_user;;
+
   }
 
   dimension: latest_subscription {
