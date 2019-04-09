@@ -44,6 +44,6 @@ view: ipm_browser_event {
   measure: count {
     type: count_distinct
     sql: ${user_sso_guid} ;;
-    drill_fields: []
+    drill_fields: [user_sso_guid]
   }
 }
