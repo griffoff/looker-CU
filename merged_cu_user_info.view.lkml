@@ -7,12 +7,13 @@ view: merged_cu_user_info {
       WITH user_info AS (
       SELECT
         *
-        ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY cu_start_sso DESC) as r
-      FROM UPLOADS.CU.CU_USER_INFO
+--         ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY cu_start_sso DESC) as r
+--       FROM UPLOADS.CU.CU_USER_INFO
+         FROM ${cu_user_info.SQL_TABLE_NAME}
       )
       SELECT *
       FROM user_info
-      WHERE r = 1
+--      WHERE r = 1
     ;;
   }
 

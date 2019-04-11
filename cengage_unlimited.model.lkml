@@ -497,7 +497,7 @@ explore: ga_dashboarddata {
   }
 
   join: cu_user_info {
-    sql_on:  ${ga_dashboarddata.userssoguid} = ${cu_user_info.guid}  ;;
+    sql_on:  ${ga_dashboarddata.userssoguid} = ${cu_user_info.merged_guid}  ;;
     relationship: many_to_one
   }
 
@@ -537,7 +537,7 @@ explore: dashboard_use_over_time_bucketed {
     type: left_outer
   }
   join: cu_user_info {
-    sql_on:  ${dashboard_use_over_time_bucketed.user_sso_guid} = ${cu_user_info.guid}  ;;
+    sql_on:  ${dashboard_use_over_time_bucketed.user_sso_guid} = ${cu_user_info.merged_guid}  ;;
     relationship: many_to_one
   }
 }
