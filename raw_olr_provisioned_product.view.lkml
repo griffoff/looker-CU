@@ -1,18 +1,49 @@
+include: "live_subscription_status.view"
+include: "merged_cu_user_info.view"
+
 explore: raw_olr_provisioned_product {
-  label: "CU Provisioned Product"}
+  label: "CU Provisioned Product"
+
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+  }
 
 view: raw_olr_provisioned_product {
   view_label: "Provisioned Product"
 #   sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
 derived_table: {
-        sql:
-        SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
+
+# --        SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
+#  --         FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
+# --              JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
+# --                ON iac.pp_pid = prod.product_id
+# --                  AND prod.user_type like 'student'
+# --                --  AND prod."source" like 'unlimited'
+# --                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS);;
+
+  sql: With pp as (
+   SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
           FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
               JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
                 ON iac.pp_pid = prod.product_id
                   AND prod.user_type like 'student'
                 --  AND prod."source" like 'unlimited'
-                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS);;
+                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS)
+     ),prim_map AS(
+        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+      )
+      ,guid_mapping AS(
+        Select * from prim_map where latest
+      )
+     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid from pp
+     LEFT JOIN guid_mapping m on pp.user_sso_guid = m.partner_guid ;;
 }
 
   dimension: _hash {
@@ -24,6 +55,7 @@ derived_table: {
   dimension: pp_name {
     label: "Product Name"
   }
+  dimension: merged_guid {}
 
   dimension: PP_LDAP_Group_name {
 

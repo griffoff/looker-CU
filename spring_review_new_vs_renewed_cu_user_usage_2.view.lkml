@@ -1,4 +1,10 @@
-explore:   spring_review_new_vs_renewed_cu_user_usage_2 {}
+include: "merged_cu_user_info.view"
+explore:   spring_review_new_vs_renewed_cu_user_usage_2 {
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${spring_review_new_vs_renewed_cu_user_usage_2.user_sso_guid_merged} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+}
 
 view: spring_review_new_vs_renewed_cu_user_usage_2 {
   derived_table: {

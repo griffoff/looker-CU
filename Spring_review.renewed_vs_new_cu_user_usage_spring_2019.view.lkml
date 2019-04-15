@@ -1,4 +1,10 @@
-explore: renewed_vs_new_cu_user_usage_spring_2019 {}
+include: "merged_cu_user_info.view"
+explore: renewed_vs_new_cu_user_usage_spring_2019 {
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${renewed_vs_new_cu_user_usage_spring_2019.user_sso_guid_merged} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+}
 
 view: renewed_vs_new_cu_user_usage_spring_2019 {
   derived_table: {
