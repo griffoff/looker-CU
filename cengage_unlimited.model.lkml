@@ -639,7 +639,13 @@ explore: active_users_sam {
   }
 }
 
-explore: client_activity_event {}
+explore: client_activity_event {
+  label: "CU Side Events DEV"
+}
+
+explore: client_activity_event_prod {
+  label: "CU Side Events Prod"
+}
 
 
 ############################ Discount email campaign ##################################
