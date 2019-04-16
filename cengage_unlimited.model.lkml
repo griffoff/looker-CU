@@ -644,6 +644,7 @@ explore: client_activity_event {
 }
 
 explore: client_activity_event_prod {
+  view_label: "CU side bar events"
   label: "CU Side Events Prod"
 
   join: live_subscription_status {
