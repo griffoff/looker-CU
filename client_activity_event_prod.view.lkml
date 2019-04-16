@@ -6,7 +6,7 @@ derived_table: {
       )
         Select cs.*,COALESCE(m.primary_guid, cs.user_sso_guid) AS merged_guid from CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT cs
         LEFT JOIN prim_map m on cs.user_sso_guid = m.partner_guid
-        where latest ;;
+        ;;
 }
 
 
