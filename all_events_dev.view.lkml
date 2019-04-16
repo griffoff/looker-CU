@@ -1,7 +1,7 @@
 include: "all_events.view"
 include: "//core/common.lkml" # formats
 view: all_events_dev {
-  sql_table_name: zpg.all_events ;;
+  sql_table_name: CU_USER_ANALYSIS_DEV.all_events ;;
  extends: [all_events]
 
 

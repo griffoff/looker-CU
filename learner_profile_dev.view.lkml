@@ -3,7 +3,7 @@ include: "learner_profile.view"
 view: learner_profile_dev {
   extends: [learner_profile]
   label: "Learner Profile - Dev"
-  sql_table_name: ZPG.learner_profile ;;
+  sql_table_name: CU_USER_ANALYSIS_DEV.learner_profile ;;
 
   ### Dimension section ###
   dimension: courses {
