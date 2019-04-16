@@ -5,7 +5,7 @@ view: cu_user_info {
   derived_table: {
     sql: WITH raw AS (
           SELECT
-            linked_guid as primary_guid
+            COALESCE(linked_guid,user_sso_guid) as primary_guid
             ,user_sso_guid as partner_guid
             ,event_time
               ,email
@@ -13,14 +13,14 @@ view: cu_user_info {
               ,last_name
               ,tl_institution_id
               ,tl_institution_name
-            ,LEAD(event_time) OVER (PARTITION BY user_sso_guid ORDER BY event_time ASC) IS NULL AS latest
           FROM IAM.PROD.USER_MUTATION
         )
-      SELECT
+      , temp_table as (SELECT
          *
-        ,COALESCE(raw.primary_guid, raw.partner_guid) AS merged_guid
+          ,primary_guid as merged_guid
+          ,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest
       FROM raw
-      WHERE raw.latest
+      ) select * from temp_table where latest
        ;;
   }
 
