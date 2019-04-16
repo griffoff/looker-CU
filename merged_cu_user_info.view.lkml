@@ -1,21 +1,22 @@
 include: "cu_user_info.view"
 view: merged_cu_user_info {
   extends: [cu_user_info]
+#   sql_table_name: ${cu_user_info.SQL_TABLE_NAME} ;;
 
-  derived_table: {
-    sql:
-      WITH user_info AS (
-      SELECT
-        *
---         ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY cu_start_sso DESC) as r
---       FROM UPLOADS.CU.CU_USER_INFO
-         FROM ${cu_user_info.SQL_TABLE_NAME}
-      )
-      SELECT *
-      FROM user_info
---      WHERE r = 1
-    ;;
-  }
+#   derived_table: {
+#     sql:
+#       WITH user_info AS (
+#       SELECT
+#         *
+# --         ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY cu_start_sso DESC) as r
+# --       FROM UPLOADS.CU.CU_USER_INFO
+#          FROM ${cu_user_info.SQL_TABLE_NAME}
+#       )
+#       SELECT *
+#       FROM user_info
+# --      WHERE r = 1
+#     ;;
+#   }
 
   dimension: user_sso_guid {
     label: "User SSO GUID"
