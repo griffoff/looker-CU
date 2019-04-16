@@ -1,5 +1,5 @@
 view: client_activity_event_prod {
-  sql_table_name: Select * from CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT;;
+  sql_table_name: CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT;;
 
 
   measure: count {
