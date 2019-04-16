@@ -23,11 +23,13 @@ derived_table: {
   dimension_group: _ldts {
     type: time
     sql: ${TABLE}."_LDTS" ;;
+    hidden: yes
   }
 
   dimension: _rsrc {
     type: string
     sql: ${TABLE}."_RSRC" ;;
+    hidden: yes
   }
 
   dimension: message_format_version {
@@ -103,6 +105,7 @@ derived_table: {
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden: yes
   }
 
   dimension: event_uri {
