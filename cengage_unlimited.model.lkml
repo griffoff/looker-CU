@@ -645,6 +645,16 @@ explore: client_activity_event {
 
 explore: client_activity_event_prod {
   label: "CU Side Events Prod"
+
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${client_activity_event_prod.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${client_activity_event_prod.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
 }
 
 
