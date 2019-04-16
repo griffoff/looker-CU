@@ -16,14 +16,10 @@ view: cu_user_info {
             ,LEAD(event_time) OVER (PARTITION BY user_sso_guid ORDER BY event_time ASC) IS NULL AS latest
           FROM IAM.PROD.USER_MUTATION
         )
-        ,sub as (
-        Select distinct user_sso_guid from prod.unlimited.raw_Subscription_event
-        )
       SELECT
          *
-         ,COALESCE(raw.primary_guid, m.user_sso_guid) AS merged_guid
+        ,COALESCE(raw.primary_guid, raw.partner_guid) AS merged_guid
       FROM raw
-      left JOIN sub m on m.user_sso_guid = raw.partner_guid
       WHERE raw.latest
        ;;
   }
