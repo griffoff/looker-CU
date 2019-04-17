@@ -120,6 +120,11 @@ explore: session_analysis {
     relationship: one_to_many
   }
 
+  join: uploads_cu_sidebar_cohort {
+    sql_on: ${live_subscription_status.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: session_analysis_old {
