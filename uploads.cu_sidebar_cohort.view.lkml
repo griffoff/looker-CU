@@ -40,6 +40,7 @@ view: uploads_cu_sidebar_cohort {
 
     dimension: pilot {
       type: string
+      label: "Side Bar Pilot User"
       sql: ${TABLE}."PILOT" ;;
     }
 
