@@ -661,6 +661,12 @@ explore: client_activity_event_prod {
     relationship: one_to_one
     sql_on: ${client_activity_event_prod.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
   }
+
+  join: uploads_cu_sidebar_cohort {
+    view_label: "CU sidebar cohort"
+  sql_on: ${client_activity_event_prod.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
+  relationship: many_to_one
+  }
 }
 
 
