@@ -63,7 +63,8 @@ derived_table: {
   }
 
   dimension: load_sidebar {
-    label: "Remove Load Sidebar Events"
+    label: "Is Load Sidebar Event"
+    description: "Make this filtered to 'No' to remove LOAD SIDEBAR events"
     sql: CASE WHEN ${event_action} like 'LOAD' and ${event_category} like 'SIDEBAR'
               THEN 'Yes' ELSE 'No'END;;
     type: string
