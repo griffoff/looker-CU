@@ -62,6 +62,13 @@ derived_table: {
     sql: ${TABLE}."EVENT_ACTION" ;;
   }
 
+  dimension: load_sidebar {
+    label: "Remove Load Sidebar Events"
+    sql: CASE WHEN ${event_action} like 'LOAD' and ${event_category} like 'SIDEBAR'
+              THEN 'Yes' ELSE 'No'END;;
+    type: string
+  }
+
   dimension: product_platform {
     type: string
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
