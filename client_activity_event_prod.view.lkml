@@ -9,11 +9,11 @@ derived_table: {
         from CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT cs
         LEFT JOIN prim_map m on cs.user_sso_guid = m.partner_guid
       ) Select
-         LEAD(event_name, 1) OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_name) AS event_1
-        ,LEAD(event_name, 2) OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_name) AS event_2
-        ,LEAD(event_name, 3) OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_name) AS event_3
-        ,LEAD(event_name, 4) OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_name) AS event_4
-        ,LEAD(event_name, 5) OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_name) AS event_5
+         LEAD(event_name, 1) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id,event_name) AS event_1
+        ,LEAD(event_name, 2) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_2
+        ,LEAD(event_name, 3) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_3
+        ,LEAD(event_name, 4) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_4
+        ,LEAD(event_name, 5) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_5
         ,* from  mapped_cap
         ;;
         persist_for: "6 hours"
