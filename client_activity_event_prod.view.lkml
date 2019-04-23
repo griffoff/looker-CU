@@ -9,7 +9,8 @@ derived_table: {
         from CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT cs
         LEFT JOIN prim_map m on cs.user_sso_guid = m.partner_guid
       ) Select
-         LEAD(event_name, 1) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id,event_name) AS event_1
+        LAG(session_id,1) OVER (PARTITION BY user_sso_guid,session_id ORDER BY event_time) AS lag_session
+        ,LEAD(event_name, 1) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id,event_name) AS event_1
         ,LEAD(event_name, 2) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_2
         ,LEAD(event_name, 3) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_3
         ,LEAD(event_name, 4) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_4
@@ -23,6 +24,14 @@ derived_table: {
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  dimension: lag_session {
+    hidden: yes
+  }
+
+  dimension: is_first_session {
+    sql: CASE WHEN ${lag_session} IS NULL THEN 'Yes' ELSE 'No' END ;;
   }
 
   dimension: merged_guid {
