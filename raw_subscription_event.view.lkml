@@ -1,44 +1,134 @@
 view: raw_subscription_event {
   derived_table: {
-#    sql:
-#    with state AS (
-#     SELECT
-#         TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') AS sub_start_date
-#         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time DESC) AS latest_record
-#         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time ASC) AS earliest_record
-#         ,LEAD(subscription_state) over(partition by user_sso_guid order by local_time) as next_state
-#         ,LEAD(subscription_start) over(partition by user_sso_guid order by local_time) as next_start_date
-#         ,*
-#     FROM Unlimited.Raw_Subscription_event
-#     )
-#     SELECT
-#       state.*
-#       ,CASE WHEN latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
-#       ,CASE WHEN earliest_record = 1 THEN 'yes' ELSE 'no' END AS earliest_filter
-#     FROM state
-#     LEFT JOIN unlimited.excluded_users bk
-#     ON state.user_sso_guid = bk.user_sso_guid
-#     WHERE bk.user_sso_guid IS NULL
-#     ;;
-
-  sql:
-    WITH subscription_event AS (
-        SELECT
-          *
-          ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
-        FROM prod.unlimited.raw_Subscription_event e
-        WHERE UPPER(user_environment) = 'PRODUCTION'
-      ) --select * from subscription_event where user_sso_guid like '293269ae1817be40:-63ee92c7:1657820b8da:-38f3';
-      ,prim_map AS(
-        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
-      )
-      ,guid_mapping AS(
-        Select * from prim_map where latest
-      )
-      ,state AS (
+    sql:
+    WITH
+    primary_map AS
+    (
       SELECT
+        *
+        ,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest
+      FROM prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+    )
+    ,guid_map AS
+    (
+        SELECT * FROM primary_map WHERE latest
+    )
+    ,distinct_primary AS
+    (
+        SELECT DISTINCT primary_guid, partner_guid FROM guid_map
+    )
+    ,raw_subscription_event_merged AS
+    (
+        SELECT
+            COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
+            ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
+            ,COALESCE(m.partner_guid, m2.partner_guid) AS partner_guid
+            ,r.*
+        FROM unlimited.raw_subscription_event r
+        LEFT JOIN guid_map m
+            ON r.user_sso_guid = m.partner_guid
+        LEFT JOIN distinct_primary m2
+            ON  r.user_sso_guid = m2.primary_guid
+        WHERE merged_guid NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
+    )
+    ,raw_subscription_event_merged_next_events AS
+    (
+    SELECT
+         merged_guid
+        ,user_sso_guid
+        ,partner_guid
+        ,lms_user
+        ,local_time
+        ,_ldts
+        ,_hash
+        ,_rsrc
+        ,contract_id
+        ,platform_environment
+        ,product_platform
+        ,user_environment
+        ,message_type
+        ,subscription_state
+        ,subscription_start
+        ,subscription_end
+        ,LEAD(subscription_state, 1) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS subscription_state_2
+        ,LEAD(subscription_start, 1) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS subscription_start_2
+        ,LEAD(subscription_end, 1) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS subscription_end_2
+        ,LEAD(local_time, 1) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS local_time_2
+        ,LEAD(_ldts, 1) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS ldts_2
+        ,LEAD(subscription_state, 2) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS subscription_state_3
+        ,LEAD(subscription_start, 2) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS subscription_start_3
+        ,LEAD(subscription_end, 2) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS subscription_end_3
+        ,LEAD(local_time, 2) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS local_time_3
+        ,LEAD(_ldts, 2) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_state) AS ldts_3
+        ,COUNT(DISTINCT subscription_state) OVER (PARTITION BY merged_guid) AS number_of_subscription_states
+    FROM raw_subscription_event_merged
+    )
+    ,raw_subscription_event_merged_erroneous_removed AS
+    (
+    SELECT
+        merged_guid
+        ,user_sso_guid
+        ,partner_guid
+        ,MAX(lms_user) OVER (PARTITION BY merged_guid) AS lms_user
+        ,local_time
+        ,_ldts
+        ,_hash
+        ,_rsrc
+        ,contract_id
+        ,platform_environment
+        ,product_platform
+        ,user_environment
+        ,message_type
+        ,subscription_state
+        ,subscription_start
+        ,subscription_end
+        ,subscription_start AS effective_from
+        ,LEAD(local_time, 1) OVER (PARTITION BY merged_guid ORDER BY local_time, subscription_start) AS next_event_time
+        ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
+        ,local_time_2
+        ,ldts_2
+        ,subscription_state_2
+        ,subscription_start_2
+        ,subscription_end_2
+        ,local_time_3
+        ,ldts_3
+        ,subscription_state_3
+        ,subscription_start_3
+        ,subscription_end_3
+        ,LAST_VALUE(subscription_state) OVER (PARTITION BY merged_guid ORDER BY local_time ASC) AS subscription_state_current
+        ,LAST_VALUE(subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time ASC) AS subscription_start_current
+        ,LAST_VALUE(subscription_end) OVER (PARTITION BY merged_guid ORDER BY local_time ASC) AS subscription_end_current
+        ,DATEDIFF('month', subscription_start, subscription_end ) AS subscription_term_length
+    FROM raw_subscription_event_merged_next_events
+    WHERE
+    -- Filtering out duplicate events
+    NOT (COALESCE(subscription_state = subscription_state_2, FALSE) AND COALESCE(DATEDIFF('second', local_time, local_time_2),0) <= 30)
+    -- Filtering out trials sent after full access
+    -- Might need to add an extra condition or change condition for two events less than 30 seconds apart
+    AND NOT (subscription_state = 'full_access' AND COALESCE(subscription_state_2 = 'trial_access', FALSE) AND ( NOT COALESCE(subscription_end <= subscription_start_2, FALSE)))
+    -- Filtering out shadow guid move (cancellation + new full access)
+    -- Two extra cancel and full_access may have the same LDTS
+    -- Add each statement as a case statement instead of in wheres
+    AND NOT (subscription_state = 'full_access'
+            AND subscription_state_2 = 'cancelled'
+            AND subscription_state_3 = 'full_access'
+            AND user_sso_guid <> merged_guid
+            AND ldts_2 = ldts_3)
+    AND NOT (subscription_state = 'cancelled'
+            AND subscription_state_2 = 'full_access'
+            AND user_sso_guid <> merged_guid
+            AND _ldts = ldts_2)
+    )
+    ,subscription_event AS
+    (
+      SELECT
+        *
+        ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
+      FROM raw_subscription_event_merged_erroneous_removed e
+      WHERE UPPER(user_environment) = 'PRODUCTION'
+    )
+    SELECT
           e.*
-          ,COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid
           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
@@ -64,26 +154,94 @@ view: raw_subscription_event {
           ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
-          ,m.partner_guid as partner1
       FROM subscription_event e
-      LEFT JOIN guid_mapping m on e.user_sso_guid = m.partner_guid
-    ), states_merged2 as(
-    Select
-      ss.*
-      ,COALESCE(ss.partner1,m2.partner_guid) as partner_guid
-      from state ss
-      LEFT JOIN guid_mapping m2
-              ON ss.user_sso_guid = m2.primary_guid
-    )
+      LEFT JOIN guid_map m
+        ON e.user_sso_guid = m.partner_guid
+      ;;
+#    sql:
+#    with state AS (
+#     SELECT
+#         TO_CHAR(TO_DATE(raw_subscription_event."SUBSCRIPTION_START" ), 'YYYY-MM-DD') AS sub_start_date
+#         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time DESC) AS latest_record
+#         ,RANK () OVER (PARTITION BY user_sso_guid ORDER BY LOCAL_Time ASC) AS earliest_record
+#         ,LEAD(subscription_state) over(partition by user_sso_guid order by local_time) as next_state
+#         ,LEAD(subscription_start) over(partition by user_sso_guid order by local_time) as next_start_date
+#         ,*
+#     FROM Unlimited.Raw_Subscription_event
+#     )
+#     SELECT
+#       state.*
+#       ,CASE WHEN latest_record = 1 THEN 'yes' ELSE 'no' END AS latest_filter
+#       ,CASE WHEN earliest_record = 1 THEN 'yes' ELSE 'no' END AS earliest_filter
+#     FROM state
+#     LEFT JOIN unlimited.excluded_users bk
+#     ON state.user_sso_guid = bk.user_sso_guid
+#     WHERE bk.user_sso_guid IS NULL
+#     ;;
 
- --   Select partner_guid as part,merged_guid as primguid, * from states_merged2 where merged_guid ilike '35e773452fcd4f2d:a7d88bd:1613d8d2f1c:7e2c';
-
-    SELECT states_merged2.*,
-      CASE WHEN states_merged2.partner_guid IS NOT NULL THEN 'yes' ELSE 'no' END AS lms_user
-    FROM states_merged2
-    WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
-    AND  merged_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
-    ;;
+#   sql:
+#     WITH subscription_event AS (
+#         SELECT
+#           *
+#           ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
+#         FROM prod.unlimited.raw_Subscription_event e
+#         WHERE UPPER(user_environment) = 'PRODUCTION'
+#       ) --select * from subscription_event where user_sso_guid like '293269ae1817be40:-63ee92c7:1657820b8da:-38f3';
+#       ,prim_map AS(
+#         SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+#       )
+#       ,guid_mapping AS(
+#         Select * from prim_map where latest
+#       )
+#       ,state AS (
+#       SELECT
+#           e.*
+#           ,COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid
+#           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+#           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
+#           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
+#           ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
+#           ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
+#           ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
+#           ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
+#           ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
+#           ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
+#           ,MAX(CASE
+#                 WHEN subscription_state = 'full_access'
+#                 /*    AND NOT cancelled  */
+#                 THEN subscription_start
+#                 END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
+#           ,MAX(CASE
+#                 WHEN subscription_state = 'full_access'
+#                 /*    AND NOT cancelled  */
+#                 THEN subscription_end
+#                 END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
+#           ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
+#           ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
+#           ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
+#           ,MAX(local_time) over(partition by merged_guid) as latest_update
+#           ,next_status IS NULL as latest
+#           ,prior_status IS NULL as earliest
+#           ,m.partner_guid as partner1
+#       FROM subscription_event e
+#       LEFT JOIN guid_mapping m on e.user_sso_guid = m.partner_guid
+#     ), states_merged2 as(
+#     Select
+#       ss.*
+#       ,COALESCE(ss.partner1,m2.partner_guid) as partner_guid
+#       from state ss
+#       LEFT JOIN guid_mapping m2
+#               ON ss.user_sso_guid = m2.primary_guid
+#     )
+#
+#  --   Select partner_guid as part,merged_guid as primguid, * from states_merged2 where merged_guid ilike '35e773452fcd4f2d:a7d88bd:1613d8d2f1c:7e2c';
+#
+#     SELECT states_merged2.*,
+#       CASE WHEN states_merged2.partner_guid IS NOT NULL THEN 'yes' ELSE 'no' END AS lms_user
+#     FROM states_merged2
+#     WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
+#     AND  merged_guid NOT IN (SELECT user_sso_guid FROM unlimited.excluded_users)
+#     ;;
 
   }
 

@@ -29,24 +29,16 @@ view: merged_cu_user_info {
     hidden: yes
   }
 
-  dimension: opt_out {
+  dimension: marketing_opt_out {
     group_label: "User Info - Marketing"
     type: string
-    case: {
-      when: {label: "Yes" sql: LEFT( ${TABLE}.opt_out, 1) = 'Y';;}
-      when: {label: "No" sql: LEFT(${TABLE}.opt_out, 1) = 'N';;}
-      else: "UNKNOWN"
-    }
+#     case: {
+#       when: {label: "Yes" sql: LEFT( ${TABLE}.opt_out, 1) = 'Y';;}
+#       when: {label: "No" sql: LEFT(${TABLE}.opt_out, 1) = 'N';;}
+#       else: "UNKNOWN"
+#     }
   }
 
-  dimension: no_contact_user {
-    group_label: "User Info - Marketing"
-    type: string
-    case: {
-      when: {label: "Yes" sql: LEFT(${TABLE}.no_contact_user, 1) = 'Y';;}
-      when: {label: "No" sql: LEFT(${TABLE}.no_contact_user, 1) = 'N';;}
-      else: "UNKNOWN"
-    }
-  }
+
 
 }

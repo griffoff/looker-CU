@@ -13,6 +13,7 @@ view: cu_user_info {
               ,last_name
               ,tl_institution_id
               ,tl_institution_name
+              ,marketing_opt_out
           FROM IAM.PROD.USER_MUTATION
         )
       , temp_table as (SELECT
@@ -63,6 +64,11 @@ view: cu_user_info {
     group_label: "User Info - PII"
     type: string
     sql: ${TABLE}."LAST_NAME" ;;
+  }
+
+  dimension: marketing_opt_out {
+    type: string
+    sql: ${TABLE}."MARKETING_OPT_OUT" ;;
   }
 
   dimension: entity_id {
