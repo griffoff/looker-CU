@@ -1,7 +1,7 @@
 explore: guid_cohort {}
 view: guid_cohort {
   derived_table: {
-    sql: Select * from uploads.cu.guid_cohort where _fivetran_deleted
+    sql: Select * from uploads.cu.guid_cohort where NOT _fivetran_deleted
       ;;
   }
 
@@ -13,9 +13,11 @@ view: guid_cohort {
   dimension: _row {
     type: number
     sql: ${TABLE}."_ROW" ;;
+    hidden: yes
   }
 
   dimension: _fivetran_deleted {
+    hidden: yes
     type: string
     sql: ${TABLE}."_FIVETRAN_DELETED" ;;
   }
@@ -27,6 +29,7 @@ view: guid_cohort {
   }
 
   dimension_group: _fivetran_synced {
+    hidden: yes
     type: time
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
   }
