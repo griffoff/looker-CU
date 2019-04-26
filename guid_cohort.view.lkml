@@ -1,5 +1,6 @@
 explore: guid_cohort {}
 view: guid_cohort {
+  label: "X - Cohort Analysis - X"
   derived_table: {
     sql: Select * from uploads.cu.guid_cohort where NOT _fivetran_deleted
       ;;
