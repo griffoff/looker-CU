@@ -21,7 +21,14 @@ view: cu_user_info {
           ,primary_guid as merged_guid
           ,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest
       FROM raw
-      ) select * from temp_table where latest
+      ), old_tab as (
+        Select distinct merged_guid,bl.entity_id,coalesce(bl.flag,'N') as entity_flag from UPLOADS.CU.CU_USER_INFO cu
+       LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+       ON bl.entity_id::STRING = cu.entity_id::STRING
+      ) select t.*,o.entity_id,coalesce(entity_flag,'N') as entity_flag from temp_table t
+        LEFT JOIN old_tab o
+        ON t.merged_guid=o.merged_guid
+        where t.latest
        ;;
   }
 
@@ -35,6 +42,12 @@ view: cu_user_info {
     sql: ${TABLE}."PRIMARY_GUID" ;;
     hidden: yes
   }
+
+  dimension: entity_flag {
+    label: "BlackList Entity"
+    sql: ${TABLE}.entity_flag ;;
+  }
+
 
   dimension: partner_guid {
     type: string
