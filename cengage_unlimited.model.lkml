@@ -122,7 +122,13 @@ explore: session_analysis {
 
   join: uploads_cu_sidebar_cohort {
     sql_on: ${live_subscription_status.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
-    relationship: one_to_one
+    relationship: many_to_one
+  }
+
+  join: guid_cohort {
+    sql_on: ${live_subscription_status.user_sso_guid} = ${guid_cohort.guid} ;;
+    relationship: many_to_one
+    type: inner
   }
 
 }
