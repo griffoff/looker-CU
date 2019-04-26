@@ -44,7 +44,7 @@ view: cu_user_info {
   }
 
   dimension: entity_flag {
-    label: "BlackList Entity"
+    label: "Entity Blacklist"
     sql: ${TABLE}.entity_flag ;;
   }
 
