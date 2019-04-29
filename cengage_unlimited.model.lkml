@@ -651,12 +651,12 @@ explore: active_users_sam {
 }
 
 explore: client_activity_event {
-  label: "CU Side Events DEV"
+  label: "CU Sidebar Events DEV"
 }
 
 explore: client_activity_event_prod {
   view_label: "CU side bar events"
-  label: "CU Side Events Prod"
+  label: "CU Sidebar Events Prod"
 
   join: live_subscription_status {
     relationship: one_to_one
