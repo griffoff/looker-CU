@@ -79,6 +79,13 @@ view: user_facts_fullaccess {
     sql:  CASE WHEN ${TABLE}."'Fall 2020'" > 0 THEN 1 END ;;
   }
 
+  dimension: fall19_spring19_renewal {
+    group_label: "Cohort Analysis"
+    type: number
+    label: "Fall 2019 renew for Spring 2019"
+    sql:  CASE WHEN ${TABLE}."'Fall 2019'" > 0 AND ${TABLE}."'Spring 2019'" > 0 THEN 1 END ;;
+  }
+
   set: detail {
     fields: [user_sso_guid_merged, fall_2019, spring_2019, summer_2019, fall_2020]
   }
