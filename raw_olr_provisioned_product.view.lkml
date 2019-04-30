@@ -1,5 +1,6 @@
 include: "live_subscription_status.view"
 include: "merged_cu_user_info.view"
+include: "uploads.cu_sidebar_cohort.view"
 
 explore: raw_olr_provisioned_product {
   label: "CU Provisioned Product"
@@ -12,6 +13,12 @@ explore: raw_olr_provisioned_product {
   join: merged_cu_user_info {
     relationship: one_to_one
     sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+  join: uploads_cu_sidebar_cohort {
+    view_label: "CU sidebar cohort"
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: many_to_one
   }
   }
 
