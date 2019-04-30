@@ -24,7 +24,8 @@ view: user_facts_fullaccess {
           ,subscription_state
       FROM prod.cu_user_analysis.subscription_events_merged s
       LEFT JOIN term_dates d
-        ON s.subscription_end::DATE > d.end_date
+        ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
+        OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
       WHERE subscription_state = 'full_access'
       )
       SELECT
