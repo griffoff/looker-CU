@@ -273,7 +273,7 @@ explore: session_analysis_dev {
 
   join: user_facts_fullaccess {
     view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${user_facts_fullaccess.user_sso_guid} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${user_facts_fullaccess.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 

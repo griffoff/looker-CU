@@ -19,7 +19,7 @@ view: user_facts_fullaccess {
     ,subscription_terms AS
     (
     SELECT
-        user_sso_guid
+        user_sso_guid_merged
           ,governmentdefinedacademicterm
           ,subscription_state
       FROM prod.cu_user_analysis.subscription_events_merged s
@@ -43,12 +43,12 @@ view: user_facts_fullaccess {
   dimension: primary_key {
     type: string
     primary_key: yes
-    sql: ${user_sso_guid} || ${fall_2019} || ${spring_2019} || ${summer_2019} || ${fall_2020} ;;
+    sql: ${user_sso_guid_merged} || ${fall_2019} || ${spring_2019} || ${summer_2019} || ${fall_2020} ;;
   }
 
-  dimension: user_sso_guid {
+  dimension: user_sso_guid_merged {
     type: string
-    sql: ${TABLE}."USER_SSO_GUID" ;;
+    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
   }
 
   dimension: fall_2019 {
@@ -80,6 +80,6 @@ view: user_facts_fullaccess {
   }
 
   set: detail {
-    fields: [user_sso_guid, fall_2019, spring_2019, summer_2019, fall_2020]
+    fields: [user_sso_guid_merged, fall_2019, spring_2019, summer_2019, fall_2020]
   }
 }
