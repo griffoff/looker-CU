@@ -1,6 +1,17 @@
 view: client_activity_event{
-  sql_table_name: CAP_EVENTING.NONPROD.CLIENT_ACTIVITY_EVENT ;;
+#   sql_table_name: CAP_EVENTING.NONPROD.CLIENT_ACTIVITY_EVENT ;;
+derived_table: {
 
+sql:
+with prim_map AS(
+        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+      )Select cs.*,COALESCE(m.primary_guid, cs.user_sso_guid) AS merged_guid
+        from CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT cs
+        LEFT JOIN prim_map m on cs.user_sso_guid = m.partner_guid
+
+        ;;
+  persist_for: "6 hours"
+}
   measure: count {
     type: count
     drill_fields: [detail*]
@@ -11,6 +22,7 @@ view: client_activity_event{
     sql: ${TABLE}."_LDTS" ;;
     hidden: yes
   }
+  dimension: merged_guid {}
 
   dimension: _rsrc {
     type: string

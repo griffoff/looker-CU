@@ -660,6 +660,22 @@ explore: active_users_sam {
 
 explore: client_activity_event {
   label: "CU Sidebar Events DEV"
+
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${client_activity_event.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${client_activity_event.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+  join: uploads_cu_sidebar_cohort {
+    view_label: "CU sidebar cohort"
+    sql_on: ${client_activity_event.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: many_to_one
+  }
 }
 
 explore: client_activity_event_prod {
