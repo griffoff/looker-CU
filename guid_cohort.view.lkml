@@ -17,6 +17,8 @@ view: guid_cohort {
     hidden: yes
   }
 
+  dimension: cohort_group {}
+
   dimension: _fivetran_deleted {
     hidden: yes
     type: string
