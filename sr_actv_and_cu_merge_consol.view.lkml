@@ -1,6 +1,8 @@
+explore: sr_actv_and_cu_merge_consol {}
+
 view: sr_actv_and_cu_merge_consol {
   derived_table: {
-    sql: Select * from UPLOADS.CU.SR_ACTV_AND_CU_MERGE_CONSOL limit 10;
+    sql: Select * from UPLOADS.CU.SR_ACTV_AND_CU_MERGE_CONSOL
       ;;
   }
 
