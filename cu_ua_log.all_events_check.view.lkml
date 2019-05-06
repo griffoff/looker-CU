@@ -32,6 +32,7 @@ view: all_events_check {
     type: time
     timeframes: [
       raw,
+      time,
       date,
       week,
       month,
@@ -39,8 +40,17 @@ view: all_events_check {
       year
     ]
     convert_tz: no
-    datatype: date
+    datatype: datetime
+    sql: ${TABLE}."RUN_TIME_STAMP" ;;
+  }
+
+  dimension_group: runtime {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year]
     sql: ${TABLE}."RUN_TIME" ;;
+    group_label: "Event Time"
+    label: "Event"
+    description: "Components of the events local timestamp"
   }
 
   dimension: run_id {
@@ -71,5 +81,16 @@ view: all_events_check {
   measure: unique_events_total {
     type: sum
     sql:  unique_events ;;
+  }
+
+  measure: most_recent_run_time {
+    type: date_time
+    sql: MAX(${TABLE}."RUN_TIME_STAMP") ;;
+  }
+
+  measure: number_of_runs_since_run_from_start {
+    type: number
+    sql: MAX(${TABLE}."RUN_ID") - 1 ;;
+    label: "Number of incremental runs"
   }
 }
