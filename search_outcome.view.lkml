@@ -15,7 +15,7 @@ view: search_outcome {
           CASE WHEN event_action ilike 'CALLS TO ACTION (CTAS)' AND LOWER(split_part(event_data:event_label,'|',1)) like 'add to my content position' THEN 'Y' ELSE 'N' END as Added,
           e.*
         from dis_ses s
-          JOIN zpg.all_events e
+          JOIN cu_user_analysis.all_events e
           ON e.user_sso_guid = s.user_sso_guid
           and e.session_id = s.session_id
           WHERE e.event_type NOT IN ('ENGAGEMENT TIMER','MARKETING')
