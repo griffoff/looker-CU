@@ -614,11 +614,11 @@ explore: ebook_usage_aggregated {}
 #### Raw enrollment for Prod research #####
 explore: raw_olr_enrollment {
   label: "Raw Enrollments"
-  join: raw_olr_provisioned_product {
-    type: left_outer
-    relationship: many_to_many
-    sql_on: ${raw_olr_enrollment.user_sso_guid} = ${raw_olr_provisioned_product.user_sso_guid} AND ${raw_olr_enrollment.course_key} = ${raw_olr_provisioned_product.context_id} ;;
-  }
+#   join: raw_olr_provisioned_product {
+#     type: left_outer
+#     relationship: many_to_many
+#     sql_on: ${raw_olr_enrollment.user_sso_guid} = ${raw_olr_provisioned_product.user_sso_guid} AND ${raw_olr_enrollment.course_key} = ${raw_olr_provisioned_product.context_id} ;;
+#   }
 }
 
 # MT Mobile Data
