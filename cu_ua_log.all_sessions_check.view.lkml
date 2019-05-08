@@ -1,5 +1,5 @@
 view: all_sessions_check {
-  sql_table_name: CU_UA_03.ALL_SESSIONS_CHECK ;;
+  sql_table_name:cu_user_analysis_dev.all_sessions_check ;;
 
   dimension: run_id {
     type: number
@@ -76,8 +76,8 @@ view: all_sessions_check {
     sql:  unique_users ;;
   }
 
-  measure: unique_events_total {
+  measure: unique_sessions_total {
     type: sum
-    sql:  unique_events ;;
+    sql:  unique_sessions ;;
   }
 }

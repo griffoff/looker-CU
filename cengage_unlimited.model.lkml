@@ -271,9 +271,15 @@ explore: session_analysis_dev {
     from: learner_profile_dev
   }
 
-  join: user_facts_fullaccess {
+  join: FullAccess_cohort {
     view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${user_facts_fullaccess.user_sso_guid_merged} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: TrialAccess_cohorts {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 

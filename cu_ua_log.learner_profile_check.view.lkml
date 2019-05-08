@@ -1,5 +1,5 @@
 view: learner_profile_check {
-  sql_table_name: CU_UA_03.LEARNER_PROFILE_CHECK ;;
+  sql_table_name: cu_user_analysis_dev.learner_profile_check ;;
 
   dimension: age_in_days {
     type: number
