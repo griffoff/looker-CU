@@ -294,9 +294,10 @@ view: learner_profile {
     group_label: "Provisioned Products"
     type: number
     label: "# products"
-    sql: array_size(${TABLE}.all_products_add) ;;
+    sql: COALESCE(array_size(${TABLE}.all_products_add), 0) ;;
     description: "Number of different iac_isbn provisioned to dashboard"
   }
+
 
   dimension: products_added_tier {
     group_label: "Provisioned Products"
