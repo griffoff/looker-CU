@@ -44,7 +44,7 @@ view: all_events_check {
 
   dimension: events_added_per_hour {
     type: number
-    sql: ${unique_events} / ${days_time_since_last_run} ;;
+    sql: IFF(${unique_events} / ${days_time_since_last_run} ;;
   }
 
 #   measure: time_since_last_run {

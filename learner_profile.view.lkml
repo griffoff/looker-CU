@@ -301,11 +301,30 @@ view: learner_profile {
   dimension: products_added_tier {
     group_label: "Provisioned Products"
     label: "# products (buckets)"
-    description: "Bucketing of number of products added to dashboard"
-    type: tier
-    style: integer
-    tiers: [1, 2, 5, 10]
-    sql: ${products_added_count} ;;
+    description: "Bucketed number of products user added to dashboard"
+    case: {
+      when: {
+        sql: COALESCE(${products_added_count}, 0) = 0 ;;
+        label: "No products added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${products_added_count}, 0) = 1 ;;
+        label: "One product added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${products_added_count}, 0) = 2 ;;
+        label: "Two products added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${products_added_count}, 0) = 3 ;;
+        label: "Three products added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${products_added_count}, 0) = 4 ;;
+        label: "Four products added to dashboard"
+      }
+      else: "Five or more products added to dashboard"
+    }
   }
 
   measure: count {
