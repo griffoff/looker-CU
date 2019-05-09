@@ -30,6 +30,7 @@ view: FullAccess_cohort {
     (
     SELECT
         user_sso_guid_merged
+          ,terms_chron_order_desc
           ,governmentdefinedacademicterm
           ,subscription_state
       FROM prod.cu_user_analysis.subscription_events_merged s
@@ -41,63 +42,78 @@ view: FullAccess_cohort {
       SELECT
           *
       FROM subscription_terms
-      PIVOT (COUNT (subscription_state) FOR governmentdefinedacademicterm IN ('Spring 2019', 'Fall 2019', 'Summer 2018', 'Spring 2018', 'Fall 2018'))
+      PIVOT (COUNT (subscription_state) FOR terms_chron_order_desc IN (1, 2, 3, 4, 5))
        ;;
   }
+
+  parameter: view_label {
+    type: string
+    default_value: "The Money Zone"
+  }
+
+  dimension: cost {
+    label: "{% parameter view_label %}"
+    type: number
+    sql: sql: ${TABLE}.COST  ;;
+  }
+
 
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: primary_key {
     type: string
     primary_key: yes
-    sql: ${user_sso_guid_merged} || ${fall_2019} || ${spring_2019} || ${summer_2018} || ${spring_2019} || ${fall_2018} ;;
+    sql: ${user_sso_guid_merged} || ${current} || ${minus_1} || ${minus_2} || ${minus_3} || ${minus_4} ;;
+    hidden: yes
   }
 
   dimension: user_sso_guid_merged {
     type: string
     sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
+    hidden: yes
   }
 
-    dimension: fall_2019 {
-      group_label: "Full Access"
-      type: number
-      label: "Fall 2019"
-      sql: CASE WHEN ${TABLE}."'Fall 2019'" > 0 THEN 1 END;;
-    }
+  dimension: current {
+    group_label: "Full Access"
+    type: number
+    label: "Spring 2019 (Current)"
+    sql: CASE WHEN ${TABLE}."1" > 0 THEN 1 END;;
+  }
 
-    dimension: spring_2019 {
-      group_label: "Full Access"
-      type: number
-      label: "Spring 2019"
-      sql:  CASE WHEN ${TABLE}."'Spring 2019'" > 0 THEN 1 END ;;
-    }
+  dimension: minus_1 {
+    group_label: "Full Access"
+    type: number
+    label: "Fall 2019"
+    sql:  CASE WHEN ${TABLE}."2" > 0 THEN 1 END ;;
+  }
 
-    dimension: summer_2018 {
-      group_label: "Full Access"
-      type: number
-      label: "Summer 2018"
-      sql:  CASE WHEN ${TABLE}."'Summer 2018'" > 0 THEN 1 END ;;
-    }
+  dimension: minus_2 {
+    group_label: "Full Access"
+    type: number
+    label: "Summer 2018"
+    sql:  CASE WHEN ${TABLE}."3" > 0 THEN 1 END ;;
+  }
 
-    dimension: spring_2018 {
-      group_label: "Full Access"
-      type: number
-      label: "Spring 2018"
-      sql:  CASE WHEN ${TABLE}."'Spring 2020'" > 0 THEN 1 END ;;
-    }
+  dimension: minus_3 {
+    group_label: "Full Access"
+    type: number
+    label: "Spring 2018"
+    sql:  CASE WHEN ${TABLE}."4" > 0 THEN 1 END ;;
+  }
 
-    dimension: fall_2018 {
-      group_label: "Full Access"
-      type: number
-      label: "Fall 2018"
-      sql:  CASE WHEN ${TABLE}."'Fall 2018'" > 0 THEN 1 END ;;
-    }
+  dimension: minus_4 {
+    group_label: "Full Access"
+    type: number
+    label: "Fall 2018"
+    sql:  CASE WHEN ${TABLE}."5" > 0 THEN 1 END ;;
+  }
 
 
   set: detail {
-    fields: [user_sso_guid_merged, fall_2019, spring_2019, summer_2018, spring_2018, fall_2018]
+    fields: [user_sso_guid_merged, current, minus_1, minus_2, minus_3, minus_4]
   }
 }
