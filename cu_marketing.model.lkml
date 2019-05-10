@@ -3,8 +3,7 @@ connection: "snowflake_prod"
 include: "*.view.lkml"
 include: "//core/common.lkml"
 include: "//cube/dims.lkml"
-include: "//cube/dim_course.view"
-include: "//cube/ga_mobiledata.view"
+# include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
 
 
