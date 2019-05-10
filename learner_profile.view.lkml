@@ -395,6 +395,7 @@ view: learner_profile {
 #            OR ${TABLE}.latest_full_access_subscription_end_date IS NULL AND  ${user_courses.activation_date} IS NOT NULL ;;
   }
 
+
   dimension: cu_price {
     type: number
     sql: 120 ;;

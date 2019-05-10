@@ -45,6 +45,14 @@ view: live_subscription_status {
     sql_end: current_date() ;;
   }
 
+  dimension_group: time_left_in_current_status {
+    type: duration
+    intervals: [day, week, month]
+    sql_start: current_timestamp() ;;
+    sql_end: ${subscription_end_date} ;;
+
+}
+
   measure: latest_data_date {
     description: "The latest time at which any subscription event has been received"
     type: date_time

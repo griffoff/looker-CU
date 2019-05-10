@@ -568,11 +568,13 @@ view: learner_profile_dev {
     sql: ${TABLE}.latest_trial_start_date ;;
   }
 
+
   dimension_group: latest_trial_end {
     type: time
     timeframes: [date, week, month, month_name]
     sql: ${TABLE}.latest_trial_end_date ;;
   }
+
 
   dimension_group: latest_full_access_subscription_start {
     type: time
