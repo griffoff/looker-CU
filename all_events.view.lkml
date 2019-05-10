@@ -3,6 +3,10 @@ view: all_events {
   view_label: "Events"
   sql_table_name: CU_USER_ANALYSIS.all_events ;;
 
+  set: marketing_fields {
+    fields: [all_events.event_subscription_state, all_events.product_platform, all_events.event_name, all_events.local_date, all_events.local_time, all_events.local_week]
+  }
+
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
