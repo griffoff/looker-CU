@@ -1,5 +1,3 @@
-connection: "snowflake_prod"
-
 include: "*.view.lkml"
 include: "//core/common.lkml"
 include: "//cube/dims.lkml"
