@@ -1,5 +1,3 @@
-connection: "snowflake_prod"
-
 include: "*.view.lkml"
 include: "//core/common.lkml"
 include: "//cube/dims.lkml"
@@ -13,6 +11,7 @@ explore: marketing_analysis {
   label: "Marketing CU User Analysis"
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
   extends: [session_analysis]
+
   fields: [learner_profile.marketing_fields* ,all_events.marketing_fields*,live_subscription_status.marketing_fields*,
     merged_cu_user_info.marketing_fields*,
     dim_institution.marketing_fields*,
