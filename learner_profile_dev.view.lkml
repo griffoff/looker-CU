@@ -1,10 +1,9 @@
 include: "learner_profile.view"
-connection: "snowflake_dev"
 
 view: learner_profile_dev {
   extends: [learner_profile]
   label: "Learner Profile - Dev"
-  sql_table_name: CU_USER_ANALYSIS_DEV.learner_profile ;;
+  sql_table_name: dev.cu_user_analysis_dev.learner_profile ;;
 
   ### Dimension section ###
   dimension: courses {

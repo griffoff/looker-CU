@@ -5,7 +5,7 @@ connection: "snowflake_dev"
 view: all_sessions_dev {
   extends: [all_sessions]
   label: "all sessions dev"
-  sql_table_name: CU_USER_ANALYSIS_DEV.all_sessions ;;
+  sql_table_name: dev.cu_user_analysis_dev.all_sessions ;;
 
 
 
