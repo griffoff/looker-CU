@@ -11,6 +11,10 @@ view: learner_profile {
       ,new_customer, first_activation_date]
   }
 
+  set: marketing_fields {
+    fields: [learner_profile.user_sso_guid, learner_profile.subscription_start_date, learner_profile.subscription_end_date, learner_profile.products_added_count, learner_profile.products_added_tier]
+  }
+
 
   parameter: no_of_groups {
     label: "Select a number of groups to split the data into"

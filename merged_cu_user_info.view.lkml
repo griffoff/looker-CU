@@ -18,6 +18,10 @@ view: merged_cu_user_info {
 #     ;;
 #   }
 
+set: marketing_fields {
+  fields: [merged_cu_user_info.email, merged_cu_user_info.first_name, merged_cu_user_info.last_name]
+}
+
   dimension: user_sso_guid {
     label: "User SSO GUID"
     sql: ${TABLE}.merged_guid ;;

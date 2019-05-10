@@ -1,5 +1,4 @@
 include: "all_sessions.view"
-connection: "snowflake_dev"
 
 
 view: all_sessions_dev {

@@ -6,6 +6,9 @@ view: live_subscription_status {
       FROM ${raw_subscription_event.SQL_TABLE_NAME}
       WHERE latest;;
   }
+  set: marketing_fields {
+    fields: [live_subscription_status.student_count]
+  }
 
   dimension: user_sso_guid {
     label: "User SSO GUID"
