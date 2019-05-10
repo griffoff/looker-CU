@@ -1,5 +1,7 @@
 include: "user_courses.view"
 include: "//core/common.lkml"
+connection: "snowflake_dev"
+
 view: user_courses_dev {
   extends: [user_courses]
   view_label: "User Courses Dev"

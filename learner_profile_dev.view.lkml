@@ -1,4 +1,5 @@
 include: "learner_profile.view"
+connection: "snowflake_dev"
 
 view: learner_profile_dev {
   extends: [learner_profile]

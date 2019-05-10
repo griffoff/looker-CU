@@ -1,5 +1,7 @@
 include: "all_events.view"
 include: "//core/common.lkml" # formats
+connection: "snowflake_dev"
+
 view: all_events_dev {
   sql_table_name: CU_USER_ANALYSIS_DEV.all_events ;;
  extends: [all_events]
