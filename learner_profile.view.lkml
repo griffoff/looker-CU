@@ -12,7 +12,8 @@ view: learner_profile {
   }
 
   set: marketing_fields {
-    fields: [learner_profile.user_sso_guid, learner_profile.subscription_start_date, learner_profile.subscription_end_date, learner_profile.products_added_count, learner_profile.products_added_tier]
+    fields: [learner_profile.user_sso_guid, learner_profile.subscription_start_date, learner_profile.subscription_end_date, learner_profile.products_added_count, learner_profile.products_added_tier,
+      learner_profile.courseware_added_count, learner_profile.courseware_added_tier]
   }
 
 
@@ -329,6 +330,52 @@ view: learner_profile {
         label: "Four products added to dashboard"
       }
       else: "Five or more products added to dashboard"
+    }
+  }
+
+  dimension: all_courseware_added {
+    group_label: "Provisioned Products"
+    label: "courseware added"
+    description: "List of all courseware iac_isbn provisioned to dashboard from the provisioned product table"
+    drill_fields: [details*]
+    sql: array_to_string(${TABLE}.all_courseware_added, ', ') ;;
+  }
+
+  dimension: courseware_added_count {
+    group_label: "Provisioned Products"
+    type: number
+    label: "# courseware"
+    sql: COALESCE(array_size(${TABLE}.all_courseware_added), 0) ;;
+    description: "Number of different courweware iac_isbn provisioned to dashboard"
+  }
+
+
+  dimension: courseware_added_tier {
+    group_label: "Provisioned Products"
+    label: "# courseware (buckets)"
+    description: "Bucketed number of courseware user added to dashboard"
+    case: {
+      when: {
+        sql: COALESCE(${courseware_added_count}, 0) = 0 ;;
+        label: "No courseware added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${courseware_added_count}, 0) = 1 ;;
+        label: "One courseware added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${courseware_added_count}, 0) = 2 ;;
+        label: "Two courseware added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${courseware_added_count}, 0) = 3 ;;
+        label: "Three courseware added to dashboard"
+      }
+      when: {
+        sql: COALESCE(${courseware_added_count}, 0) = 4 ;;
+        label: "Four courseware added to dashboard"
+      }
+      else: "Five or more courseware added to dashboard"
     }
   }
 

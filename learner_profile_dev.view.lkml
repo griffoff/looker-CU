@@ -203,7 +203,7 @@ view: learner_profile_dev {
     description: "Cost savings bucketed"
     sql:   ${cost_savings};;
     type: tier
-    tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60,90,120,150,180,210]
+    tiers: [-210, -180, -150, -120, -90, -60, -30, 0,30,60, 90, 120, 150, 180, 210]
     style: relational
     value_format_name: usd_0
   }
