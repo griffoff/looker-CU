@@ -10,7 +10,7 @@ case_sensitive: no
 explore: marketing_analysis {
   label: "Marketing CU User Analysis"
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
-  extends: [session_analysis]
+  extends: [session_analysis_dev]
 
   fields: [learner_profile.marketing_fields* ,all_events.marketing_fields*,live_subscription_status.marketing_fields*,
     merged_cu_user_info.marketing_fields*,
@@ -20,7 +20,8 @@ explore: marketing_analysis {
     dim_course.marketing_fields*,
     instiution_star_rating.marketing_fields*,
     courseinstructor.instructoremail,
-    olr_courses.instructor_name, olr_courses.instructor_guid
+    olr_courses.instructor_name, olr_courses.instructor_guid,
+    subscription_term_products_value.marketing_fields*, subscription_term_cost.marketing_fields*
     ]
 
   join: instiution_star_rating {

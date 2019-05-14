@@ -31,6 +31,7 @@ view: subscription_term_products_value {
           ,governmentdefinedacademicterm
           ,subscription_state
           ,DATEDIFF('d', subscription_start, subscription_end) AS subscription_length_days
+          ,u.entity_name
           ,u.isbn
           ,u.net_price
           ,pp.deleted
@@ -45,7 +46,7 @@ view: subscription_term_products_value {
         ON s.user_sso_guid_merged = pp.user_sso_guid
         AND d.start_date < pp.expiration_date
         AND d.end_date > pp.local_time
-      LEFT JOIN prod.cu_user_analysis.user_courses u
+      LEFT JOIN prod.cu_user_analysis_dev.user_courses u
         ON s.user_sso_guid_merged = u.user_sso_guid
       WHERE s.subscription_state = 'full_access'
      )
@@ -58,14 +59,19 @@ view: subscription_term_products_value {
         user_sso_guid_merged
         ,governmentdefinedacademicterm
         ,subscription_state
+        ,entity_name
         ,SUM(1) AS "1"
         ,SUM(2) AS "2"
         ,SUM(3) AS "3"
         ,SUM(4) AS "4"
         ,SUM(5) AS "5"
      FROM subscription_term_value
-     GROUP BY user_sso_guid_merged, governmentdefinedacademicterm, subscription_state
+     GROUP BY user_sso_guid_merged, governmentdefinedacademicterm, subscription_state, entity_name
        ;;
+  }
+
+  set: marketing_fields {
+    fields: [subscription_term_products_value.institutional_term_cu_value_previous_term]
   }
 
   measure: count {
@@ -83,9 +89,20 @@ view: subscription_term_products_value {
     sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
   }
 
+  dimension: term_guid {
+    type: string
+    sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
+    primary_key: yes
+  }
+
   dimension: subscription_state {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+  }
+
+  dimension: entity_name {
+    type: string
+    sql: ${TABLE}."ENTITY_NAME" ;;
   }
 
     dimension: current {
@@ -122,6 +139,14 @@ view: subscription_term_products_value {
       label: "Fall 2018"
       sql:  COALESCE(${TABLE}."5", 0) ;;
     }
+
+  measure: institutional_term_cu_value_previous_term {
+    group_label: "Institutional savings"
+    view_label: "Institution"
+    label: "Institutional CU Value - previous term"
+    type: sum
+    sql: ${minus_1} ;;
+  }
 
   set: detail {
     fields: [
