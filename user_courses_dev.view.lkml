@@ -4,7 +4,34 @@ include: "//core/common.lkml"
 view: user_courses_dev {
   extends: [user_courses]
   view_label: "User Courses Dev"
-  sql_table_name: ZPG.user_courses ;;
+  sql_table_name: prod.cu_user_analysis.user_courses ;;
+
+  set: marketing_fields {
+    fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers]
+  }
+
+  dimension: net_price_enrolled {
+    view_label: "Learner Profile"
+    label: "$ value of enrolled courses"
+    type: number
+    sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
+  }
+
+
+  dimension: amount_to_upgrade_tiers {
+    view_label: "Learner Profile"
+    type: string
+    sql: CASE
+            WHEN ${net_price_enrolled} = 0 THEN '0'
+            WHEN ${net_price_enrolled} < 10 THEN '$0.01-$9.99'
+            WHEN ${net_price_enrolled} < 20 THEN '$10.00-$19.99'
+            WHEN ${net_price_enrolled} < 30 THEN '$20.00-$29.99'
+            WHEN ${net_price_enrolled} < 40 THEN '$30.00-$39.99'
+            WHEN ${net_price_enrolled} < 50 THEN '$40.00-$49.99'
+            ELSE 'over $50.00'
+            END
+            ;;
+  }
 
   dimension: activation_code {
     type: string

@@ -22,6 +22,7 @@ explore: marketing_analysis {
     courseinstructor.instructoremail,
     olr_courses.instructor_name, olr_courses.instructor_guid,
     subscription_term_products_value.marketing_fields*, subscription_term_cost.marketing_fields*
+    ,user_courses.marketing_fields*
     ]
 
   join: instiution_star_rating {
