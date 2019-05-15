@@ -1,5 +1,5 @@
 view: all_sessions {
-  sql_table_name: CU_USER_ANALYSIS.ALL_SESSIONS ;;
+  sql_table_name: prod.cu_user_analysis_dev.all_sessions ;;
   view_label: "Sessions"
 
   dimension: session_id {

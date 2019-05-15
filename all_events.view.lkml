@@ -1,7 +1,7 @@
 # include: "/core/common.lkml"
 view: all_events {
   view_label: "Events"
-  sql_table_name: CU_USER_ANALYSIS.all_events ;;
+  sql_table_name: prod.cu_user_analysis_dev.all_events ;;
 
   set: marketing_fields {
     fields: [all_events.event_subscription_state, all_events.product_platform, all_events.event_name, all_events.local_date, all_events.local_time, all_events.local_week]
