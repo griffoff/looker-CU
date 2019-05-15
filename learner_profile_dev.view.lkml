@@ -3,7 +3,13 @@ include: "learner_profile.view"
 view: learner_profile_dev {
   extends: [learner_profile]
   label: "Learner Profile - Dev"
-  sql_table_name: dev.cu_user_analysis_dev.learner_profile ;;
+  sql_table_name: prod.cu_user_analysis_dev.learner_profile_temp ;;
+
+#   set: marketing_fields {
+#     fields: [learner_profile_dev.user_sso_guid, learner_profile_dev.subscription_start_date, learner_profile_dev.subscription_end_date, learner_profile_dev.products_added_count, learner_profile_dev.products_added_tier,
+#       learner_profile_dev.courseware_added_count, learner_profile_dev.courseware_added_tier]
+#   }
+
 
   ### Dimension section ###
   dimension: courses {

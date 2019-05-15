@@ -38,7 +38,7 @@ view: subscription_term_products_value {
           ,pp.expiration_date
           ,pp.local_time
           ,pp.date_added
-      FROM prod.cu_user_analysis.subscription_events_merged s
+      FROM prod.cu_user_analysis_dev.subscription_event_merged s
       LEFT JOIN term_dates_five_most_recent d
         ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
         OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)

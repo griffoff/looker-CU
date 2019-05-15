@@ -41,7 +41,7 @@ view: subscription_term_cost {
                 ,e.entity_name
                 ,DATEDIFF('d', subscription_start, subscription_end) AS subscription_length_days
                 ,RANK() OVER (PARTITION BY user_sso_guid_merged, governmentdefinedacademicterm ORDER BY subscription_start DESC) AS user_term_sub_rank
-            FROM prod.cu_user_analysis.subscription_events_merged s
+            FROM prod.cu_user_analysis_dev.subscription_event_merged s
             LEFT JOIN term_dates_five_most_recent d
               ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
               OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)

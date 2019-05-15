@@ -4,7 +4,7 @@ include: "//core/common.lkml"
 view: user_courses_dev {
   extends: [user_courses]
   view_label: "User Courses Dev"
-  sql_table_name: prod.cu_user_analysis.user_courses ;;
+  sql_table_name: prod.cu_user_analysis_dev.user_courses ;;
 
   set: marketing_fields {
     fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers]
