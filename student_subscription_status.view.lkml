@@ -1,5 +1,5 @@
 view: student_subscription_status {
-sql_table_name: zpg.STUDENT_SUBSCRIPTION_STATUS ;;
+sql_table_name: cu_user_analysis.STUDENT_SUBSCRIPTION_STATUS ;;
 
 # derived_table: {
 #   sql:
