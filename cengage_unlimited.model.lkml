@@ -295,6 +295,24 @@ explore: session_analysis_dev {
     relationship:  one_to_many
   }
 
+  join: subscription_term_savings {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_savings.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: subscription_term_careercenter_clicks {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_careercenter_clicks.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_chegg_activated {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_chegg_activated.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: all_events {
     from: all_events_dev
   }

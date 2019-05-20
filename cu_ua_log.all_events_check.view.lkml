@@ -6,7 +6,7 @@ view: all_events_check {
     SELECT
       *
       ,LAG(run_time_stamp) OVER (PARTITION BY run_id ORDER BY run_time_stamp) AS last_run_time
-    FROM prod.cu_user_analysis_dev.all_events_check ;; }
+    FROM prod.cu_user_analysis.all_events_check ;; }
 
 
   dimension: event_name {

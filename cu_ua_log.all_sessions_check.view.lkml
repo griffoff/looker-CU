@@ -1,5 +1,5 @@
 view: all_sessions_check {
-  sql_table_name:cu_user_analysis_dev.all_sessions_check ;;
+  sql_table_name: prod.cu_user_analysis.all_sessions_check ;;
 
   dimension: run_id {
     type: number
