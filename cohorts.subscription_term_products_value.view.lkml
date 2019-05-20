@@ -1,4 +1,7 @@
+include: "cohorts_base.view"
+
 view: subscription_term_products_value {
+  extends: [cohorts_base]
   derived_table: {
     sql:  WITH
     term_dates AS
@@ -70,75 +73,34 @@ view: subscription_term_products_value {
        ;;
   }
 
+
   set: marketing_fields {
     fields: [subscription_term_products_value.institutional_term_cu_value_previous_term]
   }
 
-  measure: count {
-    type: count
-    drill_fields: [detail*]
-  }
-
-  dimension: user_sso_guid_merged {
-    type: string
-    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
-  }
-
-  dimension: governmentdefinedacademicterm {
-    type: string
-    sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
-  }
 
   dimension: term_guid {
     type: string
     sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
     primary_key: yes
-  }
-
-  dimension: subscription_state {
-    type: string
-    sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+    hidden: yes
   }
 
   dimension: entity_name {
     type: string
     sql: ${TABLE}."ENTITY_NAME" ;;
+    hidden: yes
   }
 
-    dimension: current {
-      group_label: "CU Term Value ($)"
-      type: number
-      label: "Spring 2019 (Current)"
-      sql: COALESCE(${TABLE}."1", 0) ;;
-    }
+  dimension: current {group_label: "CU Term Value ($)"}
 
-    dimension: minus_1 {
-      group_label: "CU Term Value ($)"
-      type: number
-      label: "Fall 2019"
-      sql:  COALESCE(${TABLE}."2", 0) ;;
-    }
+  dimension: minus_1 {group_label: "CU Term Value ($)"}
 
-    dimension: minus_2 {
-      group_label: "CU Term Value ($)"
-      type: number
-      label: "Summer 2018"
-      sql: COALESCE(${TABLE}."3", 0) ;;
-    }
+  dimension: minus_2 {group_label: "CU Term Value ($)"}
 
-    dimension: minus_3 {
-      group_label: "CU Term Value ($)"
-      type: number
-      label: "Spring 2018"
-      sql:  COALESCE(${TABLE}."4", 0);;
-    }
+  dimension: minus_3 {group_label: "CU Term Value ($)"}
 
-    dimension: minus_4 {
-      group_label: "CU Term Value ($)"
-      type: number
-      label: "Fall 2018"
-      sql:  COALESCE(${TABLE}."5", 0) ;;
-    }
+  dimension: minus_4 {group_label: "CU Term Value ($)"}
 
   measure: institutional_term_cu_value_previous_term {
     group_label: "Institutional savings"
@@ -148,12 +110,11 @@ view: subscription_term_products_value {
     sql: ${minus_1} ;;
   }
 
-  set: detail {
-    fields: [
-      user_sso_guid_merged,
-      governmentdefinedacademicterm,
-      subscription_state,
-      current, minus_1, minus_2, minus_3, minus_4
-    ]
-  }
+
+#   set: detail {
+#     fields: [
+#       subscription_state,
+#       current, minus_1, minus_2, minus_3, minus_4
+#     ]
+#   }
 }

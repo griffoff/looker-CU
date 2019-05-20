@@ -1,4 +1,7 @@
+include: "cohorts_base.view"
+
 view: subscription_term_cost {
+  extends: [cohorts_base]
   derived_table: {
     sql: WITH
           term_dates AS
@@ -88,76 +91,35 @@ view: subscription_term_cost {
     fields: [subscription_term_cost.institutional_cu_cost_previous_term]
   }
 
-  measure: count {
-    type: count
-    drill_fields: [detail*]
-  }
-
-  dimension: user_sso_guid_merged {
-    type: string
-    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
-  }
-
-  dimension: governmentdefinedacademicterm {
-    type: string
-    sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
-  }
 
   dimension: term_guid {
     type: string
     sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
     primary_key: yes
+    hidden: yes
   }
 
   dimension: subscription_state {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+    hidden: yes
   }
 
   dimension: entity_name {
     type: string
     sql: ${TABLE}."ENTITY_NAME" ;;
+    hidden: yes
   }
 
-  dimension: subscription_length_days {
-    type: number
-    sql: ${TABLE}."SUBSCRIPTION_LENGTH_DAYS" ;;
-  }
+  dimension: current {group_label: "CU Term Cost ($)"}
 
-   dimension: current {
-    group_label: "CU Term Cost ($)"
-    type: number
-    label: "Spring 2019 (Current)"
-    sql: COALESCE(${TABLE}."1", 0) ;;
-  }
+  dimension: minus_1 {group_label: "CU Term Cost ($)"}
 
-  dimension: minus_1 {
-    group_label: "CU Term Cost ($)"
-    type: number
-    label: "Fall 2019"
-    sql:  COALESCE(${TABLE}."2", 0) ;;
-  }
+  dimension: minus_2 {group_label: "CU Term Cost ($)"}
 
-  dimension: minus_2 {
-    group_label: "CU Term Cost ($)"
-    type: number
-    label: "Summer 2018"
-    sql: COALESCE(${TABLE}."3", 0) ;;
-  }
+  dimension: minus_3 {group_label: "CU Term Cost ($)"}
 
-  dimension: minus_3 {
-    group_label: "CU Term Cost ($)"
-    type: number
-    label: "Spring 2018"
-    sql:  COALESCE(${TABLE}."4", 0);;
-  }
-
-  dimension: minus_4 {
-    group_label: "CU Term Cost ($)"
-    type: number
-    label: "Fall 2018"
-    sql:  COALESCE(${TABLE}."5", 0) ;;
-  }
+  dimension: minus_4 {group_label: "CU Term Cost ($)"}
 
   measure: institutional_cu_cost_previous_term {
     group_label: "Institutional savings"
@@ -172,7 +134,6 @@ view: subscription_term_cost {
       user_sso_guid_merged,
       governmentdefinedacademicterm,
       subscription_state,
-      subscription_length_days,
      current, minus_1, minus_2, minus_3, minus_4
     ]
   }

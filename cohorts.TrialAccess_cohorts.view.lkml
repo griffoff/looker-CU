@@ -1,5 +1,7 @@
-view: TrialAccess_cohorts {
+include: "cohorts_base.view"
 
+view: TrialAccess_cohorts {
+  extends: [cohorts_base]
   derived_table: {
     sql:
      WITH
@@ -45,11 +47,6 @@ view: TrialAccess_cohorts {
        ;;
   }
 
-  measure: count {
-    type: count
-    drill_fields: [detail*]
-    hidden: yes
-  }
 
   dimension: primary_key {
     type: string
@@ -58,44 +55,28 @@ view: TrialAccess_cohorts {
     hidden: yes
   }
 
-  dimension: user_sso_guid_merged {
-    type: string
-    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
-    hidden: yes
-  }
-
   dimension: current {
     group_label: "Trial Access"
-    type: number
-    label: "Spring 2019 (Current)"
     sql: CASE WHEN ${TABLE}."1" > 0 THEN 1 END;;
   }
 
   dimension: minus_1 {
     group_label: "Trial Access"
-    type: number
-    label: "Fall 2019"
     sql:  CASE WHEN ${TABLE}."2" > 0 THEN 1 END ;;
   }
 
   dimension: minus_2 {
     group_label: "Trial Access"
-    type: number
-    label: "Summer 2018"
     sql:  CASE WHEN ${TABLE}."3" > 0 THEN 1 END ;;
   }
 
   dimension: minus_3 {
     group_label: "Trial Access"
-    type: number
-    label: "Spring 2018"
     sql:  CASE WHEN ${TABLE}."4" > 0 THEN 1 END ;;
   }
 
   dimension: minus_4 {
     group_label: "Trial Access"
-    type: number
-    label: "Fall 2018"
     sql:  CASE WHEN ${TABLE}."5" > 0 THEN 1 END ;;
   }
 
