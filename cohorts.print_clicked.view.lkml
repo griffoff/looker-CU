@@ -1,8 +1,7 @@
 include: "cohorts_base.view"
 
-view: cohorts_activated_kaplan {
-
-  extends: [cohorts_base]
+view: cohorts_print_clicked {
+extends: [cohorts_base]
 
   derived_table: {
     sql: WITH
@@ -35,7 +34,7 @@ view: cohorts_activated_kaplan {
                 ,terms_chron_order_desc
                 ,governmentdefinedacademicterm
                 ,s.subscription_state
-                ,CASE WHEN event_name = 'Clicked on Career Center' THEN 1 END AS clicked_career_center
+                ,CASE WHEN event_name = 'Print Options Clicked' THEN 1 END AS clicked_career_center
             FROM prod.cu_user_analysis_dev.subscription_event_merged s
             LEFT JOIN term_dates_five_most_recent d
               ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
@@ -56,4 +55,16 @@ view: cohorts_activated_kaplan {
            SELECT * FROM subscription_term_career_center_clicks_agg
        ;;
   }
-  }
+
+
+  dimension: current {group_label: "Print options clicked"}
+
+  dimension: minus_1 {group_label: "Print options clicked"}
+
+  dimension: minus_2 {group_label: "Print options clicked"}
+
+  dimension: minus_3 {group_label: "Print options clicked"}
+
+  dimension: minus_4 {group_label: "Print options clicked"}
+
+}

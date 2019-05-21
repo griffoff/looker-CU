@@ -1,6 +1,6 @@
 explore: guid_cohort {}
 view: guid_cohort {
-  label: "X - Cohort Analysis - X"
+  label: "X Cohort Analysis X"
   derived_table: {
     sql: Select * from uploads.cu.guid_cohort where NOT _fivetran_deleted
       ;;
@@ -17,7 +17,10 @@ view: guid_cohort {
     hidden: yes
   }
 
-  dimension: cohort_group {}
+  dimension: cohort_group {
+    label: "Custom cohort"
+    description: "Upload custom list of guids via Fivetran. Please reach out to Looker admin if interested in using"
+  }
 
   dimension: _fivetran_deleted {
     hidden: yes
@@ -26,7 +29,7 @@ view: guid_cohort {
   }
 
   dimension: guid {
-    label: "Cohort GUID"
+    label: "Custom Cohort GUID"
     type: string
     sql: ${TABLE}."GUID" ;;
   }

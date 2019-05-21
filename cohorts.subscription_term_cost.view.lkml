@@ -111,7 +111,7 @@ view: subscription_term_cost {
     hidden: yes
   }
 
-  dimension: current {group_label: "CU Term Cost ($)"}
+  dimension: current {group_label: "CU Term Cost ($)" }
 
   dimension: minus_1 {group_label: "CU Term Cost ($)"}
 
