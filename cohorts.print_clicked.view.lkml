@@ -1,6 +1,12 @@
 include: "cohorts_base.view"
 
 view: cohorts_print_clicked {
+
+  set: marketing_fields {
+    fields: [cohorts_print_clicked.current, cohorts_print_clicked.minus_1, cohorts_print_clicked.minus_2, cohorts_print_clicked.minus_3, cohorts_print_clicked.minus_4
+    ]
+  }
+
 extends: [cohorts_base]
 
   derived_table: {

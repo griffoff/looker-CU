@@ -2,6 +2,12 @@ include: "cohorts_base.view"
 
 view: FullAccess_cohort {
   extends: [cohorts_base]
+
+  set: marketing_fields {
+    fields: [FullAccess_cohort.current, FullAccess_cohort.minus_1, FullAccess_cohort.minus_2, FullAccess_cohort.minus_3, FullAccess_cohort.minus_4,
+     ]
+  }
+
   derived_table: {
     sql:
      WITH
@@ -34,7 +40,7 @@ view: FullAccess_cohort {
           ,terms_chron_order_desc
           ,governmentdefinedacademicterm
           ,subscription_state
-      FROM prod.cu_user_analysis.subscription_events_merged s
+      FROM prod.cu_user_analysis.subscription_event_merged s
       LEFT JOIN term_dates_five_most_recent d
         ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
         OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
@@ -46,6 +52,8 @@ view: FullAccess_cohort {
       PIVOT (COUNT (subscription_state) FOR terms_chron_order_desc IN (1, 2, 3, 4, 5))
        ;;
   }
+
+
 
 
   dimension: primary_key {

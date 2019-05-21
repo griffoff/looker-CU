@@ -1,7 +1,13 @@
-
 include: "cohorts_base.view"
-explore: subscription_term_careercenter_clicks {}
+
+
 view: subscription_term_careercenter_clicks {
+
+  set: marketing_fields {
+    fields: [subscription_term_careercenter_clicks.current, subscription_term_careercenter_clicks.minus_1, subscription_term_careercenter_clicks.minus_2, subscription_term_careercenter_clicks.minus_3, subscription_term_careercenter_clicks.minus_4
+    ]
+  }
+
   extends: [cohorts_base]
   derived_table: {
     sql: WITH

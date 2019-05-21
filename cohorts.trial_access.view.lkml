@@ -1,6 +1,12 @@
 include: "cohorts_base.view"
 
 view: TrialAccess_cohorts {
+
+  set: marketing_fields {
+    fields: [TrialAccess_cohorts.current, TrialAccess_cohorts.minus_1, TrialAccess_cohorts.minus_2, TrialAccess_cohorts.minus_3, TrialAccess_cohorts.minus_4
+    ]
+  }
+
   extends: [cohorts_base]
   derived_table: {
     sql:
@@ -34,7 +40,7 @@ view: TrialAccess_cohorts {
           ,terms_chron_order_desc
           ,governmentdefinedacademicterm
           ,subscription_state
-      FROM prod.cu_user_analysis.subscription_events_merged s
+      FROM prod.cu_user_analysis.subscription_event_merged s
       LEFT JOIN term_dates_five_most_recent d
         ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
         OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)

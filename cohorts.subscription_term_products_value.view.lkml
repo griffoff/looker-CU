@@ -1,6 +1,14 @@
 include: "cohorts_base.view"
 
 view: subscription_term_products_value {
+
+  set: marketing_fields {
+    fields: [subscription_term_products_value.current, subscription_term_products_value.minus_1,
+      subscription_term_products_value.minus_2, subscription_term_products_value.minus_3,
+      subscription_term_products_value.minus_4, subscription_term_products_value.institutional_term_cu_value_previous_term
+    ]
+  }
+
   extends: [cohorts_base]
   derived_table: {
     sql:  WITH
@@ -71,11 +79,6 @@ view: subscription_term_products_value {
      FROM subscription_term_value
      GROUP BY user_sso_guid_merged, governmentdefinedacademicterm, subscription_state, entity_name
        ;;
-  }
-
-
-  set: marketing_fields {
-    fields: [subscription_term_products_value.institutional_term_cu_value_previous_term]
   }
 
 

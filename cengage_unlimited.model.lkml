@@ -276,13 +276,13 @@ explore: session_analysis_dev {
   }
 
   join: FullAccess_cohort {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: TrialAccess_cohorts {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
@@ -306,61 +306,61 @@ explore: session_analysis_dev {
   }
 
   join: subscription_term_careercenter_clicks {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_careercenter_clicks.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_chegg_clicked {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_chegg_clicked.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_kaplan_clicked {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_kaplan_clicked.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_quizlet_clicked {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_quizlet_clicked.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_evernote_clicked {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_evernote_clicked.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_print_clicked {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_print_clicked.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_courseware_dashboard {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_courseware_dashboard.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_testprep_dashboard {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_testprep_dashboard.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_studyguide_dashboard {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_studyguide_dashboard.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
   join: cohorts_flashcards_dashboard {
-    view_label: "Learner Cohort Analysis"
+    view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_flashcards_dashboard.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }

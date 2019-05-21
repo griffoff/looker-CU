@@ -4,6 +4,11 @@ view: cohorts_quizlet_clicked {
 
   extends: [cohorts_base]
 
+  set: marketing_fields {
+    fields: [cohorts_quizlet_clicked.current, cohorts_quizlet_clicked.minus_1, cohorts_quizlet_clicked.minus_2, cohorts_quizlet_clicked.minus_3, cohorts_quizlet_clicked.minus_4
+    ]
+  }
+
   derived_table: {
     sql: WITH
           term_dates AS

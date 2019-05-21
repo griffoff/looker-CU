@@ -2,6 +2,11 @@ include: "cohorts_base.view"
 
 view: cohorts_chegg_clicked {
 
+  set: marketing_fields {
+    fields: [cohorts_chegg_clicked.current, cohorts_chegg_clicked.minus_1, cohorts_chegg_clicked.minus_2, cohorts_chegg_clicked.minus_3, cohorts_chegg_clicked.minus_4
+    ]
+  }
+
   extends: [cohorts_base]
 
   derived_table: {

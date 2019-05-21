@@ -1,6 +1,14 @@
 include: "cohorts_base.view"
 
 view: subscription_term_cost {
+
+  set: marketing_fields {
+    fields: [subscription_term_cost.current, subscription_term_cost.minus_1, subscription_term_cost.minus_2, subscription_term_cost.minus_3, subscription_term_cost.minus_4
+      ,subscription_term_cost.institutional_cu_cost_previous_term
+    ]
+  }
+
+
   extends: [cohorts_base]
   derived_table: {
     sql: WITH
@@ -85,10 +93,6 @@ view: subscription_term_cost {
             FROM previous_five_subscription_term_costs
             GROUP BY user_sso_guid_merged, governmentdefinedacademicterm, subscription_state, entity_name
        ;;
-  }
-
-  set: marketing_fields {
-    fields: [subscription_term_cost.institutional_cu_cost_previous_term]
   }
 
 

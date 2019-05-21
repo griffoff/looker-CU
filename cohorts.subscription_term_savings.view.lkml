@@ -1,6 +1,12 @@
 include: "cohorts_base.view"
 
 view: subscription_term_savings {
+
+  set: marketing_fields {
+    fields: [subscription_term_savings.current, subscription_term_savings.minus_1, subscription_term_savings.minus_2, subscription_term_savings.minus_3, subscription_term_savings.minus_4
+    ]
+  }
+
   extends: [cohorts_base]
   derived_table: {
     sql: WITH
@@ -104,12 +110,6 @@ view: subscription_term_savings {
                 AND c.entity_name = v.entity_name
             GROUP BY c.user_sso_guid_merged, c.governmentdefinedacademicterm, c.subscription_state, c.entity_name ;;
  }
-
-
-  set: marketing_fields {
-    fields: [subscription_term_products_value.institutional_term_cu_value_previous_term]
-  }
-
 
   dimension: term_guid {
     type: string

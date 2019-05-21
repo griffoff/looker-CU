@@ -3,7 +3,7 @@
 
 view: learner_profile {
   view_label: "Learner Profile"
-  sql_table_name: prod.cu_user_analysis.learner_profile_temp ;;
+  sql_table_name: prod.cu_user_analysis.learner_profile ;;
 
   set: details {
     fields: [user_sso_guid, subscription_status, cu_subscription_length, subscription_start_date, subscription_end_date

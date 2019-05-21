@@ -30,7 +30,21 @@ explore: marketing_analysis {
     ,subscription_term_products_value.marketing_fields*
     ,subscription_term_cost.marketing_fields*
     ,user_courses.marketing_fields*
-    ,
+    ,FullAccess_cohort.marketing_fields*
+    ,subscription_term_careercenter_clicks.marketing_fields*
+    ,cohorts_chegg_clicked.marketing_fields*
+    ,cohorts_courseware_dashboard.marketing_fields*
+    ,cohorts_evernote_clicked.marketing_fields*
+    ,cohorts_flashcards_dashboard.marketing_fields*
+    ,cohorts_kaplan_clicked.marketing_fields*
+    ,cohorts_print_clicked.marketing_fields*
+    ,cohorts_quizlet_clicked.marketing_fields*
+    ,cohorts_studyguide_dashboard.marketing_fields*
+    ,subscription_term_cost.marketing_fields*
+    ,subscription_term_products_value.marketing_fields*
+    ,subscription_term_savings.marketing_fields*
+    ,cohorts_testprep_dashboard.marketing_fields*
+    ,TrialAccess_cohorts.marketing_fields*
     ]
 
   join: instiution_star_rating {

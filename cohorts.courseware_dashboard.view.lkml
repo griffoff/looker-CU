@@ -1,6 +1,12 @@
 include: "cohorts_base.view"
 
   view: cohorts_courseware_dashboard {
+
+    set: marketing_fields {
+      fields: [cohorts_courseware_dashboard.current, cohorts_courseware_dashboard.minus_1, cohorts_courseware_dashboard.minus_2, cohorts_courseware_dashboard.minus_3, cohorts_courseware_dashboard.minus_4
+      ]
+    }
+
     extends: [cohorts_base]
     derived_table: {
       sql:  WITH
@@ -55,12 +61,6 @@ include: "cohorts_base.view"
          FROM subscription_term_value
                ;;
     }
-
-
-    set: marketing_fields {
-      fields: [subscription_term_products_value.institutional_term_cu_value_previous_term]
-    }
-
 
     dimension: term_guid {
       type: string
