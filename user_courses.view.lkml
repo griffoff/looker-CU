@@ -3,7 +3,7 @@ view: user_courses {
   sql_table_name: prod.cu_user_analysis_dev.user_courses ;;
 
   set: marketing_fields {
-    fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers]
+    fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers,no_enrollments]
   }
 
   dimension: net_price_enrolled {
@@ -72,6 +72,18 @@ view: user_courses {
     type: string
     sql: ${TABLE}."OLR_ENROLLMENT_KEY" ;;
     hidden: yes
+  }
+
+  dimension: enrolled {
+    type: yesno
+    sql: ${TABLE}.enrolled = 'TRUE'  ;;
+    hidden: yes
+  }
+
+  measure: no_enrollments {
+    label: "# enrollments"
+    type: sum
+    sql: CASE WHEN ${enrolled} THEN 1 ELSE 0 END  ;;
   }
 
   dimension: enrollment_date {

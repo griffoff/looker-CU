@@ -7,7 +7,7 @@ view: live_subscription_status {
       WHERE latest;;
   }
   set: marketing_fields {
-    fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status]
+    fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count]
   }
 
   dimension: user_sso_guid {
