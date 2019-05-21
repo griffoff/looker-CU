@@ -1,7 +1,7 @@
 include: "*.view.lkml"
 include: "//core/common.lkml"
 include: "//cube/dims.lkml"
-# include: "//cube/dim_course.view"
+include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
 
 
@@ -12,19 +12,25 @@ explore: marketing_analysis {
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
   extends: [session_analysis_dev]
 
-  fields: [learner_profile.marketing_fields* ,all_events.marketing_fields*,live_subscription_status.marketing_fields*,
-    merged_cu_user_info.marketing_fields*,
-    dim_institution.marketing_fields*,
-    dim_product.marketing_fields*,
-    dim_productplatform.productplatform,
-    dim_course.marketing_fields*,
-    instiution_star_rating.marketing_fields*,
-    course_section_facts.total_noofactivations,
-    courseinstructor.instructoremail,
-    dim_start_date.marketing_fields*,
-    olr_courses.instructor_name, olr_courses.instructor_guid,
-    subscription_term_products_value.marketing_fields*, subscription_term_cost.marketing_fields*
+  fields: [
+    learner_profile.marketing_fields*
+    ,all_events.marketing_fields*
+    ,live_subscription_status.marketing_fields*
+    ,merged_cu_user_info.marketing_fields*
+    ,dim_institution.marketing_fields*
+    ,dim_product.marketing_fields*
+    ,dim_productplatform.productplatform
+    ,dim_course.marketing_fields*
+    ,instiution_star_rating.marketing_fields*
+    ,course_section_facts.total_noofactivations
+    ,courseinstructor.instructoremail
+    ,dim_start_date.marketing_fields*
+    ,olr_courses.instructor_name
+    ,olr_courses.instructor_guid
+    ,subscription_term_products_value.marketing_fields*
+    ,subscription_term_cost.marketing_fields*
     ,user_courses.marketing_fields*
+    ,
     ]
 
   join: instiution_star_rating {

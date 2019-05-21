@@ -341,6 +341,30 @@ explore: session_analysis_dev {
     relationship:  one_to_many
   }
 
+  join: cohorts_courseware_dashboard {
+    view_label: "Learner Cohort Analysis"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_courseware_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_testprep_dashboard {
+    view_label: "Learner Cohort Analysis"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_testprep_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_studyguide_dashboard {
+    view_label: "Learner Cohort Analysis"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_studyguide_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_flashcards_dashboard {
+    view_label: "Learner Cohort Analysis"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_flashcards_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: all_events {
     from: all_events_dev
   }
