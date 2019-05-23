@@ -1,4 +1,4 @@
-include: "cohorts_base.view"
+include: "cohorts.base.view"
 
 view: cohorts_kaplan_clicked {
 
