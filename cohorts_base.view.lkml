@@ -87,6 +87,47 @@ dimension: minus_4 {
         hidden: yes
         }
 
+  parameter: dimension_current_name {
+    type: string
+    allowed_value: {
+      label: "Current label"
+      value: "Spring 2019"
+    }
+    }
+
+  parameter: dimension_minus_1_name {
+    type: string
+    allowed_value: {
+      label: "Minus 1 label"
+      value: "Fall 2019"
+    }
+    }
+
+    parameter: dimension_minus_2_name {
+      type: string
+      allowed_value: {
+        label: "Minus 2 label"
+        value: "Summer 2018"
+      }
+      }
+
+    parameter: dimension_minus_3_name {
+      type: string
+      allowed_value: {
+        label: "Minus 3 label"
+        value: "Spring 2018"
+      }
+      }
+
+    parameter: dimension_minus_4_name {
+      type: string
+      allowed_value: {
+        label: "Minus 4 label"
+        value: "Fall 2018"
+      }
+      }
+
+
 
    set: detail {
      fields: [
@@ -96,5 +137,4 @@ dimension: minus_4 {
        current, minus_1, minus_2, minus_3, minus_4
      ]
    }
-
 }
