@@ -62,7 +62,6 @@ extends: [cohorts_base]
        ;;
   }
 
-
   dimension: current {group_label: "Print options clicked"}
 
   dimension: minus_1 {group_label: "Print options clicked"}

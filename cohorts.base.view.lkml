@@ -18,33 +18,64 @@ dimension: subscription_state {
   hidden: yes
 }
 
+parameter: dimension_current_name {
+  type: unquoted
+  hidden: yes
+  default_value: "Spring_2019"
+}
+
+parameter: dimension_minus_1_name {
+  type: unquoted
+  hidden: yes
+  default_value: "Fall_2019"
+}
+
+parameter: dimension_minus_2_name {
+  type: unquoted
+  hidden: yes
+  default_value: "Summer_2018"
+}
+
+parameter: dimension_minus_3_name {
+  type: unquoted
+  hidden: yes
+  default_value: "Spring_2018"
+}
+
+parameter: dimension_minus_4_name {
+  type: unquoted
+  hidden: yes
+  default_value: "Fall_2018"
+}
+
+
 dimension: current {
   type: number
-  label: "Spring 2019"
+  label: "1) {{ _view._name | replace: '_', ' ' | capitalize }} {{ dimension_current_name._parameter_value | replace: '_', ' ' }}"
   sql: COALESCE(${TABLE}."1", 0) ;;
 }
 
 dimension: minus_1 {
   type: number
-  label: "Fall 2019"
+  label: "2) {{ _view._name | replace: '_', ' ' | capitalize }} {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
   sql:  COALESCE(${TABLE}."2", 0) ;;
 }
 
 dimension: minus_2 {
   type: number
-  label: "Summer 2018"
+  label: "3) {{ _view._name | replace: '_', ' ' | capitalize }} {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
   sql: COALESCE(${TABLE}."3", 0) ;;
 }
 
 dimension: minus_3 {
   type: number
-  label: "Spring 2018"
+  label: "4) {{ _view._name | replace: '_', ' ' | capitalize }} {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
   sql:  COALESCE(${TABLE}."4", 0);;
 }
 
 dimension: minus_4 {
   type: number
-  label: "Fall 2018"
+  label: "5) {{ _view._name | replace: '_', ' ' | capitalize }} {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
   sql:  COALESCE(${TABLE}."5", 0) ;;
 }
 
@@ -86,48 +117,6 @@ dimension: minus_4 {
         }
         hidden: yes
         }
-
-  parameter: dimension_current_name {
-    type: string
-    allowed_value: {
-      label: "Current label"
-      value: "Spring 2019"
-    }
-    }
-
-  parameter: dimension_minus_1_name {
-    type: string
-    allowed_value: {
-      label: "Minus 1 label"
-      value: "Fall 2019"
-    }
-    }
-
-    parameter: dimension_minus_2_name {
-      type: string
-      allowed_value: {
-        label: "Minus 2 label"
-        value: "Summer 2018"
-      }
-      }
-
-    parameter: dimension_minus_3_name {
-      type: string
-      allowed_value: {
-        label: "Minus 3 label"
-        value: "Spring 2018"
-      }
-      }
-
-    parameter: dimension_minus_4_name {
-      type: string
-      allowed_value: {
-        label: "Minus 4 label"
-        value: "Fall 2018"
-      }
-      }
-
-
 
    set: detail {
      fields: [
