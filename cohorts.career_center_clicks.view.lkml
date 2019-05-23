@@ -3,12 +3,7 @@ include: "cohorts.base.view"
 
 view: subscription_term_careercenter_clicks {
 
-  set: marketing_fields {
-    fields: [subscription_term_careercenter_clicks.current, subscription_term_careercenter_clicks.minus_1, subscription_term_careercenter_clicks.minus_2, subscription_term_careercenter_clicks.minus_3, subscription_term_careercenter_clicks.minus_4
-    ]
-  }
-
-  extends: [cohorts_base]
+  extends: [cohorts_base_number]
   derived_table: {
     sql: WITH
           term_dates AS
@@ -62,24 +57,6 @@ view: subscription_term_careercenter_clicks {
        ;;
   }
 
-  dimension: user_sso_guid_merged {
-    type: string
-    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
-    hidden: yes
-  }
-
-  dimension: governmentdefinedacademicterm {
-    type: string
-    sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
-    hidden: yes
-  }
-
-  dimension: subscription_state {
-    type: string
-    sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
-    hidden: yes
-  }
-
  dimension: current {group_label: "Career center clicks"}
 
  dimension: minus_1 {group_label: "Career center clicks"}
@@ -89,14 +66,5 @@ view: subscription_term_careercenter_clicks {
  dimension: minus_3 {group_label: "Career center clicks"}
 
  dimension: minus_4 {group_label: "Career center clicks"}
-
-#   set: detail {
-#     fields: [
-#       user_sso_guid_merged,
-#       governmentdefinedacademicterm,
-#       subscription_state,
-#       current, minus_1, minus_2, minus_3, minus_4
-#     ]
-#   }
 
 }

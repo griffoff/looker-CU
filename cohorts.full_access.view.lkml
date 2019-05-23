@@ -1,12 +1,7 @@
 include: "cohorts.base.view"
 
 view: FullAccess_cohort {
-  extends: [cohorts_base]
-
-  set: marketing_fields {
-    fields: [FullAccess_cohort.current, FullAccess_cohort.minus_1, FullAccess_cohort.minus_2, FullAccess_cohort.minus_3, FullAccess_cohort.minus_4,
-     ]
-  }
+  extends: [cohorts_base_binary]
 
   derived_table: {
     sql:
@@ -53,49 +48,14 @@ view: FullAccess_cohort {
        ;;
   }
 
+  dimension: current { group_label: "Full Access" }
 
+  dimension: minus_1 { group_label: "Full Access" }
 
+  dimension: minus_2 { group_label: "Full Access" }
 
-  dimension: primary_key {
-    type: string
-    primary_key: yes
-    sql: ${user_sso_guid_merged} || ${current} || ${minus_1} || ${minus_2} || ${minus_3} || ${minus_4} ;;
-    hidden: yes
-  }
+  dimension: minus_3 { group_label: "Full Access" }
 
-  dimension: user_sso_guid_merged {
-    type: string
-    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
-    hidden: yes
-  }
+  dimension: minus_4 { group_label: "Full Access" }
 
-  dimension: current {
-    group_label: "Full Access"
-    sql: CASE WHEN ${TABLE}."1" > 0 THEN 1 END;;
-  }
-
-  dimension: minus_1 {
-    group_label: "Full Access"
-    sql:  CASE WHEN ${TABLE}."2" > 0 THEN 1 END ;;
-  }
-
-  dimension: minus_2 {
-    group_label: "Full Access"
-    sql:  CASE WHEN ${TABLE}."3" > 0 THEN 1 END ;;
-  }
-
-  dimension: minus_3 {
-    group_label: "Full Access"
-    sql:  CASE WHEN ${TABLE}."4" > 0 THEN 1 END ;;
-  }
-
-  dimension: minus_4 {
-    group_label: "Full Access"
-    sql:  CASE WHEN ${TABLE}."5" > 0 THEN 1 END ;;
-  }
-
-
-  set: detail {
-    fields: [user_sso_guid_merged, current, minus_1, minus_2, minus_3, minus_4]
-  }
 }

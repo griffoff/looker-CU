@@ -1,13 +1,8 @@
-include: "cohorts.base.view"
+include: "cohorts.base_institution.view"
 
 view: subscription_term_savings {
 
-  set: marketing_fields {
-    fields: [subscription_term_savings.current, subscription_term_savings.minus_1, subscription_term_savings.minus_2, subscription_term_savings.minus_3, subscription_term_savings.minus_4
-    ]
-  }
-
-  extends: [cohorts_base]
+  extends: [cohorts_base_institution]
   derived_table: {
     sql: WITH
           term_dates AS
@@ -110,19 +105,6 @@ view: subscription_term_savings {
                 AND c.entity_name = v.entity_name
             GROUP BY c.user_sso_guid_merged, c.governmentdefinedacademicterm, c.subscription_state, c.entity_name ;;
  }
-
-  dimension: term_guid {
-    type: string
-    sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
-    primary_key: yes
-    hidden: yes
-  }
-
-  dimension: entity_name {
-    type: string
-    sql: ${TABLE}."ENTITY_NAME" ;;
-    hidden: yes
-  }
 
   dimension: current {group_label: "CU Term Savings ($)"}
 

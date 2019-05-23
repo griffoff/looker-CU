@@ -1,15 +1,8 @@
-include: "cohorts.base.view"
+include: "cohorts.base_institution.view"
 
 view: subscription_term_cost {
 
-  set: marketing_fields {
-    fields: [subscription_term_cost.current, subscription_term_cost.minus_1, subscription_term_cost.minus_2, subscription_term_cost.minus_3, subscription_term_cost.minus_4
-      ,subscription_term_cost.institutional_cu_cost_previous_term
-    ]
-  }
-
-
-  extends: [cohorts_base]
+  extends: [cohorts_base_institution]
   derived_table: {
     sql: WITH
           term_dates AS
@@ -95,26 +88,6 @@ view: subscription_term_cost {
        ;;
   }
 
-
-  dimension: term_guid {
-    type: string
-    sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
-    primary_key: yes
-    hidden: yes
-  }
-
-  dimension: subscription_state {
-    type: string
-    sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
-    hidden: yes
-  }
-
-  dimension: entity_name {
-    type: string
-    sql: ${TABLE}."ENTITY_NAME" ;;
-    hidden: yes
-  }
-
   dimension: current {group_label: "CU Term Cost ($)" }
 
   dimension: minus_1 {group_label: "CU Term Cost ($)"}
@@ -126,11 +99,8 @@ view: subscription_term_cost {
   dimension: minus_4 {group_label: "CU Term Cost ($)"}
 
   measure: institutional_cu_cost_previous_term {
-    group_label: "Institutional savings"
     label: "Institutional CU cost - previous term"
-    view_label: "Institution"
-    type: sum
-    sql: ${minus_1} ;;
+    sql: ${institutional_previous_term} ;;
   }
 
   set: detail {

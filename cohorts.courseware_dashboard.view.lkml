@@ -2,12 +2,7 @@ include: "cohorts.base.view"
 
   view: cohorts_courseware_dashboard {
 
-    set: marketing_fields {
-      fields: [cohorts_courseware_dashboard.current, cohorts_courseware_dashboard.minus_1, cohorts_courseware_dashboard.minus_2, cohorts_courseware_dashboard.minus_3, cohorts_courseware_dashboard.minus_4
-      ]
-    }
-
-    extends: [cohorts_base]
+    extends: [cohorts_base_number]
     derived_table: {
       sql:  WITH
         term_dates AS
@@ -60,19 +55,6 @@ include: "cohorts.base.view"
            *
          FROM subscription_term_value
                ;;
-    }
-
-    dimension: term_guid {
-      type: string
-      sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
-      primary_key: yes
-      hidden: yes
-    }
-
-    dimension: entity_name {
-      type: string
-      sql: ${TABLE}."ENTITY_NAME" ;;
-      hidden: yes
     }
 
     dimension: current {group_label: "# of courseware on dashboard"}

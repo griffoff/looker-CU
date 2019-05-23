@@ -2,12 +2,7 @@ include: "cohorts.base.view"
 
 view: cohorts_testprep_dashboard {
 
-  set: marketing_fields {
-    fields: [cohorts_testprep_dashboard.current, cohorts_testprep_dashboard.minus_1, cohorts_testprep_dashboard.minus_2, cohorts_testprep_dashboard.minus_3, cohorts_testprep_dashboard.minus_4
-    ]
-  }
-
-    extends: [cohorts_base]
+    extends: [cohorts_base_number]
 
     derived_table: {
       sql: WITH

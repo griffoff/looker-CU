@@ -2,12 +2,7 @@ include: "cohorts.base.view"
 
 view: cohorts_flashcards_dashboard {
 
-  set: marketing_fields {
-    fields: [cohorts_flashcards_dashboard.current, cohorts_flashcards_dashboard.minus_1, cohorts_flashcards_dashboard.minus_2, cohorts_flashcards_dashboard.minus_3, cohorts_flashcards_dashboard.minus_4
-    ]
-  }
-
-    extends: [cohorts_base]
+    extends: [cohorts_base_number]
 
     derived_table: {
       sql: WITH

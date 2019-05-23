@@ -2,12 +2,8 @@ include: "cohorts.base.view"
 
 view: TrialAccess_cohorts {
 
-  set: marketing_fields {
-    fields: [TrialAccess_cohorts.current, TrialAccess_cohorts.minus_1, TrialAccess_cohorts.minus_2, TrialAccess_cohorts.minus_3, TrialAccess_cohorts.minus_4
-    ]
-  }
 
-  extends: [cohorts_base]
+  extends: [cohorts_base_binary]
   derived_table: {
     sql:
      WITH
@@ -53,41 +49,14 @@ view: TrialAccess_cohorts {
        ;;
   }
 
+  dimension: current { group_label: "Trial Access" }
 
-  dimension: primary_key {
-    type: string
-    primary_key: yes
-    sql: ${user_sso_guid_merged} || ${current} || ${minus_1} || ${minus_2} || ${minus_3} || ${minus_4} ;;
-    hidden: yes
-  }
+  dimension: minus_1 { group_label: "Trial Access" }
 
-  dimension: current {
-    group_label: "Trial Access"
-    sql: CASE WHEN ${TABLE}."1" > 0 THEN 1 END;;
-  }
+  dimension: minus_2 { group_label: "Trial Access" }
 
-  dimension: minus_1 {
-    group_label: "Trial Access"
-    sql:  CASE WHEN ${TABLE}."2" > 0 THEN 1 END ;;
-  }
+  dimension: minus_3 { group_label: "Trial Access" }
 
-  dimension: minus_2 {
-    group_label: "Trial Access"
-    sql:  CASE WHEN ${TABLE}."3" > 0 THEN 1 END ;;
-  }
+  dimension: minus_4 { group_label: "Trial Access" }
 
-  dimension: minus_3 {
-    group_label: "Trial Access"
-    sql:  CASE WHEN ${TABLE}."4" > 0 THEN 1 END ;;
-  }
-
-  dimension: minus_4 {
-    group_label: "Trial Access"
-    sql:  CASE WHEN ${TABLE}."5" > 0 THEN 1 END ;;
-  }
-
-
-  set: detail {
-    fields: [user_sso_guid_merged, current, minus_1, minus_2, minus_3, minus_4]
-  }
 }

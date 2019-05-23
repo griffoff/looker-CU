@@ -2,12 +2,7 @@ include: "cohorts.base.view"
 
 view: cohorts_evernote_clicked {
 
-extends: [cohorts_base]
-
-  set: marketing_fields {
-    fields: [cohorts_evernote_clicked.current, cohorts_evernote_clicked.minus_1, cohorts_evernote_clicked.minus_2, cohorts_evernote_clicked.minus_3, cohorts_evernote_clicked.minus_4
-    ]
-  }
+extends: [cohorts_base_binary]
 
   derived_table: {
     sql: WITH

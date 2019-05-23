@@ -33,7 +33,7 @@ explore: live_subscription_status {
   from: live_subscription_status
   view_name: live_subscription_status
   view_label: "Learner Profile"
-  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid, ]
+  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
 
   join: merged_cu_user_info {
     required_access_grants: [can_view_CU_pii_data]
@@ -310,6 +310,9 @@ explore: session_analysis_dev {
     sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_careercenter_clicks.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
+
+  join: cohorts_base {type: cross relationship: one_to_one}
+  join: cohorts_base_institution {type: cross relationship: one_to_one}
 
   join: cohorts_chegg_clicked {
     view_label: "Learner Profile"

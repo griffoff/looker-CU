@@ -2,12 +2,7 @@
 
   view: cohorts_studyguide_dashboard {
 
-    set: marketing_fields {
-      fields: [cohorts_studyguide_dashboard.current, cohorts_studyguide_dashboard.minus_1, cohorts_studyguide_dashboard.minus_2, cohorts_studyguide_dashboard.minus_3, cohorts_studyguide_dashboard.minus_4
-      ]
-    }
-
-    extends: [cohorts_base]
+    extends: [cohorts_base_binary]
 
     derived_table: {
       sql: WITH
