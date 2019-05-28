@@ -374,6 +374,12 @@ explore: session_analysis_dev {
     relationship:  one_to_many
   }
 
+  join: subscription_term_courseware_value_users {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_courseware_value_users.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
 
   join: all_events {
     from: all_events_dev
