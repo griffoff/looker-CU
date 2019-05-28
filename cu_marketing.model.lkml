@@ -45,12 +45,19 @@ explore: marketing_analysis {
     ,subscription_term_savings.marketing_fields*
     ,cohorts_testprep_dashboard.marketing_fields*
     ,TrialAccess_cohorts.marketing_fields*
+    ,csat_survey.marketing_fields*
     ,cohorts_subscription_term_savings_user.marketing_fields*
     ]
 
   join: instiution_star_rating {
     view_label: "Institution"
     sql_on: ${dim_institution.entity_no}::STRING = ${instiution_star_rating.entity_}::STRING ;;
+    relationship: many_to_one
+  }
+
+  join: csat_survey {
+    view_label: "CSAT Survey"
+    sql_on: ${csat_survey.mapped_guid} = ${all_events.user_sso_guid} ;;
     relationship: many_to_one
   }
 }
