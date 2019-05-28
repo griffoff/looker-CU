@@ -45,6 +45,7 @@ explore: marketing_analysis {
     ,subscription_term_savings.marketing_fields*
     ,cohorts_testprep_dashboard.marketing_fields*
     ,TrialAccess_cohorts.marketing_fields*
+    ,cohorts_subscription_term_savings_user.marketing_fields*
     ]
 
   join: instiution_star_rating {
