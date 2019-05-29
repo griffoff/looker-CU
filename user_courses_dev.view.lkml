@@ -4,10 +4,15 @@ include: "//core/common.lkml"
 view: user_courses_dev {
   extends: [user_courses]
   view_label: "User Courses Dev"
-  sql_table_name: prod.cu_user_analysis_dev.user_courses ;;
+  sql_table_name: prod.cu_user_analysis.user_courses ;;
 
   set: marketing_fields {
     fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers]
+  }
+
+  dimension: instructor_guid {
+    type: string
+    sql: ${TABLE}."instructor_guid" ;;
   }
 
   dimension: net_price_enrolled {
@@ -86,6 +91,33 @@ view: user_courses_dev {
   measure: count {
     type: count
     drill_fields: []
+  }
+
+  dimension: cui_flag {
+    type: string
+    sql: ${TABLE}.cui_flag;;
+    hidden: no
+    label: "CUI Flag"
+    description: "Flag to identify Cengage Unlimited Institutional Subscription"
+  }
+
+  dimension: cu_contract_id {
+    type: string
+    sql: ${TABLE}.cu_contract_id;;
+    label: "CU Contract ID"
+    description: "Unique contract ID for Cengage Unlimited Subscription"
+
+    hidden: no
+  }
+
+  dimension: cu_flag {
+    type: yesno
+    sql: ${cu_contract_id} IS NOT NULL ;;
+  }
+
+  measure: ala_cart_purchase {
+    type: count
+    sql: CASE WHEN ${cu_flag} = 'Yes' THEN ${cu_contract_id};;
   }
 
   measure: activated_courses {

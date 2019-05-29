@@ -27,6 +27,7 @@ view: user_courses {
             ;;
   }
 
+
   dimension: captured_key {
     type: string
     sql: ${TABLE}."CAPTURED_KEY" ;;
@@ -36,6 +37,11 @@ view: user_courses {
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+  }
+
+  dimension: instructor_guid {
+    type: string
+    sql: ${TABLE}."instructor_guid" ;;
   }
 
   dimension: pk {
@@ -78,6 +84,19 @@ view: user_courses {
     type: yesno
     sql: ${TABLE}.enrolled = 'TRUE'  ;;
     hidden: yes
+  }
+
+
+  dimension: cui_flag {
+    type: yesno
+    sql: ${TABLE}.cu_flag;;
+    hidden: no
+  }
+
+  dimension: cu_contract_id {
+    type: yesno
+    sql: ${TABLE}.cu_contract_id;;
+    hidden: no
   }
 
   measure: no_enrollments {
