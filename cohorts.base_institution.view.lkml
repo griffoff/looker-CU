@@ -1,7 +1,7 @@
 include: "cohorts.base.view"
 
 view: cohorts_base_institution {
-  extends: [cohorts_base]
+  extends: [cohorts_base_number]
 
   set: marketing_fields {
     fields: [params*, cohort_term_fields*, institutional_previous_term]

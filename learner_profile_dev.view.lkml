@@ -698,6 +698,13 @@ view: learner_profile_dev {
     value_format_name: duration_dhm
   }
 
+  dimension: no_purchase_trial_user {
+    type: yesno
+    label: "Trial user without purchase"
+    description: "This is a flag for trial users that have not purchased anything to start the trial or since starting their trial"
+    sql: ${TABLE}."NO_PURCHASE_TRIAL_USER" = 1 ;;
+  }
+
 
 ### Measure's section ###
 

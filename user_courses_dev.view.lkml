@@ -118,11 +118,14 @@ view: user_courses_dev {
   }
 
 
+
+
   measure: ala_cart_purchase {
     label: "a la cart purchase count"
     type: count_distinct
     sql: CASE WHEN ${cu_flag} = 'Yes' THEN ${cu_contract_id} END;;
   }
+
 
 
   measure: activated_courses {
