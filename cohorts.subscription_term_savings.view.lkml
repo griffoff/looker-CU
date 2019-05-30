@@ -59,7 +59,7 @@ view: subscription_term_savings {
               AND d.end_date > pp.local_time
             LEFT JOIN prod.cu_user_analysis_dev.user_courses u
               ON s.user_sso_guid_merged = u.user_sso_guid
-            WHERE subscription_state = 'full_access'
+            --WHERE subscription_state = 'full_access'
             )
             ,subscription_term_costs AS
             (
