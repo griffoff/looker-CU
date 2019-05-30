@@ -85,10 +85,7 @@ view: subscription_term_products_value {
 
   dimension: minus_4 {group_label: "CU Term Value ($)"}
 
-  measure: institutional_term_cu_value_previous_term {
-    label: "Institutional CU Value - previous term"
-    sql: ${institutional_previous_term} ;;
-  }
+
 
 
 #   set: detail {

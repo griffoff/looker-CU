@@ -311,8 +311,8 @@ explore: session_analysis_dev {
     relationship:  one_to_many
   }
 
-  join: cohorts_base {type: cross relationship: one_to_one}
-  join: cohorts_base_institution {type: cross relationship: one_to_one}
+#   join: cohorts_base {type: cross relationship: one_to_one}
+#   join: cohorts_base_institution {type: cross relationship: one_to_one}
 
   join: cohorts_chegg_clicked {
     view_label: "Learner Profile"
