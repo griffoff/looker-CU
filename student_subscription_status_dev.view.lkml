@@ -3,7 +3,7 @@ include: "student_subscription_status.view"
 view: student_subscription_status_dev {
   extends: [student_subscription_status]
   label: "student_subscription_status DEV"
-  sql_table_name: zpg.student_subscription_status ;;
+  sql_table_name: dev.cu_user_analysis_dev.student_subscription_status ;;
 
   dimension_group: most_recent_full_access_expired_date {
     type: time

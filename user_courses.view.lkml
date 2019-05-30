@@ -1,6 +1,6 @@
 view: user_courses {
   view_label: "User Courses"
-  sql_table_name: prod.cu_user_analysis_dev.user_courses ;;
+  sql_table_name: prod.cu_user_analysis.user_courses ;;
 
   set: marketing_fields {
     fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers,no_enrollments]
