@@ -19,7 +19,7 @@ view: merged_cu_user_info {
 #   }
 
 set: marketing_fields {
-  fields: [merged_cu_user_info.email, merged_cu_user_info.first_name, merged_cu_user_info.last_name]
+  fields: [merged_cu_user_info.email, merged_cu_user_info.first_name, merged_cu_user_info.last_name,marketing_opt_out]
 }
 
   dimension: user_sso_guid {
@@ -34,7 +34,7 @@ set: marketing_fields {
   }
 
   dimension: marketing_opt_out {
-    group_label: "User Info - Marketing"
+    group_label: "User Info - PII"
     type: string
 #     case: {
 #       when: {label: "Yes" sql: LEFT( ${TABLE}.opt_out, 1) = 'Y';;}
