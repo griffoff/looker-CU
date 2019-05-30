@@ -7,7 +7,7 @@ view: user_courses_dev {
   sql_table_name: dev.cu_user_analysis_dev.user_courses ;;
 
   set: marketing_fields {
-    fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers]
+    fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers,ala_cart_purchase]
   }
 
   dimension: instructor_guid {
@@ -118,10 +118,11 @@ view: user_courses_dev {
   }
 
 
-#   measure: ala_cart_purchase {
-#     type: count
-#     sql: CASE WHEN ${cu_flag} = 'Yes' THEN ${cu_contract_id};;
-#   }
+  measure: ala_cart_purchase {
+    label: "a la cart purchase count"
+    type: count
+    sql: CASE WHEN ${cu_flag} = 'Yes' THEN ${cu_contract_id} END;;
+  }
 
 
   measure: activated_courses {
