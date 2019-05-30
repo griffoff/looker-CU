@@ -98,6 +98,10 @@ view: subscription_term_cost {
 
   dimension: minus_4 {group_label: "CU Term Cost ($)"}
 
+  dimension: current_tiers {group_label: "CU Term Cost ($)" hidden:no}
+
+  dimension: minus_1_tiers {group_label: "CU Term Cost ($)" hidden:no}
+
 #   measure: institutional_cu_cost_previous_term {
 #     label: "Institutional CU cost - previous term"
 #     sql: ${institutional_previous_term} ;;

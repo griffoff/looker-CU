@@ -85,6 +85,9 @@ view: subscription_term_products_value {
 
   dimension: minus_4 {group_label: "CU Term Value ($)"}
 
+  dimension: current_tiers {group_label: "CU Term Value ($)" hidden:no}
+
+  dimension: minus_1_tiers {group_label: "CU Term Value ($)" hidden:no}
 
 
 

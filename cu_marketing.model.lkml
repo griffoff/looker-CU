@@ -8,7 +8,7 @@ include: "//core/access_grants_file.view"
 case_sensitive: no
 
 explore: marketing_analysis {
-  label: "Marketing CU User Analysis"
+  label: "CU User Analysis Marketing"
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
   extends: [session_analysis_dev]
 
