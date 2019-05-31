@@ -48,6 +48,7 @@ explore: marketing_analysis {
     ,csat_survey.marketing_fields*
     ,cohorts_subscription_term_savings_user.marketing_fields*
     ,subscription_term_courseware_value_users.marketing_fields*
+    ,gateway_institution.marketing_fields*
     ]
 
   join: instiution_star_rating {

@@ -1,6 +1,8 @@
 view: gateway_institution {
   sql_table_name: UPLOADS.GATEWAY.INSTITUTION ;;
 
+  set: marketing_fields {fields:[lms_type]}
+
 
   dimension: gw_institution_fk {
     hidden: yes
