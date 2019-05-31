@@ -3,7 +3,7 @@ view: user_courses {
   sql_table_name: prod.cu_user_analysis.user_courses ;;
 
   set: marketing_fields {
-    fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers,no_enrollments]
+    fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers,no_enrollments,is_new_customer,is_returning_customer]
   }
 
   dimension: net_price_enrolled {
@@ -42,6 +42,16 @@ view: user_courses {
   dimension: instructor_guid {
     type: string
     sql: ${TABLE}."instructor_guid" ;;
+  }
+
+  dimension: is_new_customer {
+    type: string
+    sql:  ${TABLE}."is_new_customer" ;;
+  }
+
+  dimension: is_returning_customer {
+    type: string
+    sql:  ${TABLE}."is_returning_customer" ;;
   }
 
   dimension: pk {
