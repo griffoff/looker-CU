@@ -43,8 +43,7 @@ include: "cohorts.base.view"
             ON s.user_sso_guid_merged = pp.user_sso_guid
             AND d.start_date < pp.expiration_date
             AND d.end_date > pp.local_time
-          WHERE s.subscription_state = 'full_access'
-          AND pp.context_id IS NOT NULL
+          WHERE pp.context_id IS NOT NULL
          )
          ,subscription_term_value AS
          (
