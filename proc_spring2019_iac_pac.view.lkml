@@ -13,6 +13,7 @@ view: proc_spring2019_iac_pac {
   dimension: _file {
     type: string
     sql: ${TABLE}."_FILE" ;;
+    hidden: yes
   }
 
   dimension: _line {
@@ -63,6 +64,7 @@ view: proc_spring2019_iac_pac {
   dimension_group: _fivetran_synced {
     type: time
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
+    hidden: yes
   }
 
   set: detail {
