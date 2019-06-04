@@ -46,12 +46,12 @@ view: user_courses {
 
   dimension: is_new_customer {
     type: string
-    sql:  ${TABLE}."is_new_customer" ;;
+    sql:  ${TABLE}."IS_NEW_CUSTOMER" ;;
   }
 
   dimension: is_returning_customer {
     type: string
-    sql:  ${TABLE}."is_returning_customer" ;;
+    sql:  ${TABLE}."IS_RETURNING_CUSTOMER" ;;
   }
 
   dimension: pk {

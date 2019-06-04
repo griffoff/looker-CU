@@ -251,14 +251,14 @@ view: learner_profile_dev {
     description: "Number of activations that aren't WebAssign or MindTap prior to CU launch on 08/01/2018"
   }
 
-  dimension_group: time_in_current_status {
-    group_label: "Current subscription time in status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: ${subscription_start_date} ;;
-    sql_end: current_date() ;;
-    hidden: yes
-  }
+#   dimension_group: time_in_current_status {
+#     group_label: "Current subscription time in status"
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${subscription_start_date} ;;
+#     sql_end: current_date() ;;
+#     hidden: yes
+#   }
 
 
 #   dimension: new_customer {
@@ -271,6 +271,10 @@ view: learner_profile_dev {
 #               ;;
 #     description: "Type of customer: new/returning/etc."
 #   }
+
+dimension: returning_cu_customer {
+    label: "Returning user"
+  }
 
 
   dimension: searches_with_results {

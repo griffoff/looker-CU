@@ -7,7 +7,7 @@ view: live_subscription_status {
       WHERE latest;;
   }
   set: marketing_fields {
-    fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count]
+    fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,  live_subscription_status.days_time_in_current_status]
   }
 
   dimension: user_sso_guid {
@@ -41,7 +41,7 @@ view: live_subscription_status {
   }
 
   dimension_group: time_in_current_status {
-    group_label: "Time at this status"
+#     group_label: "Time at this status"
     type: duration
     intervals: [day, week, month]
     sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
@@ -55,6 +55,14 @@ view: live_subscription_status {
     sql_end: ${subscription_end_date} ;;
 
 }
+
+#   dimension_group: time_in_current_status {
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${subscription_start_date};;
+#     sql_end: current_timestamp()  ;;
+#
+#   }
 
   measure: latest_data_date {
     description: "The latest time at which any subscription event has been received"
