@@ -698,11 +698,11 @@ view: learner_profile_dev {
     value_format_name: duration_dhm
   }
 
-  dimension: no_purchase_trial_user {
+  dimension: no_a_la_carte_purchase_user {
     type: yesno
-    label: "Trial user without purchase"
+    label: "User without an à la carte purchase"
     description: "This is a flag for trial users that have not purchased anything to start the trial or since starting their trial"
-    sql: ${TABLE}."NO_PURCHASE_TRIAL_USER" = 1 ;;
+    sql: ${TABLE}."NO_A_LA_CARTE_PURCHASE_USER" = 1 ;;
   }
 
 

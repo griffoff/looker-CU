@@ -81,8 +81,9 @@ view: FullAccess_cohort {
           ,subscription_state
       FROM prod.cu_user_analysis.subscription_event_merged s
       LEFT JOIN term_dates_five_most_recent d
-         ON DATEADD('d', -30, s.subscription_start::DATE) <= d.start_date
-         AND s.subscription_end::DATE >= DATEADD('d', -30, d.end_date)
+           ON s.subscription_start::DATE >= d.start_date AND s.subscription_start <= d.end_date
+         --ON DATEADD('d', -30, s.subscription_start::DATE) <= d.start_date
+         --AND s.subscription_end::DATE >= DATEADD('d', -30, d.end_date)
       WHERE subscription_state = 'full_access'
       --AND user_sso_guid_merged IN ('033b20b27ca503d5:20c4c7b6:15f6f339f0c:-5f8b', '033b20b27ca503d5:20c4c7b6:15e2fad1470:5223', 'efa047457a23f24d:-260a5249:1655840aed1:-1568')
       )
