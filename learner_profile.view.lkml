@@ -13,7 +13,10 @@ view: learner_profile {
 
   set: marketing_fields {
     fields: [learner_profile.user_sso_guid, learner_profile.subscription_start_date, learner_profile.subscription_end_date, learner_profile.products_added_count, learner_profile.products_added_tier,
-      learner_profile.courseware_added_count, learner_profile.courseware_added_tier,purchase_path, learner_profile.no_a_la_carte_purchase_user, learner_profile.returning_cu_customer]
+      learner_profile.courseware_added_count, learner_profile.courseware_added_tier,purchase_path, learner_profile.no_a_la_carte_purchase_user, learner_profile.returning_cu_customer,
+      learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
+     ,learner_profile.activations_two_weeks_before_subscription_start
+     ]
   }
 
 
