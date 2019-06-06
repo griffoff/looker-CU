@@ -3,6 +3,7 @@
 include: "ipm_browser_event.view.lkml"
 include: "ipm_campaign.view.lkml"
 include: "ipm_queue_event.view.lkml"
+include: "learner_profile.view.lkml"
 # include: "cengage_unlimited.model.lkml"
 
 explore: ipm_browser_event {
@@ -19,6 +20,10 @@ explore: ipm_browser_event {
     relationship: many_to_one
     type: left_outer
     sql_on: ${ipm_browser_event.message_id}=${ipm_browser_event.message_id} ;;
+  }
+  join: learner_profile {
+    sql_on: ${learner_profile.user_sso_guid} = ${ipm_browser_event.user_sso_guid} ;;
+    relationship: many_to_one
   }
 }
 
