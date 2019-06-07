@@ -8,7 +8,7 @@ view: live_subscription_status {
   }
   set: marketing_fields {
     fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,
-        live_subscription_status.days_time_in_current_status,lms_user]
+        live_subscription_status.days_time_in_current_status, lms_user]
   }
 
   dimension: user_sso_guid {
@@ -18,7 +18,12 @@ view: live_subscription_status {
     hidden: no
  }
   dimension: partner_guid {}
-  dimension: lms_user {}
+  dimension: lms_user {
+    type: yesno
+    sql: ${TABLE}.lms_user = 1;;
+    description: "This flag is yes if a user has ever done a subscription event from a gateway account (from a shadow or gateway guid)"
+  }
+
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {

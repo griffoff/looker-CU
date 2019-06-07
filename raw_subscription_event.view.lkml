@@ -21,8 +21,8 @@ view: raw_subscription_event {
     (
         SELECT
             COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
---            ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
-            ,CASE WHEN m.partner_guid IS NOT NULL OR m2.partner_guid IS NOT NULL THEN 'Yes' ELSE 'No' END AS lms_user
+            ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
+--            ,CASE WHEN m.partner_guid IS NOT NULL OR m2.partner_guid IS NOT NULL THEN 'Yes' ELSE 'No' END AS lms_user
             ,COALESCE(m.partner_guid, m2.partner_guid) AS partner_guid
             ,r.*
         FROM unlimited.raw_subscription_event r
@@ -259,8 +259,9 @@ view: raw_subscription_event {
   }
 
   dimension: lms_user {
-    type: string
-    sql: ${TABLE}.lms_user;;
+    type: yesno
+    sql: ${TABLE}.lms_user = 1;;
+    description: "This flag is yes if a user has ever done a subscription event from a gateway account (from a shadow or gateway guid)"
 
   }
 

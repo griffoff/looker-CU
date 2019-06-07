@@ -62,4 +62,6 @@ explore: marketing_analysis {
     sql_on: ${csat_survey.mapped_guid} = ${all_events.user_sso_guid} ;;
     relationship: many_to_one
   }
+
+
 }
