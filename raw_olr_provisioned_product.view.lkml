@@ -35,21 +35,58 @@ derived_table: {
 # --                --  AND prod."source" like 'unlimited'
 # --                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS);;
 
-  sql: With pp as (
-   SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
+  sql:
+ With pp as (
+   SELECT prod.*
           FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
-              JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
-                ON iac.pp_pid = prod.product_id
-                  AND prod.user_type like 'student'
-                --  AND prod."source" like 'unlimited'
+              wHERE prod.user_type like 'student'
                   and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS)
      ),prim_map AS(
         SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
       )
+      ,types as (
+        SELECT iac.pp_pid
+            , iac.pp_product_type
+            , array_agg(distinct iac.cp_product_type) as cppt
+        from  prod.unlimited.RAW_OLR_EXTENDED_IAC as iac
+        group by iac.pp_pid, iac.pp_product_type
+      )
       ,guid_mapping AS(
         Select * from prim_map where latest
       )
-     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid from pp
+     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid,iac.pp_product_type,
+      case when iac.pp_product_type not like 'SMART' then iac.pp_product_type else
+      case when ARRAY_CONTAINS('MTC'::variant, cppt) then 'MTC' else
+      case when ARRAY_CONTAINS('CSFI'::variant, cppt) then 'CSFI' else
+      case when ARRAY_CONTAINS('4LT'::variant, cppt) then '4LT' else
+      case when ARRAY_CONTAINS('APLIA'::variant, cppt) then 'APLIA' else
+      case when ARRAY_CONTAINS('SAM'::variant, cppt) then 'SAM' else
+      case when ARRAY_CONTAINS('CNOWV8'::variant, cppt) then 'CNOWV8' else
+      case when ARRAY_CONTAINS('NATGEO'::variant, cppt) then 'NATGEO' else
+      case when ARRAY_CONTAINS('MT4'::variant, cppt) then 'MT4' else
+      case when ARRAY_CONTAINS('4LTV1'::variant, cppt) then '4LTV1' else
+      case when ARRAY_CONTAINS('DEV-MATH'::variant, cppt) then 'DEV-MATH' else
+      case when ARRAY_CONTAINS('OWL'::variant, cppt) or ARRAY_CONTAINS('OWLV8'::variant, cppt) then 'OWL' else
+      case when ARRAY_CONTAINS('MTS'::variant, cppt) then 'MTS' else
+      case when ARRAY_CONTAINS('WA'::variant, cppt) then 'WA' else
+      case when ARRAY_CONTAINS('WA3P'::variant, cppt) then 'WA3P' else 'other' end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+      end as product_type_platform
+    from pp
+     LEFT JOIN types iac
+     ON iac.pp_pid = pp.product_id AND pp.user_type like 'student'
      LEFT JOIN guid_mapping m on pp.user_sso_guid = m.partner_guid ;;
 }
 
@@ -59,19 +96,24 @@ derived_table: {
     hidden: yes
    }
 
-  dimension: pp_name {
-    label: "Product Name"
-  }
+#   dimension: pp_name {
+#     label: "Product Name"
+#   }
   dimension: merged_guid {}
-
-  dimension: PP_LDAP_Group_name {
-
-    label: "Group Name"
-  }
+#
+#   dimension: PP_LDAP_Group_name {
+#
+#     label: "Group Name"
+#   }
 
   dimension: pp_product_type {
     description: "Can be filtered on to differentiate between courseware and ebook usage"
     label: "Product Type"
+  }
+
+  dimension: product_type_platform {
+    description: "Platform names derived from 'SMART' product type"
+#     sql: ${product_type_platform} ;;
   }
 
 dimension_group: _ldts {
