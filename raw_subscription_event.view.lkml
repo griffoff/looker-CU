@@ -499,7 +499,7 @@ view: raw_subscription_event {
   dimension: user_sso_guid {
     label: "User SSO GUID"
     type: string
-    sql: ${TABLE}."USER_SSO_GUID" ;;
+    sql: ${merged_guid} ;;
     description: "Primary SSO User Identifier"
   }
 

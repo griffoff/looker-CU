@@ -578,7 +578,7 @@ explore: raw_subscription_event {
   view_name: raw_subscription_event
   view_label: "Subscription Status"
   join: raw_olr_provisioned_product {
-    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid};;
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${raw_subscription_event.merged_guid};;
     relationship: many_to_one
   }
   join: products_v {
