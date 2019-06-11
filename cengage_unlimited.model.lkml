@@ -732,8 +732,8 @@ explore: mobiledata {
     relationship: many_to_one
   }
 
-  join: raw_subscription_event {
-    sql_on: ${ga_mobiledata.userssoguid}= ${raw_subscription_event.user_sso_guid} ;;
+  join: learner_profile {
+    sql_on: ${ga_mobiledata.userssoguid}= ${learner_profile.user_sso_guid} ;;
     type: left_outer
     relationship: many_to_one
   }

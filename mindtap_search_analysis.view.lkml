@@ -26,10 +26,17 @@ view: mindtap_search_analysis {
     sql: ${TABLE}."CORETEXTISBN" ;;
   }
 
-  dimension: time {
-    type: string
-    sql: ${TABLE}."TIME" ;;
-  }
+#   dimension_group: time {
+#     type: time
+#     sql: TO_DATE(${TABLE}."TIME") ;;
+#     timeframes: [
+#       date,
+#       week,
+#       month,
+#       quarter,
+#       year
+#     ]
+#   }
 
   dimension: search {
     type: string
@@ -106,7 +113,7 @@ view: mindtap_search_analysis {
     sql: ${TABLE}."NAVIGATION_SEARCH" ;;
   }
 
-  dimension: contains_ {
+  dimension: contains_questionmark {
     type: string
     sql: ${TABLE}."contains_?" ;;
   }
@@ -175,6 +182,11 @@ view: mindtap_search_analysis {
     sql: CASE WHEN questionmark_or_questionword = TRUE THEN 1 END ;;
   }
 
+  measure: question_marks {
+    type: sum
+    sql: CASE WHEN ${contains_questionmark} = TRUE THEN 1 END ;;
+  }
+
   measure: non_question_nor_nav_nor_cp_searches {
     type: sum
     sql: CASE WHEN non_question_nor_nav_nor_cp_search = TRUE THEN 1 END ;;
@@ -185,7 +197,7 @@ view: mindtap_search_analysis {
       user_sso_guid_merged,
       excluded_user,
       coretextisbn,
-      time,
+#       time,
       search,
       short_title,
       subject_matter,
@@ -201,7 +213,7 @@ view: mindtap_search_analysis {
       contains_quiz,
       contains_learnit,
       navigation_search,
-      contains_,
+      contains_questionmark,
       contains_what,
       contains_why,
       contains_who,
