@@ -738,6 +738,14 @@ explore: mobiledata {
     relationship: many_to_one
   }
 
+  join: live_subscription_status {
+    view_label: "Learner Profile"
+    sql_on: ${ga_mobiledata.userssoguid}= ${live_subscription_status.user_sso_guid} ;;
+    type: left_outer
+    relationship: many_to_one
+  }
+
+
   join: raw_olr_provisioned_product {
     sql_on: ${ga_mobiledata.userssoguid}= ${raw_olr_provisioned_product.user_sso_guid} ;;
     type: left_outer
