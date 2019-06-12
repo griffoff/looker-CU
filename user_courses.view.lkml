@@ -45,12 +45,14 @@ view: user_courses {
   }
 
   dimension: is_new_customer {
+    group_label: "Instructor"
     label: "Is New Instructor"
     type: string
     sql:  ${TABLE}."IS_NEW_CUSTOMER" ;;
   }
 
   dimension: is_returning_customer {
+    group_label: "Instructor"
     label: "Is Returning Instructor"
     type: string
     sql:  ${TABLE}."IS_RETURNING_CUSTOMER" ;;
