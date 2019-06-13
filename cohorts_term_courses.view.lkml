@@ -1,0 +1,81 @@
+include: "cohorts.base.view"
+
+
+view: cohorts_term_courses {
+  extends: [cohorts_base_number]
+  derived_table: {
+    sql: WITH
+          term_dates AS
+          (
+            SELECT
+              governmentdefinedacademicterm
+              ,1 AS groupbyhack
+              ,MIN(datevalue) AS start_date
+              ,MAX(datevalue) AS end_date
+            FROM prod.dw_ga.dim_date
+            WHERE governmentdefinedacademicterm IS NOT NULL
+            GROUP BY 1
+            ORDER BY 4 DESC
+          )
+          ,term_dates_five_most_recent AS
+          (
+              SELECT
+                RANK() OVER (ORDER BY start_date DESC) AS terms_chron_order_desc
+                ,*
+              FROM term_dates
+              WHERE start_date < CURRENT_DATE()
+              ORDER BY terms_chron_order_desc
+              LIMIT 5
+          )
+          ,enrollment_terms AS
+          (
+          SELECT
+                e.user_sso_guid
+                ,terms_chron_order_desc
+                ,governmentdefinedacademicterm
+                ,COUNT(DISTINCT olr_enrollment_key) AS unique_courses
+            FROM prod.cu_user_analysis.user_courses e
+            LEFT JOIN term_dates_five_most_recent d
+                 ON e.course_start_date::DATE >= d.start_date AND e.course_start_date <= d.end_date
+               --ON DATEADD('d', -30, s.subscription_start::DATE) <= d.start_date
+               --AND s.subscription_end::DATE >= DATEADD('d', -30, d.end_date)
+            --AND user_sso_guid_merged IN ('033b20b27ca503d5:20c4c7b6:15f6f339f0c:-5f8b', '033b20b27ca503d5:20c4c7b6:15e2fad1470:5223', 'efa047457a23f24d:-260a5249:1655840aed1:-1568')
+            GROUP BY 1, 2, 3
+            )
+            ,enrollment_terms_pivoted AS
+            (
+            SELECT
+                *
+            FROM enrollment_terms
+            PIVOT (SUM(unique_courses) FOR terms_chron_order_desc IN (1, 2, 3, 4, 5))
+            )
+                 SELECT * FROM enrollment_terms_pivoted
+       ;;
+  }
+
+  measure: count {
+    type: count
+    drill_fields: [detail*]
+  }
+
+  dimension: user_sso_guid {
+    type: string
+    sql: ${TABLE}."USER_SSO_GUID" ;;
+  }
+
+  dimension: governmentdefinedacademicterm {
+    type: string
+    sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
+  }
+
+  dimension: current { group_label: "# Courses in Terms" }
+
+  dimension: minus_1 { group_label: "# Courses in Terms" }
+
+  dimension: minus_2 { group_label: "# Courses in Terms" }
+
+  dimension: minus_3 { group_label: "# Courses in Terms" }
+
+  dimension: minus_4 { group_label: "# Courses in Terms" }
+
+}

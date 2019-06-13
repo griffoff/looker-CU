@@ -380,6 +380,12 @@ explore: session_analysis_dev {
     relationship:  one_to_many
   }
 
+  join: cohorts_term_courses {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_term_courses.user_sso_guid} ;;
+    relationship:  one_to_many
+  }
+
 
   join: all_events {
     from: all_events_dev
