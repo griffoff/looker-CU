@@ -49,6 +49,10 @@ explore: marketing_analysis {
     ,subscription_term_courseware_value_users.marketing_fields*
     ,gateway_institution.marketing_fields*
     ,cohorts_term_courses.marketing_fields*
+    ,cohorts_time_in_platform.marketing_fields*
+    ,cohorts_number_of_logins.marketing_fields*
+    ,cohorts_number_of_ebooks_added_dash.marketing_fields*
+    ,cohorts_number_of_courseware_added_to_dash.marketing_fields*
     ]
 
   join: instiution_star_rating {

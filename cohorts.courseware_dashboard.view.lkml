@@ -56,15 +56,15 @@ include: "cohorts.base.view"
                ;;
     }
 
-    dimension: current {group_label: "# of courseware on dashboard"}
+    dimension: current {group_label: "# of courseware added to dashboard"}
 
-    dimension: minus_1 {group_label: "# of courseware on dashboard"}
+    dimension: minus_1 {group_label: "# of courseware added to dashboard"}
 
-    dimension: minus_2 {group_label: "# of courseware on dashboard"}
+    dimension: minus_2 {group_label: "# of courseware added to dashboard"}
 
-    dimension: minus_3 {group_label: "# of courseware on dashboard"}
+    dimension: minus_3 {group_label: "# of courseware added to dashboard"}
 
-    dimension: minus_4 {group_label: "# of courseware on dashboard"}
+    dimension: minus_4 {group_label: "# of courseware added to dashboard"}
 
 
 
