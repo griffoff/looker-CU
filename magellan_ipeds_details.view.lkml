@@ -7,6 +7,7 @@ view: magellan_ipeds_details {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: _file {
