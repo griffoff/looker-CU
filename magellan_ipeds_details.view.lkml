@@ -25,6 +25,7 @@ view: magellan_ipeds_details {
   dimension: entity_no {
     type: number
     sql: ${TABLE}."ENTITY_NO" ;;
+    hidden: yes
   }
 
   dimension: institution_nm {
@@ -75,6 +76,7 @@ view: magellan_ipeds_details {
   dimension_group: _fivetran_synced {
     type: time
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
+    hidden: yes
   }
 
   set: detail {
