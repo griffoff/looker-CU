@@ -14,6 +14,7 @@ view: cu_user_info {
               ,tl_institution_id
               ,tl_institution_name
               ,marketing_opt_out
+              ,k12_user
           FROM IAM.PROD.USER_MUTATION
         )
       , temp_table as (SELECT
@@ -46,6 +47,13 @@ view: cu_user_info {
   dimension: entity_flag {
     label: "Entity Blacklist"
     sql: ${TABLE}.entity_flag ;;
+  }
+
+  dimension: k12_user {
+    label: "K12 User"
+    description: "Date field to identify K12 customer"
+    type: yesno
+    sql: ${TABLE}.k12_user ;;
   }
 
 

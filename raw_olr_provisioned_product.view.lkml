@@ -47,14 +47,15 @@ derived_table: {
       ,types as (
         SELECT iac.pp_pid
             , iac.pp_product_type
+            ,iac.pp_name
             , array_agg(distinct iac.cp_product_type) as cppt
         from  prod.unlimited.RAW_OLR_EXTENDED_IAC as iac
-        group by iac.pp_pid, iac.pp_product_type
+        group by iac.pp_pid, iac.pp_product_type,pp_name
       )
       ,guid_mapping AS(
         Select * from prim_map where latest
       )
-     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid,iac.pp_product_type,
+     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid,iac.pp_product_type,pp_name,
       case when iac.pp_product_type not like 'SMART' then iac.pp_product_type else
       case when ARRAY_CONTAINS('MTC'::variant, cppt) then 'MTC' else
       case when ARRAY_CONTAINS('CSFI'::variant, cppt) then 'CSFI' else
@@ -96,9 +97,9 @@ derived_table: {
     hidden: yes
    }
 
-#   dimension: pp_name {
-#     label: "Product Name"
-#   }
+  dimension: pp_name {
+    label: "Product Name"
+  }
   dimension: merged_guid {}
 #
 #   dimension: PP_LDAP_Group_name {

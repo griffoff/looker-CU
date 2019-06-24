@@ -54,6 +54,8 @@ explore: marketing_analysis {
     ,cohorts_number_of_logins.marketing_fields*
     ,cohorts_number_of_ebooks_added_dash.marketing_fields*
     ,cohorts_number_of_courseware_added_to_dash.marketing_fields*
+    ,magellan_instructor_setup_status*
+    ,magellan_ipeds_details*
     ]
 
   join: instiution_star_rating {
@@ -66,6 +68,18 @@ explore: marketing_analysis {
     view_label: "CSAT Survey"
     sql_on: ${csat_survey.mapped_guid} = ${all_events.user_sso_guid} ;;
     relationship: many_to_one
+  }
+
+  join: magellan_instructor_setup_status {
+    view_label: "Magellan Instructor Status"
+    sql_on: ${courseinstructor.instructor_guid} = ${magellan_instructor_setup_status.user_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: magellan_ipeds_details {
+    view_label: "IPEDS Details"
+    sql_on: ${dim_institution.entity_no}::STRING = ${magellan_ipeds_details.entity_no}::STRING ;;
+    relationship: one_to_one
   }
 
 
