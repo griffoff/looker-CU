@@ -6,8 +6,11 @@ view: user_courses_dev {
   view_label: "User Courses Dev"
   sql_table_name: dev.cu_user_analysis_dev.user_courses ;;
 
-  set: marketing_fields {
-    fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers,ala_cart_purchase]
+  set: marketing_fields_dev {
+    fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
+      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase, user_courses_dev.activations_minus_a_la_carte,
+      user_courses_dev.enrollments_minus_activations]
+
   }
 
   dimension: instructor_guid {
@@ -108,22 +111,53 @@ view: user_courses_dev {
     sql: ${TABLE}.cu_contract_id;;
     label: "CU Contract ID"
     description: "Unique contract ID for Cengage Unlimited Subscription"
-
     hidden: no
   }
 
   dimension: cu_flag {
     type: yesno
-    sql: ${cu_contract_id} IS NOT NULL OR cui_flag = 'Y' ;;
+    sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
+    label: "CU Flag"
+    hidden: no
   }
 
+  measure: ala_cart_purchases {
+    label: "# of a la carte activations"
+    type: sum
+    sql: CASE WHEN ${cu_flag} = 'No' THEN 1 END;;
+  }
+
+  measure: cu_purchase {
+    label: "# of a CU activations"
+    type: sum
+    sql: CASE WHEN ${cu_flag} = 'Yes' THEN 1 END;;
+  }
+
+  measure: enrollments_minus_activations {
+    label: "# of enrollments not activated"
+    type: number
+    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+    }
+
+  measure: activations_minus_a_la_carte {
+    label: "Activations minus a la carte"
+    type: number
+    sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
+    hidden: yes
+  }
+
+#   measure: non_activated_enrollments {
+#     label: "# of non-activated enrollments"
+#     type: number
+#     sql: ${course_section_facts.total_noofactivations};;
+#   }
 
 
 
-  measure: ala_cart_purchase {
-    label: "a la cart purchase count"
+  measure: distinct_ala_cart_purchase {
+    label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN ${cu_flag} = 'Yes' THEN ${cu_contract_id} END;;
+    sql: CASE WHEN ${cu_flag} = 'No' THEN ${isbn} END;;
   }
 
 

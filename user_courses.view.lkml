@@ -3,7 +3,11 @@ view: user_courses {
   sql_table_name: prod.cu_user_analysis.user_courses ;;
 
   set: marketing_fields {
-    fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers,no_enrollments]
+    fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers, user_courses.ala_cart_purchases, user_courses.distinct_ala_cart_purchase
+      , user_courses.cu_contract_id, user_courses.cui_flag, user_courses.no_enrollments, user_courses.cu_flag, user_courses.cu_purchase, user_courses.activations_minus_a_la_carte,
+      user_courses.enrollments_minus_activations, user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
+      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase, user_courses_dev.activations_minus_a_la_carte,
+      user_courses_dev.enrollments_minus_activations]
   }
 
   dimension: net_price_enrolled {
@@ -96,8 +100,8 @@ view: user_courses {
 
   dimension: enrolled {
     type: yesno
-    sql: ${TABLE}.enrolled = 'TRUE'  ;;
-    hidden: yes
+    sql: ${TABLE}.enrolled = 'True'  ;;
+    hidden: no
   }
 
 

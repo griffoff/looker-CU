@@ -184,8 +184,9 @@ view: learner_profile {
     description: "Current length of CU subscription in months"
     sql: CASE
             WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (3, 4) THEN 4
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (11, 12) THEN 12
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (23, 24) THEN 24
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (5, 6, 7) THEN 6
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (11, 12, 13) THEN 12
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (23, 24, 25) THEN 24
             --ELSE datediff(month, ${subscription_start_raw}, ${subscription_end_raw})
             END;;
     value_format: "0 \m\o\n\t\h\s"
