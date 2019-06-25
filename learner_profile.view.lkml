@@ -42,6 +42,17 @@ view: learner_profile {
       label: "4 groups: Split the dataset into 4 different groups"
       value: "4"
     }
+    allowed_value: {
+      label: "10 groups: Split the dataset into 10 different groups
+            (By filtering out one of the group, you can eliminate 10% of the list)"
+      value: "10"
+    }
+    allowed_value: {
+      label: "40 groups: Split the dataset into 10 different groups
+      (By filtering out one of the group, you can eliminate 2.5% of the list)"
+      value: "40"
+    }
+
     default_value: "1"
     view_label: "** MODELLING TOOLS **"
     required_fields: [assigned_group]
