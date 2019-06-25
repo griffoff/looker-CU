@@ -51,7 +51,7 @@ view: cu_user_info {
 
   dimension: k12_user {
     label: "K12 User"
-    description: "Date field to identify K12 customer"
+    description: "Data field to identify K12 customer"
     type: yesno
     sql: ${TABLE}.k12_user ;;
   }
