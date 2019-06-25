@@ -56,6 +56,7 @@ explore: marketing_analysis {
     ,cohorts_number_of_courseware_added_to_dash.marketing_fields*
     ,magellan_instructor_setup_status*
     ,magellan_ipeds_details*
+    ,cu_enterprise_licenses*
     ]
 
   join: instiution_star_rating {
@@ -80,6 +81,12 @@ explore: marketing_analysis {
     view_label: "IPEDS Details"
     sql_on: ${dim_institution.entity_no}::STRING = ${magellan_ipeds_details.entity_no}::STRING ;;
     relationship: one_to_one
+  }
+
+  join: cu_enterprise_licenses {
+    view_label: "CUI Info"
+    sql_on: ${dim_course.olr_course_key} = ${cu_enterprise_licenses.course_context_id} ;;
+    relationship: many_to_one
   }
 
 
