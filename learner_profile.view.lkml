@@ -15,7 +15,7 @@ view: learner_profile {
     fields: [learner_profile.user_sso_guid, learner_profile.subscription_start_date, learner_profile.subscription_end_date, learner_profile.products_added_count, learner_profile.products_added_tier,
       learner_profile.courseware_added_count, learner_profile.courseware_added_tier,purchase_path, learner_profile.no_a_la_carte_purchase_user, learner_profile.returning_cu_customer,
       learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
-     ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups
+     ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date
      ]
 
   }
@@ -91,6 +91,11 @@ view: learner_profile {
       label: "See this user's journey"
       url: "/explore/cengage_unlimited/event_analysis?fields=all_events.product_platform,all_sessions.session_start_time,all_events.event_time,all_sessions.lat_lon,all_events.event_type,all_events.event_action,event_groups.event_group,all_events.event_name,all_events.event_data,all_events.sum_of_time_to_next_event&f[learner_profile_2.user_sso_guid]={{ value | url_encode }}&f[event_groups.event_group]=-Timers&sorts=all_events.event_time+desc&limit=500&toggle=vse"
     }
+  }
+
+  dimension: current_date {
+    label: "Current Date (Report Generated Date)"
+    sql: TO_DATE(CURRENT_DATE()) ;;
   }
 
   dimension: returning_cu_customer {
