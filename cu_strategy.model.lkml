@@ -58,6 +58,7 @@ explore: strategy_analysis {
     ,magellan_instructor_setup_status*
     ,magellan_ipeds_details*
     ,cu_enterprise_licenses*
+    ,strategy_spring_review_queries.strategy_fields*
   ]
 
   join: instiution_star_rating {
