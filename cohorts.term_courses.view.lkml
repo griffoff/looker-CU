@@ -76,7 +76,9 @@ view: cohorts_term_courses {
     sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
   }
 
-  dimension: current { group_label: "# Courses in Terms" }
+  dimension: current { group_label: "# Courses in Terms"
+    sql: CASE WHEN ${TABLE}."1" > 4 THEN '4+' ELSE ${TABLE}."1"::string END;;
+    }
 
   dimension: minus_1 { group_label: "# Courses in Terms" }
 
