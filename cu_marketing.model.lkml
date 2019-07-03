@@ -54,7 +54,7 @@ explore: marketing_analysis {
     ,cohorts_number_of_logins.marketing_fields*
     ,cohorts_number_of_ebooks_added_dash.marketing_fields*
     ,cohorts_number_of_courseware_added_to_dash.marketing_fields*
-    ,magellan_instructor_setup_status*
+    ,magellan_instructor_setup_status.marketing_fields*
     ,magellan_ipeds_details*
     ,cu_enterprise_licenses*
     ]

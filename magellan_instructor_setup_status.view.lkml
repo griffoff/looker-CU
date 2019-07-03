@@ -1,10 +1,32 @@
 view: magellan_instructor_setup_status {
-  derived_table: {
-    sql: Select * from uploads.magellan_uploads.instructor_setup_status
-      ;;
-  }
+  sql_table_name: uploads.magellan_uploads.instructor_setup_status ;;
+#   derived_table: {
+#     sql: Select * from uploads.magellan_uploads.instructor_setup_status
+#       ;;
+#   }
 
-  measure: count {
+  set: marketing_fields {
+    fields: [
+      user_guid,
+      mag_contact_id,
+      mag_contact_name,
+      institution_course_name,
+      course_created,
+      training_scheduled,
+      training_completed,
+      start_strong_scheduled,
+      start_strong_completed,
+      courses_expected,
+      course_created_count,
+      training_scheduled_count,
+      training_completed_count,
+      start_strong_scheduled_count,
+      start_strong_completed_count
+      ]
+    }
+
+  measure: courses_expected {
+    label: "# Courses Expected"
     type: count
     drill_fields: [detail*]
   }
@@ -26,14 +48,29 @@ view: magellan_instructor_setup_status {
     sql: ${TABLE}."USER_GUID" ;;
   }
 
+  dimension: pk {
+    hidden: yes
+    sql: hash(${_file}, ${_line}) ;;
+    primary_key: yes
+  }
+
   dimension: mag_contact_id {
     type: string
     sql: ${TABLE}."MAG_CONTACT_ID" ;;
+    link: {
+      label: "View Account in Magellan"
+      url: "http://magellan.cengage.com/Magellan2/#/Contacts/{{ mag_contact_id._value }}"
+    }
+
   }
 
   dimension: mag_contact_name {
     type: string
     sql: ${TABLE}."MAG_CONTACT_NAME" ;;
+    link: {
+      label: "View Account in Magellan"
+      url: "http://magellan.cengage.com/Magellan2/#/Contacts/{{ mag_contact_id._value }}"
+    }
   }
 
   dimension: institution_course_name {
@@ -41,30 +78,59 @@ view: magellan_instructor_setup_status {
     sql: ${TABLE}."INSTITUTION_COURSE_NAME" ;;
   }
 
-  dimension: created_ {
-    type: string
-    sql: ${TABLE}."CREATED_" ;;
-    hidden: yes
+  dimension: course_created {
+    type: yesno
+    sql: ${TABLE}."CREATED_" = 'Yes';;
+  }
+
+  measure: course_created_count {
+    label: "# Courses Created"
+    type: sum
+    sql: case when ${course_created} then 1 end;;
   }
 
   dimension: training_scheduled {
-    type: string
-    sql: ${TABLE}."TRAINING_SCHEDULED" ;;
+    type: yesno
+    sql: ${TABLE}."TRAINING_SCHEDULED" = 'Yes' ;;
+  }
+
+  measure: training_scheduled_count {
+    label: "# Training Scheduled"
+    type: sum
+    sql: case when ${training_scheduled} then 1 end;;
   }
 
   dimension: training_completed {
-    type: string
-    sql: ${TABLE}."TRAINING_COMPLETED" ;;
+    type: yesno
+    sql: ${TABLE}."TRAINING_COMPLETED" = 'Yes';;
+  }
+
+  measure: training_completed_count {
+    label: "# Training Completed"
+    type: sum
+    sql: case when ${training_completed} then 1 end;;
   }
 
   dimension: start_strong_scheduled {
-    type: string
-    sql: ${TABLE}."START_STRONG_SCHEDULED" ;;
+    type: yesno
+    sql: ${TABLE}."START_STRONG_SCHEDULED" = 'Yes';;
+  }
+
+  measure: start_strong_scheduled_count {
+    label: "# Start Strong Scheduled"
+    type: sum
+    sql: case when ${start_strong_scheduled} then 1 end;;
   }
 
   dimension: start_strong_completed {
-    type: string
-    sql: ${TABLE}."START_STRONG_COMPLETED" ;;
+    type: yesno
+    sql: ${TABLE}."START_STRONG_COMPLETED" = 'Yes';;
+  }
+
+  measure: start_strong_completed_count {
+    label: "# Start Strong Completed"
+    type: sum
+    sql: case when ${start_strong_completed} then 1 end;;
   }
 
   dimension_group: _fivetran_synced {
@@ -74,18 +140,15 @@ view: magellan_instructor_setup_status {
 
   set: detail {
     fields: [
-      _file,
-      _line,
       user_guid,
       mag_contact_id,
       mag_contact_name,
       institution_course_name,
-      created_,
+      course_created,
       training_scheduled,
       training_completed,
       start_strong_scheduled,
       start_strong_completed,
-      _fivetran_synced_time
     ]
   }
 }
