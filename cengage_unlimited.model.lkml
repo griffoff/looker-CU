@@ -586,6 +586,38 @@ join: raw_subscription_event {
 
 
 
+explore: customer_support_cases {
+  label: "CU User Analysis Customer Support Cases"
+  description: "One time upload of customer support cases joined with CU user analysis to analyze support cases in the context of CU"
+  extends: [session_analysis]
+
+  join: customer_support_cases {
+    view_label: "Customer Support Cases"
+    sql_on: ${learner_profile.user_sso_guid} = ${customer_support_cases.sso_guid}::STRING ;;
+    relationship: one_to_many
+  }
+  fields: [
+    learner_profile.marketing_fields*
+    ,all_events.marketing_fields*
+    ,live_subscription_status.marketing_fields*
+    ,merged_cu_user_info.marketing_fields*
+    ,dim_institution.marketing_fields*
+    ,dim_product.marketing_fields*
+    ,dim_productplatform.productplatform
+    ,dim_course.marketing_fields*
+#     ,instiution_star_rating.marketing_fields*
+    ,course_section_facts.total_noofactivations
+    ,courseinstructor.marketing_fields*
+    ,dim_start_date.marketing_fields*
+    ,olr_courses.instructor_name
+#     ,subscription_term_products_value.marketing_fields*
+#     ,subscription_term_cost.marketing_fields*
+    ,user_courses.marketing_fields*
+    ,customer_support_cases.customer_support_case_fields*]
+}
+
+
+
 
 
 ##### Raw Snowflake Tables #####

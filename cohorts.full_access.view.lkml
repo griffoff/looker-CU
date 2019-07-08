@@ -75,7 +75,7 @@ view: FullAccess_cohort {
     ,subscription_terms AS
     (
     SELECT
-        user_sso_guid_merged
+          user_sso_guid_merged
           ,terms_chron_order_desc
           ,governmentdefinedacademicterm
           ,subscription_state
