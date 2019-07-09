@@ -9,6 +9,7 @@ view: customer_support_cases {
     drill_fields: [customer_support_case_fields*]
   }
 
+
   dimension: _file {
     type: string
     sql: ${TABLE}."_FILE" ;;
@@ -699,6 +700,7 @@ view: customer_support_cases {
 
   set: customer_support_case_fields {
     fields: [
+      count,
       _file,
       _line,
       case_number,
