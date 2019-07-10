@@ -1,3 +1,5 @@
+include: "datagroups.lkml"
+
 view: cohorts_base_binary {
   # inherist base and implements sql for binary flags (1 or 0)
   extends: [cohorts_base]
@@ -40,6 +42,16 @@ view: cohorts_base_number {
   dimension: minus_4 {sql: COALESCE(${TABLE}."5", 0);;}
 }
 
+view: cohorts_base_string {
+  extends: [cohorts_base]
+
+  dimension: current {sql: ${TABLE}."1"::STRING;;}
+  dimension: minus_1 {sql: ${TABLE}."2"::STRING;;}
+  dimension: minus_2 {sql: ${TABLE}."3"::STRING;;}
+  dimension: minus_3 {sql: ${TABLE}."4"::STRING;;}
+  dimension: minus_4 {sql: ${TABLE}."5"::STRING;;}
+}
+
 
 view: cohorts_base {
 
@@ -50,7 +62,7 @@ set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, c
 
 set: marketing_fields {fields: [params*, cohort_term_fields*]}
 
-derived_table: {sql: select 1;;}
+derived_table: {sql: select 1;; datagroup_trigger: cu_user_analysis}
 
 dimension: user_sso_guid_merged {
   type: string
