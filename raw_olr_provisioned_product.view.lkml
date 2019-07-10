@@ -166,7 +166,7 @@ dimension_group: _ldts {
       quarter,
       year
     ]
-    sql: ${TABLE}."DATE_ADDED" ;;
+
   }
 
   dimension_group: expiration {

@@ -131,6 +131,140 @@ explore: session_analysis {
     type: inner
   }
 
+  join: FullAccess_cohort {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: TrialAccess_cohorts {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: subscription_term_cost {
+    view_label: "Institution"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_cost.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+  join: subscription_term_products_value {
+    view_label: "Institution"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_products_value.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: subscription_term_savings {
+    view_label: "Institution"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_savings.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: subscription_term_careercenter_clicks {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_careercenter_clicks.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+#   join: cohorts_base {type: cross relationship: one_to_one}
+#   join: cohorts_base_institution {type: cross relationship: one_to_one}
+
+  join: cohorts_chegg_clicked {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_chegg_clicked.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_kaplan_clicked {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_kaplan_clicked.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_quizlet_clicked {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_quizlet_clicked.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_evernote_clicked {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_evernote_clicked.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_print_clicked {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_print_clicked.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_courseware_dashboard {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_courseware_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_testprep_dashboard {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_testprep_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_studyguide_dashboard {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_studyguide_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_flashcards_dashboard {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_flashcards_dashboard.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_subscription_term_savings_user {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_subscription_term_savings_user.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: subscription_term_courseware_value_users {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_courseware_value_users.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_term_courses {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_term_courses.user_sso_guid} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_time_in_platform {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_time_in_platform.user_sso_guid} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_number_of_logins {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_logins.user_sso_guid} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_number_of_ebooks_added_dash {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_ebooks_added_dash.user_sso_guid} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_number_of_courseware_added_to_dash{
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_courseware_added_to_dash.user_sso_guid} ;;
+    relationship:  one_to_many
+  }
+
 }
 
 explore: session_analysis_old {
