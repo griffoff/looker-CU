@@ -415,6 +415,12 @@ explore: session_analysis_dev {
     relationship:  one_to_many
   }
 
+  join: cohorts_platforms_used {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_platforms_used.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: TrialAccess_cohorts {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
@@ -554,7 +560,7 @@ explore: session_analysis_dev {
   }
 
    join: dim_course {
-     sql_on: ${user_courses.olr_course_key} = ${dim_course.olr_course_key} ;;
+     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.olr_course_key} ;;
      relationship: many_to_many
    }
 
