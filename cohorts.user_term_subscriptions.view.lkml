@@ -5,6 +5,8 @@ view: cohorts_user_term_subscriptions {
               s.user_sso_guid_merged
               ,d.terms_chron_order_desc
               ,d.governmentdefinedacademicterm
+              ,d.start_date
+              ,d.end_date
               ,s.subscription_state
               ,s.subscription_start
               ,s.subscription_end

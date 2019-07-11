@@ -34,7 +34,7 @@ view: cohorts_platforms_used {
        FROM (
          SELECT DISTINCT terms_chron_order_desc, user_sso_guid_merged, k.value
          FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME} s
-         INNER JOIN cu_user_analysis.all_sessions  AS all_sessions ON s.user_sso_guid_merged = (all_sessions."USER_SSO_GUID")
+         INNER JOIN ${all_sessions.SQL_TABLE_NAME}  AS all_sessions ON s.user_sso_guid_merged = (all_sessions."USER_SSO_GUID")
                               AND all_sessions.session_start BETWEEN s.subscription_start AND s.subscription_end
          CROSS JOIN LATERAL FLATTEN(all_sessions.course_keys) k
         ) k
