@@ -11,7 +11,7 @@ explore: strategy_analysis {
   label: "CU User Analysis Strategy"
   description: "Strategy explore for executing repeatable business strategy
   analysis i.e. take-rate, revenue canibalization and student savings"
-  extends: [session_analysis_dev]
+  extends: [session_analysis]
 
   fields: [
     learner_profile.marketing_fields*
