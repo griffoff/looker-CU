@@ -52,6 +52,47 @@ view: cohorts_base_string {
   dimension: minus_4 {sql: ${TABLE}."5"::STRING;;}
 }
 
+view: cohorts_base_events {
+
+  extends: [cohorts_base_number]
+
+  parameter: events_to_include {
+    type: string
+    default_value: ""
+    # list values as comma separated list, this will be passed into a SQL "in" operator
+    # e.g. "Option 1, Option 2"
+    # or just "Option 1" if there is only 1 option
+  }
+
+  set: other_fields {fields: [events_to_include]}
+
+  derived_table: {
+    sql:
+          SELECT
+            user_sso_guid_merged
+            ,MAX(CASE WHEN terms_chron_order_desc = 1 THEN 1 END) AS "1"
+            ,MAX(CASE WHEN terms_chron_order_desc = 2 THEN 1 END) AS "2"
+            ,MAX(CASE WHEN terms_chron_order_desc = 3 THEN 1 END) AS "3"
+            ,MAX(CASE WHEN terms_chron_order_desc = 4 THEN 1 END) AS "4"
+            ,MAX(CASE WHEN terms_chron_order_desc = 5 THEN 1 END) AS "5"
+         FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME} s
+         INNER JOIN ${all_events.SQL_TABLE_NAME} e
+                ON s.user_sso_guid_merged = e.user_sso_guid
+                AND s.start_date < e.event_time
+                AND s.end_date > e.event_time
+                AND e.event_name in ( {{ events_to_include._parameter_value | replace: ", ", "," | replace: ",", "', '" }})
+              /*
+              --Is this necessary?
+              INNER JOIN ${user_courses.SQL_TABLE_NAME} u
+                ON s.user_sso_guid_merged = u.user_sso_guid
+              WHERE s.subscription_state = 'full_access'
+              */
+         GROUP BY 1
+        ;;
+  }
+
+}
+
 
 view: cohorts_base {
 
@@ -60,7 +101,9 @@ set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_
 
 set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_1_tiers, current_tiers_time, minus_1_tiers_time]}
 
-set: marketing_fields {fields: [params*, cohort_term_fields*]}
+set: other_fields {fields: []}
+
+set: marketing_fields {fields: [params*, cohort_term_fields*, other_fields*]}
 
 derived_table: {sql: select 1;; datagroup_trigger: cu_user_analysis}
 
