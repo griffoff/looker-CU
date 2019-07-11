@@ -1109,3 +1109,34 @@ explore: sso_logins {
     sql_on: ${iam_user_mutation.user_sso_guid} = ${sso_logins.user_sso_guid} ;;
   }
 }
+
+# ------ Sales order explore -------------------------------------
+
+explore: dm_sales_orders {
+
+  join: dm_territories {
+    sql_on: ${dm_sales_orders.territory_skey}=${dm_territories.territory_skey} ;;
+    relationship: many_to_one
+  }
+
+  join: dm_products {
+    sql_on: ${dm_sales_orders.product_skey_bu} = ${dm_products.product_skey} ;;
+    relationship: many_to_one
+  }
+
+  join: dim_date {
+    sql_on: ${dm_sales_orders.invoice_dt_date} = ${dim_date.datekey};;
+    relationship: many_to_one
+  }
+
+  join: dm_customers {
+    sql_on: ${dm_sales_orders.cust_no_ship} = ${dm_customers.cust_no} ;;
+    relationship:many_to_one
+  }
+
+  join: dm_entities {
+    sql_on: ${dm_entities.entity_no} = ${dm_customers.entity_no};;
+    relationship: one_to_many
+  }
+
+}
