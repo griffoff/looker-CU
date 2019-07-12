@@ -11,7 +11,7 @@ explore: strategy_analysis {
   label: "CU User Analysis Strategy"
   description: "Strategy explore for executing repeatable business strategy
   analysis i.e. take-rate, revenue canibalization and student savings"
-  extends: [session_analysis_dev]
+  extends: [session_analysis]
 
   fields: [
     learner_profile.marketing_fields*
@@ -97,34 +97,5 @@ explore: strategy_analysis {
     relationship: one_to_many
   }
 
-
-}
-
-explore: dm_sales_orders {
-
-  join: dm_territories {
-  sql_on: ${dm_sales_orders.territory_skey}=${dm_territories.territory_skey} ;;
-  relationship: many_to_one
-  }
-
-  join: dm_products {
-    sql_on: ${dm_sales_orders.product_skey_bu} = ${dm_products.product_skey} ;;
-    relationship: many_to_one
-  }
-
-  join: dim_date {
-    sql_on: ${dm_sales_orders.invoice_dt_date} = ${dim_date.datekey};;
-    relationship: many_to_one
-  }
-
-  join: dm_customers {
-    sql_on: ${dm_sales_orders.cust_no_ship} = ${dm_customers.cust_no} ;;
-    relationship:many_to_one
-  }
-
-  join: dm_entities {
-    sql_on: ${dm_entities.entity_no} = ${dm_customers.entity_no};;
-    relationship: one_to_many
-  }
 
 }
