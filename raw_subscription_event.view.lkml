@@ -178,7 +178,7 @@ view: raw_subscription_event {
 
   dimension: lms_user {
     type: yesno
-    sql: ${TABLE}.lms_user = 1;;
+    sql: ${TABLE}.lms_user_status = 1;;
     description: "This flag is yes if a user has ever done a subscription event from a gateway account (from a shadow or gateway guid)"
 
   }

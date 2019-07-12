@@ -5,7 +5,15 @@ view: customer_support_cases {
   }
 
   measure: count {
+    label: "Case count"
     type: count
+    drill_fields: [customer_support_case_fields*]
+  }
+
+
+  measure: unique_count {
+    label: "Unique Case count"
+    type: count_distinct
     drill_fields: [customer_support_case_fields*]
   }
 
@@ -25,10 +33,14 @@ view: customer_support_cases {
     primary_key: yes
   }
 
-  dimension: date_time_opened {
-    type: string
-    sql: ${TABLE}."DATE_TIME_OPENED" ;;
-  }
+
+
+#   dimension_group: date_time_opened {
+#     type: time
+#     timeframes: [raw, time,  date, week, month, quarter, year]
+#     sql: ${TABLE}."DATE_TIME_OPENED"
+#     group_label: "Opened Time"
+#   }
 
   dimension: date_time_closed {
     type: string
@@ -247,10 +259,20 @@ view: customer_support_cases {
     sql: ${TABLE}."CASE_REASON" ;;
   }
 
-  dimension: opened_date {
-    type: string
-    sql: ${TABLE}."OPENED_DATE" ;;
+  dimension_group: opened_date {
+    type: time
+    label: "Opened Date"
+    timeframes: [raw,  date, week, month, quarter, year]
+    sql: TRY_TO_DATE(COALESCE(opened_date,NULL)) ;;
   }
+
+  #   dimension_group: date_time_opened {
+#     type: time
+#     timeframes: [raw, time,  date, week, month, quarter, year]
+#     sql: ${TABLE}."DATE_TIME_OPENED"
+#     group_label: "Opened Time"
+#   }
+
 
   dimension: case_date_time_last_modified {
     type: string
@@ -262,10 +284,23 @@ view: customer_support_cases {
     sql: ${TABLE}."CASE_LAST_MODIFIED_DATE" ;;
   }
 
-  dimension: closed_date {
-    type: string
-    sql: ${TABLE}."CLOSED_DATE" ;;
+
+  dimension_group: closed_date {
+    type: time
+    label: "Closed Date"
+    timeframes: [raw,  date, week, month, quarter, year]
+    sql: TRY_TO_DATE(COALESCE(closed_date,NULL)) ;;
   }
+
+
+  dimension_group: case_duration {
+    type: duration
+    label: "Case Duration"
+    sql_start:  TRY_TO_DATE(COALESCE(opened_date,NULL));;  # often this is a single database column
+    sql_end: TRY_TO_DATE(COALESCE(closed_date,NULL)) ;;  # often this is a single database column
+    intervals: [day, week, month] # valid intervals described below
+  }
+
 
   dimension: open {
     type: string
@@ -699,10 +734,11 @@ view: customer_support_cases {
 
   set: customer_support_case_fields {
     fields: [
+      count,
       _file,
       _line,
       case_number,
-      date_time_opened,
+#       date_time_opened,
       date_time_closed,
       age_hours_,
       status,
@@ -746,10 +782,19 @@ view: customer_support_cases {
       type,
       case_record_type,
       case_reason,
-      opened_date,
+      opened_date_raw,
+      opened_date_date,
+      opened_date_month,
+      opened_date_week,
       case_date_time_last_modified,
       case_last_modified_date,
-      closed_date,
+      closed_date_raw,
+      closed_date_date,
+      closed_date_week,
+      closed_date_month,
+      days_case_duration,
+      weeks_case_duration,
+      months_case_duration,
       open,
       closed,
       escalated,
