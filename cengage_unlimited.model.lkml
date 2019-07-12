@@ -1139,4 +1139,10 @@ explore: dm_sales_orders {
     relationship: one_to_many
   }
 
+  join: activations_olr {
+    sql_on: ${dm_entities.entity_no} = ${activations_olr.entity_no}
+    and ${dm_products.product_skey} = ${activations_olr.product_skey};;
+    relationship: many_to_many
+  }
+
 }
