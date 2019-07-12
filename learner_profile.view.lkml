@@ -531,6 +531,34 @@ view: learner_profile {
     value_format_name: percent_1
   }
 
+  dimension: activations_after_subscription_start {
+    group_label: "A la carte purchases"
+    label: "# of a la carte purchases after subscription start"
+    type: number
+    sql: ${TABLE}."ACTIVATIONS_AFTER_SUBSCRIPTION_START" ;;
+  }
+
+  dimension: activations_on_subscription_start {
+    group_label: "A la carte purchases"
+    label: "# of a la carte purchases on subscription start"
+    type: number
+    sql: ${TABLE}."ACTIVATIONS_ON_SUBSCRIPTION_START" ;;
+  }
+
+  dimension: activations_before_subscription_start {
+    group_label: "A la carte purchases"
+    label: "# of a la carte purchases before subscription start"
+    type: number
+    sql: ${TABLE}."ACTIVATIONS_BEFORE_SUBSCRIPTION_START" ;;
+  }
+
+  dimension: activations_two_weeks_before_subscription_start {
+    group_label: "A la carte purchases"
+    label: "# of a la carte purchases two weeks before subscription start"
+    type: number
+    sql: ${TABLE}."ACTIVATIONS_TWO_WEEKS_BEFORE_SUBSCRIPTION_START" ;;
+  }
+
 
 
 
