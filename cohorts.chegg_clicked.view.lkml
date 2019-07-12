@@ -5,6 +5,7 @@ view: cohorts_chegg_clicked {
 
   parameter: events_to_include {
     default_value: "One month Free Chegg Clicked"
+    hidden: yes
   }
 
   dimension: current {group_label: "Partners: Chegg clicked"}
