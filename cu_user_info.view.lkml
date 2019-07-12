@@ -36,6 +36,7 @@ view: cu_user_info {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: primary_guid {

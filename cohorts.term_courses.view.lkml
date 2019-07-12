@@ -64,11 +64,13 @@ view: cohorts_term_courses {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden: yes
   }
 
   dimension: governmentdefinedacademicterm {
