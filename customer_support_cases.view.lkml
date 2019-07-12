@@ -13,9 +13,19 @@ view: customer_support_cases {
 
   measure: unique_count {
     label: "Unique Case count"
+    description: "Distinct count of case id field"
     type: count_distinct
+    sql:  ${case_id};;
     drill_fields: [customer_support_case_fields*]
   }
+
+  measure: duration {
+    label: "Case Duration"
+    description: "Days case took to close"
+    type: average
+    sql: ${days_case_duration} ;;
+  }
+
 
   dimension: _file {
     type: string
@@ -738,6 +748,7 @@ view: customer_support_cases {
       _file,
       _line,
       case_number,
+      unique_count,
 #       date_time_opened,
       date_time_closed,
       age_hours_,
@@ -880,7 +891,8 @@ view: customer_support_cases {
       mailing_state_province,
       billing_state_province,
       shipping_state_province,
-      _fivetran_synced_time
+      _fivetran_synced_time,
+      duration
     ]
   }
 }
