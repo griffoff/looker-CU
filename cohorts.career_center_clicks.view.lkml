@@ -5,6 +5,7 @@ view: subscription_term_careercenter_clicks {
 
   parameter: events_to_include {
     default_value: "Clicked on Career Center"
+    hidden: yes
   }
 
   dimension: current {group_label: "Career center clicks"}

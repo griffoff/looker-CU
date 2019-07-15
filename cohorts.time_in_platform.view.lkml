@@ -61,11 +61,13 @@ view: cohorts_time_in_platform {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden: yes
   }
 
   dimension: governmentdefinedacademicterm {
