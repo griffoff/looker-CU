@@ -91,7 +91,6 @@ view: TrialAccess_cohorts {
            PIVOT (SUM (clicked_career_center) FOR terms_chron_order_desc IN (1, 2, 3, 4, 5))
            )
            SELECT * FROM subscription_term_career_center_clicks_agg
-           ;
 
 
        ;;
