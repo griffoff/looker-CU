@@ -66,15 +66,14 @@ explore: marketing_analysis {
 #     user_attribute: saml_user_id
 #   }
   # Use this code to filter results for individuals
-  # Need to create a new user attribute 'view_all_accounts'
-  sql_always_where:
-           ${magellan_lc_mapping.email} = '{{ _user_attributes['saml_user_id'] }}'
-           OR '{{ _user_attributes['view_all_institutions'] }}' = 'yes'
-          ;;
-  join: magellan_lc_mapping {
-    sql_on: ${dim_institution.entity_no}::STRING = ${magellan_lc_mapping.entity_id}::STRING ;;
-    relationship: one_to_many
-  }
+#   sql_always_where:
+#            ${magellan_lc_mapping.email} = '{{ _user_attributes['saml_user_id'] }}'
+#            OR '{{ _user_attributes['view_all_institutions'] }}' = 'yes'
+#           ;;
+#   join: magellan_lc_mapping {
+#     sql_on: ${dim_institution.entity_no}::STRING = ${magellan_lc_mapping.entity_id}::STRING ;;
+#     relationship: one_to_many
+#   }
 
   join: instiution_star_rating {
     view_label: "Institution"
