@@ -59,6 +59,23 @@ explore: marketing_analysis {
     ,cu_enterprise_licenses*
     ]
 
+
+# This method only works if everyone has a mapping (i.e. there is no override to see all)
+#   access_filter: {
+#     field: magellan_lc_mapping.email
+#     user_attribute: saml_user_id
+#   }
+  # Use this code to filter results for individuals
+  # Need to create a new user attribute 'view_all_accounts'
+  sql_always_where:
+           ${magellan_lc_mapping.email} = '{{ _user_attributes['saml_user_id'] }}'
+           OR '{{ _user_attributes['view_all_institutions'] }}' = 'yes'
+          ;;
+  join: magellan_lc_mapping {
+    sql_on: ${dim_institution.entity_no}::STRING = ${magellan_lc_mapping.entity_id}::STRING ;;
+    relationship: one_to_many
+  }
+
   join: instiution_star_rating {
     view_label: "Institution"
     sql_on: ${dim_institution.entity_no}::STRING = ${instiution_star_rating.entity_}::STRING ;;

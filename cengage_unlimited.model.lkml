@@ -131,6 +131,12 @@ explore: session_analysis {
     type: inner
   }
 
+  join: cohorts_platforms_used {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_platforms_used.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: FullAccess_cohort {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
@@ -412,12 +418,6 @@ explore: session_analysis_dev {
   join: FullAccess_cohort {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
-    relationship:  one_to_many
-  }
-
-  join: cohorts_platforms_used {
-    view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_platforms_used.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
