@@ -1125,7 +1125,7 @@ explore: dm_sales_orders {
   }
 
   join: dim_date {
-    sql_on: ${dm_sales_orders.invoice_dt_date} = ${dim_date.datekey};;
+    sql_on: ${dm_sales_orders.invoice_dt_date}::DATE = ${dim_date.datevalue};;
     relationship: many_to_one
   }
 

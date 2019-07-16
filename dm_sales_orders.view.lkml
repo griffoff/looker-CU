@@ -195,7 +195,8 @@ measure: extended_amt_usd_measure  {
       week,
       month,
       quarter,
-      year
+      year,
+      fiscal_year
     ]
     convert_tz: no
     datatype: date
