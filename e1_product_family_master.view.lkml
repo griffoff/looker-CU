@@ -1,5 +1,5 @@
 view: e1_product_family_master {
-  sql_table_name: CU.E1_PRODUCT_FAMILY_MASTER ;;
+  sql_table_name: UPLOADS.CU.E1_PRODUCT_FAMILY_MASTER ;;
 
   dimension: _file {
     type: string
