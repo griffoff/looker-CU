@@ -131,6 +131,12 @@ explore: session_analysis {
     type: inner
   }
 
+  join: cohorts_platforms_used {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_platforms_used.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: FullAccess_cohort {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
@@ -418,12 +424,6 @@ explore: session_analysis_dev {
   join: FullAccess_cohort {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
-    relationship:  one_to_many
-  }
-
-  join: cohorts_platforms_used {
-    view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_platforms_used.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
@@ -1131,7 +1131,7 @@ explore: dm_sales_orders {
   }
 
   join: dim_date {
-    sql_on: ${dm_sales_orders.invoice_dt_date} = ${dim_date.datekey};;
+    sql_on: ${dm_sales_orders.invoice_dt_date}::DATE = ${dim_date.datevalue};;
     relationship: many_to_one
   }
 

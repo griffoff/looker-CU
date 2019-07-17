@@ -345,6 +345,18 @@ view: dm_products {
     sql: ${TABLE}."ISBN_13" ;;
   }
 
+  dimension: chegg_tutor_flag {
+    label: "Chegg Tutor"
+    description: "calculated field"
+    case: {
+      when: {
+        sql: ${isbn_13} ilike '9781337792615' ;;
+        label: "Chegg_Tutor"
+      }
+      else: "X"
+    }
+  }
+
   dimension: item_cd {
     type: string
     sql: ${TABLE}."ITEM_CD" ;;

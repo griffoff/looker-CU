@@ -60,8 +60,8 @@ view: cohorts_base_events {
     type: string
     default_value: ""
     # list values as comma separated list, this will be passed into a SQL "in" operator
-    # e.g. "Option 1, Option 2"
-    # or just "Option 1" if there is only 1 option
+    # e.g. "Event Name 1, Event Name 2"
+    # or just "Event Name 1" if there is only 1 option
   }
 
   set: other_fields {fields: [events_to_include]}

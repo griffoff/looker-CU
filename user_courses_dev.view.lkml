@@ -78,9 +78,7 @@ view: user_courses_dev {
     # intervals: [day, week, month]
   }
 
-  dimension: isbn {
-    type: string
-  }
+
 
   dimension: date_added {
     type: date
@@ -114,12 +112,7 @@ view: user_courses_dev {
     hidden: no
   }
 
-  dimension: cu_flag {
-    type: yesno
-    sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
-    label: "CU Flag"
-    hidden: no
-  }
+
 
   measure: ala_cart_purchases {
     label: "# of a la carte activations"
@@ -151,14 +144,6 @@ view: user_courses_dev {
 #     type: number
 #     sql: ${course_section_facts.total_noofactivations};;
 #   }
-
-
-
-  measure: distinct_ala_cart_purchase {
-    label:  "# of a la carte purchases (distinct)"
-    type: count_distinct
-    sql: CASE WHEN ${cu_flag} = 'No' THEN ${isbn} END;;
-  }
 
 
 

@@ -140,6 +140,13 @@ view: dm_sales_orders {
     sql: ${TABLE}."EXTENDED_AMT_USD" ;;
   }
 
+measure: extended_amt_usd_measure  {
+  label: "sales"
+  type: sum
+  sql:   ${TABLE}."EXTENDED_AMT_USD" ;;
+}
+
+
   dimension: foreign_domestic_cd {
     type: string
     sql: ${TABLE}."FOREIGN_DOMESTIC_CD" ;;
@@ -188,11 +195,18 @@ view: dm_sales_orders {
       week,
       month,
       quarter,
-      year
+      year,
+      fiscal_year
     ]
     convert_tz: no
     datatype: date
     sql: ${TABLE}."INVOICE_DT" ;;
+  }
+
+  dimension: concat_primary {
+    sql: Concat(Concat(Concat(concat(${company_cd},${invoice_dt_date}),${order_no}),${order_line_no}),${order_type_cd})  ;;
+    primary_key: yes
+    hidden: yes
   }
 
   dimension: invoice_no {
@@ -283,6 +297,54 @@ view: dm_sales_orders {
   dimension: order_taken_by {
     type: string
     sql: ${TABLE}."ORDER_TAKEN_BY" ;;
+  }
+
+  dimension: CL_Rental {
+    label: "CL Rental"
+    description: "calculated field"
+    case: {
+      when: {
+        sql: ${order_type_cd} ilike 'SX' AND ${line_type_cd} ilike 'X' ;;
+        label: "Consingment/Rental Inventory Transfer"
+      }
+      when: {
+        sql: ${order_type_cd} ilike 'SV' AND ${line_type_cd} ilike 'RS' ;;
+        label: "Consingment/Rental Inventory Transfer"
+      }
+      when: {
+        sql: ${order_type_cd} ilike 'SV' AND (UPPER(${line_type_cd}) IN ('R1','R2','R3','R4','R5')) ;;
+        label: "Consingment Rental"
+      }
+      when: {
+        sql: ${order_type_cd} ilike 'CV' AND (UPPER(${line_type_cd}) IN ('C1','C2','C3','C4','C5')) ;;
+        label: "Consingment Rental Return"
+      }
+      when: {
+        sql: ${order_type_cd} ilike 'CV' OR ${line_type_cd} ilike 'CE' ;;
+        label: "Rental Return"
+      }
+      when: {
+        sql: ${order_type_cd} ilike 'EB' ;;
+        label: "Accrual Reversal"
+      }
+      when: {
+        sql: ${order_type_cd} ilike 'SE' AND  ${line_type_cd} ilike 'RN';;
+        label: "Amazon Rental"
+      }
+      else: "X"
+    }
+  }
+
+  dimension: 23K_Order{
+    label: "23K order"
+    description: "Calculated field"
+    case: {
+      when: {
+        sql: ${order_no} IN (97281659,97378813,97379065,97379085,97424575,97424682) ;;
+        label: "23K Order"
+      }
+      else: "X"
+    }
   }
 
   dimension: order_type_cd {
