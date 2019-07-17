@@ -175,8 +175,8 @@ view: eligible_discount_students_details_20190717 {
   dimension: most_recent_activation_date {
     group_label: "Discount Info"
 #     label: "most_recent_platform_activation"
-    type: string
-    sql: ${TABLE}."MOST_RECENT_PLATFORM_DATE";;
+    type: date
+    sql: ${TABLE}."MOST_RECENT_ACTIVATION_DATE"::date;;
     value_format_name: usd
   }
 
