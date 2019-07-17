@@ -1,5 +1,8 @@
 view: e1_product_family_master {
-  sql_table_name: UPLOADS.CU.E1_PRODUCT_FAMILY_MASTER ;;
+  derived_table: {
+    sql: Select * from UPLOADS.CU.E1_PRODUCT_FAMILY_MASTER Where _file ilike 'E1 Product Family Master(12-20-18).csv' ;;
+  }
+#   sql_table_name: UPLOADS.CU.E1_PRODUCT_FAMILY_MASTER ;;
 
   dimension: _file {
     type: string
