@@ -16,6 +16,23 @@ view: user_courses {
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
   }
 
+  measure: distinct_ala_cart_purchase {
+    label:  "# of a la carte purchases (distinct)"
+    type: count_distinct
+    sql: CASE WHEN ${cu_flag} = 'No' THEN ${isbn} END;;
+  }
+
+  dimension: cu_flag {
+    type: yesno
+    sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
+    label: "CU Flag"
+    hidden: no
+  }
+
+  dimension: isbn {
+    type: string
+  }
+
   dimension: amount_to_upgrade_tiers {
     view_label: "Learner Profile"
     type: string
