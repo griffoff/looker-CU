@@ -20,7 +20,7 @@ view: user_courses {
     view_label: "Learner Profile"
     type: string
     sql: CASE
-            WHEN ${net_price_enrolled} = 0 THEN '0'
+            WHEN ${net_price_enrolled} = 0 THEN '$0'
             WHEN ${net_price_enrolled} < 10 THEN '$0.01-$9.99'
             WHEN ${net_price_enrolled} < 20 THEN '$10.00-$19.99'
             WHEN ${net_price_enrolled} < 30 THEN '$20.00-$29.99'

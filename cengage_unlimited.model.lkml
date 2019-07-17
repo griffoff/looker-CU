@@ -166,6 +166,12 @@ explore: session_analysis {
     relationship:  one_to_many
   }
 
+  join: eligible_discount_students_details_20190717 {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${eligible_discount_students_details_20190717.user_sso_guid} ;;
+    relationship:  one_to_one
+  }
+
 #   join: cohorts_base {type: cross relationship: one_to_one}
 #   join: cohorts_base_institution {type: cross relationship: one_to_one}
 
