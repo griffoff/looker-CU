@@ -50,6 +50,31 @@ derived_table: {
 #     hidden: no
   }
 
+  measure: ala_cart_purchases {
+    label: "# of a la carte activations"
+    type: sum
+    sql: CASE WHEN ${cu_flag} = 'No' THEN 1 END;;
+  }
+
+  measure: cu_purchase {
+    label: "# of a CU activations"
+    type: sum
+    sql: CASE WHEN ${cu_flag} = 'Yes' THEN 1 END;;
+  }
+
+  measure: enrollments_minus_activations {
+    label: "# of enrollments not activated"
+    type: number
+    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+  }
+
+  measure: activations_minus_a_la_carte {
+    label: "Activations minus a la carte"
+    type: number
+    sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
+    hidden: yes
+  }
+
   dimension: isbn {
     type: string
   }
