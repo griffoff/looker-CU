@@ -95,25 +95,6 @@ view: user_courses_dev {
   }
 
 
-
-  dimension: cui_flag {
-    type: string
-    sql: ${TABLE}.cui_flag;;
-    hidden: no
-    label: "CUI Flag"
-    description: "Flag to identify Cengage Unlimited Institutional Subscription"
-  }
-
-  dimension: cu_contract_id {
-    type: string
-    sql: ${TABLE}.cu_contract_id;;
-    label: "CU Contract ID"
-    description: "Unique contract ID for Cengage Unlimited Subscription"
-    hidden: no
-  }
-
-
-
   measure: ala_cart_purchases {
     label: "# of a la carte activations"
     type: sum

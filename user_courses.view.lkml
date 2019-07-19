@@ -1,6 +1,10 @@
 view: user_courses {
   view_label: "User Courses"
-  sql_table_name: prod.cu_user_analysis.user_courses ;;
+#   sql_table_name: prod.cu_user_analysis.user_courses ;;
+derived_table: {
+  sql: Select *, case when (cu_contract_id IS NOT NULL AND cu_contract_id <> 'TRIAL') OR cui_flag = 'Y' THEN 'yes' ELSE 'no' end as cu_flag
+        from prod.cu_user_analysis.user_courses  ;;
+}
 
   set: marketing_fields {
     fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers, user_courses.ala_cart_purchases, user_courses.distinct_ala_cart_purchase
@@ -19,14 +23,31 @@ view: user_courses {
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN ${cu_flag} = 'No' THEN ${isbn} END;;
+    sql: CASE WHEN ${TABLE}.cu_flag = 'no' THEN ${isbn} END;;
   }
 
-  dimension: cu_flag {
-    type: yesno
-    sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
-    label: "CU Flag"
+  dimension: cu_contract_id {
+    type: string
+    sql: ${TABLE}.cu_contract_id;;
+    label: "CU Contract ID"
+    description: "Unique contract ID for Cengage Unlimited Subscription"
     hidden: no
+  }
+
+  dimension: cui_flag {
+    type: string
+    sql: ${TABLE}.cui_flag;;
+    hidden: no
+    label: "CUI Flag"
+    description: "Flag to identify Cengage Unlimited Institutional Subscription"
+  }
+
+
+  dimension: cu_flag {
+#     type: yesno
+#     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
+#     label: "CU Flag"
+#     hidden: no
   }
 
   dimension: isbn {
@@ -122,17 +143,17 @@ view: user_courses {
   }
 
 
-  dimension: cui_flag {
-    type: yesno
-    sql: ${TABLE}.cu_flag;;
-    hidden: no
-  }
-
-  dimension: cu_contract_id {
-    type: yesno
-    sql: ${TABLE}.cu_contract_id;;
-    hidden: no
-  }
+#   dimension: cui_flag {
+#     type: yesno
+#     sql: ${TABLE}.cu_flag;;
+#     hidden: no
+#   }
+#
+#   dimension: cu_contract_id {
+#     type: yesno
+#     sql: ${TABLE}.cu_contract_id;;
+#     hidden: no
+#   }
 
   measure: no_enrollments {
     label: "# enrollments"
