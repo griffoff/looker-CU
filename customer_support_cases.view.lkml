@@ -1,6 +1,9 @@
 view: customer_support_cases {
   derived_table: {
-    sql: SELECT * FROM uploads.cu.customer_support_cases20190707
+    sql: SELECT u.*
+                ,s.polarity
+                ,s.subjectivity
+         FROM uploads.cu.customer_support_cases20190707 u left join dev.zsp.sentiment s on u.case_number = s.case_number
       ;;
   }
 
@@ -24,6 +27,16 @@ view: customer_support_cases {
     description: "Days case took to close"
     type: average
     sql: ${days_case_duration} ;;
+  }
+
+  dimension: polarity {
+    type: number
+    sql: ${TABLE}."POLARITY" ;;
+  }
+
+  dimension: subjectivity {
+    type: number
+    sql: ${TABLE}."SUBJECTIVITY" ;;
   }
 
 
@@ -749,6 +762,8 @@ view: customer_support_cases {
       _line,
       case_number,
       unique_count,
+      polarity,
+      subjectivity,
 #       date_time_opened,
       date_time_closed,
       age_hours_,
