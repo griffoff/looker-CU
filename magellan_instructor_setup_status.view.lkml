@@ -1,9 +1,19 @@
 view: magellan_instructor_setup_status {
-  sql_table_name: uploads.magellan_uploads.instructor_setup_status ;;
-#   derived_table: {
-#     sql: Select * from uploads.magellan_uploads.instructor_setup_status
-#       ;;
-#   }
+  #sql_table_name: uploads.magellan_uploads.instructor_setup_status ;;
+   derived_table: {
+    # must switch this code out so it uses institution_course_id
+     sql:
+      with upload as (
+        select *, lead(_fivetran_synced) over(partition by array_construct(institution_course_name, mag_contact_id) order by _fivetran_synced) is null as latest
+        from uploads.magellan_uploads.instructor_setup_status
+      )
+      select *
+      from upload
+      where latest
+       ;;
+
+      persist_for: "24 hours"
+   }
 
   set: marketing_fields {
     fields: [
@@ -21,7 +31,8 @@ view: magellan_instructor_setup_status {
       training_scheduled_count,
       training_completed_count,
       start_strong_scheduled_count,
-      start_strong_completed_count
+      start_strong_completed_count,
+      freshness_score
       ]
     }
 
@@ -31,17 +42,23 @@ view: magellan_instructor_setup_status {
     drill_fields: [detail*]
   }
 
-  dimension: _file {
-    type: string
-    sql: ${TABLE}."_FILE" ;;
-    hidden: yes
+  dimension: freshness_score {
+    type: number
+    value_format_name: percent_1
+    sql: ${TABLE}.FRESHNESS_SCORE / 100 ;;
   }
 
-  dimension: _line {
-    type: number
-    sql: ${TABLE}."_LINE" ;;
-    hidden: yes
-  }
+#   dimension: _file {
+#     type: string
+#     sql: ${TABLE}."_FILE" ;;
+#     hidden: yes
+#   }
+#
+#   dimension: _line {
+#     type: number
+#     sql: ${TABLE}."_LINE" ;;
+#     hidden: yes
+#   }
 
   dimension: user_guid {
     type: string
@@ -50,7 +67,7 @@ view: magellan_instructor_setup_status {
 
   dimension: pk {
     hidden: yes
-    sql: hash(${_file}, ${_line}) ;;
+    sql: hash(${institution_course_name}, ${mag_contact_id}) ;;
     primary_key: yes
   }
 
