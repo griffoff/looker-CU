@@ -25,6 +25,7 @@ include: "cohorts.base.view"
             AND d.end_date > pp.local_time
           WHERE pp.context_id IS NOT NULL
          )
+        /*
          ,subscription_term_value AS
          (
          SELECT * FROM subscription_term_products
@@ -33,21 +34,42 @@ include: "cohorts.base.view"
          SELECT
            *
          FROM subscription_term_value
+          */
 
+          SELECT user_sso_guid_merged
+          , SUM(CASE WHEN terms_chron_order_desc = 1 THEN 1 END) AS "1"
+          , SUM(CASE WHEN terms_chron_order_desc = 2 THEN 1 END) AS "2"
+          , SUM(CASE WHEN terms_chron_order_desc = 3 THEN 1 END) AS "3"
+          , SUM(CASE WHEN terms_chron_order_desc = 4 THEN 1 END) AS "4"
+          , SUM(CASE WHEN terms_chron_order_desc = 5 THEN 1 END) AS "5"
+       FROM subscription_term_products
+       GROUP BY 1
                ;;
 
 
     }
 
-    dimension: current {group_label: "# of courseware added to dashboard"}
+    dimension: current {
+      group_label: "# of courseware added to dashboard"
+      type: string
+      sql: CASE WHEN COALESCE(${TABLE}."1", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."1", 0)::string END  ;;
+      }
 
-    dimension: minus_1 {group_label: "# of courseware added to dashboard"}
+    dimension: minus_1 {group_label: "# of courseware added to dashboard"
+      type: string
+      sql: CASE WHEN COALESCE(${TABLE}."2", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."2", 0)::string END  ;;}
 
-    dimension: minus_2 {group_label: "# of courseware added to dashboard"}
+    dimension: minus_2 {group_label: "# of courseware added to dashboard"
+      type: string
+      sql: CASE WHEN COALESCE(${TABLE}."3", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."3", 0)::string END  ;;}
 
-    dimension: minus_3 {group_label: "# of courseware added to dashboard"}
+    dimension: minus_3 {group_label: "# of courseware added to dashboard"
+      type: string
+      sql: CASE WHEN COALESCE(${TABLE}."4", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."4", 0)::string END  ;;}
 
-    dimension: minus_4 {group_label: "# of courseware added to dashboard"}
+    dimension: minus_4 {group_label: "# of courseware added to dashboard"
+      type: string
+      sql: CASE WHEN COALESCE(${TABLE}."5", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."5", 0)::string END  ;;}
 
 
 
