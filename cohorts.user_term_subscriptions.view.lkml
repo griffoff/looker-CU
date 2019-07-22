@@ -27,6 +27,7 @@ view: cohorts_user_term_subscriptions {
       ;;
 
     persist_for: "60 minutes"
+
   }
 
 

@@ -1,8 +1,30 @@
 include: "cohorts.base.view"
 
 view: cohorts_evernote_clicked {
+  extends: [cohorts_base_events]
+
+  parameter: events_to_include {
+    default_value: "Clicked on Evernote"
+    hidden: yes
+  }
+
+  dimension: current {group_label: "Clicked on Evernote"}
+
+  dimension: minus_1 {group_label: "Clicked on Evernote"}
+
+  dimension: minus_2 {group_label: "Clicked on Evernote"}
+
+  dimension: minus_3 {group_label: "Clicked on Evernote"}
+
+  dimension: minus_4 {group_label: "Clicked on Evernote"}
+
+}
+
+view: cohorts_evernote_clicked_old {
 
 extends: [cohorts_base_binary]
+
+
 
   derived_table: {
     sql: WITH
