@@ -1,6 +1,26 @@
 include: "cohorts.base.view"
 
 view: cohorts_kaplan_clicked {
+  extends: [cohorts_base_events]
+
+  parameter: events_to_include {
+    default_value: "Clicked on Kaplan"
+    hidden: yes
+  }
+
+  dimension: current {group_label: "Clicked on Kaplan"}
+
+  dimension: minus_1 {group_label: "Clicked on Kaplan"}
+
+  dimension: minus_2 {group_label: "Clicked on Kaplan"}
+
+  dimension: minus_3 {group_label: "Clicked on Kaplan"}
+
+  dimension: minus_4 {group_label: "Clicked on Kaplan"}
+
+}
+
+view: cohorts_kaplan_clicked_old {
 
   extends: [cohorts_base_binary]
 
