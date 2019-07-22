@@ -5,3 +5,7 @@ datagroup: provisioned_product {
 datagroup: cu_user_analysis {
   sql_trigger: SELECT COUNT(*) FROM cu_user_analysis.learner_profile ;;
 }
+
+datagroup: subscription_event_merged {
+  sql_trigger: SELECT COUNT(*) FROM cu_user_analysis.subscription_event_merged ;;
+}

@@ -4,30 +4,9 @@ include: "cohorts.base.view"
 
     extends: [cohorts_base_number]
     derived_table: {
-      sql:  WITH
-        term_dates AS
-        (
-          SELECT
-            governmentdefinedacademicterm
-            ,1 AS groupbyhack
-            ,MAX(datevalue) AS end_date
-            ,MIN(datevalue) AS start_date
-          FROM prod.dw_ga.dim_date
-          WHERE governmentdefinedacademicterm IS NOT NULL
-          GROUP BY 1
-          ORDER BY 2 DESC
-        )
-        ,term_dates_five_most_recent AS
-        (
-            SELECT
-              RANK() OVER (ORDER BY start_date DESC) AS terms_chron_order_desc
-              ,*
-            FROM term_dates
-            WHERE start_date < CURRENT_DATE()
-            ORDER BY terms_chron_order_desc
-            LIMIT 5
-        )
-        ,subscription_term_products AS
+
+      sql:
+        WITH subscription_term_products AS
         (
         SELECT DISTINCT
                user_sso_guid_merged
@@ -36,7 +15,8 @@ include: "cohorts.base.view"
               ,subscription_state
               ,pp.context_id
           FROM prod.cu_user_analysis_dev.subscription_event_merged s
-          LEFT JOIN term_dates_five_most_recent d
+--           LEFT JOIN term_dates_five_most_recent
+            LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
             OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
           LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
@@ -53,7 +33,10 @@ include: "cohorts.base.view"
          SELECT
            *
          FROM subscription_term_value
+
                ;;
+
+
     }
 
     dimension: current {group_label: "# of courseware added to dashboard"}

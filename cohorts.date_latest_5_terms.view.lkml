@@ -1,5 +1,6 @@
 view: date_latest_5_terms {
   derived_table: {
+    persist_for: "5 hours"
     sql:
       SELECT
         governmentdefinedacademicterm
