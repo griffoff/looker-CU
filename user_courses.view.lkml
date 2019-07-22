@@ -1,3 +1,5 @@
+include: "//cube/additional_info.course_section_facts.view.lkml"
+include: "//core/common.lkml"
 view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
@@ -62,18 +64,18 @@ derived_table: {
     sql: CASE WHEN ${cu_flag} = 'Yes' THEN 1 END;;
   }
 
-  measure: enrollments_minus_activations {
-    label: "# of enrollments not activated"
-    type: number
-    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
-  }
+  # measure: enrollments_minus_activations {
+  #   label: "# of enrollments not activated"
+  #   type: number
+  #   sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+  # }
 
-  measure: activations_minus_a_la_carte {
-    label: "Activations minus a la carte"
-    type: number
-    sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
-    hidden: yes
-  }
+  # measure: activations_minus_a_la_carte {
+  #   label: "Activations minus a la carte"
+  #   type: number
+  #   sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
+  #   hidden: yes
+  # }
 
   dimension: isbn {
     type: string
