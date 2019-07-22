@@ -18,6 +18,7 @@ view: cohorts_user_term_subscriptions {
               )
       --WHERE user_sso_guid_merged IN ('033b20b27ca503d5:20c4c7b6:15f6f339f0c:-5f8b', '033b20b27ca503d5:20c4c7b6:15e2fad1470:5223', 'efa047457a23f24d:-260a5249:1655840aed1:-1568')
       ;;
+      persist_for: "60 minutes"
   }
 
   dimension: user_sso_guid_merged {}
