@@ -169,7 +169,6 @@ view: eligible_discount_students_details_20190717 {
 #     label: "most_recent_platform_activation"
     type: string
     sql: ${TABLE}."MOST_RECENT_PLATFORM_ACTIVATION";;
-    value_format_name: usd
   }
 
   dimension: most_recent_activation_date {
@@ -177,7 +176,6 @@ view: eligible_discount_students_details_20190717 {
 #     label: "most_recent_platform_activation"
     type: date
     sql: ${TABLE}."MOST_RECENT_ACTIVATION_DATE"::date;;
-    value_format_name: usd
   }
 
 
