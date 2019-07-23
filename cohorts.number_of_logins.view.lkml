@@ -21,12 +21,17 @@ view: cohorts_number_of_logins {
 
   dimension: current_tiers_times {
     group_label: "# of logins (tiers)"
-    hidden: yes
+    hidden: no
   }
 
   dimension: minus_1_tiers_times {
     group_label: "# of logins (tiers)"
-    hidden: yes
+    hidden: no
+  }
+
+  dimension: minus_2_tiers_times {
+    group_label: "# of logins (tiers)"
+    hidden: no
   }
 
 }

@@ -1,5 +1,259 @@
 include: "datagroups.lkml"
 
+view: cohorts_base {
+
+# fields needed to be exposed in extended explores, otherwise these fields are not available for dynamic naming of cohort labels
+  set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_merged, dimension_current_name, subscription_state, dimension_minus_1_name, dimension_minus_2_name, dimension_minus_3_name, dimension_minus_4_name, current_tiers_times, minus_1_tiers_times, minus_2_tiers_times]}
+
+  set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_1_tiers, current_tiers_time, minus_1_tiers_time, minus_2_tiers_time]}
+
+  set: other_fields {fields: []}
+
+  set: marketing_fields {fields: [params*, cohort_term_fields*, other_fields*]}
+
+  derived_table: {sql: select 1;; datagroup_trigger: cu_user_analysis}
+
+  dimension: user_sso_guid_merged {
+    type: string
+    sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
+    hidden: yes
+  }
+
+  dimension: governmentdefinedacademicterm {
+    type: string
+    sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
+    hidden: yes
+  }
+
+  dimension: primary_key {
+    type: string
+    primary_key: yes
+    sql: ${user_sso_guid_merged} ;;
+    hidden: yes
+  }
+
+  dimension: subscription_state {
+    type: string
+    sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+    hidden: yes
+  }
+
+  parameter: dimension_current_name {
+    type: unquoted
+    hidden: yes
+    default_value: "Summer_2019"
+  }
+
+  parameter: dimension_minus_1_name {
+    type: unquoted
+    hidden: yes
+    default_value: "Spring_2019"
+  }
+
+  parameter: dimension_minus_2_name {
+    type: unquoted
+    hidden: yes
+    default_value: "Fall_2019"
+  }
+
+  parameter: dimension_minus_3_name {
+    type: unquoted
+    hidden: yes
+    default_value: "Summer_2018"
+  }
+
+  parameter: dimension_minus_4_name {
+    type: unquoted
+    hidden: yes
+    default_value: "Spring_2018"
+  }
+
+
+  dimension: current {
+    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }}"
+  }
+
+  dimension: minus_1 {
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
+  }
+
+  dimension: minus_2 {
+    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
+  }
+
+  dimension: minus_3 {
+    label: "4) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
+  }
+
+  dimension: minus_4 {
+    label: "5) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
+  }
+
+
+  dimension: current_tiers {
+    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${current} = 0 ;;
+        label: "$0.00" }
+      when: {sql: ${current} < 60 ;;
+        label: "$0.01-$59.99"}
+      when: {sql: ${current} < 120 ;;
+        label: "$60.00-$119.99"}
+      when: {sql: ${current} < 180 ;;
+        label: "$120.00-$179.99"}
+      when: {sql: ${current} < 240 ;;
+        label: "$180.00-$239.99"}
+      else: "More than $240"
+    }
+    hidden: yes
+  }
+
+  dimension: minus_1_tiers {
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${minus_1} = 0 ;;
+        label: "$0.00" }
+      when: {sql: ${minus_1} < 60 ;;
+        label: "$0.01-$59.99"}
+      when: {sql: ${minus_1} < 120 ;;
+        label: "$60.00-$119.99"}
+      when: {sql: ${minus_1} < 180 ;;
+        label: "$120.00-$179.99"}
+      when: {sql: ${minus_1} < 240 ;;
+        label: "$180.00-$239.99"}
+      else: "More than $240"
+    }
+    hidden: yes
+  }
+
+  dimension: current_tiers_time {
+    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${current} = 0 ;;
+        label: "0. No time in platform" }
+      when: {sql: ${current} < 60 ;;
+        label: "1. Less than an hour in platform"}
+      when: {sql: ${current} < 120 ;;
+        label: "2. Between 1 and 2 hours in platform"}
+      when: {sql: ${current} < 180 ;;
+        label: "3. Between 2 and 3 hours in platform"}
+      when: {sql: ${current} < 240 ;;
+        label: "4. Between 3 and 4 hours in platform"}
+      else: "5. More than 4 hours in platform"
+    }
+    hidden: yes
+  }
+
+  dimension: minus_1_tiers_time {
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${minus_1} = 0 ;;
+        label: "0. No time in platform" }
+      when: {sql: ${minus_1} < 60 ;;
+        label: "1. Less than an hour in platform"}
+      when: {sql: ${minus_1} < 120 ;;
+        label: "2. Between 1 and 2 hours in platform"}
+      when: {sql: ${minus_1} < 180 ;;
+        label: "3. Between 2 and 3 hours in platform"}
+      when: {sql: ${minus_1} < 240 ;;
+        label: "4. Between 3 and 4 hours in platform"}
+      else: "5. More than 4 hours in platform"
+    }
+    hidden: yes
+  }
+
+
+  dimension: minus_2_tiers_time {
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${minus_2} = 0 ;;
+        label: "0. No time in platform" }
+      when: {sql: ${minus_2} < 60 ;;
+        label: "1. Less than an hour in platform"}
+      when: {sql: ${minus_2} < 120 ;;
+        label: "2. Between 1 and 2 hours in platform"}
+      when: {sql: ${minus_2} < 180 ;;
+        label: "3. Between 2 and 3 hours in platform"}
+      when: {sql: ${minus_2} < 240 ;;
+        label: "4. Between 3 and 4 hours in platform"}
+      else: "5. More than 4 hours in platform"
+    }
+    hidden: yes
+  }
+
+  dimension: current_tiers_times {
+    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${current} = 0 ;;
+        label: "0. None" }
+      when: {sql: ${current} < 10 ;;
+        label: "1. Between 1 and 9 times"}
+      when: {sql: ${current} < 50 ;;
+        label: "2. Between 10 and 49 times"}
+      when: {sql: ${current} < 100 ;;
+        label: "3. Between 50 and 99 times"}
+      when: {sql: ${current} < 200 ;;
+        label: "4. Between 100 and 199 times"}
+      else: "5. 200 or more times"
+    }
+    hidden: yes
+  }
+
+  dimension: minus_1_tiers_times {
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${minus_1} = 0 ;;
+        label: "0. None" }
+      when: {sql: ${minus_1} < 10 ;;
+        label: "1. Between 1 and 9 times"}
+      when: {sql: ${minus_1} < 50 ;;
+        label: "2. Between 10 and 49 times"}
+      when: {sql: ${minus_1} < 100 ;;
+        label: "3. Between 50 and 99 times"}
+      when: {sql: ${minus_1} < 200 ;;
+        label: "4. Between 100 and 199 times"}
+      else: "5. 200 or more times"
+    }
+    hidden: yes
+  }
+
+  dimension: minus_2_tiers_times {
+    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${minus_2} = 0 ;;
+        label: "0. None" }
+      when: {sql: ${minus_2} < 10 ;;
+        label: "1. Between 1 and 9 times"}
+      when: {sql: ${minus_2} < 50 ;;
+        label: "2. Between 10 and 49 times"}
+      when: {sql: ${minus_2} < 100 ;;
+        label: "3. Between 50 and 99 times"}
+      when: {sql: ${minus_2} < 200 ;;
+        label: "4. Between 100 and 199 times"}
+      else: "5. 200 or more times"
+    }
+    hidden: yes
+  }
+
+
+  set: detail {
+    fields: [
+      user_sso_guid_merged,
+      governmentdefinedacademicterm,
+      subscription_state,
+      current, minus_1, minus_2, minus_3, minus_4
+    ]
+  }
+}
+
 view: cohorts_base_binary {
   # inherist base and implements sql for binary flags (1 or 0)
   extends: [cohorts_base]
@@ -53,30 +307,9 @@ view: cohorts_base_string {
 }
 
 
-
-view: cohorts_base_events_count {
-
-  extends: [cohorts_base_events]
-
-  parameter: aggregation {
-    default_value: "sum"
-  }
-
-}
-
-view: cohorts_base_events_binary {
-
-  extends: [cohorts_base_events]
-
-  parameter: aggregation {
-    default_value: "max"
-  }
-
-}
-
   view: cohorts_base_events {
 
-    dimension: user_sso_guid_merged {}
+#     dimension: user_sso_guid_merged {}
 
     set: marketing_fields {fields: [params*, cohort_term_fields*, other_fields*]}
 
@@ -130,218 +363,22 @@ view: cohorts_base_events_binary {
     }
 }
 
+view: cohorts_base_events_count {
 
-view: cohorts_base {
+  extends: [cohorts_base_events]
 
-# fields needed to be exposed in extended explores, otherwise these fields are not available for dynamic naming of cohort labels
-set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_merged, dimension_current_name, subscription_state, dimension_minus_1_name, dimension_minus_2_name, dimension_minus_3_name, dimension_minus_4_name, current_tiers_times, minus_1_tiers_times]}
-
-set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_1_tiers, current_tiers_time, minus_1_tiers_time]}
-
-set: other_fields {fields: []}
-
-set: marketing_fields {fields: [params*, cohort_term_fields*, other_fields*]}
-
-derived_table: {sql: select 1;; datagroup_trigger: cu_user_analysis}
-
-dimension: user_sso_guid_merged {
-  type: string
-  sql: ${TABLE}."USER_SSO_GUID_MERGED" ;;
-  hidden: yes
-}
-
-dimension: governmentdefinedacademicterm {
-  type: string
-  sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
-  hidden: yes
-}
-
-dimension: primary_key {
-  type: string
-  primary_key: yes
-  sql: ${user_sso_guid_merged} ;;
-  hidden: yes
-}
-
-dimension: subscription_state {
-  type: string
-  sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
-  hidden: yes
-}
-
-parameter: dimension_current_name {
-  type: unquoted
-  hidden: yes
-  default_value: "Summer_2019"
-}
-
-parameter: dimension_minus_1_name {
-  type: unquoted
-  hidden: yes
-  default_value: "Spring_2019"
-}
-
-parameter: dimension_minus_2_name {
-  type: unquoted
-  hidden: yes
-  default_value: "Fall_2019"
-}
-
-parameter: dimension_minus_3_name {
-  type: unquoted
-  hidden: yes
-  default_value: "Summer_2018"
-}
-
-parameter: dimension_minus_4_name {
-  type: unquoted
-  hidden: yes
-  default_value: "Spring_2018"
-}
-
-
-dimension: current {
-  label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }}"
-}
-
-dimension: minus_1 {
-  label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
-}
-
-dimension: minus_2 {
-  label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
-}
-
-dimension: minus_3 {
-  label: "4) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
-}
-
-dimension: minus_4 {
-  label: "5) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
-}
-
-
-  dimension: current_tiers {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
-    case: {
-      when:
-      {sql: ${current} = 0 ;;
-        label: "$0.00" }
-      when: {sql: ${current} < 60 ;;
-        label: "$0.01-$59.99"}
-      when: {sql: ${current} < 120 ;;
-        label: "$60.00-$119.99"}
-      when: {sql: ${current} < 180 ;;
-        label: "$120.00-$179.99"}
-      when: {sql: ${current} < 240 ;;
-        label: "$180.00-$239.99"}
-      else: "More than $240"
-    }
-    hidden: yes
+  parameter: aggregation {
+    default_value: "sum"
   }
 
-  dimension: minus_1_tiers {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
-    case: {
-        when:
-        {sql: ${minus_1} = 0 ;;
-        label: "$0.00" }
-        when: {sql: ${minus_1} < 60 ;;
-        label: "$0.01-$59.99"}
-        when: {sql: ${minus_1} < 120 ;;
-        label: "$60.00-$119.99"}
-        when: {sql: ${minus_1} < 180 ;;
-        label: "$120.00-$179.99"}
-        when: {sql: ${minus_1} < 240 ;;
-        label: "$180.00-$239.99"}
-        else: "More than $240"
-        }
-        hidden: yes
-        }
+}
 
-  dimension: current_tiers_time {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
-    case: {
-      when:
-      {sql: ${current} = 0 ;;
-        label: "0. No time in platform" }
-      when: {sql: ${current} < 60 ;;
-        label: "1. Less than an hour in platform"}
-      when: {sql: ${current} < 120 ;;
-        label: "2. Between 1 and 2 hours in platform"}
-      when: {sql: ${current} < 180 ;;
-        label: "3. Between 2 and 3 hours in platform"}
-      when: {sql: ${current} < 240 ;;
-        label: "4. Between 3 and 4 hours in platform"}
-      else: "5. More than 4 hours in platform"
-    }
-    hidden: yes
+view: cohorts_base_events_binary {
+
+  extends: [cohorts_base_events]
+
+  parameter: aggregation {
+    default_value: "max"
   }
 
-  dimension: minus_1_tiers_time {
-     label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
-    case: {
-      when:
-      {sql: ${minus_1} = 0 ;;
-        label: "0. No time in platform" }
-      when: {sql: ${minus_1} < 60 ;;
-        label: "1. Less than an hour in platform"}
-      when: {sql: ${minus_1} < 120 ;;
-        label: "2. Between 1 and 2 hours in platform"}
-      when: {sql: ${minus_1} < 180 ;;
-        label: "3. Between 2 and 3 hours in platform"}
-      when: {sql: ${minus_1} < 240 ;;
-        label: "4. Between 3 and 4 hours in platform"}
-      else: "5. More than 4 hours in platform"
-    }
-    hidden: yes
-  }
-
-  dimension: current_tiers_times {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
-    case: {
-      when:
-      {sql: ${current} = 0 ;;
-        label: "0. None" }
-      when: {sql: ${current} < 10 ;;
-        label: "1. Between 1 and 9 times"}
-      when: {sql: ${current} < 50 ;;
-        label: "2. Between 10 and 49 times"}
-      when: {sql: ${current} < 100 ;;
-        label: "3. Between 50 and 99 times"}
-      when: {sql: ${current} < 200 ;;
-        label: "4. Between 100 and 199 times"}
-      else: "5. 200 or more times"
-    }
-    hidden: yes
-  }
-
-  dimension: minus_1_tiers_times {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
-    case: {
-      when:
-      {sql: ${minus_1} = 0 ;;
-        label: "0. None" }
-      when: {sql: ${minus_1} < 10 ;;
-        label: "1. Between 1 and 9 times"}
-      when: {sql: ${minus_1} < 50 ;;
-        label: "2. Between 10 and 49 times"}
-      when: {sql: ${minus_1} < 100 ;;
-        label: "3. Between 50 and 99 times"}
-      when: {sql: ${minus_1} < 200 ;;
-        label: "4. Between 100 and 199 times"}
-      else: "5. 200 or more times"
-    }
-    hidden: yes
-  }
-
-
-   set: detail {
-     fields: [
-       user_sso_guid_merged,
-       governmentdefinedacademicterm,
-       subscription_state,
-       current, minus_1, minus_2, minus_3, minus_4
-     ]
-   }
 }
