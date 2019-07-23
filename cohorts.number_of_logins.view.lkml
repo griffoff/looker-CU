@@ -1,6 +1,38 @@
 include: "cohorts.base.view"
 
 view: cohorts_number_of_logins {
+  extends: [cohorts_base_events]
+
+  parameter: events_to_include {
+    default_value: "Login to CU Dashboard"
+    hidden: yes
+  }
+
+  dimension: current { group_label: "# of logins" hidden: yes}
+
+  dimension: minus_1 { group_label: "# of logins" hidden: yes}
+
+  dimension: minus_2 { group_label: "# of logins" hidden: yes}
+
+  dimension: minus_3 { group_label: "# of logins" hidden: yes}
+
+  dimension: minus_4 { group_label: "# of logins" hidden: yes}
+
+  dimension: current_tiers_times {
+    group_label: "# of logins (tiers)"
+    hidden: no
+  }
+
+  dimension: minus_1_tiers_times {
+    group_label: "# of logins (tiers)"
+    hidden: no
+  }
+
+  }
+
+
+
+view: cohorts_number_of_logins_old {
     extends: [cohorts_base_number]
     derived_table: {
       sql:

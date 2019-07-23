@@ -261,7 +261,7 @@ explore: session_analysis {
 
   join: cohorts_number_of_logins {
     view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_logins.user_sso_guid} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_logins.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
@@ -540,7 +540,7 @@ explore: session_analysis_dev {
 
   join: cohorts_number_of_logins {
     view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_logins.user_sso_guid} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_logins.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
