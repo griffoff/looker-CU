@@ -52,36 +52,74 @@ view: cohorts_base_string {
   dimension: minus_4 {sql: ${TABLE}."5"::STRING;;}
 }
 
-view: cohorts_base_events {
 
-  extends: [cohorts_base_number]
 
-  parameter: events_to_include {
-    type: string
-    default_value: ""
-    # list values as comma separated list, this will be passed into a SQL "in" operator
-    # e.g. "Event Name 1, Event Name 2"
-    # or just "Event Name 1" if there is only 1 option
+view: cohorts_base_events_count {
+
+  extends: [cohorts_base_events]
+
+  parameter: aggregation {
+    default_value: "sum"
   }
 
-  set: other_fields {fields: [events_to_include]}
+}
 
-  derived_table: {
-    sql:
+view: cohorts_base_events_binary {
+
+  extends: [cohorts_base_events]
+
+  parameter: aggregation {
+    default_value: "max"
+  }
+
+}
+
+  view: cohorts_base_events {
+
+    dimension: user_sso_guid_merged {}
+
+    set: marketing_fields {fields: [params*, cohort_term_fields*, other_fields*]}
+
+    extends: [cohorts_base_number]
+
+    parameter: events_to_include {
+      type: string
+      default_value: ""
+      # list values as comma separated list, this will be passed into a SQL "in" operator
+      # e.g. "Event Name 1, Event Name 2"
+      # or just "Event Name 1" if there is only 1 option
+    }
+
+    parameter: aggregation {
+      type: unquoted
+      default_value: ""
+      hidden: yes
+      # list values as comma separated list, this will be passed into a SQL "in" operator
+      # e.g. "Event Name 1, Event Name 2"
+      # or just "Event Name 1" if there is only 1 option
+    }
+
+
+
+    set: other_fields {fields: [events_to_include, aggregation]}
+
+    derived_table: {
+#       persist_for: "60 minutes"
+      sql:
           SELECT
             user_sso_guid_merged
-            ,MAX(CASE WHEN terms_chron_order_desc = 1 THEN 1 END) AS "1"
-            ,MAX(CASE WHEN terms_chron_order_desc = 2 THEN 1 END) AS "2"
-            ,MAX(CASE WHEN terms_chron_order_desc = 3 THEN 1 END) AS "3"
-            ,MAX(CASE WHEN terms_chron_order_desc = 4 THEN 1 END) AS "4"
-            ,MAX(CASE WHEN terms_chron_order_desc = 5 THEN 1 END) AS "5"
+            ,{{ aggregation._parameter_value }} (CASE WHEN terms_chron_order_desc = 1 THEN 1 END) AS "1"
+             ,{{ aggregation._parameter_value }} (CASE WHEN terms_chron_order_desc = 2 THEN 1 END) AS "2"
+            ,{{ aggregation._parameter_value }} (CASE WHEN terms_chron_order_desc = 3 THEN 1 END) AS "3"
+            ,{{ aggregation._parameter_value }} (CASE WHEN terms_chron_order_desc = 4 THEN 1 END) AS "4"
+            ,{{ aggregation._parameter_value }} (CASE WHEN terms_chron_order_desc = 5 THEN 1 END) AS "5"
          FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME} s
          INNER JOIN ${all_events.SQL_TABLE_NAME} e
                 ON s.user_sso_guid_merged = e.user_sso_guid
                 AND s.start_date < e.event_time
                 AND s.end_date > e.event_time
                 AND e.event_name in ( {{ events_to_include._parameter_value | replace: ", ", "," | replace: ",", "', '" }})
-              /*
+         /*
               --Is this necessary?
               INNER JOIN ${user_courses.SQL_TABLE_NAME} u
                 ON s.user_sso_guid_merged = u.user_sso_guid
@@ -89,8 +127,7 @@ view: cohorts_base_events {
               */
          GROUP BY 1
         ;;
-  }
-
+    }
 }
 
 
