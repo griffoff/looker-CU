@@ -3,9 +3,9 @@ include: "datagroups.lkml"
 view: cohorts_base {
 
 # fields needed to be exposed in extended explores, otherwise these fields are not available for dynamic naming of cohort labels
-  set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_merged, dimension_current_name, subscription_state, dimension_minus_1_name, dimension_minus_2_name, dimension_minus_3_name, dimension_minus_4_name, current_tiers_times, minus_1_tiers_times, minus_2_tiers_times]}
+  set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_merged, dimension_current_name, subscription_state, dimension_minus_1_name, dimension_minus_2_name, dimension_minus_3_name, dimension_minus_4_name]}
 
-  set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_1_tiers, current_tiers_time, minus_1_tiers_time, minus_2_tiers_time]}
+  set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_1_tiers, current_tiers_time, minus_1_tiers_time, minus_2_tiers_time, current_tiers_times, minus_1_tiers_times, minus_2_tiers_times]}
 
   set: other_fields {fields: []}
 
