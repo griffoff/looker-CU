@@ -83,19 +83,19 @@ view: cohorts_subscription_term_savings_user {
             ;;
   }
 
-  dimension: current {group_label: "CU Term Savings ($)"}
+  dimension: current {group_label: "CU Term Savings ($)"  hidden: yes}
 
-  dimension: minus_1 {group_label: "CU Term Savings ($)"}
+  dimension: minus_1 {group_label: "CU Term Savings ($)"  hidden: yes }
 
-  dimension: minus_2 {group_label: "CU Term Savings ($)"}
+  dimension: minus_2 {group_label: "CU Term Savings ($)"  hidden: yes }
 
-  dimension: minus_3 {group_label: "CU Term Savings ($)"}
+  dimension: minus_3 {group_label: "CU Term Savings ($)"  hidden: yes }
 
-  dimension: minus_4 {group_label: "CU Term Savings ($)"}
+  dimension: minus_4 {group_label: "CU Term Savings ($)"  hidden: yes}
 
-  dimension: current_tiers {group_label: "CU Term Savings tiers ($)" hidden:no}
+  dimension: current_tiers {group_label: "CU Term Savings tiers ($)" hidden: yes}
 
-  dimension: minus_1_tiers {group_label: "CU Term Savings tiers ($)" hidden:no}
+  dimension: minus_1_tiers {group_label: "CU Term Savings tiers ($)" hidden: yes}
 
 
 }

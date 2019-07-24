@@ -2,10 +2,12 @@ include: "cohorts.base.view"
 
 view: cohorts_quizlet_clicked {
 
-  extends: [cohorts_base_events]
+  extends: [cohorts_base_events_count]
+
+
 
   parameter: events_to_include {
-    default_value: "Clicked on Career Center"
+    default_value: "Clicked on Quizlet"
     hidden: yes
   }
 
