@@ -1,5 +1,3 @@
-explore: cohorts_user_term_subscriptions {}
-
 view: cohorts_user_term_subscriptions {
   derived_table: {
 
