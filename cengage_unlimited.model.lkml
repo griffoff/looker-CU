@@ -247,6 +247,12 @@ explore: session_analysis {
     relationship:  one_to_many
   }
 
+  join: cohorts_subscription_term_cost_user {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_subscription_term_cost_user.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: cohorts_term_courses {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_term_courses.user_sso_guid} ;;
