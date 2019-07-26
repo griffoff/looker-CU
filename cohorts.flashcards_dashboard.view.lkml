@@ -24,8 +24,17 @@ view: cohorts_flashcards_dashboard {
           LEFT JOIN prod.unlimited.raw_olr_extended_iac iac
             ON iac.pp_pid = pp.product_id
             AND pp.user_type LIKE 'student'
-          WHERE s.subscription_state = 'full_access'
          )
+         SELECT
+            user_sso_guid_merged
+            ,SUM(CASE WHEN terms_chron_order_desc = 1 THEN flashcard_count ELSE 0 END) AS "1"
+            ,SUM(CASE WHEN terms_chron_order_desc = 2 THEN flashcard_count ELSE 0 END) AS "2"
+            ,SUM(CASE WHEN terms_chron_order_desc = 3 THEN flashcard_count ELSE 0 END) AS "3"
+            ,SUM(CASE WHEN terms_chron_order_desc = 4 THEN flashcard_count ELSE 0 END) AS "4"
+            ,SUM(CASE WHEN terms_chron_order_desc = 5 THEN flashcard_count ELSE 0 END) AS "5"
+         FROM subscription_term_products s
+         GROUP BY 1
+        /*
          ,subscription_term_value AS
          (
          SELECT * FROM subscription_term_products
@@ -34,6 +43,7 @@ view: cohorts_flashcards_dashboard {
          SELECT
            *
          FROM subscription_term_value
+        */
        ;;
     }
 

@@ -2,6 +2,35 @@ include: "cohorts.base.view"
 
 view: cohorts_print_clicked {
 
+  extends: [cohorts_base_events_count]
+
+  parameter: events_to_include {
+    default_value: "Print Options Clicked"
+    hidden: yes
+  }
+
+  dimension: current {group_label: "Print options clicked"}
+
+  dimension: minus_1 {group_label: "Print options clicked"}
+
+  dimension: minus_2 {group_label: "Print options clicked"}
+
+  dimension: minus_3 {group_label: "Print options clicked"}
+
+  dimension: minus_4 {group_label: "Print options clicked"}
+
+
+
+}
+
+
+
+
+
+
+
+view: cohorts_print_clicked_old {
+
 extends: [cohorts_base_binary]
 
   derived_table: {
