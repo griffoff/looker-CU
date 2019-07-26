@@ -28,11 +28,11 @@ view: cohorts_testprep_dashboard {
          )
          SELECT
             user_sso_guid_merged
-            ,SUM(CASE WHEN terms_chron_order_desc = 1 AND testprep_count = 1 THEN 1 END) AS "1"
-            ,SUM(CASE WHEN terms_chron_order_desc = 2 AND testprep_count = 1 THEN 1 END) AS "2"
-            ,SUM(CASE WHEN terms_chron_order_desc = 3 AND testprep_count = 1 THEN 1 END) AS "3"
-            ,SUM(CASE WHEN terms_chron_order_desc = 4 AND testprep_count = 1 THEN 1 END) AS "4"
-            ,SUM(CASE WHEN terms_chron_order_desc = 5 AND testprep_count = 1 THEN 1 END) AS "5"
+            ,SUM(CASE WHEN terms_chron_order_desc = 1 THEN testprep_count ELSE 0 END) AS "1"
+            ,SUM(CASE WHEN terms_chron_order_desc = 2 THEN testprep_count ELSE 0 END) AS "2"
+            ,SUM(CASE WHEN terms_chron_order_desc = 3 THEN testprep_count ELSE 0 END) AS "3"
+            ,SUM(CASE WHEN terms_chron_order_desc = 4 THEN testprep_count ELSE 0 END) AS "4"
+            ,SUM(CASE WHEN terms_chron_order_desc = 5 THEN testprep_count ELSE 0 END) AS "5"
          FROM subscription_term_products s
          GROUP BY 1
       /*
