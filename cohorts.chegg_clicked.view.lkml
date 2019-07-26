@@ -1,7 +1,7 @@
 include: "cohorts.base.view"
 
 view: cohorts_chegg_clicked {
-  extends: [cohorts_base_events]
+  extends: [cohorts_base_events_count]
 
   parameter: events_to_include {
     default_value: "One month Free Chegg Clicked"
