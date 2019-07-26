@@ -3,6 +3,84 @@ include: "cohorts.base.view"
 view: subscription_term_courseware_value_users {
 
   extends: [cohorts_base_number]
+    derived_table: {
+      sql:  WITH
+          subscription_term_products AS
+          (
+          SELECT
+                u.user_sso_guid
+                ,d.terms_chron_order_desc
+                ,d.governmentdefinedacademicterm
+                ,u.entity_name
+                ,u.isbn
+                ,u.net_price
+            FROM prod.cu_user_analysis.user_courses u
+            LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
+              ON u.course_start_date::DATE >= d.start_date AND u.course_start_date <= d.end_date
+           )
+           SELECT
+              user_sso_guid AS user_sso_guid_merged
+              ,SUM(CASE WHEN terms_chron_order_desc = 1 THEN net_price ELSE 0 END) AS "1"
+              ,SUM(CASE WHEN terms_chron_order_desc = 2 THEN net_price ELSE 0 END) AS "2"
+              ,SUM(CASE WHEN terms_chron_order_desc = 3 THEN net_price ELSE 0 END) AS "3"
+              ,SUM(CASE WHEN terms_chron_order_desc = 4 THEN net_price ELSE 0 END) AS "4"
+              ,SUM(CASE WHEN terms_chron_order_desc = 5 THEN net_price ELSE 0 END) AS "5"
+            FROM subscription_term_products
+            GROUP BY 1
+            /*
+           ,subscription_term_value AS
+           (
+           SELECT * FROM subscription_term_products
+           PIVOT (SUM (net_price) FOR terms_chron_order_desc IN (1, 2, 3, 4, 5))
+           )
+           SELECT
+              user_sso_guid_merged
+              ,governmentdefinedacademicterm
+              ,subscription_state
+              ,SUM(1) AS "1"
+              ,SUM(2) AS "2"
+              ,SUM(3) AS "3"
+              ,SUM(4) AS "4"
+              ,SUM(5) AS "5"
+           FROM subscription_term_value
+           GROUP BY user_sso_guid_merged, governmentdefinedacademicterm, subscription_state
+          */
+            ;;
+    }
+
+
+
+  dimension: current {group_label: "CU Term Value User ($)"
+    value_format_name: "usd"}
+
+  dimension: minus_1 {group_label: "CU Term Value User ($)"
+    value_format_name: "usd"}
+
+  dimension: minus_2 {group_label: "CU Term Value User ($)"
+    value_format_name: "usd"}
+
+  dimension: minus_3 {group_label: "CU Term Value User ($)"
+    value_format_name: "usd"}
+
+  dimension: minus_4 {group_label: "CU Term Value User ($)"
+    value_format_name: "usd"}
+
+
+
+#   set: detail {
+#     fields: [
+#       subscription_state,
+#       current, minus_1, minus_2, minus_3, minus_4
+#     ]
+#   }
+}
+
+
+
+
+view: subscription_term_courseware_value_users_old {
+
+  extends: [cohorts_base_number]
   derived_table: {
     sql:  WITH
           term_dates AS
