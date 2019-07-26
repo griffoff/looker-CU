@@ -94,11 +94,42 @@ derived_table: {
     type: string
     sql: ${TABLE}."MESSAGE_TYPE" ;;
   }
+#
+#   dimension_group: event_time {
+#     type: time
+#     sql: ${TABLE}."EVENT_TIME" ;;
+#   }
 
-  dimension_group: event_time {
-    type: time
-    sql: ${TABLE}."EVENT_TIME" ;;
+  dimension: event_hour {
+    group_label: "Event time"
+    label: "Event hour"
+    type: date_hour
+    sql: date_trunc('hour', ${TABLE}."EVENT_TIME") ;;
   }
+
+  dimension: event_date {
+    group_label: "Event time"
+    label: "Event date"
+    type: date
+    sql: ${TABLE}."EVENT_TIME"::DATE ;;
+  }
+
+  dimension: event_week {
+    group_label: "Event time"
+    label: "Event week"
+    type: date
+    sql: date_trunc('week', ${TABLE}."EVENT_TIME") ;;
+  }
+
+  dimension: event_month {
+    group_label: "Event time"
+    label: "Event month"
+    type: date
+    sql: date_trunc('week', ${TABLE}."EVENT_TIME") ;;
+  }
+
+
+
 
   dimension: event_duration {
     type: number
@@ -183,7 +214,7 @@ derived_table: {
       _rsrc,
       message_format_version,
       message_type,
-      event_time_time,
+      # event_time_time,
       event_duration,
       event_category,
       event_action,
