@@ -2,9 +2,9 @@ explore: activations_for_salesorder_adoptions {}
 view: activations_for_salesorder_adoptions {
     derived_table: {
       sql: WITH activations as (
-        Select PLATFORM, ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY from  STG_CLTS.ACTIVATIONS_OLR activations_olr
+        Select PLATFORM, ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY,ACTV_USER_TYPE,ORGANIZATION from  STG_CLTS.ACTIVATIONS_OLR activations_olr
         union all
-     Select PLATFORM,ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY from PROD.STG_CLTS.ACTIVATIONS_NON_OLR
+     Select PLATFORM,ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY,ACTV_USER_TYPE,ORGANIZATION from PROD.STG_CLTS.ACTIVATIONS_NON_OLR
              )
 Select dm_entities."INSTITUTION_NM"  AS "dm_entities.institution_nm",
   dm_products."PROD_FAMILY_CD"  AS "dm_products.prod_family_cd",
@@ -19,7 +19,10 @@ Select dm_entities."INSTITUTION_NM"  AS "dm_entities.institution_nm",
     CASE WHEN activations.PLATFORM  ilike 'webassign' AND (actv_trial_purchase ilike 'Continued Enrollment' OR actv_trial_purchase ilike 'Site License') then 'Y' else 'N' end as is_webassign_exclude,
   e1_product_family_master."COURSE_AS_PROVIDED_BY_PRD_TEAM"  AS "e1_product_family_master.course_as_provided_by_prd_team",
 --  COUNT(DISTINCT activations.ACTV_CODE ) AS "activations_olr.actv_code_count"
- activations.ACTV_CODE as ACTV_CODE
+ activations.ACTV_CODE as ACTV_CODE,
+ activations.ACTV_USER_TYPE as ACTV_USER_TYPE,
+ activations.ORGANIZATION as ORGANIZATION,
+ dimdate.fiscalyearvalue as fiscalyear
 from
     activations
 Left Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
@@ -27,6 +30,7 @@ ON activations.Product_Skey = dm_products.Product_Skey
 LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_ENTITIES dm_entities
 ON activations.entity_no = dm_entities.entity_no
 LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_CODE") = (dm_products."PROD_FAMILY_CD")
+LEFT JOIN prod.dw_ga.dim_date dimdate ON activations.actv_dt = dimdate.datevalue
 
  ;;
     }
@@ -35,6 +39,21 @@ LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_C
       type: count
       drill_fields: [detail*]
     }
+
+  dimension: actv_user_type {
+    type: string
+    sql: ${TABLE}."ACTV_USER_TYPE" ;;
+  }
+
+  dimension: fiscalyear{
+    type: string
+    sql: ${TABLE}."FISCALYEAR" ;;
+  }
+
+  dimension: organization {
+    type: string
+    sql: ${TABLE}."ORGANIZATION" ;;
+  }
 
     dimension: dm_entities_institution_nm {
       type: string
@@ -82,7 +101,7 @@ LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_C
     }
 
     dimension: activations_olr_actv_dt_date {
-      type: string
+      type: date
       sql: ${TABLE}."activations_olr.actv_dt_date" ;;
     }
 
@@ -125,4 +144,3 @@ LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_C
       ]
     }
   }
-
