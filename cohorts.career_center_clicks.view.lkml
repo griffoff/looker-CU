@@ -1,7 +1,7 @@
 include: "cohorts.base.view"
 
 view: subscription_term_careercenter_clicks {
-  extends: [cohorts_base_events]
+  extends: [cohorts_base_events_count]
 
   parameter: events_to_include {
     default_value: "Clicked on Career Center"
