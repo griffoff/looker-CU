@@ -289,6 +289,7 @@ view: cohorts_base_number {
   # inherist base and implements sql for simple numbers (counts)
   extends: [cohorts_base_binary]
 
+
   dimension: current {sql: COALESCE(${TABLE}."1", 0);;}
   dimension: minus_1 {sql: COALESCE(${TABLE}."2", 0);;}
   dimension: minus_2 {sql: COALESCE(${TABLE}."3", 0);;}
