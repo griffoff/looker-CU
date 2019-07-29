@@ -27,11 +27,11 @@ view: cohorts_subscription_term_cost_user {
         FROM subscription_term_lengths
       )
       SELECT user_sso_guid_merged
-          ,SUM(CASE WHEN terms_chron_order_desc = 1 THEN term_subscription_cost END) AS "1"
-          ,SUM(CASE WHEN terms_chron_order_desc = 2 THEN term_subscription_cost END) AS "2"
-          ,SUM(CASE WHEN terms_chron_order_desc = 3 THEN term_subscription_cost END) AS "3"
-          ,SUM(CASE WHEN terms_chron_order_desc = 4 THEN term_subscription_cost END) AS "4"
-          ,SUM(CASE WHEN terms_chron_order_desc = 5 THEN term_subscription_cost END) AS "5"
+          ,MAX(CASE WHEN terms_chron_order_desc = 1 THEN term_subscription_cost END) AS "1"
+          ,MAX(CASE WHEN terms_chron_order_desc = 2 THEN term_subscription_cost END) AS "2"
+          ,MAX(CASE WHEN terms_chron_order_desc = 3 THEN term_subscription_cost END) AS "3"
+          ,MAX(CASE WHEN terms_chron_order_desc = 4 THEN term_subscription_cost END) AS "4"
+          ,MAX(CASE WHEN terms_chron_order_desc = 5 THEN term_subscription_cost END) AS "5"
        FROM subscription_term_costs s
        GROUP BY 1
       /*CU Term Cost ($)
