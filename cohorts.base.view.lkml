@@ -5,7 +5,7 @@ view: cohorts_base {
 # fields needed to be exposed in extended explores, otherwise these fields are not available for dynamic naming of cohort labels
   set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_merged, dimension_current_name, subscription_state, dimension_minus_1_name, dimension_minus_2_name, dimension_minus_3_name, dimension_minus_4_name]}
 
-  set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_1_tiers, current_tiers_time, minus_1_tiers_time, minus_2_tiers_time, current_tiers_times, minus_1_tiers_times, minus_2_tiers_times]}
+  set: cohort_term_fields {fields: [current, minus_1, minus_2, minus_3, minus_4, current_tiers, minus_2_tiers,  minus_1_tiers, current_tiers_time, minus_1_tiers_time, minus_2_tiers_time, current_tiers_times, minus_1_tiers_times, minus_2_tiers_times]}
 
   set: other_fields {fields: []}
 
@@ -111,6 +111,25 @@ view: cohorts_base {
 
   dimension: minus_1_tiers {
     label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    case: {
+      when:
+      {sql: ${minus_1} = 0 ;;
+        label: "$0.00" }
+      when: {sql: ${minus_1} < 60 ;;
+        label: "$0.01-$59.99"}
+      when: {sql: ${minus_1} < 120 ;;
+        label: "$60.00-$119.99"}
+      when: {sql: ${minus_1} < 180 ;;
+        label: "$120.00-$179.99"}
+      when: {sql: ${minus_1} < 240 ;;
+        label: "$180.00-$239.99"}
+      else: "More than $240"
+    }
+    hidden: yes
+  }
+
+  dimension: minus_2_tiers {
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_1} = 0 ;;

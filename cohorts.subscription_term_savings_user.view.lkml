@@ -74,42 +74,34 @@ view: cohorts_subscription_term_savings_user {
             FROM subscription_term_value v
             INNER JOIN subscription_term_cost_agg c
               ON v.user_sso_guid_merged = c.user_sso_guid_merged
-              --AND v.terms_chron_order_desc = c.terms_chron_order_desc
           )
-          /*
-          ,subscription_savings AS
-          (
-            SELECT
-              c.user_sso_guid_merged
-              ,c.stc1 AS "1"
-              ,c.stc2 AS "2"
-              ,c.stc3  AS "3"
-              ,c.stc4  AS "4"
-              ,c.stc5  AS "5"
-            FROM  subscription_term_cost_agg c
-
-          --  INNER JOIN subscription_term_value v
-         --     ON v.user_sso_guid_merged = c.user_sso_guid_merged
-              --AND v.terms_chron_order_desc = c.terms_chron_order_desc
-          )
-          */
           SELECT * FROM subscription_savings
       ;;
   }
 
-  dimension: current {group_label: "CU Term Savings ($)"  hidden: no}
+  dimension: current {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
 
-  dimension: minus_1 {group_label: "CU Term Savings ($)"  hidden: no }
+  dimension: minus_1 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
 
-  dimension: minus_2 {group_label: "CU Term Savings ($)"  hidden: no }
+  dimension: minus_2 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
 
-  dimension: minus_3 {group_label: "CU Term Savings ($)"  hidden: no }
+  dimension: minus_3 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
 
-  dimension: minus_4 {group_label: "CU Term Savings ($)"  hidden: no}
+  dimension: minus_4 {group_label: "CU Term Savings ($)"  hidden: yes value_format_name: "usd"}
 
-  dimension: current_tiers {group_label: "CU Term Savings tiers ($)" hidden: yes}
+  dimension: current_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
 
-  dimension: minus_1_tiers {group_label: "CU Term Savings tiers ($)" hidden: yes}
+  dimension: minus_1_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
+
+  dimension: minus_2_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
 
 
 }
