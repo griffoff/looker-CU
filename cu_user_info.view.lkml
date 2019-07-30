@@ -33,38 +33,66 @@ view: cu_user_info {
   #     ;;
   # }
 
-  derived_table: {
-    sql:select
-            p.hub_user_key,
-            p.first_name,
-            p.last_name,
-            p.email,
-            COALESCE(sa.linked_guid,h.uid) as merged_guid,
-            h.uid as partner_guid,
-   --         sa.linked_guid,
-            sa.instructor,
-            sa.k12 as k12_user,
-            hubin.INSTITUTION_ID as institution_id,
-            coalesce(bl.flag,'N') as entity_flag,
-            usmar.active,
-            usmar.opt_out as marketing_opt_out
-        FROM PROD.DATAVAULT.SAT_USER_PII p
-          INNER JOIN PROD.DATAVAULT.HUB_USER h
-            ON p.hub_user_key = h.hub_user_key -- 23606539
+  # derived_table: {
+  #   sql:select
+  #           p.hub_user_key,
+  #           p.first_name,
+  #           p.last_name,
+  #           p.email,
+  #           COALESCE(sa.linked_guid,h.uid) as merged_guid,
+  #           h.uid as partner_guid,
+  # --         sa.linked_guid,
+  #           sa.instructor,
+  #           sa.k12 as k12_user,
+  #           hubin.INSTITUTION_ID as institution_id,
+  #           coalesce(bl.flag,'N') as entity_flag,
+  #           usmar.active,
+  #           usmar.opt_out as marketing_opt_out
+  #       FROM PROD.DATAVAULT.SAT_USER_PII p
+  #         INNER JOIN PROD.DATAVAULT.HUB_USER h
+  #           ON p.hub_user_key = h.hub_user_key -- 23606539
+  #         INNER JOIN Prod.Datavault.sat_user sa
+  #           ON h.hub_user_key = sa.hub_user_key  --   24388978
+  #         LEFT JOIN PROD.DATAVAULT.link_user_institution linkins
+  #           ON h.hub_user_key = linkins.hub_user_key -- 2486955
+  #         LEFT JOIN PROD.DATAVAULT.HUB_INSTITUTION hubin
+  #           ON linkins.hub_institution_key = hubin.hub_institution_key
+  #         LEFT JOIN PROD.DATAVAULT.SAT_USER_MARKETING usmar
+  #           ON h.hub_user_key = usmar.hub_user_key
+  #         LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+  #           ON hubin.institution_id::STRING = bl.entity_id
+  #       ;;
+
+  # }
+
+derived_table: {
+  sql: With hub_sat as(
+        Select
+          h.hub_user_key,h._ldts,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid, sa.instructor,sa.k12
+         from PROD.DATAVAULT.HUB_USER h
           INNER JOIN Prod.Datavault.sat_user sa
-            ON h.hub_user_key = sa.hub_user_key  --   24388978
-          LEFT JOIN PROD.DATAVAULT.link_user_institution linkins
-            ON h.hub_user_key = linkins.hub_user_key -- 2486955
-          LEFT JOIN PROD.DATAVAULT.HUB_INSTITUTION hubin
-            ON linkins.hub_institution_key = hubin.hub_institution_key
-          LEFT JOIN PROD.DATAVAULT.SAT_USER_MARKETING usmar
-            ON h.hub_user_key = usmar.hub_user_key
-          LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
-            ON hubin.institution_id::STRING = bl.entity_id
-        ;;
-
-  }
-
+        on h.hub_user_key = sa.hub_user_key
+        ), hub_sat_latest as (
+            select row_number () over (partition by merged_guid order by _ldts desc) as latest,*
+          from hub_sat
+        ) Select hs.*,
+                hubin.institution_id,
+                usmar.active,
+                usmar.opt_out AS marketing_opt_out,
+                p.first_name,
+                p.last_name,
+                p.email
+           from hub_sat_latest hs
+            INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
+                ON hs.hub_user_key = p.hub_user_key
+            left join PROD.DATAVAULT.link_user_institution linkins
+                on hs.hub_user_key = linkins.hub_user_key -- 2486955
+            left join PROD.DATAVAULT.SAT_USER_MARKETING usmar
+                ON hs.hub_user_key = usmar.hub_user_key
+            left join PROD.DATAVAULT.HUB_INSTITUTION hubin
+                 on linkins.hub_institution_key = hubin.hub_institution_key
+            Where latest = 1 ;;
+}
 
 
   measure: count {
