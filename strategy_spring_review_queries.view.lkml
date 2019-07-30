@@ -2,7 +2,7 @@ explore: strategy_spring_review_queries {}
 
 view: strategy_spring_review_queries {
   derived_table: {
-    sql: SELECT * FROM dev.strategy_spring_review_queries.sr_actv_and_cu_merge_consol LIMIT 5
+    sql: SELECT * FROM dev.strategy_spring_review_queries.sr_actv_and_cu_merge_consol
       ;;
   }
 
