@@ -5,6 +5,112 @@ view: cohorts_subscription_term_savings_user {
   extends: [cohorts_base_number]
 
   derived_table: {
+    sql:
+     WITH
+          subscription_term_products AS
+          (
+          SELECT
+                u.user_sso_guid
+                ,d.terms_chron_order_desc
+                ,d.governmentdefinedacademicterm
+                ,u.entity_name
+                ,u.isbn
+                ,u.net_price
+            FROM prod.cu_user_analysis.user_courses u
+            LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
+              ON u.course_start_date::DATE >= d.start_date AND u.course_start_date <= d.end_date
+           )
+          ,subscription_term_value AS
+          (
+           SELECT
+              user_sso_guid AS user_sso_guid_merged
+              ,SUM(CASE WHEN terms_chron_order_desc = 1 THEN net_price ELSE 0 END) AS stv1
+              ,SUM(CASE WHEN terms_chron_order_desc = 2 THEN net_price ELSE 0 END) AS stv2
+              ,SUM(CASE WHEN terms_chron_order_desc = 3 THEN net_price ELSE 0 END) AS stv3
+              ,SUM(CASE WHEN terms_chron_order_desc = 4 THEN net_price ELSE 0 END) AS stv4
+              ,SUM(CASE WHEN terms_chron_order_desc = 5 THEN net_price ELSE 0 END) AS stv5
+            FROM subscription_term_products
+            GROUP BY 1
+          )
+          ,subscription_term_lengths AS
+          (
+          SELECT
+             *
+            ,DATEDIFF('d', subscription_start, subscription_end) AS subscription_length_days
+          FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME}
+          WHERE subscription_state = 'full_access'
+          )
+          ,subscription_term_costs AS
+          (
+            SELECT
+                *
+                ,CASE
+                  WHEN subscription_length_days > 366 THEN 40
+                  WHEN subscription_length_days > 121 THEN 60
+                  WHEN subscription_length_days > 0 THEN 120
+                  ELSE 0 END AS term_subscription_cost
+            FROM subscription_term_lengths
+          )
+          ,subscription_term_cost_agg AS
+          (
+          SELECT user_sso_guid_merged
+              ,MAX(CASE WHEN terms_chron_order_desc = 1 THEN term_subscription_cost END) AS stc1
+              ,MAX(CASE WHEN terms_chron_order_desc = 2 THEN term_subscription_cost END) AS stc2
+              ,MAX(CASE WHEN terms_chron_order_desc = 3 THEN term_subscription_cost END) AS stc3
+              ,MAX(CASE WHEN terms_chron_order_desc = 4 THEN term_subscription_cost END) AS stc4
+              ,MAX(CASE WHEN terms_chron_order_desc = 5 THEN term_subscription_cost END) AS stc5
+           FROM subscription_term_costs s
+           GROUP BY 1
+          )
+          ,subscription_savings AS
+          (
+            SELECT
+              v.user_sso_guid_merged
+              ,v.stv1 - c.stc1 AS "1"
+              ,v.stv2 - c.stc2 AS "2"
+              ,v.stv3 - c.stc3 AS "3"
+              ,v.stv4 - c.stc4 AS "4"
+              ,v.stv5 - c.stc5 AS "5"
+            FROM subscription_term_value v
+            INNER JOIN subscription_term_cost_agg c
+              ON v.user_sso_guid_merged = c.user_sso_guid_merged
+          )
+          SELECT * FROM subscription_savings
+      ;;
+  }
+
+  dimension: current {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
+
+  dimension: minus_1 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
+
+  dimension: minus_2 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
+
+  dimension: minus_3 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
+
+  dimension: minus_4 {group_label: "CU Term Savings ($)"  hidden: yes value_format_name: "usd"}
+
+  dimension: current_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
+
+  dimension: minus_1_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
+
+  dimension: minus_2_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    }
+
+
+}
+
+view: cohorts_subscription_term_savings_user_old {
+
+  extends: [cohorts_base_number]
+
+  derived_table: {
     sql: WITH
           subscription_terms AS
           (
@@ -100,7 +206,7 @@ view: cohorts_subscription_term_savings_user {
 
 }
 
-view: cohorts_subscription_term_savings_user_old {
+view: cohorts_subscription_term_savings_user_oldest {
 
     extends: [cohorts_base_number]
     derived_table: {
