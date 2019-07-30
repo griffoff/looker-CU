@@ -36,7 +36,6 @@ explore: live_subscription_status {
   fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
 
   join: merged_cu_user_info {
-    required_access_grants: [can_view_CU_pii_data]
     view_label: "Learner Profile"
     sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
