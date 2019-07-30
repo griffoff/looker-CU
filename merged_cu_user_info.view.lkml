@@ -20,7 +20,7 @@ view: merged_cu_user_info {
 
 set: marketing_fields {
   fields: [merged_cu_user_info.email, merged_cu_user_info.first_name,
-    merged_cu_user_info.last_name,marketing_opt_out,k12_user]
+    merged_cu_user_info.last_name,marketing_opt_out,k12_user,internal_user_flag]
 }
 
   dimension: user_sso_guid {
