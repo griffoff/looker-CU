@@ -112,7 +112,7 @@ derived_table: {
 
   dimension: internal_user_flag {
     view_label: "** RECOMMENDED FILTERS **"
-    label: "Internal User Flag(Yes/No)"
+    label: "Internal User Flag"
     type: yesno
     sql: ${TABLE}.internal ;;
   }
