@@ -118,7 +118,7 @@ derived_table: {
     group_label: "Event time"
     label: "Event week"
     type: date
-    sql: date_trunc('week', ${TABLE}."EVENT_TIME") ;;
+    sql: DATE_TRUNC('week', ${TABLE}."EVENT_TIME" );;
   }
 
   dimension: event_month {
