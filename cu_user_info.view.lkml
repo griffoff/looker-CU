@@ -81,7 +81,8 @@ derived_table: {
                 usmar.opt_out AS marketing_opt_out,
                 p.first_name,
                 p.last_name,
-                p.email
+                p.email,
+                usint.internal
            from hub_sat_latest hs
             INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
                 ON hs.hub_user_key = p.hub_user_key
@@ -91,6 +92,8 @@ derived_table: {
                 ON hs.hub_user_key = usmar.hub_user_key
             left join PROD.DATAVAULT.HUB_INSTITUTION hubin
                  on linkins.hub_institution_key = hubin.hub_institution_key
+            left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
+                ON usint.hub_user_key = hs.hub_user_key
             Where latest = 1 ;;
 }
 
@@ -105,6 +108,13 @@ derived_table: {
     type: string
     sql: ${TABLE}."PRIMARY_GUID" ;;
     hidden: yes
+  }
+
+  dimension: internal_user_flag {
+    view_label: "** RECOMMENDED FILTERS **"
+    label: "Internal User Flag(Yes/No)"
+    type: yesno
+    sql: ${TABLE}.internal ;;
   }
 
   dimension: entity_flag {
