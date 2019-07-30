@@ -2,36 +2,70 @@ explore: cu_user_info {label: "CU User Info"}
 
 view: cu_user_info {
 
+  # derived_table: {
+  #   sql: WITH raw AS (
+  #         SELECT
+  #           COALESCE(linked_guid,user_sso_guid) as primary_guid
+  #           ,user_sso_guid as partner_guid
+  #           ,event_time
+  #             ,email
+  #           ,first_name
+  #             ,last_name
+  #             ,tl_institution_id
+  #             ,tl_institution_name
+  #             ,marketing_opt_out
+  #             ,k12_user
+  #         FROM IAM.PROD.USER_MUTATION
+  #       )
+  #     , temp_table as (SELECT
+  #       *
+  #         ,primary_guid as merged_guid
+  #         ,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest
+  #     FROM raw
+  #     ), old_tab as (
+  #       Select distinct merged_guid,bl.entity_id,coalesce(bl.flag,'N') as entity_flag from UPLOADS.CU.CU_USER_INFO cu
+  #     LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+  #     ON bl.entity_id::STRING = cu.entity_id::STRING
+  #     ) select t.*,o.entity_id,coalesce(entity_flag,'N') as entity_flag from temp_table t
+  #       LEFT JOIN old_tab o
+  #       ON t.merged_guid=o.merged_guid
+  #       where t.latest
+  #     ;;
+  # }
+
   derived_table: {
-    sql: WITH raw AS (
-          SELECT
-            COALESCE(linked_guid,user_sso_guid) as primary_guid
-            ,user_sso_guid as partner_guid
-            ,event_time
-              ,email
-             ,first_name
-              ,last_name
-              ,tl_institution_id
-              ,tl_institution_name
-              ,marketing_opt_out
-              ,k12_user
-          FROM IAM.PROD.USER_MUTATION
-        )
-      , temp_table as (SELECT
-         *
-          ,primary_guid as merged_guid
-          ,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest
-      FROM raw
-      ), old_tab as (
-        Select distinct merged_guid,bl.entity_id,coalesce(bl.flag,'N') as entity_flag from UPLOADS.CU.CU_USER_INFO cu
-       LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
-       ON bl.entity_id::STRING = cu.entity_id::STRING
-      ) select t.*,o.entity_id,coalesce(entity_flag,'N') as entity_flag from temp_table t
-        LEFT JOIN old_tab o
-        ON t.merged_guid=o.merged_guid
-        where t.latest
-       ;;
+    sql:select
+            p.hub_user_key,
+            p.first_name,
+            p.last_name,
+            p.email,
+            COALESCE(sa.linked_guid,h.uid) as merged_guid,
+            h.uid as partner_guid,
+   --         sa.linked_guid,
+            sa.instructor,
+            sa.k12 as k12_user,
+            hubin.INSTITUTION_ID as institution_id,
+            coalesce(bl.flag,'N') as entity_flag,
+            usmar.active,
+            usmar.opt_out as marketing_opt_out
+        FROM PROD.DATAVAULT.SAT_USER_PII p
+          INNER JOIN PROD.DATAVAULT.HUB_USER h
+            ON p.hub_user_key = h.hub_user_key -- 23606539
+          INNER JOIN Prod.Datavault.sat_user sa
+            ON h.hub_user_key = sa.hub_user_key  --   24388978
+          LEFT JOIN PROD.DATAVAULT.link_user_institution linkins
+            ON h.hub_user_key = linkins.hub_user_key -- 2486955
+          LEFT JOIN PROD.DATAVAULT.HUB_INSTITUTION hubin
+            ON linkins.hub_institution_key = hubin.hub_institution_key
+          LEFT JOIN PROD.DATAVAULT.SAT_USER_MARKETING usmar
+            ON h.hub_user_key = usmar.hub_user_key
+          LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+            ON hubin.institution_id::STRING = bl.entity_id
+        ;;
+
   }
+
+
 
   measure: count {
     type: count
@@ -95,13 +129,14 @@ view: cu_user_info {
 
   dimension: entity_id {
     type: string
-    sql: ${TABLE}."TL_INSTITUTION_ID" ;;
+    sql: ${TABLE}."INSTITUTION_ID" ;;
     hidden: yes
   }
 
   dimension: tl_institution_name {
     type: string
     sql: ${TABLE}."TL_INSTITUTION_NAME" ;;
+    hidden: yes
   }
 
   dimension: latest {
