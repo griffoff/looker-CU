@@ -1,4 +1,16 @@
-explore: cafe_webassign {}
+include: "merged_cu_user_info.view"
+include: "live_subscription_status.view"
+explore: cafe_webassign {
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${cafe_webassign.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${cafe_webassign.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+}
 view: cafe_webassign {
 derived_table: {
   sql: with prim_map AS(
