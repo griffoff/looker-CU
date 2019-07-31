@@ -1,3 +1,4 @@
+include: "//core/access_grants_file.view"
 explore: cu_user_info {label: "CU User Info"}
 
 view: cu_user_info {
@@ -146,18 +147,21 @@ derived_table: {
     group_label: "User Info - PII"
     type: string
     sql: ${TABLE}."EMAIL" ;;
+    required_access_grants: [can_view_CU_pii_data]
   }
 
   dimension: first_name {
     group_label: "User Info - PII"
     type: string
     sql: ${TABLE}."FIRST_NAME" ;;
+    required_access_grants: [can_view_CU_pii_data]
   }
 
   dimension: last_name {
     group_label: "User Info - PII"
     type: string
     sql: ${TABLE}."LAST_NAME" ;;
+    required_access_grants: [can_view_CU_pii_data]
   }
 
   dimension: marketing_opt_out {
