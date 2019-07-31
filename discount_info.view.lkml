@@ -87,4 +87,6 @@ view: discount_info {
       price_details
     ]
   }
+
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, amount_to_upgrade_tiers]}
 }
