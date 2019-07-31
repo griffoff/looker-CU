@@ -93,6 +93,7 @@ derived_table: {
             ELSE 'over $50.00'
             END
             ;;
+  hidden:  yes
   }
 
 
