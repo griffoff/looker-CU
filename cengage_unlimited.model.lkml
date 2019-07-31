@@ -107,6 +107,13 @@ explore: all_sessions {
     relationship: many_to_many
   }
 
+  join: dim_institution {
+    fields: [dim_institution.CU_fields*]
+  }
+
+  join: dim_filter {
+    fields: [-dim_filter.ALL_FIELDS*]
+  }
 }
 
 explore: session_analysis {
