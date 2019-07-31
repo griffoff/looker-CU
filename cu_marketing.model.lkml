@@ -59,6 +59,7 @@ explore: marketing_analysis {
     ,magellan_instructor_setup_status.marketing_fields*
     ,magellan_ipeds_details*
     ,cu_enterprise_licenses*
+    ,student_discounts_dps.marketing_fields*
     ]
 
 
@@ -106,6 +107,14 @@ explore: marketing_analysis {
     sql_on: ${dim_course.olr_course_key} = ${cu_enterprise_licenses.course_context_id} ;;
     relationship: many_to_one
   }
+
+  join: student_discounts_dps {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
+
 
 
 }
