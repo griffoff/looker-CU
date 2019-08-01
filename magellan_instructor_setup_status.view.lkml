@@ -4,7 +4,7 @@ view: magellan_instructor_setup_status {
     # must switch this code out so it uses institution_course_id
      sql:
       with upload as (
-        select *, lead(_fivetran_synced) over(partition by array_construct(institution_course_name, mag_contact_id) order by _fivetran_synced) is null as latest
+        select *, lead(_fivetran_synced) over(partition by array_construct(institution_course_name, mag_contact_id, user_guid) order by _fivetran_synced) is null as latest
         from uploads.magellan_uploads.instructor_setup_status
       )
       select *
@@ -12,7 +12,7 @@ view: magellan_instructor_setup_status {
       where latest
        ;;
 
-      persist_for: "24 hours"
+      sql_trigger_value: select max(_fivetran_synced) from uploads.magellan_uploads.instructor_setup_status;;
    }
 
   set: marketing_fields {
@@ -46,7 +46,8 @@ view: magellan_instructor_setup_status {
   dimension: freshness_score {
     type: number
     value_format_name: percent_1
-    sql: TRY_CAST(NULLIF(REPLACE(${TABLE}.FRESHNESS, '%', ''), '0') AS NUMERIC) / 100 ;;
+    sql: ${TABLE}.FRESHNESS ;;
+    #sql: TRY_CAST(NULLIF(REPLACE(${TABLE}.FRESHNESS, '%', ''), '0') AS NUMERIC) / 100 ;;
   }
 
   dimension: estimated_start_week {
