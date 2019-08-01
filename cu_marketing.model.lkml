@@ -7,6 +7,11 @@ include: "//core/access_grants_file.view"
 
 case_sensitive: no
 
+explore: magellan_uploads{
+  from: magellan_instructor_setup_status
+
+}
+
 explore: marketing_analysis {
   label: "CU User Analysis Marketing"
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"

@@ -1,19 +1,19 @@
 view: magellan_instructor_setup_status {
-  #sql_table_name: uploads.magellan_uploads.instructor_setup_status ;;
-   derived_table: {
-    # must switch this code out so it uses institution_course_id
-     sql:
-      with upload as (
-        select *, lead(_fivetran_synced) over(partition by array_construct(institution_course_name, mag_contact_id, user_guid) order by _fivetran_synced) is null as latest
-        from uploads.magellan_uploads.instructor_setup_status
-      )
-      select *
-      from upload
-      where latest
-       ;;
-
-      sql_trigger_value: select max(_fivetran_synced) from uploads.magellan_uploads.instructor_setup_status;;
-   }
+  sql_table_name: uploads.magellan_uploads.instructor_setup_status ;;
+#    derived_table: {
+#     # must switch this code out so it uses institution_course_id
+#      sql:
+#       with upload as (
+#         select *, lead(_fivetran_synced) over(partition by array_construct(institution_course_name, mag_contact_id, user_guid) order by _fivetran_synced) is null as latest
+#         from uploads.magellan_uploads.instructor_setup_status
+#       )
+#       select *
+#       from upload
+#       where latest
+#        ;;
+#
+#       #sql_trigger_value: select max(_fivetran_synced) from uploads.magellan_uploads.instructor_setup_status;;
+#    }
 
   set: marketing_fields {
     fields: [
@@ -83,12 +83,19 @@ view: magellan_instructor_setup_status {
     primary_key: yes
   }
 
+  dimension: mag_acct_id {
+    link: {
+      label: "View Account Activities in Magellan"
+      url: "http://magellan.cengage.com/Magellan2/#/Activities/{{ mag_acct_id._value }}"
+    }
+  }
+
   dimension: mag_contact_id {
     type: string
     sql: ${TABLE}."MAG_CONTACT_ID" ;;
     link: {
-      label: "View Account in Magellan"
-      url: "http://magellan.cengage.com/Magellan2/#/Dashboard/{{ dim_course.mag_acct_id._value }}/{{ mag_contact_id._value }}"
+      label: "View Contact in Magellan"
+      url: "http://magellan.cengage.com/Magellan2/#/Dashboard/{{ mag_acct_id._value }}/{{ mag_contact_id._value }}"
     }
 
   }
@@ -98,11 +105,11 @@ view: magellan_instructor_setup_status {
     sql: ${TABLE}."MAG_CONTACT_NAME" ;;
     link: {
       label: "View Contact in Magellan"
-      url: "http://magellan.cengage.com/Magellan2/#/Dashboard/{{ dim_course.mag_acct_id._value }}/{{ mag_contact_id._value }}"
+      url: "http://magellan.cengage.com/Magellan2/#/Dashboard/{{ mag_acct_id._value }}/{{ mag_contact_id._value }}"
     }
     link: {
       label: "View Account Activities in Magellan"
-      url: "http://magellan.cengage.com/Magellan2/#/Activities/{{ dim_course.mag_acct_id._value }}"
+      url: "http://magellan.cengage.com/Magellan2/#/Activities/{{ mag_acct_id._value }}"
     }
 
   }
