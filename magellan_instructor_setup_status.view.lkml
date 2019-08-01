@@ -65,9 +65,14 @@ view: magellan_instructor_setup_status {
     sql: ${TABLE}."USER_GUID" ;;
   }
 
+  dimension: entity_no {
+    type: number
+    sql: ${TABLE}.entity ;;
+  }
+
   dimension: pk {
     hidden: yes
-    sql: hash(${institution_course_name}, ${mag_contact_id}) ;;
+    sql: hash(${institution_course_name}, ${mag_contact_id}, ${user_guid}) ;;
     primary_key: yes
   }
 
@@ -163,6 +168,7 @@ view: magellan_instructor_setup_status {
   set: detail {
     fields: [
       user_guid,
+      entity_no,
       mag_contact_id,
       mag_contact_name,
       institution_course_name,

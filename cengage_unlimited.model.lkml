@@ -29,6 +29,7 @@ explore: learner_profile {
 }
 
 explore: live_subscription_status {
+  extends: [dim_course]
   #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
@@ -75,6 +76,16 @@ explore: live_subscription_status {
     relationship: one_to_many
   }
 
+  join: dim_course {
+    sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
   join: dim_date {
     view_label: "Learner Profile"
     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
@@ -105,6 +116,11 @@ explore: all_sessions {
   join: dim_course {
     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
     relationship: many_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
   }
 
   join: dim_institution {
