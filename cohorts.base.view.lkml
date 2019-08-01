@@ -278,28 +278,28 @@ view: cohorts_base_binary {
   extends: [cohorts_base]
 
   dimension: current {
-    type: number
-    sql: CASE WHEN ${TABLE}."1" > 0 THEN 1 ELSE 0 END ;;
+    type: string
+    sql: CASE WHEN ${TABLE}."1" > 0 THEN 'Yes' ELSE 'No' END ;;
   }
 
   dimension: minus_1 {
-    type: number
-    sql: CASE WHEN ${TABLE}."2" > 0 THEN 1 ELSE 0 END ;;
+    type: string
+    sql: CASE WHEN ${TABLE}."2" > 0 THEN 'Yes' ELSE 'No' END ;;
   }
 
   dimension: minus_2 {
-    type: number
-    sql: CASE WHEN ${TABLE}."3" > 0 THEN 1 ELSE 0 END ;;
+    type: string
+    sql: CASE WHEN ${TABLE}."3" > 0 THEN 'Yes' ELSE 'No' END ;;
   }
 
   dimension: minus_3 {
-    type: number
-    sql: CASE WHEN ${TABLE}."4" > 0 THEN 1 ELSE 0 END ;;
+    type: string
+    sql: CASE WHEN ${TABLE}."4" > 0 THEN 'Yes' ELSE 'No' END ;;
   }
 
   dimension: minus_4 {
-    type: number
-    sql: CASE WHEN ${TABLE}."5" > 0 THEN 1 ELSE 0 END ;;
+    type: string
+    sql: CASE WHEN ${TABLE}."5" > 0 THEN 'Yes' ELSE 'No' END  ;;
   }
 
 }
