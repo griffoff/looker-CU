@@ -52,7 +52,7 @@ view: magellan_instructor_setup_status {
 
   dimension: estimated_start_week {
     type: date
-    sql: NULLIF(${TABLE}.estimated_start_date, '0');;
+    sql: ${TABLE}.estimated_start_date;;
   }
 
 #   dimension: _file {
@@ -75,6 +75,8 @@ view: magellan_instructor_setup_status {
   dimension: entity_no {
     type: number
     sql: ${TABLE}.entity ;;
+    value_format: "0000"
+
   }
 
   dimension: pk {
