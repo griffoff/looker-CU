@@ -83,7 +83,8 @@ derived_table: {
                 p.first_name,
                 p.last_name,
                 p.email,
-                usint.internal
+                usint.internal,
+                coalesce(bl.flag,'N') as entity_flag
            from hub_sat_latest hs
             INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
                 ON hs.hub_user_key = p.hub_user_key
@@ -95,6 +96,8 @@ derived_table: {
                  on linkins.hub_institution_key = hubin.hub_institution_key
             left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
                 ON usint.hub_user_key = hs.hub_user_key
+            LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+             ON hubin.institution_id::STRING = bl.entity_id
             Where latest = 1 ;;
 }
 
