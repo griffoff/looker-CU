@@ -32,7 +32,8 @@ view: magellan_instructor_setup_status {
       training_completed_count,
       start_strong_scheduled_count,
       start_strong_completed_count,
-      freshness_score
+      freshness_score,
+      estimated_start_week
       ]
     }
 
@@ -45,7 +46,12 @@ view: magellan_instructor_setup_status {
   dimension: freshness_score {
     type: number
     value_format_name: percent_1
-    sql: ${TABLE}.FRESHNESS_SCORE / 100 ;;
+    sql: TRY_CAST(NULLIF(REPLACE(${TABLE}.FRESHNESS, '%', ''), '0') AS NUMERIC) / 100 ;;
+  }
+
+  dimension: estimated_start_week {
+    type: date
+    sql: NULLIF(${TABLE}.estimated_start_date, '0');;
   }
 
 #   dimension: _file {
@@ -177,6 +183,8 @@ view: magellan_instructor_setup_status {
       training_completed,
       start_strong_scheduled,
       start_strong_completed,
+      freshness_score,
+      estimated_start_week
     ]
   }
 }
