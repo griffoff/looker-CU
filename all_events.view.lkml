@@ -156,6 +156,28 @@ view: all_events {
 
   }
 
+  measure: event_duration_total {
+    label: "Total Time Active"
+    type: sum
+    sql: ${event_data}:event_duration ;;
+    value_format_name: duration_hms
+
+  }
+
+  dimension: days_active_total {
+    type: number
+    sql: COUNT(DISTINCT ${local_date}) ;;
+    hidden: yes
+  }
+
+  measure: event_duration_per_day {
+    label: "Average Time Active Per Day"
+    type: number
+    sql: SUM(${event_data}:event_duration) / ${days_active_total} ;;
+    value_format_name: duration_hms
+
+  }
+
 #   measure: session_count {
 #     label: "# sessions"
 #     type: count_distinct
