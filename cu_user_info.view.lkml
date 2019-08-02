@@ -76,7 +76,7 @@ derived_table: {
         ), hub_sat_latest as (
             select row_number () over (partition by merged_guid order by _ldts desc) as latest,*
           from hub_sat
-        ) Select hs.*,
+        ) Select distinct hs.*,
                 hubin.institution_id,
                 usmar.active,
                 usmar.opt_out AS marketing_opt_out,
