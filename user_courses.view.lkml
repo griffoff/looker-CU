@@ -12,7 +12,7 @@ derived_table: {
     fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers, user_courses.ala_cart_purchases, user_courses.distinct_ala_cart_purchase
       , user_courses.cu_contract_id, user_courses.cui_flag, user_courses.no_enrollments, user_courses.cu_flag, user_courses.cu_purchase, user_courses.activations_minus_a_la_carte,
       user_courses.enrollments_minus_activations, user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
-      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase]
+      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated]
   }
 
   dimension: net_price_enrolled {
@@ -169,6 +169,12 @@ derived_table: {
     hidden: no
   }
 
+  dimension: activated {
+    type: yesno
+    sql: ${TABLE}.activated = 'True'  ;;
+    hidden: no
+  }
+
 
 #   dimension: cui_flag {
 #     type: yesno
@@ -186,6 +192,12 @@ derived_table: {
     label: "# enrollments"
     type: sum
     sql: CASE WHEN ${enrolled} THEN 1 ELSE 0 END  ;;
+  }
+
+  measure: no_activated {
+    label: "# activated"
+    type: sum
+    sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
   }
 
   dimension: enrollment_date {

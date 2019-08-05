@@ -24,14 +24,23 @@ view: ebook_consumed_for_sales_adoption {
   dimension: _file {
     type: string
     sql: ${TABLE}."_FILE" ;;
+    hidden: yes
   }
 
   dimension: _line {
     type: number
     sql: ${TABLE}."_LINE" ;;
+    hidden: yes
   }
 
   dimension: fiscalyear {}
+
+  dimension: concat_primary{
+    type: string
+    sql: Concat(concat(${consumed_entity_no},${consumed_product_skey}),${consumed_month_dt})  ;;
+    primary_key: yes
+    hidden: yes
+  }
 
   dimension: con_unit_skey {
     type: number
