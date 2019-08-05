@@ -4,6 +4,7 @@ view: dm_sales_orders {
   dimension: _file {
     type: string
     sql: ${TABLE}."_FILE" ;;
+    hidden: yes
   }
 
   dimension_group: _fivetran_synced {
@@ -18,12 +19,126 @@ view: dm_sales_orders {
       year
     ]
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
+    hidden: yes
   }
 
   dimension: _line {
     type: number
     sql: ${TABLE}."_LINE" ;;
+    hidden: yes
   }
+
+  measure: FY19_Core_Digital_Standalone_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Core Digital Standalone' THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Core_Digital_Bundle_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Core Digital Bundle'  THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Custom_Print_Other_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Custom Print Other'  THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Print_Core_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Print Core'  THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Other_Standalone_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Other Digital Standalone' THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Print_Other_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Print Other'   THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Loose_Leaf_Bundle_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Loose-Leaf Bundle'   THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Other_Digital_Bundle_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Other Digital Bundle'   THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_Custom_Print_Core_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Custom Print Core'   THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_eBook_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'eBooks'   THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_CU_Sales {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Cengage Unlimited'   THEN extended_amt_usd ELSE 0 END ;;
+  }
+
+  measure: FY19_CU_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Cengage Unlimited' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Core_Digital_Standalone_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Core Digital Standalone' AND dm_products.tech_prod_cd NOT LIKE '05E'  THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Core_Digital_Bundle_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Core Digital Bundle' AND dm_products.tech_prod_cd NOT LIKE '05E' THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Custom_Print_Other_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Custom Print Other' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Print_Core_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Print Core' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Other_Standalone_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Other Digital Standalone' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Print_Other_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Print Other' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Loose_Leaf_Bundle_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Loose-Leaf Bundle' AND dm_products.tech_prod_cd NOT LIKE '05E' THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Other_Digital_Bundle_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Other Digital Bundle' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_Custom_Print_Core_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'Custom Print Core' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+  measure: FY19_eBook_Units {
+    type: sum
+    sql: CASE WHEN dm_products.print_digital_config_de like 'eBooks' AND dm_products.tech_prod_cd NOT LIKE '05E'   THEN ${quantity} ELSE 0 END ;;
+  }
+
+
 
   dimension_group: added_dt {
     type: time
@@ -405,6 +520,12 @@ measure: extended_amt_usd_measure  {
   dimension: quantity {
     type: number
     sql: ${TABLE}."QUANTITY" ;;
+  }
+
+  dimension: quan_units {
+    label: "Units"
+    type: number
+    sql: CASE WHEN dm_products.tec_prod_cd like '05E' THEN ${TABLE}."QUANTITY" ELSE 0 END ;;
   }
 
   dimension: reason_cd {
