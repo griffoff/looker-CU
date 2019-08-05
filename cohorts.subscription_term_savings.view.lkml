@@ -12,7 +12,7 @@ view: subscription_term_savings {
                RANK() OVER (PARTITION BY user_sso_guid ORDER BY course_start_date DESC) AS chron_desc_course_rank
                ,user_sso_guid
                ,entity_name
-             FROM prod.cu_user_analysis_dev.user_courses
+             FROM prod.cu_user_analysis.user_courses
            ), subscription_terms AS
           (
               SELECT
