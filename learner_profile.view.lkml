@@ -199,12 +199,14 @@ view: learner_profile {
     group_label: "CU Subscription"
     label: "CU subscription Length"
     description: "Current length of CU subscription in months"
+    #sql:  datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) ;;
     sql: CASE
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (3, 4) THEN 4
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (5, 6, 7) THEN 6
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (11, 12, 13) THEN 12
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (23, 24, 25) THEN 24
-            --ELSE datediff(month, ${subscription_start_raw}, ${subscription_end_raw})
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) < 3 THEN 'Less than 4'
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (3, 4) THEN '4'
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (5, 6, 7) THEN '6'
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (11, 12, 13) THEN '12'
+            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (23, 24, 25) THEN '24'
+            ELSE 'More than 24'
             END;;
     value_format: "0 \m\o\n\t\h\s"
   }
