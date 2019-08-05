@@ -7,8 +7,12 @@ include: "//core/access_grants_file.view"
 
 case_sensitive: no
 
-explore: magellan_uploads{
-  from: magellan_instructor_setup_status
+explore: magellan_instructor_setup_status {
+
+  join: dim_institution {
+    sql_on: ${magellan_instructor_setup_status.entity_no}::STRING = ${dim_institution.entity_no}::STRING ;;
+    relationship: many_to_one
+  }
 
 }
 
