@@ -194,21 +194,25 @@ view: learner_profile {
     sql: lower(${subscription_status}) = 'full access' ;;
   }
 
-  dimension: cu_subscription_length {
+  dimension: cu_subscription_length_raw  {
     type: number
+    hidden: yes
+    sql:  datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) ;;
+  }
+
+  dimension: cu_subscription_length {
+    type: string
     group_label: "CU Subscription"
     label: "CU subscription Length"
     description: "Current length of CU subscription in months"
-    #sql:  datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) ;;
-    sql: CASE
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) < 3 THEN 'Less than 4'
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (3, 4) THEN '4'
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (5, 6, 7) THEN '6'
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (11, 12, 13) THEN '12'
-            WHEN datediff(month, ${subscription_start_raw}, ${subscription_end_raw}) in (23, 24, 25) THEN '24'
-            ELSE 'More than 24'
-            END;;
-    value_format: "0 \m\o\n\t\h\s"
+    case: {
+      when: {label: "Less than 4 months" sql: ${cu_subscription_length_raw} < 4 ;;}
+      when: {label: "4 months" sql: ${cu_subscription_length_raw} = 4 ;;}
+      when: {label: "6 months" sql: ${cu_subscription_length_raw} in (5,6,7) ;;}
+      when: {label: "12 months" sql: ${cu_subscription_length_raw} in (11,12,13) ;;}
+      when: {label: "24 months" sql: ${cu_subscription_length_raw} in (23,24,25) ;;}
+      else: "Other"
+    }
   }
 
   dimension_group: subscription_start {
