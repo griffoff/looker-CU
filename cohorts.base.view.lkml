@@ -338,6 +338,7 @@ view: cohorts_base_string {
     parameter: events_to_include {
       type: string
       default_value: ""
+      hidden: yes
       # list values as comma separated list, this will be passed into a SQL "in" operator
       # e.g. "Event Name 1, Event Name 2"
       # or just "Event Name 1" if there is only 1 option

@@ -20,6 +20,7 @@ view: magellan_instructor_setup_status {
       user_guid,
       mag_contact_id,
       mag_contact_name,
+      mag_acct_id,
       institution_course_name,
       course_created,
       training_scheduled,
