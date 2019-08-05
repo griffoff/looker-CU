@@ -6,31 +6,33 @@ view: activations_for_salesorder_adoptions {
         union all
      Select PLATFORM,ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY,ACTV_USER_TYPE,ORGANIZATION from PROD.STG_CLTS.ACTIVATIONS_NON_OLR
              )
-Select dm_entities."INSTITUTION_NM"  AS "dm_entities.institution_nm",
-  dm_products."PROD_FAMILY_CD"  AS "dm_products.prod_family_cd",
-  dm_products."PUB_SERIES_DE"  AS "dm_products.pub_series_de",
-  activations.ENTITY_NO  AS "activations_olr.entity_no",
-  dm_products."MEDIA_TYPE_CD"  AS "dm_products.media_type_cd",
-  dm_products."MEDIA_TYPE_DE"  AS "dm_products.media_type_de",
-  dm_products."DIVISION_CD"  AS "dm_products.division_cd",
-  activations.PLATFORM  AS "activations_olr.platform",
-  activations.ACTV_TRIAL_PURCHASE  AS "activations_olr.actv_trial_purchase",
-  TO_CHAR(TO_DATE(activations.ACTV_DT ), 'YYYY-MM-DD') AS "activations_olr.actv_dt_date",
-    CASE WHEN activations.PLATFORM  ilike 'webassign' AND (actv_trial_purchase ilike 'Continued Enrollment' OR actv_trial_purchase ilike 'Site License') then 'Y' else 'N' end as is_webassign_exclude,
-  e1_product_family_master."COURSE_AS_PROVIDED_BY_PRD_TEAM"  AS "e1_product_family_master.course_as_provided_by_prd_team",
---  COUNT(DISTINCT activations.ACTV_CODE ) AS "activations_olr.actv_code_count"
- activations.ACTV_CODE as ACTV_CODE,
- activations.ACTV_USER_TYPE as ACTV_USER_TYPE,
- activations.ORGANIZATION as ORGANIZATION,
- dimdate.fiscalyearvalue as fiscalyear
-from
-    activations
-Left Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
-ON activations.Product_Skey = dm_products.Product_Skey
-LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_ENTITIES dm_entities
-ON activations.entity_no = dm_entities.entity_no
-LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_CODE") = (dm_products."PROD_FAMILY_CD")
-LEFT JOIN prod.dw_ga.dim_date dimdate ON activations.actv_dt = dimdate.datevalue
+      Select
+          dm_entities."INSTITUTION_NM"  AS "dm_entities.institution_nm",
+          dm_products."PROD_FAMILY_CD"  AS "dm_products.prod_family_cd",
+          dm_products."PUB_SERIES_DE"  AS "dm_products.pub_series_de",
+          activations.ENTITY_NO  AS "activations_olr.entity_no",
+          dm_products."MEDIA_TYPE_CD"  AS "dm_products.media_type_cd",
+          dm_products."MEDIA_TYPE_DE"  AS "dm_products.media_type_de",
+          dm_products."DIVISION_CD"  AS "dm_products.division_cd",
+          activations.PLATFORM  AS "activations_olr.platform",
+          activations.ACTV_TRIAL_PURCHASE  AS "activations_olr.actv_trial_purchase",
+          TO_CHAR(TO_DATE(activations.ACTV_DT ), 'YYYY-MM-DD') AS "activations_olr.actv_dt_date",
+          CASE WHEN activations.PLATFORM  ilike 'webassign' AND (actv_trial_purchase ilike 'Continued Enrollment' OR actv_trial_purchase ilike 'Site License') then 'Y' else 'N' end as is_webassign_exclude,
+          e1_product_family_master."COURSE_AS_PROVIDED_BY_PRD_TEAM"  AS "e1_product_family_master.course_as_provided_by_prd_team",
+      --  COUNT(DISTINCT activations.ACTV_CODE ) AS "activations_olr.actv_code_count"
+          activations.ACTV_CODE as ACTV_CODE,
+          activations.ACTV_USER_TYPE as ACTV_USER_TYPE,
+          activations.ORGANIZATION as ORGANIZATION,
+          dimdate.fiscalyearvalue as fiscalyear,
+          dm_entities.state_de as state_de
+      FROM
+          activations
+      LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
+      ON activations.Product_Skey = dm_products.Product_Skey
+      LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_ENTITIES dm_entities
+      ON activations.entity_no = dm_entities.entity_no
+      LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_CODE") = (dm_products."PROD_FAMILY_CD")
+      LEFT JOIN prod.dw_ga.dim_date dimdate ON activations.actv_dt = dimdate.datevalue
 
  ;;
     }
@@ -53,6 +55,11 @@ LEFT JOIN prod.dw_ga.dim_date dimdate ON activations.actv_dt = dimdate.datevalue
   dimension: organization {
     type: string
     sql: ${TABLE}."ORGANIZATION" ;;
+  }
+
+  dimension: state_de {
+    type: string
+#     sql: ${state_de};;
   }
 
     dimension: dm_entities_institution_nm {
