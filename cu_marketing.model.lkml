@@ -25,6 +25,11 @@ explore: magellan_instructor_setup_status {
     relationship: one_to_many
   }
 
+  join: dim_product {
+    sql_on: ${dim_course.productid} = ${dim_product.productid} ;;
+    relationship: many_to_one
+  }
+
   join: user_courses {
     sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
     relationship: one_to_many

@@ -13,106 +13,8 @@ derived_table: {
       , user_courses.cu_contract_id, user_courses.cui_flag, user_courses.no_enrollments, user_courses.cu_flag, user_courses.cu_purchase, user_courses.activations_minus_a_la_carte,
       user_courses.enrollments_minus_activations, user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
       , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated
-      ,current_enrollments,current_activations,current_students,current_activations_cu,current_activations_non_cu, current_not_activated_enrollments]
+      ,current_enrollments,current_activations,current_students,current_activations_cu,current_activations_non_cu, current_not_activated_enrollments,current_course_sections]
   }
-
-  dimension: net_price_enrolled {
-    label: "$ value of enrolled courses"
-    type: number
-    sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
-  }
-
-  measure: distinct_ala_cart_purchase {
-    label:  "# of a la carte purchases (distinct)"
-    type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag THEN ${isbn} END;;
-  }
-
-  dimension: cu_contract_id {
-    type: string
-    sql: ${TABLE}.cu_contract_id;;
-    label: "CU Contract ID"
-    description: "Unique contract ID for Cengage Unlimited Subscription"
-    hidden: no
-  }
-
-  dimension: cui_flag {
-    type: string
-    sql: ${TABLE}.cui_flag;;
-    hidden: no
-    label: "CUI Flag"
-    description: "Flag to identify Cengage Unlimited Institutional Subscription"
-  }
-
-
-  dimension: cu_flag {
-     type: yesno
-#     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
-     label: "CU Flag"
-#     hidden: no
-  }
-
-  measure: ala_cart_purchases {
-    label: "# of a la carte activations"
-    type: sum
-    sql: CASE WHEN NOT ${cu_flag} AND ${activated} THEN 1 END;;
-  }
-
-  measure: cu_purchase {
-    label: "# of CU activations"
-    type: sum
-    sql: CASE WHEN ${cu_flag} AND ${activated} THEN 1 END;;
-  }
-
-  measure: enrollments_minus_activations {
-    label: "# of enrollments not activated"
-    type: number
-    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
-  }
-
-  measure: current_enrollments {
-    label: "# of current enrollments"
-    type: sum
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${enrolled} THEN 1 END   ;;
-  }
-
-  measure: current_activations {
-    label: "# of current activations"
-    type: sum
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} THEN 1 END   ;;
-  }
-
-  measure: current_activations_non_cu {
-    label: "# of current Non CU activations"
-    type: sum
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND NOT ${cu_flag} THEN 1 END   ;;
-  }
-
-
-  measure: current_activations_cu {
-    label: "# of current CU activations"
-    type: sum
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND ${cu_flag} THEN 1 END   ;;
-  }
-
-  measure: current_not_activated_enrollments {
-    label: "# of current not activated"
-    type: number
-    sql: ${current_enrollments} - ${current_activations}   ;;
-  }
-
-  measure: current_students {
-    label: "# of current students"
-    type: sum
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN 1 END   ;;
-  }
-
-#   measure: activations_minus_a_la_carte {
-#     label: "Activations minus a la carte"
-#     type: number
-#     sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
-#     hidden: yes
-#   }
 
   dimension: isbn {
     type: string
@@ -131,7 +33,7 @@ derived_table: {
             ELSE 'over $50.00'
             END
             ;;
-  hidden:  yes
+    hidden:  yes
   }
 
 
@@ -182,11 +84,11 @@ derived_table: {
   }
 
   dimension: course_start_date {
-    type: date
+    type: date_raw
   }
 
   dimension: course_end_date {
-    type: date
+    type: date_raw
   }
 
   dimension: product_type {
@@ -213,6 +115,152 @@ derived_table: {
     hidden: no
   }
 
+  dimension: net_price_enrolled {
+    label: "$ value of enrolled courses"
+    type: number
+    sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
+  }
+
+  measure: distinct_ala_cart_purchase {
+    label:  "# of a la carte purchases (distinct)"
+    type: count_distinct
+    sql: CASE WHEN NOT ${TABLE}.cu_flag THEN ${isbn} END;;
+  }
+
+  dimension: cu_contract_id {
+    type: string
+    sql: ${TABLE}.cu_contract_id;;
+    label: "CU Contract ID"
+    description: "Unique contract ID for Cengage Unlimited Subscription"
+    hidden: no
+  }
+
+  dimension: cui_flag {
+    type: string
+    sql: ${TABLE}.cui_flag;;
+    hidden: no
+    label: "CUI Flag"
+    description: "Flag to identify Cengage Unlimited Institutional Subscription"
+  }
+
+
+  dimension: cu_flag {
+     type: yesno
+#     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
+     label: "CU Flag"
+#     hidden: no
+  }
+
+  measure: ala_cart_purchases {
+    group_label: "Lifetime metrics"
+    label: "# of a la carte activations"
+    type: sum
+    sql: CASE WHEN NOT ${cu_flag} AND ${activated} THEN 1 END;;
+  }
+
+  measure: cu_purchase {
+    group_label: "Lifetime metrics"
+    label: "# of CU activations"
+    type: sum
+    sql: CASE WHEN ${cu_flag} AND ${activated} THEN 1 END;;
+  }
+
+  measure: no_enrollments {
+    group_label: "Lifetime metrics"
+    label: "# enrollments"
+    type: sum
+    sql: CASE WHEN ${enrolled} THEN 1 ELSE 0 END  ;;
+  }
+
+  measure: no_activated {
+    group_label: "Lifetime metrics"
+    label: "# activated"
+    type: sum
+    sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
+  }
+
+  measure: enrolled_courses {
+    group_label: "Lifetime metrics"
+    label: "# Users with Enrolled Courses"
+    description: "Number of users with an enrolled course"
+    type: count_distinct
+    sql: case when ${enrolled} then ${user_sso_guid} end;;
+    value_format_name: decimal_0
+  }
+
+  measure: enrollments_minus_activations {
+    group_label: "Lifetime metrics"
+    label: "# of enrollments not activated"
+    type: number
+    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+  }
+
+  measure: current_course_sections {
+    group_label: "Active courses metrics"
+    label: "# of current courses"
+    type: count_distinct
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN ${olr_course_key} END   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+  measure: current_enrollments {
+    group_label: "Active courses metrics"
+    label: "# of current enrollments"
+    type: count_distinct
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${enrolled} THEN ${pk} END   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+  measure: current_activations {
+    group_label: "Active courses metrics"
+    label: "# of current activations"
+    type: count_distinct
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} THEN ${pk} END   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+  measure: current_activations_non_cu {
+    group_label: "Active courses metrics"
+    label: "# of current Non CU activations"
+    type: count_distinct
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND NOT ${cu_flag} THEN ${pk} END   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+
+  measure: current_activations_cu {
+    group_label: "Active courses metrics"
+    label: "# of current CU activations"
+    type: count_distinct
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND ${cu_flag} THEN ${pk} END   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+  measure: current_not_activated_enrollments {
+    group_label: "Active courses metrics"
+    label: "# of current not activated"
+    type: number
+    sql: ${current_enrollments} - ${current_activations}   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+  measure: current_students {
+    group_label: "Active courses metrics"
+    label: "# of current students"
+    type: count_distinct
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN ${user_sso_guid} END   ;;
+    drill_fields: [marketing_fields*]
+  }
+
+#   measure: activations_minus_a_la_carte {
+#     label: "Activations minus a la carte"
+#     type: number
+#     sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
+#     hidden: yes
+#   }
+
+
+
 
 #   dimension: cui_flag {
 #     type: yesno
@@ -226,29 +274,12 @@ derived_table: {
 #     hidden: no
 #   }
 
-  measure: no_enrollments {
-    label: "# enrollments"
-    type: sum
-    sql: CASE WHEN ${enrolled} THEN 1 ELSE 0 END  ;;
-  }
-
-  measure: no_activated {
-    label: "# activated"
-    type: sum
-    sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
-  }
 
   dimension: enrollment_date {
     label: "Date on which user enrolled into a course"
     type: date
   }
 
-  measure: enrolled_courses {
-    label: "# Users with Enrolled Courses"
-    description: "Number of users with an enrolled course"
-    type: count_distinct
-    sql: case when ${olr_enrollment_key} is not null then ${user_sso_guid} end;;
-    value_format_name: decimal_0
-  }
+
 
 }
