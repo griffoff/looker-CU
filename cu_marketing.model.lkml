@@ -14,6 +14,27 @@ explore: magellan_instructor_setup_status {
     relationship: many_to_one
   }
 
+  join: courseinstructor {
+    sql_on: ${magellan_instructor_setup_status.user_guid} = ${courseinstructor.instructor_guid};;
+    relationship: many_to_many
+  }
+
+  join: dim_course {
+    sql_on: ${dim_institution.institutionid} = ${dim_course.institutionid}
+            AND ${dim_course.coursekey} = ${courseinstructor.coursekey};;
+    relationship: one_to_many
+  }
+
+  join: user_courses {
+    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
+    relationship: one_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: marketing_analysis {

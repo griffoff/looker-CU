@@ -4,7 +4,7 @@ view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
 derived_table: {
-  sql: Select *, case when (cu_contract_id IS NOT NULL AND cu_contract_id <> 'TRIAL') OR cui_flag = 'Y' THEN 'yes' ELSE 'no' end as cu_flag
+  sql: Select *, (cu_contract_id IS NOT NULL AND cu_contract_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
         from prod.cu_user_analysis.user_courses  ;;
 }
 
@@ -12,7 +12,8 @@ derived_table: {
     fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers, user_courses.ala_cart_purchases, user_courses.distinct_ala_cart_purchase
       , user_courses.cu_contract_id, user_courses.cui_flag, user_courses.no_enrollments, user_courses.cu_flag, user_courses.cu_purchase, user_courses.activations_minus_a_la_carte,
       user_courses.enrollments_minus_activations, user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
-      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated]
+      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated
+      ,current_enrollments,current_activations,current_students,current_activations_cu,current_activations_non_cu, current_not_activated_enrollments]
   }
 
   dimension: net_price_enrolled {
@@ -24,7 +25,7 @@ derived_table: {
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN ${TABLE}.cu_flag = 'no' THEN ${isbn} END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag THEN ${isbn} END;;
   }
 
   dimension: cu_contract_id {
@@ -45,28 +46,65 @@ derived_table: {
 
 
   dimension: cu_flag {
-#     type: yesno
+     type: yesno
 #     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
-#     label: "CU Flag"
+     label: "CU Flag"
 #     hidden: no
   }
 
   measure: ala_cart_purchases {
     label: "# of a la carte activations"
     type: sum
-    sql: CASE WHEN ${cu_flag} = 'No' THEN 1 END;;
+    sql: CASE WHEN NOT ${cu_flag} AND ${activated} THEN 1 END;;
   }
 
   measure: cu_purchase {
-    label: "# of a CU activations"
+    label: "# of CU activations"
     type: sum
-    sql: CASE WHEN ${cu_flag} = 'Yes' THEN 1 END;;
+    sql: CASE WHEN ${cu_flag} AND ${activated} THEN 1 END;;
   }
 
   measure: enrollments_minus_activations {
     label: "# of enrollments not activated"
     type: number
     sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+  }
+
+  measure: current_enrollments {
+    label: "# of current enrollments"
+    type: sum
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${enrolled} THEN 1 END   ;;
+  }
+
+  measure: current_activations {
+    label: "# of current activations"
+    type: sum
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} THEN 1 END   ;;
+  }
+
+  measure: current_activations_non_cu {
+    label: "# of current Non CU activations"
+    type: sum
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND NOT ${cu_flag} THEN 1 END   ;;
+  }
+
+
+  measure: current_activations_cu {
+    label: "# of current CU activations"
+    type: sum
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND ${cu_flag} THEN 1 END   ;;
+  }
+
+  measure: current_not_activated_enrollments {
+    label: "# of current not activated"
+    type: number
+    sql: ${current_enrollments} - ${current_activations}   ;;
+  }
+
+  measure: current_students {
+    label: "# of current students"
+    type: sum
+    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN 1 END   ;;
   }
 
 #   measure: activations_minus_a_la_carte {
