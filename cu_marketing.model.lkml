@@ -95,6 +95,7 @@ explore: marketing_analysis {
     ,magellan_ipeds_details*
     ,cu_enterprise_licenses*
     ,student_discounts_dps.marketing_fields*
+    ,institutional_savings.marketing_fields*
     ]
 
 
@@ -116,6 +117,12 @@ explore: marketing_analysis {
   join: instiution_star_rating {
     view_label: "Institution"
     sql_on: ${dim_institution.entity_no}::STRING = ${instiution_star_rating.entity_}::STRING ;;
+    relationship: many_to_one
+  }
+
+  join: institutional_savings {
+    view_label: "Institution"
+    sql_on: ${dim_institution.entity_no}::STRING = ${institutional_savings.entity_no}::STRING ;;
     relationship: many_to_one
   }
 
