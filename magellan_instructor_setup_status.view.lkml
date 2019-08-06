@@ -34,9 +34,16 @@ view: magellan_instructor_setup_status {
       start_strong_scheduled_count,
       start_strong_completed_count,
       freshness_score,
-      estimated_start_week
+      estimated_start_week,
+      instructor_count
       ]
     }
+
+  measure: instructor_count {
+    label: "# instructors"
+    type: count_distinct
+    sql: ${user_guid} ;;
+  }
 
   measure: courses_expected {
     label: "# Courses Expected"
