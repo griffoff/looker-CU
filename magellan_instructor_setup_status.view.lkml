@@ -29,13 +29,15 @@ view: magellan_instructor_setup_status {
       start_strong_completed,
       courses_expected,
       course_created_count,
+      courses_not_created,
       training_scheduled_count,
       training_completed_count,
       start_strong_scheduled_count,
       start_strong_completed_count,
       freshness_score,
       estimated_start_week,
-      instructor_count
+      instructor_count,
+      closed_units
       ]
     }
 
@@ -49,6 +51,13 @@ view: magellan_instructor_setup_status {
     label: "# Courses Expected"
     type: count
     drill_fields: [detail*]
+  }
+
+  measure: courses_not_created {
+    label: "# Courses Not Created"
+    type: number
+    drill_fields: [detail*]
+    sql: Greatest(0, ${courses_expected} - ${course_created_count}) ;;
   }
 
   dimension: freshness_score {
@@ -121,6 +130,7 @@ view: magellan_instructor_setup_status {
       label: "View Account Activities in Magellan"
       url: "http://magellan.cengage.com/Magellan2/#/Activities/{{ mag_acct_id._value }}"
     }
+    label: "Contact Name"
 
   }
 
@@ -184,6 +194,12 @@ view: magellan_instructor_setup_status {
     sql: case when ${start_strong_completed} then 1 end;;
   }
 
+  measure: closed_units {
+    label: "# Closed Units"
+    description: "Expected numbr of enrollments"
+    type: sum
+  }
+
   dimension_group: _fivetran_synced {
     type: time
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
@@ -202,7 +218,8 @@ view: magellan_instructor_setup_status {
       start_strong_scheduled,
       start_strong_completed,
       freshness_score,
-      estimated_start_week
+      estimated_start_week,
+      closed_units
     ]
   }
 }
