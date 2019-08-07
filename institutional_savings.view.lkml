@@ -32,7 +32,7 @@ view: institutional_savings {
 
   dimension: student_savings_courseware_ebook_chegg_ {
     label: "Institutional Savings"
-    description: "Total Savings based on courseware,ebook & chegg calculations done by strategy team. Based off CU subscriptions till Spring 2019 semester "
+    description: "Total Savings based on courseware,ebook & chegg calculations done by strategy team. Based off CU subscriptions till Spring 2019 semester. Please Note - This is ONE TIME Feed "
     type: string
     sql: ${TABLE}."STUDENT_SAVINGS_COURSEWARE_EBOOK_CHEGG_" ;;
   }
