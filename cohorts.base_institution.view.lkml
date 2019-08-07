@@ -27,7 +27,7 @@ view: cohorts_base_institution {
     group_label: "Institutional savings"
     type: sum
     sql: ${minus_1} ;;
-    hidden: no
+    hidden: yes
     value_format_name: usd_0
   }
 

@@ -79,6 +79,11 @@ view: magellan_ipeds_details {
     hidden: yes
   }
 
+  dimension: top_majors {
+    type: string
+    sql: ARRAY_CONSTRUCT(${TABLE}."_1_LARGEST_DEGREE_PROGRAM", ${TABLE}."_2_LARGEST_DEGREE_PROGRAM", ${TABLE}."_3_LARGEST_DEGREE_PROGRAM", ${TABLE}."_4_LARGEST_DEGREE_PROGRAM", ${TABLE}."_5_LARGEST_DEGREE_PROGRAM")::STRING ;;
+  }
+
   set: detail {
     fields: [
       _file,
