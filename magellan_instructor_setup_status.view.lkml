@@ -161,6 +161,12 @@ view: magellan_instructor_setup_status {
     sql: case when ${training_scheduled} then 1 end;;
   }
 
+  measure: training_was_scheduled_count {
+    label: "# Training Was or Is Scheduled"
+    type: sum
+    sql: case when ${training_scheduled} or ${training_completed} then 1 end;;
+  }
+
   dimension: training_completed {
     type: yesno
     sql: ${TABLE}."TRAINING_COMPLETED" = 'Yes';;
@@ -183,6 +189,12 @@ view: magellan_instructor_setup_status {
     sql: case when ${start_strong_scheduled} then 1 end;;
   }
 
+  measure: start_strong_was_scheduled_count {
+    label: "# Start Strong Was or Is Scheduled"
+    type: sum
+    sql: case when ${start_strong_scheduled} or ${start_strong_completed} then 1 end;;
+  }
+
   dimension: start_strong_completed {
     type: yesno
     sql: ${TABLE}."START_STRONG_COMPLETED" = 'Yes';;
@@ -192,6 +204,27 @@ view: magellan_instructor_setup_status {
     label: "# Start Strong Completed"
     type: sum
     sql: case when ${start_strong_completed} then 1 end;;
+  }
+
+  measure: start_strong_complete_percent {
+    label: "% Start Strong Complete"
+    type: number
+    sql:  ${magellan_instructor_setup_status.start_strong_completed_count} / NULLIF(${magellan_instructor_setup_status.start_strong_was_scheduled_count}, 0) ;;
+    value_format_name: percent_0
+  }
+
+  measure: training_complete_percent {
+    label: "% Training Complete"
+    type: number
+    sql:  ${magellan_instructor_setup_status.training_completed_count} / NULLIF(${magellan_instructor_setup_status.training_was_scheduled_count}, 0) ;;
+    value_format_name: percent_0
+  }
+
+  measure: courses_created_percent {
+    label: "% Courses Created"
+    type: number
+    sql: IFF(${user_courses.current_course_sections} > ${magellan_instructor_setup_status.courses_expected}, 1, ${user_courses.current_course_sections} /  NULLIF(${magellan_instructor_setup_status.courses_expected}, 0)) ;;
+    value_format_name: percent_0
   }
 
   measure: closed_units {
