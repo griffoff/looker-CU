@@ -25,6 +25,11 @@ explore: magellan_instructor_setup_status {
     relationship: one_to_many
   }
 
+  join: dim_start_date {
+    sql_on: ${dim_course.startdatekey} = ${dim_start_date.datekey} ;;
+    relationship: many_to_one
+  }
+
   join: dim_product {
     sql_on: ${dim_course.productid} = ${dim_product.productid} ;;
     relationship: many_to_one
