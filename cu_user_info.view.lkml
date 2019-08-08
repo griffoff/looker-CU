@@ -67,50 +67,67 @@ view: cu_user_info {
   # }
 
 derived_table: {
-  sql: With hub_sat as(
+  sql: with hub_sat as (
         Select
           h.hub_user_key,h._ldts,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid, sa.instructor,sa.k12
          from PROD.DATAVAULT.HUB_USER h
           INNER JOIN Prod.Datavault.sat_user sa
         on h.hub_user_key = sa.hub_user_key
-        ), hub_sat_latest as (
-            select row_number () over (partition by merged_guid order by _ldts desc) as latest,*
+        )
+        ,hub_sat_latest as (
+            select row_number () over (partition by merged_guid order by _ldts desc) = 1 as latest,*
           from hub_sat
-        ) Select distinct hs.*,
-                hubin.institution_id,
-                usmar.active,
-                usmar.opt_out AS marketing_opt_out,
-                p.first_name,
-                p.last_name,
-                p.email,
-                usint.internal,
-                coalesce(bl.flag,'N') as entity_flag
-           from hub_sat_latest hs
-            INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
-                ON hs.hub_user_key = p.hub_user_key
-            left join PROD.DATAVAULT.link_user_institution linkins
-                on hs.hub_user_key = linkins.hub_user_key -- 2486955
-            left join PROD.DATAVAULT.SAT_USER_MARKETING usmar
-                ON hs.hub_user_key = usmar.hub_user_key
-            left join PROD.DATAVAULT.HUB_INSTITUTION hubin
-                 on linkins.hub_institution_key = hubin.hub_institution_key
-            left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
-                ON usint.hub_user_key = hs.hub_user_key
-            LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
+        )
+        ,latest_institution as (
+          select linkins.hub_user_key, linkins.hub_institution_key, row_number() over (partition by linkins.hub_user_key order by _ldts desc ) = 1 as latest
+          from PROD.DATAVAULT.link_user_institution linkins
+        )
+        Select distinct hs.*,
+            hubin.institution_id,
+            usmar.active,
+            usmar.opt_out AS marketing_opt_out,
+            p.first_name,
+            p.last_name,
+            p.email,
+            usint.internal,
+            coalesce(bl.flag,'N') as entity_flag
+        from hub_sat_latest hs
+        INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
+            ON hs.hub_user_key = p.hub_user_key
+            AND p.active
+        left join latest_institution linkins
+            on hs.hub_user_key = linkins.hub_user_key -- 2486955
+            and linkins.latest
+        left join PROD.DATAVAULT.HUB_INSTITUTION hubin
+             on linkins.hub_institution_key = hubin.hub_institution_key
+        left join PROD.DATAVAULT.SAT_USER_MARKETING usmar
+            ON hs.hub_user_key = usmar.hub_user_key
+            and usmar.active
+        --temporary point to raw user classification table
+        left join (select distinct user_sso_guid, internal from PROD.DATAVAULT_STG.USER_CLASSIFICATION) usint
+            ON hs.merged_guid = usint.user_sso_guid
+        --put this back once DV is showing the correct data
+        --left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
+        --    ON usint.hub_user_key = hs.hub_user_key
+        --    and usint.active
+        LEFT JOIN (select distinct entity_id,flag  from UPLOADS.CU.ENTITY_BLACKLIST) bl
              ON hubin.institution_id::STRING = bl.entity_id
-            Where latest = 1 ;;
+        where hs.latest = 1
+;;
+
+persist_for: "6 hour"
 }
 
 
   measure: count {
     type: count
     drill_fields: [detail*]
-    hidden: yes
+    #hidden: yes
   }
 
   dimension: primary_guid {
     type: string
-    sql: ${TABLE}."PRIMARY_GUID" ;;
+    sql: ${TABLE}."LINKED_GUID" ;;
     hidden: yes
   }
 
@@ -130,13 +147,13 @@ derived_table: {
     label: "K12 User"
     description: "Data field to identify K12 customer"
     type: yesno
-    sql: ${TABLE}.k12_user ;;
+    sql: ${TABLE}.k12 ;;
   }
 
 
   dimension: partner_guid {
     type: string
-    sql: ${TABLE}."PARTNER_GUID" ;;
+    sql: ${TABLE}."USER_SSO_GUID" ;;
     hidden: yes
   }
 
