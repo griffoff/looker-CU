@@ -1,9 +1,10 @@
+explore: institutional_savings {}
 view: institutional_savings {
   derived_table: {
     sql: Select * from UPLOADS.cu.institution_savings
       ;;
   }
-  set: marketing_fields {fields:[student_savings_courseware_ebook_chegg_]}
+  set: marketing_fields {fields:[student_savings_courseware_ebook_chegg_,average_savings_per_subscriber_who_saved]}
 
   measure: count {
     type: count
