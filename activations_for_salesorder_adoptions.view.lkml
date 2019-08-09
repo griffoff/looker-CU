@@ -35,6 +35,7 @@ view: activations_for_salesorder_adoptions {
       LEFT JOIN prod.dw_ga.dim_date dimdate ON activations.actv_dt = dimdate.datevalue
 
  ;;
+persist_for: "240 hours"
     }
 
     measure: count {
