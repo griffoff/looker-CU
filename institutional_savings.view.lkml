@@ -1,10 +1,37 @@
 explore: institutional_savings {}
 view: institutional_savings {
   derived_table: {
-    sql: Select * from UPLOADS.cu.institution_savings
-      ;;
+#     sql: Select * from UPLOADS.cu.institution_savings
+#       ;;
+
+    sql: with entity_dt as (
+  Select uc.*,oc.ENTITY_NO,p.coursearea,p.coursearea_pt,coalesce(p.coursearea,pp.discipline_de) as course_area,pp.discipline_de
+from prod.cu_user_analysis.user_courses uc
+left join prod.stg_clts.olr_courses oc
+--ON uc.olr_course_key = oc."#CONTEXT_ID"
+ON uc.olr_course_key = oc.course_key
+left join prod.dw_ga.dim_product p
+ON uc.isbn = p.isbn13
+left join prod.stg_clts.products pp
+ON uc.isbn = pp.isbn13
+WHERE enrolled OR activated
+
+) --Select *,row_number() over (partition by entity_no order by no_students desc) as row_num  from entity_dt limit 10;
+
+, rows_no as(
+  select Count (distinct user_sso_guid) as no_students, entity_no, course_area,
+  row_number() over (partition by entity_no order by no_students desc) as row_num --213268
+  from entity_dt group by 2,3
+  order by 1 desc
+  ) ,top_courses as(select array_agg(course_area) as top_courses,entity_no from rows_no
+  where row_num <=3  group by entity_no
+  )select int_sav.*,t.top_courses from
+  UPLOADS.cu.institution_savings int_sav
+  LEFT JOIN top_courses t
+  ON int_sav.entity_no = t.entity_no
+   ;;
   }
-  set: marketing_fields {fields:[student_savings_courseware_ebook_chegg_,average_savings_per_subscriber_who_saved]}
+  set: marketing_fields {fields:[student_savings_courseware_ebook_chegg_,average_savings_per_subscriber_who_saved,top_courses]}
 
   measure: count {
     type: count
@@ -15,6 +42,8 @@ view: institutional_savings {
     type: number
     sql: ${TABLE}."ENTITY_NO" ;;
   }
+
+  dimension: top_courses{}
 
   dimension: institution_nm {
     type: string
