@@ -104,7 +104,7 @@ derived_table: {
             ON hs.hub_user_key = usmar.hub_user_key
             and usmar.active
         --temporary point to raw user classification table
-        left join (select distinct user_sso_guid, internal from PROD.DATAVAULT_STG.USER_CLASSIFICATION) usint
+        left join (select distinct user_sso_guid, internal from prod.cu_user_analysis.user_classification_copy) usint
             ON hs.merged_guid = usint.user_sso_guid
         --put this back once DV is showing the correct data
         --left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
