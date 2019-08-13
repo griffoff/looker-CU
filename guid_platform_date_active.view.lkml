@@ -1,6 +1,9 @@
 # If necessary, uncomment the line below to include explore_source.
 
 # include: "cengage_unlimited.model.lkml"
+explore: guid_platform_date_active {
+  hidden: yes
+}
 
 view: guid_platform_date_active {
   derived_table: {
@@ -17,6 +20,8 @@ view: guid_platform_date_active {
         value: "NOT NULL"
       }
     }
+
+    persist_for: "24 hours"
 
   }
   dimension: user_sso_guid {
