@@ -308,6 +308,13 @@ explore: session_analysis {
     relationship:  one_to_many
   }
 
+  join: guid_latest_activity {
+    view_label: "Learner Profile"
+    fields: [guid_latest_activity.active]
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: session_analysis_old {
