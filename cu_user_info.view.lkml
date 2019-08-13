@@ -143,7 +143,7 @@ persist_for: "6 hour"
     description: "Users who are not flagged as internal (e.g. QA)"
     label: "Real User Flag"
     type: yesno
-    sql: NOT ${TABLE}.internal ;;
+    sql: NOT ${TABLE}.internal OR ${TABLE}.internal IS NULL  ;;
   }
 
   dimension: entity_flag {
