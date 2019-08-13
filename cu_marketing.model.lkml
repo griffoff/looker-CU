@@ -7,6 +7,13 @@ include: "//core/access_grants_file.view"
 
 case_sensitive: no
 
+explore: late_activators {
+  join: cu_user_info {
+    sql_on: ${late_activators.user_sso_guid} = ${cu_user_info.user_sso_guid}  ;;
+    relationship: many_to_one
+  }
+}
+
 explore: magellan_instructor_setup_status {
 
   join: dim_institution {
