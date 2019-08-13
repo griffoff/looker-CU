@@ -11,6 +11,9 @@ include: "//core/access_grants_file.view"
 
 ######################### Start of PROD Explores #########################################################################3
 
+
+
+
 ######## User Experience Journey Start ###################
 
 explore: learner_profile {
@@ -303,6 +306,13 @@ explore: session_analysis {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_courseware_added_to_dash.user_sso_guid} ;;
     relationship:  one_to_many
+  }
+
+  join: guid_latest_activity {
+    view_label: "Learner Profile"
+    fields: [guid_latest_activity.active]
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+    relationship: one_to_one
   }
 
 }

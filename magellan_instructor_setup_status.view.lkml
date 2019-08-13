@@ -206,6 +206,17 @@ view: magellan_instructor_setup_status {
     sql: case when ${start_strong_completed} then 1 end;;
   }
 
+  dimension: marked_proficient {
+    type: yesno
+    sql: ${TABLE}."MARKED_PROFICIENT" = 'Yes';;
+  }
+
+  measure: marked_proficient_count {
+    label: "# Marked Proficient"
+    type: sum
+    sql: case when ${marked_proficient} then 1 end;;
+  }
+
   measure: start_strong_complete_percent {
     label: "% Start Strong Complete"
     type: number
@@ -232,6 +243,9 @@ view: magellan_instructor_setup_status {
     description: "Expected numbr of enrollments"
     type: sum
   }
+
+
+
 
   dimension_group: _fivetran_synced {
     type: time
