@@ -1203,3 +1203,32 @@ explore: dm_sales_orders {
   }
 
 }
+
+explore: sales_orders_forecasting {
+  label: "Sales Order Forecasting"
+
+join: activations_sales_order_forecasting {
+  sql_on: ${sales_orders_forecasting.adoption_key} = ${activations_sales_order_forecasting.adoption_key}
+          AND ${sales_orders_forecasting.fiscalyearvalue} = ${activations_sales_order_forecasting.fiscalyear};;
+  relationship: many_to_many
+}
+
+join: ebook_consumed_salesorder_forecasting {
+  sql_on: ${sales_orders_forecasting.adoption_key} = ${ebook_consumed_salesorder_forecasting.adoption_key}
+          AND ${sales_orders_forecasting.fiscalyearvalue} = ${ebook_consumed_salesorder_forecasting.fiscalyear};;
+  relationship: many_to_many
+}
+
+join: ia_adoptions_salesorder_forecasting {
+  sql_on:  ${sales_orders_forecasting.adoption_key} = ${ia_adoptions_salesorder_forecasting.adoption_key}
+            AND ${sales_orders_forecasting.fiscalyearvalue} = ${ia_adoptions_salesorder_forecasting.fiscalyear};;
+  relationship: many_to_one
+}
+
+join: cui_adoptions_salesorders {
+  sql_on: ${sales_orders_forecasting.institution_nm} = ${cui_adoptions_salesorders.institution_name}
+          AND ${sales_orders_forecasting.fiscalyearvalue} = ${cui_adoptions_salesorders.fiscalyear};;
+  relationship: many_to_many
+}
+
+}
