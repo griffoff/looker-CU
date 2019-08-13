@@ -138,6 +138,14 @@ persist_for: "6 hour"
     sql: ${TABLE}.internal ;;
   }
 
+  dimension: real_user_flag {
+    view_label: "** RECOMMENDED FILTERS **"
+    description: "Users who are not flagged as internal (e.g. QA)"
+    label: "Real User Flag"
+    type: yesno
+    sql: NOT ${TABLE}.internal ;;
+  }
+
   dimension: entity_flag {
     label: "Entity Blacklist"
     sql: ${TABLE}.entity_flag ;;
