@@ -16,7 +16,7 @@ view: institutional_savings {
       left join prod.stg_clts.olr_courses oc
       --ON uc.olr_course_key = oc."#CONTEXT_ID"
       ON uc.olr_course_key = oc.course_key
-      WHERE enrolled OR activated
+      WHERE enrolled OR activated AND to_date(oc.begin_date) > '2019-01-01'
 
       ) --Select *,row_number() over (partition by entity_no order by no_students desc) as row_num  from entity_dt limit 10;
       , stu_course as(
