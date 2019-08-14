@@ -12,7 +12,10 @@ include: "//core/access_grants_file.view"
 ######################### Start of PROD Explores #########################################################################3
 
 
+explore: active_users {
+  from: guid_platform_date_active
 
+}
 
 ######## User Experience Journey Start ###################
 

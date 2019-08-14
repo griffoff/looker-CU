@@ -25,8 +25,14 @@ view: guid_platform_date_active {
 
   }
   dimension: user_sso_guid {
-    label: "Learner Profile User SSO GUID"
+    label: "User SSO GUID"
+    hidden: yes
   }
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
+
   dimension: latest {
     type: yesno
   }
@@ -34,11 +40,11 @@ view: guid_platform_date_active {
     type: yesno
   }
   dimension: productplatform {
-    label: "Product Platform name"
+    label: "Product Platform"
     description: "MindTap, Aplia, CNOW, etc."
   }
   dimension: local_date {
-    label: "Events Event Date"
+    label: "Event Date"
     description: "Components of the events local timestamp"
     type: date
   }

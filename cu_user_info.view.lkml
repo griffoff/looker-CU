@@ -3,120 +3,61 @@ explore: cu_user_info {label: "CU User Info"}
 
 view: cu_user_info {
 
-  # derived_table: {
-  #   sql: WITH raw AS (
-  #         SELECT
-  #           COALESCE(linked_guid,user_sso_guid) as primary_guid
-  #           ,user_sso_guid as partner_guid
-  #           ,event_time
-  #             ,email
-  #           ,first_name
-  #             ,last_name
-  #             ,tl_institution_id
-  #             ,tl_institution_name
-  #             ,marketing_opt_out
-  #             ,k12_user
-  #         FROM IAM.PROD.USER_MUTATION
-  #       )
-  #     , temp_table as (SELECT
-  #       *
-  #         ,primary_guid as merged_guid
-  #         ,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest
-  #     FROM raw
-  #     ), old_tab as (
-  #       Select distinct merged_guid,bl.entity_id,coalesce(bl.flag,'N') as entity_flag from UPLOADS.CU.CU_USER_INFO cu
-  #     LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
-  #     ON bl.entity_id::STRING = cu.entity_id::STRING
-  #     ) select t.*,o.entity_id,coalesce(entity_flag,'N') as entity_flag from temp_table t
-  #       LEFT JOIN old_tab o
-  #       ON t.merged_guid=o.merged_guid
-  #       where t.latest
-  #     ;;
-  # }
+  derived_table: {
+    sql: with hub_sat as (
+          Select
+            h.hub_user_key,h._ldts,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid, sa.instructor,sa.k12
+           from PROD.DATAVAULT.HUB_USER h
+            INNER JOIN Prod.Datavault.sat_user sa
+          on h.hub_user_key = sa.hub_user_key
+          )
+          ,hub_sat_latest as (
+              select row_number () over (partition by merged_guid order by _ldts desc) = 1 as latest,*
+            from hub_sat
+          )
+          ,latest_institution as (
+            select linkins.hub_user_key, linkins.hub_institution_key, row_number() over (partition by linkins.hub_user_key order by _ldts desc ) = 1 as latest
+            from PROD.DATAVAULT.link_user_institution linkins
+          )
+          Select distinct hs.*,
+              hubin.institution_id,
+              usmar.active,
+              usmar.opt_out AS marketing_opt_out,
+              p.first_name,
+              p.last_name,
+              p.email,
+              usint.internal,
+              coalesce(bl.flag,'N') as entity_flag,
+              IFF(TRY_CAST(p.birth_year AS INT) < 1900 OR TRY_CAST(p.birth_year AS INT) >= YEAR(DATEADD(YEAR, -4, CURRENT_DATE()))
+                ,NULL
+                ,NULLIF(TRY_CAST(p.birth_year AS INT), 0)
+                ) AS birth_year
+          from hub_sat_latest hs
+          INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
+              ON hs.hub_user_key = p.hub_user_key
+              AND p.active
+          left join latest_institution linkins
+              on hs.hub_user_key = linkins.hub_user_key -- 2486955
+              and linkins.latest
+          left join PROD.DATAVAULT.HUB_INSTITUTION hubin
+               on linkins.hub_institution_key = hubin.hub_institution_key
+          left join PROD.DATAVAULT.SAT_USER_MARKETING usmar
+              ON hs.hub_user_key = usmar.hub_user_key
+              and usmar.active
+          --temporary point to raw user classification table
+          left join (select distinct user_sso_guid, internal from prod.cu_user_analysis.user_classification_copy) usint
+              ON hs.merged_guid = usint.user_sso_guid
+          --put this back once DV is showing the correct data
+          --left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
+          --    ON usint.hub_user_key = hs.hub_user_key
+          --    and usint.active
+          LEFT JOIN (select distinct entity_id,flag  from UPLOADS.CU.ENTITY_BLACKLIST) bl
+               ON hubin.institution_id::STRING = bl.entity_id
+          where hs.latest = 1
+  ;;
 
-  # derived_table: {
-  #   sql:select
-  #           p.hub_user_key,
-  #           p.first_name,
-  #           p.last_name,
-  #           p.email,
-  #           COALESCE(sa.linked_guid,h.uid) as merged_guid,
-  #           h.uid as partner_guid,
-  # --         sa.linked_guid,
-  #           sa.instructor,
-  #           sa.k12 as k12_user,
-  #           hubin.INSTITUTION_ID as institution_id,
-  #           coalesce(bl.flag,'N') as entity_flag,
-  #           usmar.active,
-  #           usmar.opt_out as marketing_opt_out
-  #       FROM PROD.DATAVAULT.SAT_USER_PII p
-  #         INNER JOIN PROD.DATAVAULT.HUB_USER h
-  #           ON p.hub_user_key = h.hub_user_key -- 23606539
-  #         INNER JOIN Prod.Datavault.sat_user sa
-  #           ON h.hub_user_key = sa.hub_user_key  --   24388978
-  #         LEFT JOIN PROD.DATAVAULT.link_user_institution linkins
-  #           ON h.hub_user_key = linkins.hub_user_key -- 2486955
-  #         LEFT JOIN PROD.DATAVAULT.HUB_INSTITUTION hubin
-  #           ON linkins.hub_institution_key = hubin.hub_institution_key
-  #         LEFT JOIN PROD.DATAVAULT.SAT_USER_MARKETING usmar
-  #           ON h.hub_user_key = usmar.hub_user_key
-  #         LEFT JOIN UPLOADS.CU.ENTITY_BLACKLIST bl
-  #           ON hubin.institution_id::STRING = bl.entity_id
-  #       ;;
-
-  # }
-
-derived_table: {
-  sql: with hub_sat as (
-        Select
-          h.hub_user_key,h._ldts,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid, sa.instructor,sa.k12
-         from PROD.DATAVAULT.HUB_USER h
-          INNER JOIN Prod.Datavault.sat_user sa
-        on h.hub_user_key = sa.hub_user_key
-        )
-        ,hub_sat_latest as (
-            select row_number () over (partition by merged_guid order by _ldts desc) = 1 as latest,*
-          from hub_sat
-        )
-        ,latest_institution as (
-          select linkins.hub_user_key, linkins.hub_institution_key, row_number() over (partition by linkins.hub_user_key order by _ldts desc ) = 1 as latest
-          from PROD.DATAVAULT.link_user_institution linkins
-        )
-        Select distinct hs.*,
-            hubin.institution_id,
-            usmar.active,
-            usmar.opt_out AS marketing_opt_out,
-            p.first_name,
-            p.last_name,
-            p.email,
-            usint.internal,
-            coalesce(bl.flag,'N') as entity_flag
-        from hub_sat_latest hs
-        INNER JOIN PROD.DATAVAULT.SAT_USER_PII p
-            ON hs.hub_user_key = p.hub_user_key
-            AND p.active
-        left join latest_institution linkins
-            on hs.hub_user_key = linkins.hub_user_key -- 2486955
-            and linkins.latest
-        left join PROD.DATAVAULT.HUB_INSTITUTION hubin
-             on linkins.hub_institution_key = hubin.hub_institution_key
-        left join PROD.DATAVAULT.SAT_USER_MARKETING usmar
-            ON hs.hub_user_key = usmar.hub_user_key
-            and usmar.active
-        --temporary point to raw user classification table
-        left join (select distinct user_sso_guid, internal from prod.cu_user_analysis.user_classification_copy) usint
-            ON hs.merged_guid = usint.user_sso_guid
-        --put this back once DV is showing the correct data
-        --left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
-        --    ON usint.hub_user_key = hs.hub_user_key
-        --    and usint.active
-        LEFT JOIN (select distinct entity_id,flag  from UPLOADS.CU.ENTITY_BLACKLIST) bl
-             ON hubin.institution_id::STRING = bl.entity_id
-        where hs.latest = 1
-;;
-
-persist_for: "6 hour"
-}
+  persist_for: "6 hour"
+  }
 
 
   measure: count {
@@ -131,6 +72,44 @@ persist_for: "6 hour"
     hidden: yes
   }
 
+  dimension: birth_year {
+    group_label: "Age"
+    label: "Birth Year"
+    type: number
+    value_format: "0000"
+  }
+
+  dimension: age {
+    group_label: "Age"
+    type: number
+    sql: YEAR(CURRENT_DATE()) - ${birth_year} ;;
+  }
+
+  measure: age_average {
+    group_label: "Age"
+    label: "Average Age"
+    type: average
+    sql: ${age} ;;
+    value_format: "0.0"
+  }
+
+  measure: age_min {
+    group_label: "Age"
+    label: "Minimum Age"
+    type: min
+    sql: ${age} ;;
+    value_format: "0.0"
+  }
+
+  measure: age_max {
+    group_label: "Age"
+    label: "Maximum Age"
+    type: max
+    sql: ${age} ;;
+    value_format: "0.0"
+  }
+
+
   dimension: internal_user_flag {
     view_label: "** RECOMMENDED FILTERS **"
     label: "Internal User Flag"
@@ -143,7 +122,7 @@ persist_for: "6 hour"
     description: "Users who are not flagged as internal (e.g. QA)"
     label: "Real User Flag"
     type: yesno
-    sql: NOT ${TABLE}.internal ;;
+    sql: NOT ${TABLE}.internal OR ${TABLE}.internal IS NULL  ;;
   }
 
   dimension: entity_flag {
