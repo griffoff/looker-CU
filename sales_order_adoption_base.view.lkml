@@ -79,9 +79,13 @@ view: sales_order_adoption_base {
   dimension: total_core_digit_units_fy18 {}
   dimension: Adoption_type_Fy19 {}
   dimension: Adoption_type_Fy18 {}
-  dimension: FY_FY19_adoption_transition_type1 {
+  dimension: FY18_FY19_adoption_transition_type1 {
     label: "FY18->FY19 Adoption Transition – Type 1"
     sql: concat(concat(Adoption_type_Fy18,' -> '),Adoption_type_Fy19) ;;
+  }
+  dimension:FY18_FY19_adoptions_transition_type_2  {
+    label: "FY18 -> FY19 Adoption Transition Type 2"
+    sql: Concat(Concat(concat(concat(Adoption_type_Fy18,' -> '),Adoption_type_Fy19),'|'),FY18_FY19_Adoption_Unit_Gain_Loss) ;;
   }
 
 
