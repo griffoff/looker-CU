@@ -4,7 +4,7 @@ view: late_activators {
     create_process: {
       sql_step:
         -- for testing, wipe out and start again
-        DROP TABLE IF EXISTS ${SQL_TABLE_NAME};
+        DROP TABLE IF EXISTS looker_scratch.late_activators;
       ;;
       sql_step:
         -- for testing, wipe out and start again
@@ -12,7 +12,7 @@ view: late_activators {
       ;;
       sql_step:
       --create table to store messages
-        CREATE TABLE IF NOT EXISTS ${SQL_TABLE_NAME} (
+        CREATE TABLE IF NOT EXISTS looker_scratch.late_activators (
           _ldts TIMESTAMP
           ,user_sso_guid STRING
           ,course_key STRING
@@ -54,7 +54,7 @@ view: late_activators {
       ;;
       sql_step:
         --get all users who fit the 30 day late activation criteria and write them to the messages table
-        INSERT INTO ${SQL_TABLE_NAME}
+        INSERT INTO looker_scratch.late_activators
         SELECT
           current_timestamp()
           ,user_courses.user_sso_guid
@@ -65,8 +65,9 @@ view: late_activators {
           ,CASE
             WHEN DATEDIFF(DAY, activation_date::DATE, CURRENT_DATE()) BETWEEN 0 AND 2
             THEN 1 --first message, soon after activation
-            WHEN DATEDIFF(DAY, CURRENT_DATE(), subscription_end_date::DATE) = 7
-            THEN 2 --message 7 days before access is removed (subscription end date)
+            --not allowed to send 2nd message
+            --WHEN DATEDIFF(DAY, CURRENT_DATE(), subscription_end_date::DATE) = 7
+            --THEN 2 --message 7 days before access is removed (subscription end date)
             WHEN CURRENT_DATE() = subscription_end_date::DATE
             THEN 3
             END AS email_msg_type
@@ -89,19 +90,19 @@ view: late_activators {
         AND user_courses.activation_date >= DATEADD(DAY, -30, subscription_end_date)
         AND user_courses.course_end_date > subscription_end_date
         --exclude people who have already been picked up for a given message
-        AND lookup NOT IN (SELECT lookup FROM ${SQL_TABLE_NAME})
+        AND lookup NOT IN (SELECT lookup FROM looker_scratch.late_activators)
         AND (ipm_msg_type IS NOT NULL OR email_msg_type IS NOT NULL)
 
         ;;
       sql_step:
-       MERGE INTO ${SQL_TABLE_NAME} a
+       MERGE INTO looker_scratch.late_activators a
         USING (
             SELECT user_sso_guid, promo_code
             FROM (
                 SELECT user_sso_guid, dense_rank() OVER (ORDER BY RANDOM(1)) as id
                 FROM (
                   SELECT DISTINCT user_sso_guid
-                  FROM ${SQL_TABLE_NAME}
+                  FROM looker_scratch.late_activators
                   WHERE promo_code IS NULL
                 )
               ) unassigned_users
@@ -117,9 +118,12 @@ view: late_activators {
       sql_step:
         INSERT INTO looker_scratch.late_activators_promo_codes
         SELECT DISTINCT user_sso_guid, promo_code
-        FROM ${SQL_TABLE_NAME}
+        FROM looker_scratch.late_activators
         WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM looker_scratch.late_activators_promo_codes)
       ;;
+      sql_step:
+      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+      CLONE looker_scratch.late_activators;;
     }
 
     datagroup_trigger: daily_refresh
@@ -131,10 +135,11 @@ view: late_activators {
   dimension: course_key {}
   dimension: activation_date {type:date}
   dimension: subscription_end_date {type:date}
-  dimension: email_msg_type{ type:number}
-  dimension: ipm_msg_type{ type:number}
+  dimension: email_msg_type{ type:string sql:COALESCE(${TABLE}.email_msg_type::STRING, 'N/A');;}
+  dimension: ipm_msg_type{ type:string sql:COALESCE(${TABLE}.ipm_msg_type::STRING, 'N/A');;}
   dimension_group: _ldts {
     group_label: "Generated"
+    label: "Generated"
     type: time
     timeframes: [raw, date]
   }
