@@ -4,7 +4,9 @@ view: student_discounts_dps {
   derived_table: {
     sql: SELECT * FROM dev.discount_email_campaign_fall2020.student_discounts_1
       ;;
+  persist_for: "6 hours"
   }
+
 
   measure: count {
     type: count
