@@ -1,6 +1,7 @@
 include: "datagroups.lkml"
 
 view: cohorts_base {
+  extension: required
 
 # fields needed to be exposed in extended explores, otherwise these fields are not available for dynamic naming of cohort labels
   set: params {fields: [primary_key, governmentdefinedacademicterm, user_sso_guid_merged, dimension_current_name, subscription_state, dimension_minus_1_name, dimension_minus_2_name, dimension_minus_3_name, dimension_minus_4_name]}
@@ -274,6 +275,7 @@ view: cohorts_base {
 }
 
 view: cohorts_base_binary {
+  extension: required
   # inherist base and implements sql for binary flags (1 or 0)
   extends: [cohorts_base]
 
@@ -305,6 +307,7 @@ view: cohorts_base_binary {
 }
 
 view: cohorts_base_number {
+  extension: required
   # inherist base and implements sql for simple numbers (counts)
   extends: [cohorts_base_binary]
 
@@ -317,6 +320,7 @@ view: cohorts_base_number {
 }
 
 view: cohorts_base_string {
+  extension: required
   extends: [cohorts_base]
 
   dimension: current {sql: ${TABLE}."1"::STRING;;}
@@ -328,6 +332,7 @@ view: cohorts_base_string {
 
 
   view: cohorts_base_events {
+    extension: required
 
 #     dimension: user_sso_guid_merged {}
 
@@ -348,9 +353,7 @@ view: cohorts_base_string {
       type: unquoted
       default_value: ""
       hidden: yes
-      # list values as comma separated list, this will be passed into a SQL "in" operator
-      # e.g. "Event Name 1, Event Name 2"
-      # or just "Event Name 1" if there is only 1 option
+      # How do you want to aggregate the values ? SUM, MAX, COUNT, etc.
     }
 
 
@@ -385,7 +388,7 @@ view: cohorts_base_string {
 }
 
 view: cohorts_base_events_count {
-
+  extension: required
   extends: [cohorts_base_events]
 
   parameter: aggregation {
@@ -395,7 +398,7 @@ view: cohorts_base_events_count {
 }
 
 view: cohorts_base_events_binary {
-
+  extension: required
   extends: [cohorts_base_events]
 
   parameter: aggregation {
