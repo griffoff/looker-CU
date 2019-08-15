@@ -156,14 +156,38 @@ view: all_events {
 
   }
 
+  measure: month_count {
+    hidden: yes
+    type: count_distinct
+    sql: ${local_month} ;;
+  }
+
+  measure: average_time_spent_per_student_per_month {
+    group_label: "Time spent"
+    label: "Avg time spent per student per month"
+    type: number
+    sql: ${event_duration_total} / ${user_count} / ${month_count} ;;
+    value_format_name: duration_hms
+  }
+
   measure: event_duration_total {
+    group_label: "Time spent"
     label: "Total Time Active"
     type: sum
     sql: ${event_data}:event_duration / 3600 / 24  ;;
     value_format_name: duration_hms
   }
 
+  measure: event_duration_per_day {
+    group_label: "Time spent"
+    label: "Average Time Active Per Day"
+    type: number
+    sql: ${event_duration_total} / ${days_active_total} / COUNT(DISTINCT ${user_sso_guid})  / 3600 / 24 ;;
+    value_format_name: duration_hms
+  }
+
   dimension: days_active_total {
+    group_label: "Activity"
     label: "# Days Active"
     type: number
     sql: COUNT(DISTINCT ${local_date}) ;;
@@ -171,16 +195,17 @@ view: all_events {
   }
 
   measure: days_active_avg {
+    group_label: "Activity"
     label: "Average days with activity per user"
     type: number
     sql: ${days_active_total} / COUNT(DISTINCT ${user_sso_guid});;
   }
 
-  measure: event_duration_per_day {
-    label: "Average Time Active Per Day"
+  measure: days_active_avg_per_month {
+    group_label: "Activity"
+    label: "Average days with activity per user per month"
     type: number
-    sql: SUM(${event_data}:event_duration) / ${days_active_total} / COUNT(DISTINCT ${user_sso_guid})  / 3600 / 24 ;;
-    value_format_name: duration_hms
+    sql: ${days_active_total} / ${user_count} / ${month_count};;
   }
 
 #   measure: session_count {
