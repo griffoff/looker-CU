@@ -9,7 +9,7 @@ view: guid_platform_date_active {
   derived_table: {
     create_process: {
       sql_step:
-      CREATE TABLE IF NOT EXISTS ${SQL_TABLE_NAME}
+      CREATE TABLE IF NOT EXISTS looker_scratch.guid_platform_date_active
       (
         date DATE
         ,user_sso_guid STRING
@@ -21,7 +21,7 @@ view: guid_platform_date_active {
       )
       ;;
       sql_step:
-      INSERT INTO ${SQL_TABLE_NAME}
+      INSERT INTO looker_scratch.guid_platform_date_active
       SELECT
           all_events.local_time::DATE
           ,all_events.user_sso_guid
@@ -34,9 +34,13 @@ view: guid_platform_date_active {
       LEFT JOIN ${all_sessions.SQL_TABLE_NAME}  AS all_sessions ON all_events.session_id = all_sessions.session_id
       LEFT JOIN ${dim_course.SQL_TABLE_NAME} AS dim_course ON (all_sessions."COURSE_KEYS")[0] = dim_course.coursekey
       LEFT JOIN ${dim_productplatform.SQL_TABLE_NAME}  AS dim_productplatform ON dim_course.PRODUCTPLATFORMID = dim_productplatform.PRODUCTPLATFORMID
-      WHERE all_events.local_time::DATE > (SELECT COALESCE(MAX(date), '2018-08-01') FROM ${SQL_TABLE_NAME})
+      WHERE all_events.local_time::DATE > (SELECT COALESCE(MAX(date), '2018-08-01') FROM looker_scratch.guid_platform_date_active)
       AND all_events.local_time::DATE < CURRENT_DATE()
       GROUP BY 1, 2, 3;
+      ;;
+      sql_step:
+        CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+        CLONE looker_scratch.guid_platform_date_active
       ;;
     }
 
