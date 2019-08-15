@@ -2,7 +2,7 @@ explore: student_discounts_dps {}
 
 view: student_discounts_dps {
   derived_table: {
-    sql: SELECT * FROM dev.discount_email_campaign_fall2020.student_discounts
+    sql: SELECT * FROM dev.discount_email_campaign_fall2020.student_discounts_1
       ;;
   }
 
