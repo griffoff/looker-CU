@@ -7,34 +7,31 @@ view: institutional_savings {
         select count(distinct user_sso_guid) as total_stud,oc.entity_no from prod.cu_user_analysis.user_courses uc
         left join prod.stg_clts.olr_courses oc
               ON uc.olr_course_key = oc.course_key
-        where cu_contract_id IS NOT NULL AND to_date(course_start_date) < '2019-07-01'
+        where cu_contract_id IS NOT NULL AND to_date(course_start_date) > '2019-01-01'
         group by 2
       ),
       entity_dt as (
-        Select uc.*,oc.ENTITY_NO,p.coursearea,p.coursearea_pt,coalesce(p.coursearea,pp.discipline_de) as course_area,pp.discipline_de
+        Select uc.*,oc.ENTITY_NO,oc.course_name as course_names
       from prod.cu_user_analysis.user_courses uc
       left join prod.stg_clts.olr_courses oc
       --ON uc.olr_course_key = oc."#CONTEXT_ID"
       ON uc.olr_course_key = oc.course_key
-      left join prod.dw_ga.dim_product p
-      ON uc.isbn = p.isbn13
-      left join prod.stg_clts.products pp
-      ON uc.isbn = pp.isbn13
-      WHERE enrolled OR activated
+      WHERE enrolled OR activated AND to_date(oc.begin_date) > '2019-01-01'
 
       ) --Select *,row_number() over (partition by entity_no order by no_students desc) as row_num  from entity_dt limit 10;
       , stu_course as(
         select
         entity_no,
-        Course_area,
+        course_names,
         Count (distinct user_sso_guid) AS no_students
         from entity_dt group by 1,2
-        ) ,row_no as (Select entity_no,course_area,row_number() over (partition by entity_no order by no_students desc) as ro_nu from stu_course
+        ) ,row_no as (Select entity_no,course_names,row_number() over (partition by entity_no order by no_students desc) as ro_nu from stu_course
 
         ),final_pivot as ( select entity_no, "1" as Top_course_1,"2" as Top_course_2,"3" as Top_course_3
             from row_no
-          PIVOT (MAx(course_area) FOR ro_nu IN (1,2,3)) as P
+          PIVOT (MAx(course_names) FOR ro_nu IN (1,2,3)) as P
           )
+
           Select p.Top_course_1,p.Top_course_2,p.Top_course_3,s.total_stud, int_sav.*
           from final_pivot p
           LEFT JOIN total_students s

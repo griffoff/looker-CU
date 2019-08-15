@@ -71,7 +71,7 @@ explore: marketing_analysis {
     ,merged_cu_user_info.marketing_fields*
     ,dim_institution.marketing_fields*
     ,dim_product.marketing_fields*
-    ,dim_productplatform.productplatform
+    ,dim_productplatform.productplatform,dim_productplatform.newproductplatform
     ,dim_course.marketing_fields*
     ,instiution_star_rating.marketing_fields*
     ,course_section_facts.total_noofactivations
