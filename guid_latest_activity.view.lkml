@@ -3,7 +3,7 @@ view: guid_latest_activity {
     explore_source: guid_platform_date_active {
       column: user_sso_guid { field: guid_platform_date_active.user_sso_guid }
       column: productplatform { field: guid_platform_date_active.productplatform }
-      column: local_date { field: guid_platform_date_active.local_date }
+      column: date { field: guid_platform_date_active.date }
       filters: {
         field: guid_platform_date_active.latest
         value: "Yes"
@@ -13,12 +13,12 @@ view: guid_latest_activity {
   }
 
   dimension: user_sso_guid {}
-  dimension: local_date {
+  dimension: date {
     label: "Latest Date of Activity"
   }
   dimension: active {
     description: "Active users are those who have has some activity within the past 7 days"
     type: yesno
-    sql: ${local_date} >= DATEADD(day, -7, CURRENT_DATE()) ;;
+    sql: ${date} >= DATEADD(day, -7, CURRENT_DATE()) ;;
   }
 }

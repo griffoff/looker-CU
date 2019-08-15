@@ -7,23 +7,43 @@ explore: guid_platform_date_active {
 
 view: guid_platform_date_active {
   derived_table: {
-    explore_source: session_analysis {
-      column: user_sso_guid { field: live_subscription_status.user_sso_guid }
-      column: productplatform { field: dim_productplatform.productplatform }
-      column: local_date { field: all_events.local_date }
-      column: count { field: all_events.count }
-      column: event_duration_total { field: all_events.event_duration_total }
-      derived_column: latest {sql: ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY local_date DESC) = 1;;}
-      derived_column: latest_by_platform {sql: ROW_NUMBER() OVER (PARTITION BY user_sso_guid, productplatform ORDER BY local_date DESC) = 1;;}
-      filters: {
-        field: all_events.local_date
-        value: "NOT NULL"
-      }
+    create_process: {
+      sql_step:
+      CREATE TABLE IF NOT EXISTS ${SQL_TABLE_NAME}
+      (
+        date DATE
+        ,user_sso_guid STRING
+        ,productplatform STRING
+        ,event_count INT
+        ,event_duration_total NUMERIC(12, 4)
+        ,latest BOOLEAN
+        ,latest_by_platform BOOLEAN
+      )
+      ;;
+      sql_step:
+      INSERT INTO ${SQL_TABLE_NAME}
+      SELECT
+          all_events.local_time::DATE
+          ,all_events.user_sso_guid
+          ,dim_productplatform.productplatform
+          ,COUNT(*) AS event_count
+          ,SUM(all_events.event_data:event_duration / 3600 / 24) AS event_duration_total
+          ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid ORDER BY local_time::DATE DESC) = 1 AS latest
+          ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_productplatform.productplatform ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_platform
+      FROM ${all_events.SQL_TABLE_NAME} all_events
+      LEFT JOIN ${all_sessions.SQL_TABLE_NAME}  AS all_sessions ON all_events.session_id = all_sessions.session_id
+      LEFT JOIN ${dim_course.SQL_TABLE_NAME} AS dim_course ON (all_sessions."COURSE_KEYS")[0] = dim_course.coursekey
+      LEFT JOIN ${dim_productplatform.SQL_TABLE_NAME}  AS dim_productplatform ON dim_course.PRODUCTPLATFORMID = dim_productplatform.PRODUCTPLATFORMID
+      WHERE all_events.local_time::DATE > (SELECT COALESCE(MAX(date), '2018-08-01') FROM ${SQL_TABLE_NAME})
+      AND all_events.local_time::DATE < CURRENT_DATE()
+      GROUP BY 1, 2, 3;
+      ;;
     }
 
-    persist_for: "24 hours"
+    datagroup_trigger: daily_refresh
 
   }
+
   dimension: user_sso_guid {
     label: "User SSO GUID"
     hidden: yes
@@ -43,12 +63,12 @@ view: guid_platform_date_active {
     label: "Product Platform"
     description: "MindTap, Aplia, CNOW, etc."
   }
-  dimension: local_date {
+  dimension: date {
     label: "Event Date"
     description: "Components of the events local timestamp"
     type: date
   }
-  dimension: count {
+  dimension: event_count {
     label: "Events # Events"
     description: "Measure for counting events (drill fields)"
     type: number

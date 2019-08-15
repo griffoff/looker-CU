@@ -13,8 +13,39 @@ include: "//core/access_grants_file.view"
 
 
 explore: active_users {
+  hidden: yes
   from: guid_platform_date_active
 
+}
+
+explore: active_users_stats  {
+  from: dim_date
+
+  join: active_users_platforms {
+    relationship: many_to_many
+    type: cross
+  }
+
+  join: dau {
+    sql_on: ${active_users_stats.datevalue} = ${dau.date}
+        AND ${active_users_platforms.product_platform} = ${dau.product_platform};;
+    relationship: one_to_one
+    type: inner
+  }
+
+  join: wau {
+    sql_on: ${active_users_stats.datevalue} = ${wau.date}
+        AND ${active_users_platforms.product_platform} = ${wau.product_platform};;
+    relationship: one_to_one
+    type: inner
+  }
+
+  join: mau {
+    sql_on: ${active_users_stats.datevalue} = ${mau.date}
+        AND ${active_users_platforms.product_platform} = ${mau.product_platform};;
+    relationship: one_to_one
+    type: inner
+  }
 }
 
 ######## User Experience Journey Start ###################
