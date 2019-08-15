@@ -1,6 +1,15 @@
 view: late_activators {
   derived_table: {
+    # need to add CUI and multi term
     create_process: {
+      sql_step:
+        -- for testing, wipe out and start again
+        DROP TABLE IF EXISTS ${SQL_TABLE_NAME};
+      ;;
+      sql_step:
+        -- for testing, wipe out and start again
+        DROP TABLE IF EXISTS looker_scratch.late_activators_promo_codes;
+      ;;
       sql_step:
       --create table to store messages
         CREATE TABLE IF NOT EXISTS ${SQL_TABLE_NAME} (
@@ -10,7 +19,8 @@ view: late_activators {
           ,activation_date TIMESTAMP_TZ
           ,subscription_end_date TIMESTAMP_TZ
           ,promo_code STRING
-          ,msg_type INT
+          ,email_msg_type INT
+          ,ipm_msg_type INT
           ,lookup STRING
         )
       ;;
@@ -20,10 +30,27 @@ view: late_activators {
         AS
         SELECT
           NULL::STRING AS user_sso_guid
-          ,HASH(RANDOM(1)) AS promo_code
-        FROM ${learner_profile.SQL_TABLE_NAME}
-        LIMIT 30000
-        --FROM somewhere ---TBD
+          ,promo_code AS promo_code
+        FROM strategy.late_activators.promo_codes
+      ;;
+      sql_step:
+      --multi-term activations
+        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.multi_term
+        AS
+        SELECT
+          COALESCE(primary_guid, user_guid) as merged_guid
+          ,actv_isbn
+          ,count(*) as guid_isbn_multi_count
+        FROM PROD.STG_CLTS.ACTIVATIONS_OLR ACT
+        LEFT JOIN PROD.STG_CLTS.PRODUCTS PRODUCT ON ACT.actv_isbn = PRODUCT.isbn13  --must go left join or lose certain activation records like those with ISBN13 = '9780176745615'
+        LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid guids        ON   act.user_guid = guids.partner_guid
+        WHERE ACT.ACTV_DT > '01-Apr-2015'
+        AND ACT.ACTV_USER_TYPE='student'
+        AND ACT.PLATFORM<>'MindTap Reader'
+        AND ACT.ACTV_TRIAL_PURCHASE<>'Trial'
+        AND (DIVISION_CD <> 'CLU' OR DIVISION_CD IS NULL)
+        GROUP BY 1, 2
+        HAVING COUNT(*) > 1
       ;;
       sql_step:
         --get all users who fit the 30 day late activation criteria and write them to the messages table
@@ -42,16 +69,29 @@ view: late_activators {
             THEN 2 --message 7 days before access is removed (subscription end date)
             WHEN CURRENT_DATE() = subscription_end_date::DATE
             THEN 3
-            ELSE 1
-            END AS msg_type
-          ,HASH(user_courses.user_sso_guid, activation_date, course_key, msg_type) as lookup
-        FROM ${user_courses.SQL_TABLE_NAME} user_courses
+            END AS email_msg_type
+           ,CASE
+              WHEN DATEDIFF(DAY, CURRENT_DATE(), subscription_end_date::DATE) = 1
+              THEN 1
+            END AS ipm_msg_type
+          ,HASH(user_courses.user_sso_guid, activation_date, course_key, email_msg_type, ipm_msg_type) as lookup
+         FROM ${user_courses.SQL_TABLE_NAME} user_courses
+        LEFT JOIN (
+              SELECT actv_code, actv_isbn, ROW_NUMBER() OVER (PARTITION BY actv_code ORDER BY ldts DESC) = 1 as latest
+              FROM prod.stg_clts.activations_olr WHERE in_actv_flg = 1
+              ) a ON user_courses.activation_code = a.actv_code AND a.latest
         INNER JOIN ${learner_profile.SQL_TABLE_NAME} learner_profile ON user_courses.user_sso_guid = learner_profile.user_sso_guid
+        LEFT JOIN looker_scratch.multi_term ON user_courses.user_sso_guid = multi_term.merged_guid
+                          AND a.actv_isbn = multi_term.actv_isbn
         WHERE learner_profile.subscription_status = 'Full Access'
+        AND multi_term.merged_guid IS NULL --exclude multi term activations
         AND user_courses.activation_date IS NOT NULL
         AND user_courses.activation_date >= DATEADD(DAY, -30, subscription_end_date)
+        AND user_courses.course_end_date > subscription_end_date
         --exclude people who have already been picked up for a given message
         AND lookup NOT IN (SELECT lookup FROM ${SQL_TABLE_NAME})
+        AND (ipm_msg_type IS NOT NULL OR email_msg_type IS NOT NULL)
+
         ;;
       sql_step:
        MERGE INTO ${SQL_TABLE_NAME} a
@@ -82,15 +122,21 @@ view: late_activators {
       ;;
     }
 
-    sql_trigger_value: CURRENT_DATE() ;;
+    datagroup_trigger: daily_refresh
   }
 
+  dimension: lookup {primary_key: yes hidden:yes}
   dimension: user_sso_guid {}
   dimension: promo_code {}
   dimension: course_key {}
   dimension: activation_date {type:date}
   dimension: subscription_end_date {type:date}
-  dimension: msg_type{ type:number}
-  dimension: lookup {primary_key: yes hidden:yes}
+  dimension: email_msg_type{ type:number}
+  dimension: ipm_msg_type{ type:number}
+  dimension_group: _ldts {
+    group_label: "Generated"
+    type: time
+    timeframes: [raw, date]
+  }
 
 }
