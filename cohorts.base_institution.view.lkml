@@ -9,13 +9,15 @@ view: cohorts_base_institution {
 
   view_label: "Institution"
 
-  dimension: term_guid {
+  dimension: term_entity {
     type: string
-    sql:  ${TABLE}."USER_SSO_GUID_MERGED" || ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NAME" ;;
+    sql:  ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ||  ${TABLE}."ENTITY_NO" ;;
     hidden: yes
   }
 
-  dimension: primary_key {sql: ${term_guid} ;;}
+  dimension: primary_key {
+    sql: ${term_entity} ;;
+  }
 
   dimension: entity_name {
     type: string
