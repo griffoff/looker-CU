@@ -1276,3 +1276,5 @@ join: cui_adoptions_salesorders {
 }
 
 }
+
+explore: sales_order_adoption_base {}

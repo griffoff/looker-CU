@@ -1,4 +1,4 @@
-explore: sales_order_adoption_base {}
+
 view: sales_order_adoption_base {
   derived_table: {
     sql: Select sal.*,eb.FY18_total_consumed_units,eb.FY19_total_consumed_units,total_CD_actv_exCU_FY18,total_CD_actv_exCU_FY19,total_CD_actv_withCU_FY18,total_CD_actv_withCU_FY19,
