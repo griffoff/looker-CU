@@ -176,6 +176,14 @@ view: cu_user_info {
     sql: ${TABLE}."MARKETING_OPT_OUT" ;;
   }
 
+  dimension: marketing_allowed {
+    label: "Marketing allowed"
+    view_label: "** RECOMMENDED FILTERS **"
+    type: yesno
+    sql: ${marketing_opt_out} = 'false' OR  ${marketing_opt_out} IS NULL;;
+  }
+
+
   dimension: entity_id {
     type: string
     sql: ${TABLE}."INSTITUTION_ID" ;;
