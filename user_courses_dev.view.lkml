@@ -4,12 +4,12 @@ include: "//core/common.lkml"
 view: user_courses_dev {
   extends: [user_courses]
   view_label: "User Courses Dev"
-  sql_table_name: dev.cu_user_analysis_dev.user_courses ;;
+  sql_table_name: dev.cu_user_analysis.user_courses ;;
 
   set: marketing_fields_dev {
     fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
       , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase, user_courses_dev.activations_minus_a_la_carte,
-      user_courses_dev.enrollments_minus_activations]
+      user_courses_dev.enrollments_minus_activations, course_used_flag]
 
   }
 
@@ -86,6 +86,13 @@ view: user_courses_dev {
 
   dimension: net_price_on_dashboard {
     type: number
+  }
+
+  dimension: course_used_flag {
+    type: yesno
+    sql: ${olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
+    label: "Course used flag"
+    description: "This user's course has both an olr course key and an activation code"
   }
 
 
