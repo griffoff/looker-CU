@@ -348,7 +348,7 @@ view: raw_subscription_event {
 
   measure: count_subscription {
     description: "A count of the unique user guids which represents the number of unique subscriptions"
-    label: "# Subscriptions"
+    label: "# New Subscriptions"
     type: count_distinct
     sql: ${TABLE}.user_sso_guid ;;
     drill_fields: [detail*]
