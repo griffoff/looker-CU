@@ -8,7 +8,7 @@ view: raw_subscription_event {
         *
         ,user_sso_guid_merged as merged_guid
         ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
-        FROM cu_user_analysis.subscription_event_merged
+        FROM prod.cu_user_analysis.subscription_event_merged
       --FROM raw_subscription_event_merged_erroneous_removed e
       WHERE UPPER(user_environment) = 'PRODUCTION'
     )
