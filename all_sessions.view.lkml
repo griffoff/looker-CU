@@ -97,12 +97,12 @@ view: all_sessions {
   dimension: session_length_tier {
     group_label: "Session Info"
     type: tier
-    tiers: [ 0.0208333333, 0.04166666666, 0.08333333333, 0.125, 0.16666666666]
+    tiers: [ 0.0208333333, 0.04166666666, 0.08333333333, 0.125, 0.16666666666, 0.20833333333, 0.25]
     style: relational
     sql: ${session_length} ;;
     label: "Session length tiers"
     description: "Tiers for bucketing session lengths (formated as HH:mm:ss)"
-    value_format_name:  duration_hms
+    value_format:  "[m] \m\i\n\s"
   }
 
   dimension: session_length {
@@ -167,6 +167,38 @@ view: all_sessions {
     sql:  ${number_of_searches};;
     label: "# Search events (avg)"
     description: "Average number of search events"
+  }
+
+  measure: user_day_count {
+    type: count_distinct
+    sql: HASH(${user_sso_guid}, ${session_start_date}) ;;
+    hidden: yes
+  }
+
+  measure: sessions_per_user_per_week {
+    label: "Average sessions per student per week"
+    type: number
+    sql: ${count} / (${user_day_count} / 7);;
+  }
+
+  measure: session_length_mins_avg {
+    label: "Average session length"
+    type: average
+    sql: ${session_length_mins} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: session_length_total {
+    hidden: yes
+    type: sum_distinct
+    sql: ${session_length} ;;
+  }
+
+  measure: session_length_average_per_student_per_week {
+    label: "Average session time per student per week"
+    type: number
+    sql: ${session_length_total} / (${user_day_count} / 7)  ;;
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: count {
