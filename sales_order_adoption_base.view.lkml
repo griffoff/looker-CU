@@ -1,10 +1,13 @@
 
 view: sales_order_adoption_base {
   derived_table: {
-    sql: Select sal.*,eb.FY18_total_consumed_units,eb.FY19_total_consumed_units,total_CD_actv_exCU_FY18,total_CD_actv_exCU_FY19,total_CD_actv_withCU_FY18,total_CD_actv_withCU_FY19,
-      total_CD_actv_FY18,total_CD_actv_FY19,
-      FY_17_IA_ADOPTION_Y_N_ AS FY_17_IA, FY_18_IA_ADOPTION_Y_N_ AS FY_18_IA,FY_19_IA_ADOPTION_Y_N_ AS FY_19_IA,FY_19_CU_I_INSTITUTION_Y_N_ AS FY_19_CUI,
-      CASE WHEN FY_19_IA_ADOPTION_Y_N_ = 'Y' THEN
+    sql:
+    WITH sales_adoption as
+    (
+      Select sal.*,eb.FY18_total_consumed_units,eb.FY19_total_consumed_units,total_CD_actv_exCU_FY18,total_CD_actv_exCU_FY19,total_CD_actv_withCU_FY18,total_CD_actv_withCU_FY19,
+          total_CD_actv_FY18,total_CD_actv_FY19,
+          FY_17_IA_ADOPTION_Y_N_ AS FY_17_IA, FY_18_IA_ADOPTION_Y_N_ AS FY_18_IA,FY_19_IA_ADOPTION_Y_N_ AS FY_19_IA,FY_19_CU_I_INSTITUTION_Y_N_ AS FY_19_CUI,
+        CASE WHEN FY_19_IA_ADOPTION_Y_N_ = 'Y' THEN
         CASE WHEN total_CD_actv_FY19 > (total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19) THEN total_CD_actv_FY19
              WHEN total_CD_actv_FY19 < (total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19) THEN total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19
              END
@@ -26,32 +29,34 @@ view: sales_order_adoption_base {
         TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18 AS total_net_units_fy18,
         CASE WHEN total_net_units_fy19 > 0.5 AND total_net_units_fy18 > 0.5
           THEN
-            CASE WHEN total_net_units_fy19/total_net_units_fy18 >= 10 THEN '10x Larger'
-                WHEN total_net_units_fy19/total_net_units_fy18 > 1 THEN 'Larger not 10x'
-                WHEN total_net_units_fy19/total_net_units_fy18 = 1 THEN 'Equal'
-                WHEN total_net_units_fy19/total_net_units_fy18 <= 0.1 THEN '10x Smaller'
-                WHEN total_net_units_fy19/total_net_units_fy18 < 1 THEN 'Smaller not 10x'
+            CASE WHEN total_net_units_fy19/total_net_units_fy18 >= 10 THEN '10x larger'
+                WHEN total_net_units_fy19/total_net_units_fy18 > 1 THEN 'larger not 10x'
+                WHEN total_net_units_fy19/total_net_units_fy18 = 1 THEN 'equal'
+                WHEN total_net_units_fy19/total_net_units_fy18 <= 0.1 THEN '10x smaller'
+                WHEN total_net_units_fy19/total_net_units_fy18 < 1 THEN 'smaller not 10x'
               ELSE 'error'
           END
         WHEN total_net_units_fy19 < 0.5 AND total_net_units_fy18 > 0.5
           THEN
-            CASE WHEN 0.5/total_net_units_fy18 >= 10 THEN '10x Larger'
-                WHEN 0.5/total_net_units_fy18 > 1 THEN 'Larger not 10x'
-                WHEN 0.5/total_net_units_fy18 = 1 THEN 'Equal'
-                WHEN 0.5/total_net_units_fy18 <= 0.1 THEN '10x Smaller'
-                WHEN 0.5/total_net_units_fy18 < 1 THEN 'Smaller not 10x'
+            CASE WHEN 0.5/total_net_units_fy18 >= 10 THEN '10x larger'
+                WHEN 0.5/total_net_units_fy18 > 1 THEN 'larger not 10x'
+                WHEN 0.5/total_net_units_fy18 = 1 THEN 'equal'
+                WHEN 0.5/total_net_units_fy18 <= 0.1 THEN '10x smaller'
+                WHEN 0.5/total_net_units_fy18 < 1 THEN 'smaller not 10x'
               ELSE 'error'
           END
         WHEN total_net_units_fy19 > 0.5 AND total_net_units_fy18 < 0.5
           THEN
-            CASE WHEN total_net_units_fy19/0.5 >= 10 THEN '10x Larger'
-                WHEN total_net_units_fy19/0.5 > 1 THEN 'Larger not 10x'
-                WHEN total_net_units_fy19/0.5 = 1 THEN 'Equal'
-                WHEN total_net_units_fy19/0.5 <= 0.1 THEN '10x Smaller'
-                WHEN total_net_units_fy19/0.5 < 1 THEN 'Smaller not 10x'
+            CASE WHEN total_net_units_fy19/0.5 >= 10 THEN '10x larger'
+                WHEN total_net_units_fy19/0.5 > 1 THEN 'larger not 10x'
+                WHEN total_net_units_fy19/0.5 = 1 THEN 'equal'
+                WHEN total_net_units_fy19/0.5 <= 0.1 THEN '10x smaller'
+                WHEN total_net_units_fy19/0.5 < 1 THEN 'smaller not 10x'
               ELSE 'error'
           END
-        END AS FY18_FY19_Adoption_Unit_Gain_Loss
+        END AS FY18_FY19_Adoption_Unit_Gain_Loss,
+        Concat(Concat(concat(concat(Adoption_type_Fy18,'->'),Adoption_type_Fy19),' | '),FY18_FY19_Adoption_Unit_Gain_Loss) AS FY18_FY19_adoptions_transition_type_2
+
 
       from dev.zas.SALES_ORDER_ADOPTIONS  sal
               LEFT JOIN dev.zas.activation_adoptions act
@@ -62,6 +67,9 @@ view: sales_order_adoption_base {
               ON ia.adoption_key = sal.adoption_key
               LEFT JOIN UPLOADS.CU.CUI_ADOPTIONS_SALESORDERS cui
               ON cui.institution_name = sal.institution_nm
+      ) SELECT * FROM sales_adoption s
+        LEFT JOIN UPLOADS.CU.ADOPTION_TRANSITIONS_SALESORDERS adp_tr
+              ON adp_tr.TYPE_2_ADOPTION_TRANSITION = s.FY18_FY19_adoptions_transition_type_2
        ;;
   }
 
@@ -85,8 +93,10 @@ view: sales_order_adoption_base {
   }
   dimension:FY18_FY19_adoptions_transition_type_2  {
     label: "FY18 -> FY19 Adoption Transition Type 2"
-    sql: Concat(Concat(concat(concat(Adoption_type_Fy18,' -> '),Adoption_type_Fy19),'|'),FY18_FY19_Adoption_Unit_Gain_Loss) ;;
+    sql: Concat(Concat(concat(concat(Adoption_type_Fy18,' -> '),Adoption_type_Fy19),' | '),FY18_FY19_Adoption_Unit_Gain_Loss) ;;
   }
+
+  dimension: ADOPTION_TRANSITION {}
 
 
   dimension: FY18_FY19_Adoption_Unit_Gain_Loss {}
@@ -276,6 +286,16 @@ view: sales_order_adoption_base {
   dimension: total_cd_actv_fy19 {
     type: number
     sql: ${TABLE}."TOTAL_CD_ACTV_FY19" ;;
+  }
+
+  measure: sum_total_cd_actv_fy19 {
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY19" ;;
+  }
+
+  measure: sum_total_cd_actv_fy18 {
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY18" ;;
   }
 
 
