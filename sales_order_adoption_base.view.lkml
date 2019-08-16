@@ -93,7 +93,7 @@ view: sales_order_adoption_base {
   }
   dimension:FY18_FY19_adoptions_transition_type_2  {
     label: "FY18 -> FY19 Adoption Transition Type 2"
-    sql: Concat(Concat(concat(concat(Adoption_type_Fy18,' -> '),Adoption_type_Fy19),' | '),FY18_FY19_Adoption_Unit_Gain_Loss) ;;
+    sql: Concat(Concat(concat(concat(Adoption_type_Fy18,'->'),Adoption_type_Fy19),' | '),FY18_FY19_Adoption_Unit_Gain_Loss) ;;
   }
 
   dimension: ADOPTION_TRANSITION {}
