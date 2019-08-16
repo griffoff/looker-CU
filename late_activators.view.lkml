@@ -406,5 +406,11 @@ view: late_activators {
     type: time
     timeframes: [raw, date]
   }
+  dimension: course_name {
+    label: "Course Name"
+  }
+  dimension: institution_nm {
+    label: "Institution Name"
+  }
 
 }
