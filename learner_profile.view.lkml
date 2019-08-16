@@ -215,6 +215,23 @@ view: learner_profile {
     }
   }
 
+  dimension_group: subscription_length {
+    group_label: "CU Subscription"
+    label: "Actual Subscription Length"
+    hidden: yes
+    type: duration
+    sql_start: ${subscription_start_raw};;
+    sql_end: ${subscription_end_raw} ;;
+    intervals: [week, month]
+  }
+
+  measure: subscription_length_average {
+    label: "Average subscription length"
+    type: average
+    sql: ${months_subscription_length} ;;
+    value_format: "0.0 \m\o\n\t\h\s"
+  }
+
   dimension_group: subscription_start {
     type: time
     timeframes: [raw, date, week, month, month_name]
