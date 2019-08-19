@@ -17,6 +17,8 @@ view: active_subscription_states {
     FROM active_subs
     WHERE r = 1
     ;;
+
+    datagroup_trigger: daily_refresh
   }
 
   dimension: pk {primary_key:yes hidden:yes}
@@ -28,7 +30,7 @@ view: active_subscription_states {
   dimension_group: active_date {
     type: time
     label: ""
-    timeframes: [date, week, month, year, fiscal_year, fiscal_quarter, fiscal_quarter_of_year, fiscal_month_num]
+    timeframes: [date, week, month, month_name, year, fiscal_year, fiscal_quarter, fiscal_quarter_of_year, fiscal_month_num]
   }
 
   dimension: subscription_state {
