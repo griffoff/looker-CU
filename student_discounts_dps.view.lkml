@@ -4,7 +4,8 @@ view: student_discounts_dps {
   derived_table: {
     sql: SELECT user_sso_guid, SUM(discount) AS discount, LISTAGG(isbn) AS isbn FROM dev.discount_email_campaign_fall2020.student_discounts GROUP BY 1
       ;;
-  persist_for: "6 hours"
+#   persist_for: "6 hours"
+  sql_trigger_value: Select * from dev.discount_email_campaign_fall2020.student_discounts   ;;
   }
 
 
