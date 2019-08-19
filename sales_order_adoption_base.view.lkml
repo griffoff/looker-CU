@@ -19,15 +19,15 @@ view: sales_order_adoption_base {
         END
          ELSE (total_CD_actv_withCU_FY18 + Total_core_digital_Ex_CU_Net_Units_fy18)
          END AS total_core_digit_units_fy18,
-      CASE WHEN (TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19) < 5 THEN 'Non_adoption'
+      CASE WHEN (TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19) < 5 THEN 'Non Adoption'
             WHEN (TOTAL_CORE_DIGIT_UNITS_FY19/(TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19)) > 0.5 THEN 'Digital'
           ELSE 'Print' END AS Adoption_type_Fy19,
-       CASE WHEN (TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18) < 5 THEN 'Non_adoption'
+       CASE WHEN (TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18) < 5 THEN 'Non Adoption'
             WHEN (TOTAL_CORE_DIGIT_UNITS_FY18/(TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18)) > 0.5 THEN 'Digital'
           ELSE 'Print' END AS Adoption_type_Fy18,
         TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19 AS total_net_units_fy19,
         TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18 AS total_net_units_fy18,
-        CASE WHEN total_net_units_fy19 > 0.5 AND total_net_units_fy18 > 0.5
+        CASE WHEN Coalesce(total_net_units_fy19,0) > 0.5 AND Coalesce(total_net_units_fy18,0) > 0.5
           THEN
             CASE WHEN total_net_units_fy19/total_net_units_fy18 >= 10 THEN '10x larger'
                 WHEN total_net_units_fy19/total_net_units_fy18 > 1 THEN 'larger not 10x'
@@ -36,24 +36,29 @@ view: sales_order_adoption_base {
                 WHEN total_net_units_fy19/total_net_units_fy18 < 1 THEN 'smaller not 10x'
               ELSE 'error'
           END
-        WHEN total_net_units_fy19 < 0.5 AND total_net_units_fy18 > 0.5
+        WHEN Coalesce(total_net_units_fy19,0) < 0.5 AND Coalesce(total_net_units_fy18,0) > 0.5
           THEN
-            CASE WHEN 0.5/total_net_units_fy18 >= 10 THEN '10x larger'
-                WHEN 0.5/total_net_units_fy18 > 1 THEN 'larger not 10x'
-                WHEN 0.5/total_net_units_fy18 = 1 THEN 'equal'
-                WHEN 0.5/total_net_units_fy18 <= 0.1 THEN '10x smaller'
-                WHEN 0.5/total_net_units_fy18 < 1 THEN 'smaller not 10x'
+            CASE WHEN 0.5/Coalesce(total_net_units_fy18,0) >= 10 THEN '10x larger'
+                WHEN 0.5/Coalesce(total_net_units_fy18,0) > 1 THEN 'larger not 10x'
+                WHEN 0.5/Coalesce(total_net_units_fy18,0) = 1 THEN 'equal'
+                WHEN 0.5/Coalesce(total_net_units_fy18,0) <= 0.1 THEN '10x smaller'
+                WHEN 0.5/Coalesce(total_net_units_fy18,0) < 1 THEN 'smaller not 10x'
               ELSE 'error'
           END
-        WHEN total_net_units_fy19 > 0.5 AND total_net_units_fy18 < 0.5
+        WHEN Coalesce(total_net_units_fy19,0) > 0.5 AND Coalesce(total_net_units_fy18,0) < 0.5
           THEN
-            CASE WHEN total_net_units_fy19/0.5 >= 10 THEN '10x larger'
-                WHEN total_net_units_fy19/0.5 > 1 THEN 'larger not 10x'
-                WHEN total_net_units_fy19/0.5 = 1 THEN 'equal'
-                WHEN total_net_units_fy19/0.5 <= 0.1 THEN '10x smaller'
-                WHEN total_net_units_fy19/0.5 < 1 THEN 'smaller not 10x'
+            CASE WHEN Coalesce(total_net_units_fy19,0)/0.5 >= 10 THEN '10x larger'
+                WHEN Coalesce(total_net_units_fy19,0)/0.5 > 1 THEN 'larger not 10x'
+                WHEN Coalesce(total_net_units_fy19,0)/0.5 = 1 THEN 'equal'
+                WHEN Coalesce(total_net_units_fy19,0)/0.5 <= 0.1 THEN '10x smaller'
+                WHEN Coalesce(total_net_units_fy19,0)/0.5 < 1 THEN 'smaller not 10x'
               ELSE 'error'
           END
+       WHEN Coalesce(total_net_units_fy19,0) < 0.5 AND Coalesce(total_net_units_fy18,0) < 0.5
+          THEN
+          CASE WHEN 1 = 1 THEN 'equal'
+        END
+      ELSE 'error'
         END AS FY18_FY19_Adoption_Unit_Gain_Loss,
         Concat(Concat(concat(concat(Adoption_type_Fy18,'->'),Adoption_type_Fy19),' | '),FY18_FY19_Adoption_Unit_Gain_Loss) AS FY18_FY19_adoptions_transition_type_2
 
@@ -69,7 +74,7 @@ view: sales_order_adoption_base {
               ON cui.institution_name = sal.institution_nm
       ) SELECT * FROM sales_adoption s
         LEFT JOIN UPLOADS.CU.ADOPTION_TRANSITIONS_SALESORDERS adp_tr
-              ON adp_tr.TYPE_2_ADOPTION_TRANSITION = s.FY18_FY19_adoptions_transition_type_2
+              ON lower(adp_tr.TYPE_2_ADOPTION_TRANSITION) = lower(s.FY18_FY19_adoptions_transition_type_2)
        ;;
   }
 
