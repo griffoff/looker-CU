@@ -3,7 +3,7 @@ include: "learner_profile.view"
 view: learner_profile_dev {
   extends: [learner_profile]
   label: "Learner Profile - Dev"
-  sql_table_name: dev.cu_user_analysis_dev.learner_profile ;;
+  sql_table_name: dev.cu_user_analysis.learner_profile ;;
 
 #   set: marketing_fields {
 #     fields: [learner_profile_dev.user_sso_guid, learner_profile_dev.subscription_start_date, learner_profile_dev.subscription_end_date, learner_profile_dev.products_added_count, learner_profile_dev.products_added_tier,
@@ -18,6 +18,23 @@ view: learner_profile_dev {
     description: "List of course keys the user has"
     sql: ${TABLE}.courses ;;
   }
+
+  dimension: courses_used {
+    label: "Courses used liftime testing"
+#     label: "Course Keys"
+    description: "List of course keys the user has"
+    sql: ${TABLE}.courses_used;;
+  }
+
+  dimension: courses_used_count {
+    group_label: "# courses used lifetime testing"
+#     label: "Course Keys"
+    description: "List of course keys the user has"
+    sql: ${TABLE}.courses_used_count;;
+  }
+
+
+
 
 #   dimension: marketing_segment_fb {
 #     type: string

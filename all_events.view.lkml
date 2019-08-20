@@ -235,6 +235,14 @@ view: all_events {
     sql: ${user_day_count} / ${user_count} / ${month_count};;
   }
 
+  measure: cu_resource_opens {
+    label: "# of CU resource opens"
+    description: "Number of times a CU resource was used"
+    type: count_distinct
+    sql: CASE WHEN event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'
+         ,'Study Tools Launched', 'Flashcards Launched',  'Test Prep Launched', 'Pathbrite Launched', 'Clicked on Career Center', 'eBook Launched') THEN event_id END;;
+  }
+
 #   measure: session_count {
 #     label: "# sessions"
 #     type: count_distinct

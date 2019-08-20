@@ -151,6 +151,19 @@ derived_table: {
 #     hidden: no
   }
 
+    dimension: course_used_flag {
+    type: yesno
+    sql: ${olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
+    label: "Course used flag"
+    description: "This user's course has both an olr course key and an activation code"
+  }
+
+  dimension: activation_code {
+    type: string
+    sql: ${TABLE}."ACTIVATION_CODE" ;;
+    hidden: yes
+  }
+
   measure: ala_cart_purchases {
     group_label: "Lifetime metrics"
     label: "# of a la carte activations"

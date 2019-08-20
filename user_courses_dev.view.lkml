@@ -9,9 +9,11 @@ view: user_courses_dev {
   set: marketing_fields_dev {
     fields: [user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
       , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase, user_courses_dev.activations_minus_a_la_carte,
-      user_courses_dev.enrollments_minus_activations, course_used_flag]
+      user_courses_dev.enrollments_minus_activations]
 
   }
+
+  #course_used_flag
 
   dimension: instructor_guid {
     type: string
@@ -24,6 +26,7 @@ view: user_courses_dev {
     type: number
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
   }
+
 
 
   dimension: amount_to_upgrade_tiers {
@@ -41,10 +44,23 @@ view: user_courses_dev {
             ;;
   }
 
-  dimension: activation_code {
-    type: string
-    sql: ${TABLE}."ACTIVATION_CODE" ;;
+  dimension: course_used_flag_test {
+    type: yesno
+    sql: ${TABLE}.course_used_flag ;;
+    label: "Course used flag test"
+    description: "This user's course has both an olr course key and an activation code"
   }
+
+
+
+#   dimension: courses_used {
+#     type: number
+#     sql: ARRYA_AGG(CASE WHEN course_used_flag = 'yes' THEN course_key)
+#     {olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
+#     label: "Course used flag"
+#     description: "This user's course has both an olr course key and an activation code"
+#   }
+
 
   dimension_group: first_session_start {
     type: time
@@ -88,12 +104,12 @@ view: user_courses_dev {
     type: number
   }
 
-  dimension: course_used_flag {
-    type: yesno
-    sql: ${olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
-    label: "Course used flag"
-    description: "This user's course has both an olr course key and an activation code"
-  }
+#   dimension: course_used_flag {
+#     type: yesno
+#     sql: ${olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
+#     label: "Course used flag"
+#     description: "This user's course has both an olr course key and an activation code"
+#   }
 
 
   measure: count {
