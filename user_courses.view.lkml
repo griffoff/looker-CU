@@ -294,6 +294,27 @@ derived_table: {
     type: date
   }
 
+  measure: user_course_count {
+    hidden: yes
+    type: count_distinct
+    sql: hash(${user_sso_guid}, ${olr_course_key}) ;;
+  }
+
+  measure: user_count {
+    hidden: yes
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
+
+  measure: courses_per_student {
+    type: number
+    label: "# Courses per Student"
+    #required_fields: [learner_profile.count]
+    #sql: ${user_course_count} / ${learner_profile.count}  ;;
+    sql: ${user_course_count} / ${user_count}  ;;
+    value_format_name: decimal_1
+  }
+
 
 
 }

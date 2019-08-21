@@ -1,62 +1,55 @@
+# If necessary, uncomment the line below to include explore_source.
+
 # include: "cengage_unlimited.model.lkml"
-explore: guid_platform_date_active {
-  hidden: yes
+explore: guid_course_date_active {
+  #hidden: yes
 }
 
-view: guid_platform_date_active {
+view: guid_course_date_active {
   derived_table: {
     create_process: {
       sql_step:
-      CREATE TABLE IF NOT EXISTS looker_scratch.guid_platform_date_active
+      CREATE TABLE IF NOT EXISTS looker_scratch.guid_course_date_active
       (
         date DATE
         ,user_sso_guid STRING
+        ,course_key STRING
         ,productplatform STRING
         ,event_count INT
         ,event_duration_total NUMERIC(12, 4)
         ,latest BOOLEAN
         ,latest_by_platform BOOLEAN
+        ,latest_by_course BOOLEAN
       )
       ;;
       sql_step:
-      INSERT INTO looker_scratch.guid_platform_date_active
-      SELECT
-        date
-        ,user_sso_guid
-        ,productplatform
-        ,SUM(event_count)
-        ,SUM(event_duration_total)
-        ,MAX(latest)
-        ,MAX(latest_by_platform)
-      FROM ${guid_course_date_active.SQL_TABLE_NAME}
-      WHERE date > (SELECT MAX(date) FROM looker_scratch.guid_platform_date_active)
-      GROUP BY 1, 2, 3
-      /*
+      INSERT INTO looker_scratch.guid_course_date_active
       SELECT
           all_events.local_time::DATE
           ,all_events.user_sso_guid
+          ,dim_course.olr_course_key
           ,dim_productplatform.productplatform
           ,COUNT(*) AS event_count
           ,SUM(all_events.event_data:event_duration / 3600 / 24) AS event_duration_total
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid ORDER BY local_time::DATE DESC) = 1 AS latest
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_productplatform.productplatform ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_platform
+          ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_course.olr_course_key ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_course
       FROM ${all_events.SQL_TABLE_NAME} all_events
-      LEFT JOIN ${all_sessions.SQL_TABLE_NAME}  AS all_sessions ON all_events.session_id = all_sessions.session_id
-      LEFT JOIN ${dim_course.SQL_TABLE_NAME} AS dim_course ON (all_sessions."COURSE_KEYS")[0] = dim_course.coursekey
+      LEFT JOIN ${dim_course.SQL_TABLE_NAME} AS dim_course ON all_events.event_data:course_key = dim_course.olr_course_key
       LEFT JOIN ${dim_productplatform.SQL_TABLE_NAME}  AS dim_productplatform ON dim_course.PRODUCTPLATFORMID = dim_productplatform.PRODUCTPLATFORMID
-      WHERE all_events.local_time::DATE > (SELECT COALESCE(MAX(date), '2018-08-01') FROM looker_scratch.guid_platform_date_active)
+      WHERE all_events.local_time::DATE > (SELECT COALESCE(MAX(date), '2018-08-01') FROM looker_scratch.guid_course_date_active)
       AND all_events.local_time::DATE < CURRENT_DATE()
-      GROUP BY 1, 2, 3;
-      */
+      GROUP BY 1, 2, 3, 4;
       ;;
       sql_step:
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
-        CLONE looker_scratch.guid_platform_date_active
+        CLONE looker_scratch.guid_course_date_active
       ;;
     }
-    datagroup_trigger: daily_refresh
-  }
 
+    datagroup_trigger: daily_refresh
+
+  }
 
   dimension: user_sso_guid {
     label: "User SSO GUID"
@@ -72,6 +65,12 @@ view: guid_platform_date_active {
   }
   dimension: latest_by_platform {
     type: yesno
+  }
+  dimension: latest_by_course {
+    type: yesno
+  }
+  dimension: course_key {
+    label: "Course Key"
   }
   dimension: productplatform {
     label: "Product Platform"
