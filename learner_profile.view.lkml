@@ -83,6 +83,20 @@ view: learner_profile {
     required_access_grants: [can_view_segment_parameters]
   }
 
+  dimension: courses_used {
+    type: string
+    sql: ${TABLE}."COURSES_USED" ;;
+    label: "Courses used"
+    description: "A list of courses used by a student. Events that were both enrolled and activated"
+  }
+
+  dimension: courses_used_count {
+    type: string
+    sql: ${TABLE}."COURSES_USED_COUNT" ;;
+    label: "# of courses used"
+    description: "The count of courses used by a student over their lifetime. Events that were both enrolled and activated"
+  }
+
 
   dimension: user_sso_guid {
     primary_key: yes
