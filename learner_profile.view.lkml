@@ -444,6 +444,15 @@ view: learner_profile {
     hidden: yes
   }
 
+  measure: average_lifetime_courses_used {
+    type: average
+    sql: ${courses_used_count} ;;
+    label: "average # of courses used"
+    description: "average # of courses used over a student's life time"
+    drill_fields: [details*]
+    hidden: no
+  }
+
   dimension: marketing_segment_fb {
     group_label: "User Info - Marketing"
     label: "Paid/Unpaid courseware outside of CU subscription"
@@ -595,6 +604,7 @@ view: learner_profile {
     type: number
     sql: ${TABLE}."ACTIVATIONS_TWO_WEEKS_BEFORE_SUBSCRIPTION_START" ;;
   }
+
 
 
 
