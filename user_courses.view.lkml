@@ -315,6 +315,15 @@ derived_table: {
     value_format_name: decimal_1
   }
 
+  measure: courses_used_per_student {
+    type: number
+    label: "# courses used per Student"
+    #required_fields: [learner_profile.count]
+    #sql: ${user_course_count} / ${learner_profile.count}  ;;
+    sql:  ${guid_course_used.user_courses_used} /${user_count} ;;
+    value_format_name: decimal_2
+  }
+
 
 
 }

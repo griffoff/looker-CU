@@ -20,6 +20,7 @@ view: guid_course_date_active {
         ,latest BOOLEAN
         ,latest_by_platform BOOLEAN
         ,latest_by_course BOOLEAN
+        ,number_of_course_use_events INT
       )
       ;;
       sql_step:
@@ -34,6 +35,7 @@ view: guid_course_date_active {
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid ORDER BY local_time::DATE DESC) = 1 AS latest
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_productplatform.productplatform ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_platform
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_course.olr_course_key ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_course
+          ,COUNT(CASE WHEN all_events.product_platform NOT IN ('ENROLLMENT', 'PROVISIONED PRODUCT', 'OLR Activations') THEN 1 END) AS number_of_course_use_events
       FROM ${all_events.SQL_TABLE_NAME} all_events
       LEFT JOIN ${dim_course.SQL_TABLE_NAME} AS dim_course ON all_events.event_data:course_key = dim_course.olr_course_key
       LEFT JOIN ${dim_productplatform.SQL_TABLE_NAME}  AS dim_productplatform ON dim_course.PRODUCTPLATFORMID = dim_productplatform.PRODUCTPLATFORMID
@@ -51,9 +53,11 @@ view: guid_course_date_active {
 
   }
 
+
+
   dimension: user_sso_guid {
     label: "User SSO GUID"
-    hidden: yes
+    hidden: no
   }
   measure: user_count {
     type: count_distinct
@@ -91,9 +95,14 @@ view: guid_course_date_active {
     value_format: "hh:mm:ss"
     type: number
   }
+
   measure: average_time_spent_per_student_per_day {
     type: average
     sql: ${event_duration_total} ;;
     value_format: "hh:mm:ss"
+  }
+
+  measure: number_of_course_use_events {
+    type: sum
   }
 }

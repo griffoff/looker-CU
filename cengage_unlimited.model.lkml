@@ -65,8 +65,26 @@ explore: learner_profile {
   }
 }
 
+explore: user_courses {
+  extension: required
+
+  join: guid_latest_course_activity {
+    view_label: "Course / Section Details by User"
+    sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
+      and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
+    relationship: one_to_one
+  }
+
+  join: guid_course_used {
+    view_label: "Course / Section Details by User"
+    sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
+      and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
+    relationship: one_to_one
+  }
+}
+
 explore: live_subscription_status {
-  extends: [dim_course]
+  extends: [dim_course, user_courses]
   #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
@@ -123,12 +141,7 @@ explore: live_subscription_status {
     relationship: one_to_many
   }
 
-  join: guid_latest_course_activity {
-    view_label: "Course / Section Details by User"
-    sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
-          and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
-    relationship: one_to_one
-  }
+
 
   join: dim_course {
     sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
