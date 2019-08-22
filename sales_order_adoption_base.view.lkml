@@ -81,6 +81,7 @@ view: sales_order_adoption_base {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: FY_17_IA {}
