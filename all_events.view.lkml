@@ -277,7 +277,7 @@ view: all_events {
     label: "Average time spent per student"
     description: "Slice this metric by different dimensions"
     type: number
-    sql: ${event_duration_total} / ${user_count} ;;
+    sql: ${event_duration_total} / ${user_count}  ;;
     value_format_name: duration_hms
   }
 

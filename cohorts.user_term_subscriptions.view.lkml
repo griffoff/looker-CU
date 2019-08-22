@@ -12,6 +12,7 @@ view: cohorts_user_term_subscriptions {
               ,s.subscription_state
               ,s.subscription_start
               ,s.subscription_end
+              ,s.local_time
         FROM ${date_latest_5_terms.SQL_TABLE_NAME} d
         INNER JOIN prod.cu_user_analysis.subscription_event_merged s
              ON (
@@ -28,7 +29,6 @@ view: cohorts_user_term_subscriptions {
   dimension: subscription_state {}
 
 }
-
 
 view: cohorts_user_term_subscriptions_old {
   derived_table: {
