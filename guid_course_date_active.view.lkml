@@ -3,7 +3,7 @@
 # include: "cengage_unlimited.model.lkml"
 explore: guid_course_date_active {
   #hidden: yes
-}
+  }
 
 view: guid_course_date_active {
   derived_table: {

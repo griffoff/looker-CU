@@ -487,6 +487,15 @@ view: learner_profile {
   }
 
 
+  dimension: paid_flag {
+    type: yesno
+    sql: paid_flag = 'Y' ;;
+    label: "Paid flag"
+    description: "User currently has one or more current activation or a CU subscription."
+    hidden: no
+  }
+
+
   dimension: courseware_net_price_non_cu_enrolled {
     type: number
     label: "Courseware net price (outside of CU subscription)"

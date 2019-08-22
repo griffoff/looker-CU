@@ -63,10 +63,10 @@ view: sales_order_adoption_base {
         Concat(Concat(concat(concat(Adoption_type_Fy18,'->'),Adoption_type_Fy19),' | '),FY18_FY19_Adoption_Unit_Gain_Loss) AS FY18_FY19_adoptions_transition_type_2
 
 
-      from dev.zas.SALES_ORDER_ADOPTIONS  sal
-              LEFT JOIN dev.zas.activation_adoptions act
+      from  ${af_salesorder_adoption.SQL_TABLE_NAME} sal
+              LEFT JOIN ${af_activation_adoptions.SQL_TABLE_NAME} act
               ON sal.adoption_key = act.adoption_key
-              LEFT JOIN dev.zas.ebook_units_adoptions eb
+              LEFT JOIN ${af_ebook_units_adoptions.SQL_TABLE_NAME} AS eb
               ON sal.adoption_key = eb.adoption_key
               LEFT JOIN UPLOADS.CU.IA_ADOPTIONS_SALESORDER ia
               ON ia.adoption_key = sal.adoption_key
@@ -81,6 +81,7 @@ view: sales_order_adoption_base {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: FY_17_IA {}

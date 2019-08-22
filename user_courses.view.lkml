@@ -20,6 +20,13 @@ derived_table: {
     type: string
   }
 
+  dimension: grace_period_flag {
+    type: yesno
+    sql: ${TABLE}."GRACE_PERIOD_FLAG" = 'Yes';;
+    description: "User has enrolled on a course but not activated andenrollment date was in the last 14 days"
+    label: "In grace period"
+  }
+
   dimension: amount_to_upgrade_tiers {
     view_label: "Learner Profile"
     type: string
