@@ -53,6 +53,90 @@ view: all_events {
           END;;
   }
 
+  dimension: side_bar_coursekey {
+    group_label: "Sidebar tag events"
+    label: "Course key"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:courseKey::string END ;;
+    hidden: no
+  }
+
+
+  dimension: side_bar_carouselName {
+    group_label: "Sidebar tag events"
+    label: "Carousel name"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:carouselName::string END ;;
+    hidden: no
+  }
+
+  dimension: side_bar_carouselSessionId {
+    group_label: "Sidebar tag events"
+    label: "Carousel session Id"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:carouselSessionId::string END ;;
+    hidden: no
+  }
+
+
+  dimension: side_bar_activityId {
+    group_label: "Sidebar tag events"
+    label: "Activity Id"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:activityId::string END ;;
+    hidden: no
+  }
+
+  dimension: side_bar_checkpointId {
+    group_label: "Sidebar tag events"
+    label: "checkpoint Id"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:checkpointId::string END ;;
+    hidden: no
+  }
+
+
+  dimension: side_bar_contentType {
+    group_label: "Sidebar tag events"
+    label: "Content type"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:contentType::string END ;;
+    hidden: no
+  }
+
+  dimension: side_bar_pointInSemester {
+    group_label: "Sidebar tag events"
+    label: "Point In Semester"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:pointInSemester::string END ;;
+    hidden: no
+  }
+
+  dimension: side_bar_discipline {
+    group_label: "Sidebar tag events"
+    label: "Discipline"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:discipline::string END ;;
+    hidden: no
+  }
+
+  dimension: side_bar_studyToolCgi {
+    group_label: "Sidebar tag events"
+    label: "Study Tool Cgi"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:studyToolCgi::string END ;;
+    hidden: no
+  }
+
+  dimension: side_bar_ISBN {
+    group_label: "Sidebar tag events"
+    label: "ISBN"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:ISBN::string END ;;
+    hidden: no
+  }
+
+
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
@@ -234,6 +318,30 @@ view: all_events {
     type: number
     sql: ${user_day_count} / ${user_count} / ${month_count};;
   }
+
+  dimension: cu_resource_open {
+    type:  yesno
+    sql:event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'
+         ,'Study Tools Launched', 'Flashcards Launched',  'Test Prep Launched', 'Pathbrite Launched', 'Clicked on Career Center', 'eBook Launched'
+        ) OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
+        ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
+        ,'LEARN_MORE') OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL') ;;
+  }
+
+
+  measure: cu_resource_opens {
+    label: "# of CU resource opens"
+    description: "Number of times a CU resource was used"
+    type: count_distinct
+    sql: CASE WHEN (event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'
+         ,'Study Tools Launched', 'Flashcards Launched',  'Test Prep Launched', 'Pathbrite Launched', 'Clicked on Career Center', 'eBook Launched'
+        ) OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
+        ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
+        ,'LEARN_MORE') OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSELTHEN') ))) THEN event_id END;;
+  }
+
+
+
 
 #   measure: session_count {
 #     label: "# sessions"

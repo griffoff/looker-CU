@@ -152,6 +152,19 @@ derived_table: {
 #     hidden: no
   }
 
+    dimension: course_used_flag {
+    type: yesno
+    sql: ${olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
+    label: "Course used flag"
+    description: "This user's course has both an olr course key and an activation code"
+  }
+
+  dimension: activation_code {
+    type: string
+    sql: ${TABLE}."ACTIVATION_CODE" ;;
+    hidden: yes
+  }
+
   measure: ala_cart_purchases {
     group_label: "Lifetime metrics"
     label: "# of a la carte activations"
@@ -279,6 +292,36 @@ derived_table: {
   dimension: enrollment_date {
     label: "Date on which user enrolled into a course"
     type: date
+  }
+
+  measure: user_course_count {
+    hidden: yes
+    type: count_distinct
+    sql: hash(${user_sso_guid}, ${olr_course_key}) ;;
+  }
+
+  measure: user_count {
+    hidden: yes
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
+
+  measure: courses_per_student {
+    type: number
+    label: "# Courses per Student"
+    #required_fields: [learner_profile.count]
+    #sql: ${user_course_count} / ${learner_profile.count}  ;;
+    sql: ${user_course_count} / ${user_count}  ;;
+    value_format_name: decimal_1
+  }
+
+  measure: courses_used_per_student {
+    type: number
+    label: "# courses used per Student"
+    #required_fields: [learner_profile.count]
+    #sql: ${user_course_count} / ${learner_profile.count}  ;;
+    sql:  ${guid_course_used.user_courses_used} /${user_count} ;;
+    value_format_name: decimal_2
   }
 
 

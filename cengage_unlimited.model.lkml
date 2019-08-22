@@ -65,8 +65,26 @@ explore: learner_profile {
   }
 }
 
+explore: user_courses {
+  extension: required
+
+  join: guid_latest_course_activity {
+    view_label: "Course / Section Details by User"
+    sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
+      and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
+    relationship: one_to_one
+  }
+
+  join: guid_course_used {
+    view_label: "Course / Section Details by User"
+    sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
+      and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
+    relationship: one_to_one
+  }
+}
+
 explore: live_subscription_status {
-  extends: [dim_course]
+  extends: [dim_course, user_courses]
   #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
@@ -78,11 +96,20 @@ explore: live_subscription_status {
     sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
   }
+
   join: learner_profile {
     view_label: "Learner Profile"
     sql_on:  ${live_subscription_status.user_sso_guid} = ${learner_profile.user_sso_guid}  ;;
     relationship: one_to_one
   }
+
+  join: guid_latest_activity {
+    view_label: "Learner Profile"
+    fields: [guid_latest_activity.active]
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
   join: user_institution_map {
     fields: []
     sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
@@ -109,9 +136,12 @@ explore: live_subscription_status {
   }
 
   join: user_courses {
+    view_label: "Course / Section Details by User"
     sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
     relationship: one_to_many
   }
+
+
 
   join: dim_course {
     sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
@@ -340,13 +370,6 @@ explore: session_analysis {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_number_of_courseware_added_to_dash.user_sso_guid} ;;
     relationship:  one_to_many
-  }
-
-  join: guid_latest_activity {
-    view_label: "Learner Profile"
-    fields: [guid_latest_activity.active]
-    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
-    relationship: one_to_one
   }
 
 }

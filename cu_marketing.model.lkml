@@ -28,6 +28,8 @@ explore: late_activators {
 
 explore: magellan_instructor_setup_status {
 
+  extends: [user_courses]
+
   join: dim_institution {
     sql_on: ${magellan_instructor_setup_status.entity_no}::STRING = ${dim_institution.entity_no}::STRING ;;
     relationship: many_to_one
@@ -58,6 +60,7 @@ explore: magellan_instructor_setup_status {
     sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
     relationship: one_to_many
   }
+
 
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
