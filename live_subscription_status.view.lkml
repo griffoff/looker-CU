@@ -53,6 +53,12 @@ view: live_subscription_status {
     sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
     sql_end: current_date() ;;
   }
+#
+#   dimension: time_in_curr {
+#     label: "Testing time in current state"
+#     sql: TIMEDIFF('d', ${subscription_end_raw}, CURRENT_TIMESTAMP()) ;;
+#   }
+
 
   dimension_group: time_left_in_current_status {
     type: duration
