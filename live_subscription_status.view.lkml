@@ -4,7 +4,7 @@ view: live_subscription_status {
     sql:
       SELECT *
       FROM ${raw_subscription_event.SQL_TABLE_NAME}
-      WHERE latest;;
+      WHERE latest = 1;;
   }
   set: marketing_fields {
     fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,

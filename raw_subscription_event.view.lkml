@@ -1,5 +1,70 @@
 view: raw_subscription_event {
   derived_table: {
+    sql:
+      WITH
+  distinct_primary AS
+  (
+      SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
+  )
+  ,raw_subscription_event_merged_clean AS
+  (
+      SELECT
+          COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
+          ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
+          ,r.*
+      FROM prod.unlimited.raw_subscription_event r
+      LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
+          ON r.user_sso_guid = m.partner_guid
+      LEFT JOIN distinct_primary m2
+          ON  r.user_sso_guid = m2.primary_guid
+      WHERE r.user_environment = 'production'
+      AND r.platform_environment = 'production'
+      AND r._ldts >= to_date('01-Aug-2018')
+      AND NOT
+            (
+              EXISTS(SELECT 1 FROM STRATEGY.spr_review_fy19.offset_transactions offset_transactions WHERE offset_transactions.contract_id = r.contract_id)
+               AND
+              (r._LDTS >= TO_DATE('16-Dec-2018') AND r._LDTS < TO_DATE('01-Jan-2019') )
+              AND r.subscription_state in ('full_access')
+            )
+       AND NOT
+            (
+              EXISTS(
+                SELECT 1 FROM PROD.UNLIMITED.EXCLUDED_USERS excluded LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid guids_forexcl ON excluded.user_sso_guid = guids_forexcl.partner_guid
+                     WHERE COALESCE(guids_forexcl.primary_guid, excluded.user_sso_guid) = COALESCE(m.primary_guid, r.user_sso_guid)
+              )
+            )
+    )
+        SELECT
+          e.*
+          ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+          ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
+          ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
+          ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
+          ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
+          ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
+          ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
+          ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
+          ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
+          ,MAX(CASE
+                WHEN subscription_state = 'full_access'
+                /*    AND NOT cancelled  */
+                THEN subscription_start
+                END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
+          ,MAX(CASE
+                WHEN subscription_state = 'full_access'
+                /*    AND NOT cancelled  */
+                THEN subscription_end
+                END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
+          ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
+          ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
+          ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
+          ,MAX(local_time) over(partition by merged_guid) as latest_update
+          ,next_status IS NULL as latest
+          ,prior_status IS NULL as earliest
+      FROM raw_subscription_event_merged_clean e
+    ;;
+
 #     sql:
 #
 #     WITH
@@ -119,48 +184,48 @@ view: raw_subscription_event {
 #     ;;
 
 
-  sql:
-    with
-    subscription_event AS
-    (
-      SELECT
-        *
-        ,user_sso_guid_merged as merged_guid
-        ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
-        FROM  /* prod.unlimited.raw_subscription_event */ prod.cu_user_analysis.subscription_event_merged
-      --FROM raw_subscription_event_merged_erroneous_removed e
-      WHERE UPPER(user_environment) = 'PRODUCTION'
-    )
-    SELECT
-          e.*
-          ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
-          ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
-          ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
-          ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
-          ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
-          ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
-          ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
-          ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
-          ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
-          ,MAX(CASE
-                WHEN subscription_state = 'full_access'
-                /*    AND NOT cancelled  */
-                THEN subscription_start
-                END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
-          ,MAX(CASE
-                WHEN subscription_state = 'full_access'
-                /*    AND NOT cancelled  */
-                THEN subscription_end
-                END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
-          ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
-          ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
-          ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
-          ,MAX(local_time) over(partition by merged_guid) as latest_update
-          ,next_status IS NULL as latest
-          ,prior_status IS NULL as earliest
-      FROM subscription_event e
-      --LEFT JOIN guid_map m ON e.user_sso_guid = m.partner_guid
-      ;;
+#   sql:
+#     with
+#     subscription_event AS
+#     (
+#       SELECT
+#         *
+#         ,user_sso_guid_merged as merged_guid
+#         ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
+#         FROM  /* prod.unlimited.raw_subscription_event */ prod.cu_user_analysis.subscription_event_merged
+#       --FROM raw_subscription_event_merged_erroneous_removed e
+#       WHERE UPPER(user_environment) = 'PRODUCTION'
+#     )
+#     SELECT
+#           e.*
+#           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+#           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
+#           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
+#           ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
+#           ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
+#           ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
+#           ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
+#           ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
+#           ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
+#           ,MAX(CASE
+#                 WHEN subscription_state = 'full_access'
+#                 /*    AND NOT cancelled  */
+#                 THEN subscription_start
+#                 END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
+#           ,MAX(CASE
+#                 WHEN subscription_state = 'full_access'
+#                 /*    AND NOT cancelled  */
+#                 THEN subscription_end
+#                 END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
+#           ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
+#           ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
+#           ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
+#           ,MAX(local_time) over(partition by merged_guid) as latest_update
+#           ,next_status IS NULL as latest
+#           ,prior_status IS NULL as earliest
+#       FROM subscription_event e
+#       --LEFT JOIN guid_map m ON e.user_sso_guid = m.partner_guid
+#       ;;
 
       persist_for: "60 minutes"
   }
