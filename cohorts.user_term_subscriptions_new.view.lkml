@@ -9,7 +9,7 @@ view: cohorts_user_term_subscriptions_new {
         (
         SELECT
           *
-          ,CASE WHEN local_time::date = subscription_start::date AND subscription_state = 'full_access' THEN 1 END AS new_subscription_flag
+          ,CASE WHEN local_time::date <> subscription_start::date AND subscription_state = 'full_access' THEN 1 END AS new_subscription_flag
         FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME}
         )
         SELECT
@@ -40,5 +40,4 @@ view: cohorts_user_term_subscriptions_new {
 #     hidden: no
 #   }
 #
-
 }
