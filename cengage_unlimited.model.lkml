@@ -48,6 +48,19 @@ explore: active_users_stats  {
   }
 }
 
+explore: strategy_ecom_sales_orders {
+  label: "Revenue"
+  view_label: "Revenue"
+  join: dim_date {
+    sql_on: ${strategy_ecom_sales_orders.invoice_dt} = ${dim_date.datevalue} ;;
+    relationship: many_to_one
+  }
+  join: dim_product {
+    sql_on: ${strategy_ecom_sales_orders.isbn_13} = ${dim_product.isbn13} ;;
+    relationship: many_to_one
+  }
+}
+
 ######## User Experience Journey Start ###################
 
 explore: learner_profile {
@@ -61,8 +74,13 @@ explore: learner_profile {
     view_label: "Learner Profile - Live Subscription Status"
     sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
     relationship: one_to_one
-
   }
+
+  join: strategy_ecom_sales_orders {
+    sql_on: ${learner_profile.user_sso_guid} = ${strategy_ecom_sales_orders.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
 }
 
 explore: user_courses {

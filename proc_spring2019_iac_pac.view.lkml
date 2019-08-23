@@ -1,8 +1,12 @@
 explore:  proc_spring2019_iac_pac {}
 view: proc_spring2019_iac_pac {
   derived_table: {
-    sql: Select * from UPLOADS.ZAS.SPRING2019_IAC_PAC
+    sql: Select *,Coalesce(pa.primary_guid,mu.user_guid) as mapped_guid
+        from UPLOADS.ZAS.SPRING2019_IAC_PAC mu
+        LEFT JOIN PROD.UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID pa
+        ON mu.user_guid = pa.partner_guid
       ;;
+    sql_trigger_value: Select * from UPLOADS.ZAS.SPRING2019_IAC_PAC ;;
   }
 
   measure: count {
@@ -15,6 +19,7 @@ view: proc_spring2019_iac_pac {
     sql: ${TABLE}."_FILE" ;;
     hidden: yes
   }
+  dimension: mapped_guid {}
 
   dimension: _line {
     type: number

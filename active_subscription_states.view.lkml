@@ -18,7 +18,7 @@ view: active_subscription_states {
     WHERE r = 1
     ;;
 
-    datagroup_trigger: daily_refresh
+    persist_for: "3 hours"
   }
 
   dimension: pk {primary_key:yes hidden:yes}
