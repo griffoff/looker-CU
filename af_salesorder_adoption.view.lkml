@@ -53,6 +53,7 @@ view: af_salesorder_adoption {
              AND reason_cd NOT IN ('980','AMC','CHS') AND sales_type_cd = 'DOM' AND short_item_no_parent = '-1' AND gsf_cd = 'HED'
              GROUP BY 1,2
  ;;
+sql_trigger_value: Select * from DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_SALES_ORDERS ;;
   }
 
   measure: count {
