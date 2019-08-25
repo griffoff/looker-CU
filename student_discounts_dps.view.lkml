@@ -14,6 +14,11 @@ view: student_discounts_dps {
     drill_fields: [detail*]
   }
 
+  measure: count_users {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+  }
+
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;

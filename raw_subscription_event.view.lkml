@@ -10,7 +10,7 @@ view: raw_subscription_event {
   (
       SELECT
           COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
-          ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
+          ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
           ,r.*
       FROM prod.unlimited.raw_subscription_event r
       LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
