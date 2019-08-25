@@ -40,10 +40,10 @@ view: student_discounts_dps {
     sql: ${TABLE}."CODE_TYPE" ;;
   }
 
-  dimension: discount {
-    type: string
-    sql: COALESCE(${TABLE}."DISCOUNT", 0) ;;
-  }
+#   dimension: discount {
+#     type: string
+#     sql: COALESCE(${TABLE}."DISCOUNT", 0) ;;
+#   }
 
   dimension: index {
     type: number
@@ -53,6 +53,12 @@ view: student_discounts_dps {
   dimension: price_details {
     type: string
     sql: ${TABLE}."PRICE_DETAILS" ;;
+  }
+
+  dimension: discount {
+    group_label: "Discount info"
+    type: number
+    sql: ${TABLE}.discount ;;
   }
 
   dimension: amount_to_upgrade {
@@ -88,7 +94,7 @@ view: student_discounts_dps {
 #             ;;
 #   }
 
-  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade]}
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount]}
 
 
   set: detail {
