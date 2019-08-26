@@ -11,7 +11,17 @@ view: raw_subscription_event {
       SELECT
           COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
           ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
-          ,r.*
+          ,LOCAL_TIME
+          ,USER_SSO_GUID
+          ,USER_ENVIRONMENT
+          ,PRODUCT_PLATFORM
+          ,PLATFORM_ENVIRONMENT
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE SUBSCRIPTION_START END AS SUBSCRIPTION_START
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,SUBSCRIPTION_STATE
+          ,CONTRACT_ID
+          ,TRANSFERRED_CONTRACT
+          ,ACCESS_CODE
       FROM prod.unlimited.raw_subscription_event r
       LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
           ON r.user_sso_guid = m.partner_guid
