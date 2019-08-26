@@ -1,8 +1,72 @@
 explore: cafe_getenrolled {}
 view: cafe_getenrolled {
+
 derived_table: {
-  sql: Select * from ${client_activity_event_prod.SQL_TABLE_NAME} where product_platform ilike 'get-enrolled' ;;
+  #sql: Select * from ${client_activity_event_prod.SQL_TABLE_NAME} where product_platform ilike 'get-enrolled' ;;
+  sql:
+      SELECT
+          event_id AS event_id_cafe
+          ,COALESCE(user_environment, product_environment) AS platform_environment
+          ,_ldts
+          ,_rsrc
+          ,message_format_version
+          ,message_type
+          ,event_time
+          ,event_category
+          ,event_action
+          ,product_platform
+          ,session_id
+          ,user_sso_guid
+          ,event_uri
+          ,host_platform
+          ,MAX(CASE WHEN s.value:key::string = 'courseKey' THEN s.value:value::string END) AS courseKey
+          ,MAX(CASE WHEN s.value:key::string = 'carouselName' THEN s.value:value::string END) AS carouselName
+          ,MAX(CASE WHEN s.value:key::string = 'carouselSessionId' THEN s.value:value::string END) AS carouselSessionId
+          ,MAX(CASE WHEN s.value:key::string = 'activityId' THEN s.value:value::string END) AS activityId
+          ,MAX(CASE WHEN s.value:key::string = 'checkpointId' THEN s.value:value::string END) AS checkpointId
+          ,MAX(CASE WHEN s.value:key::string = 'contentType' THEN s.value:value::string END) AS contentType
+          ,MAX(CASE WHEN s.value:key::string = 'appName' THEN s.value:value::string END) AS appName
+          ,MAX(CASE WHEN s.value:key::string = 'externalTakeUri' THEN s.value:value::string END) AS externalTakeUri
+          ,MAX(CASE WHEN s.value:key::string = 'itemUri' THEN s.value:value::string END) AS itemUri
+          ,MAX(CASE WHEN s.value:key::string = 'showGradeIndicators' THEN s.value:value::string END) AS showGradeIndicators
+          ,MAX(CASE WHEN s.value:key::string = 'courseUri' THEN s.value:value::string END) AS courseUri
+          ,MAX(CASE WHEN s.value:key::string = 'attemptId' THEN s.value:value::string END) AS attemptId
+          ,MAX(CASE WHEN s.value:key::string = 'activityUri' THEN s.value:value::string END) AS activityUri
+          ,MAX(CASE WHEN s.value:key::string = 'claPageNumber' THEN s.value:value::string END) AS claPageNumber
+          ,MAX(CASE WHEN s.value:key::string = 'numberOfPages' THEN s.value:value::string END) AS numberOfPages
+          ,MAX(CASE WHEN s.value:key::string = 'studyToolCgi' THEN s.value:value::string END) AS studyToolCgi
+          ,MAX(CASE WHEN s.value:key::string = 'sequenceUuid' THEN s.value:value::string END) AS sequenceUuid
+          ,MAX(CASE WHEN s.value:key::string = 'pointInSemester' THEN s.value:value::string END) AS pointInSemester
+          ,MAX(CASE WHEN s.value:key::string = 'discipline' THEN s.value:value::string END) AS discipline
+          ,MAX(CASE WHEN s.value:key::string = 'ISBN' THEN s.value:value::string END) AS ISBN
+      FROM ${client_activity_event_prod.SQL_TABLE_NAME} cafe
+      CROSS JOIN LATERAL FLATTEN(cafe.tags,outer=>true) s
+      WHERE product_platform = 'get-enrolled'
+      GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+;;
 }
+
+  dimension: courseKey {}
+  dimension: carouselName {}
+  dimension: carouselSessionId {}
+  dimension: activityId {}
+  dimension: checkpointId {}
+  dimension: contentType {}
+  dimension: appName {}
+  dimension: externalTakeUri {}
+  dimension: itemUri {}
+  dimension: showGradeIndicators {}
+  dimension: courseUri {}
+  dimension: attemptId {}
+  dimension: activityUri {}
+  dimension: claPageNumber {}
+  dimension: numberOfPages {}
+  dimension: studyToolCgi {}
+  dimension: sequenceUuid {}
+  dimension: pointInSemester {}
+  dimension: discipline {}
+  dimension: ISBN {}
+
 
   measure: count {
     type: count
