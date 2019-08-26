@@ -2,16 +2,32 @@ explore: student_discounts_dps {}
 
 view: student_discounts_dps {
   derived_table: {
-    sql: SELECT user_sso_guid, SUM(discount) AS discount, LISTAGG(isbn) AS isbn FROM prod.cu_user_analysis.student_discounts GROUP BY 1
+    sql:
+    WITH most_recent_run_time AS (SELECT MAX(run_time) AS most_recent_run FROM prod.cu_user_analysis_dev.student_discounts)
+    ,most_recent_run AS
+    (
+        SELECT
+          ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
+          ,user_sso_guid
+          ,discount AS discount
+          ,isbn AS isbn
+          ,run_time
+       FROM prod.cu_user_analysis_dev.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time)
+    )
+    SELECT user_sso_guid, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time FROM most_recent_run GROUP BY 1
       ;;
 #   persist_for: "6 hours"
-  sql_trigger_value: Select * from prod.cu_user_analysis.student_discounts   ;;
+  sql_trigger_value: Select * from prod.cu_user_analysis_dev.student_discounts   ;;
   }
-
 
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  measure: count_users {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
   }
 
   dimension: user_sso_guid {
@@ -20,9 +36,10 @@ view: student_discounts_dps {
     primary_key: yes
   }
 
-  dimension_group: api_call_time {
-    type: time
-    sql: ${TABLE}."API_CALL_TIME" ;;
+  dimension: discount {
+    group_label: "Discount info"
+    type: number
+    sql: ${TABLE}.discount ;;
   }
 
   dimension: isbn {
@@ -30,32 +47,19 @@ view: student_discounts_dps {
     sql: ${TABLE}."ISBN" ;;
   }
 
-  dimension: code_type {
-    type: string
-    sql: ${TABLE}."CODE_TYPE" ;;
+
+  dimension_group: run_time {
+    type: time
+    timeframes: [date, week, month, year, raw]
+    sql: ${TABLE}."RUN_TIME" ;;
   }
 
-  dimension: discount {
-    type: string
-    sql: COALESCE(${TABLE}."DISCOUNT", 0) ;;
-  }
-
-  dimension: index {
-    type: number
-    sql: ${TABLE}."INDEX" ;;
-  }
-
-  dimension: price_details {
-    type: string
-    sql: ${TABLE}."PRICE_DETAILS" ;;
-  }
 
   dimension: amount_to_upgrade {
     group_label: "Discount info"
     type: number
     sql: CASE WHEN (120 - COALESCE(${TABLE}."DISCOUNT", 0)) < 0 THEN 0 ELSE (120 - COALESCE(${TABLE}."DISCOUNT", 0)) END ;;
   }
-
 
 
   dimension: amount_to_upgrade_string {
@@ -83,18 +87,17 @@ view: student_discounts_dps {
 #             ;;
 #   }
 
-  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade]}
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount, isbn, discount, run_time_date]}
 
 
   set: detail {
     fields: [
       user_sso_guid,
-      api_call_time_time,
       isbn,
-      code_type,
       discount,
-      index,
-      price_details
+      run_time_date,
+      amount_to_upgrade,
+      amount_to_upgrade_string,
     ]
   }
 

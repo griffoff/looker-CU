@@ -1,7 +1,7 @@
 view: raw_subscription_event {
   derived_table: {
     sql:
-      WITH
+     WITH
   distinct_primary AS
   (
       SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
@@ -10,8 +10,18 @@ view: raw_subscription_event {
   (
       SELECT
           COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
-          ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
-          ,r.*
+          ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
+          ,LOCAL_TIME
+          ,USER_SSO_GUID
+          ,USER_ENVIRONMENT
+          ,PRODUCT_PLATFORM
+          ,PLATFORM_ENVIRONMENT
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE SUBSCRIPTION_START END AS SUBSCRIPTION_START
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,SUBSCRIPTION_STATE
+          ,CONTRACT_ID
+          ,TRANSFERRED_CONTRACT
+          ,ACCESS_CODE
       FROM prod.unlimited.raw_subscription_event r
       LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
           ON r.user_sso_guid = m.partner_guid
@@ -46,6 +56,7 @@ view: raw_subscription_event {
           ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
           ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
           ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
+          ,LEAD(local_time) over(partition by merged_guid order by local_time, subscription_start) as next_event_time
           ,MAX(CASE
                 WHEN subscription_state = 'full_access'
                 /*    AND NOT cancelled  */
@@ -62,6 +73,8 @@ view: raw_subscription_event {
           ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
+          ,subscription_start AS effective_from
+          ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
       FROM raw_subscription_event_merged_clean e
     ;;
 
