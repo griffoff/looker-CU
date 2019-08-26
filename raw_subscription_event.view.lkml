@@ -1,93 +1,41 @@
 view: raw_subscription_event {
   derived_table: {
     sql:
-    WITH
-      distinct_primary AS
-      (
-          SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
-      )
-      ,raw_subscription_event_merged AS
-      (
-          SELECT
-              COALESCE(m.primary_guid, r.user_sso_guid) AS user_sso_guid_merged
-              ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
-              ,r.*
-          FROM unlimited.raw_subscription_event r
-          LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
-              ON r.user_sso_guid = m.partner_guid
-          LEFT JOIN distinct_primary m2
-              ON  r.user_sso_guid = m2.primary_guid
-          WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
-      )
-      ,raw_subscription_event_merged_next_events AS
-      (
+      WITH
+  distinct_primary AS
+  (
+      SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
+  )
+  ,raw_subscription_event_merged_clean AS
+  (
       SELECT
-           user_sso_guid_merged
-          ,user_sso_guid
-          ,lms_user
-          ,local_time
-          ,_ldts
-          ,_hash
-          ,_rsrc
-          ,contract_id
-          ,platform_environment
-          ,product_platform
-          ,user_environment
-          ,message_type
-          ,subscription_state
-          ,subscription_start
-          ,subscription_end
-          ,LEAD(subscription_state, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_2
-          ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_2
-          ,LEAD(subscription_end, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_2
-          ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_2
-          ,LEAD(_ldts, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_2
-          ,LEAD(subscription_state, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_3
-          ,LEAD(subscription_start, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_3
-          ,LEAD(subscription_end, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_3
-          ,LEAD(local_time, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_3
-          ,LEAD(_ldts, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_3
-          ,COUNT(DISTINCT subscription_state) OVER (PARTITION BY user_sso_guid_merged) AS number_of_subscription_states
-      FROM raw_subscription_event_merged
-      )
-      ,raw_subscription_event_merged_erroneous_removed AS
-      (
-      SELECT
-          user_sso_guid_merged AS merged_guid
-          ,user_sso_guid
-          ,MAX(lms_user) OVER (PARTITION BY user_sso_guid_merged) AS lms_user_status
-          ,local_time
-          ,_ldts
-          ,_hash
-          ,_rsrc
-          ,contract_id
-          ,platform_environment
-          ,product_platform
-          ,user_environment
-          ,message_type
-          ,subscription_state
-          ,subscription_start
-          ,subscription_end
-          ,subscription_start AS effective_from
-          ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_start) AS next_event_time
-          ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
-          ,local_time_2
-          ,ldts_2
-          ,subscription_state_2
-          ,subscription_start_2
-          ,subscription_end_2
-          ,local_time_3
-          ,ldts_3
-          ,subscription_state_3
-          ,subscription_start_3
-          ,subscription_end_3
-          ,LAST_VALUE(subscription_state) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_state_current
-          ,LAST_VALUE(subscription_start) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_start_current
-          ,LAST_VALUE(subscription_end) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_end_current
-          ,DATEDIFF('month', subscription_start, subscription_end ) AS subscription_term_length
-      FROM raw_subscription_event_merged_next_events
-      )
-       SELECT
+          COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
+          ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
+          ,r.*
+      FROM prod.unlimited.raw_subscription_event r
+      LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
+          ON r.user_sso_guid = m.partner_guid
+      LEFT JOIN distinct_primary m2
+          ON  r.user_sso_guid = m2.primary_guid
+      WHERE r.user_environment = 'production'
+      AND r.platform_environment = 'production'
+      AND r._ldts >= to_date('01-Aug-2018')
+      AND NOT
+            (
+              EXISTS(SELECT 1 FROM STRATEGY.spr_review_fy19.offset_transactions offset_transactions WHERE offset_transactions.contract_id = r.contract_id)
+               AND
+              (r._LDTS >= TO_DATE('16-Dec-2018') AND r._LDTS < TO_DATE('01-Jan-2019') )
+              AND r.subscription_state in ('full_access')
+            )
+       AND NOT
+            (
+              EXISTS(
+                SELECT 1 FROM PROD.UNLIMITED.EXCLUDED_USERS excluded LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid guids_forexcl ON excluded.user_sso_guid = guids_forexcl.partner_guid
+                     WHERE COALESCE(guids_forexcl.primary_guid, excluded.user_sso_guid) = COALESCE(m.primary_guid, r.user_sso_guid)
+              )
+            )
+    )
+        SELECT
           e.*
           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
@@ -114,15 +62,129 @@ view: raw_subscription_event {
           ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
-      FROM raw_subscription_event_merged_erroneous_removed e
+      FROM raw_subscription_event_merged_clean e
     ;;
 
+#     sql:
+#
+#     WITH
+#       distinct_primary AS
+#       (
+#           SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
+#       )
+#       ,raw_subscription_event_merged AS
+#       (
+#           SELECT
+#               COALESCE(m.primary_guid, r.user_sso_guid) AS user_sso_guid_merged
+#               ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user
+#               ,r.*
+#           FROM unlimited.raw_subscription_event r
+#           LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
+#               ON r.user_sso_guid = m.partner_guid
+#           LEFT JOIN distinct_primary m2
+#               ON  r.user_sso_guid = m2.primary_guid
+#           WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM unlimited.excluded_users)
+#       )
+#       ,raw_subscription_event_merged_next_events AS
+#       (
+#       SELECT
+#            user_sso_guid_merged
+#           ,user_sso_guid
+#           ,lms_user
+#           ,local_time
+#           ,_ldts
+#           ,_hash
+#           ,_rsrc
+#           ,contract_id
+#           ,platform_environment
+#           ,product_platform
+#           ,user_environment
+#           ,message_type
+#           ,subscription_state
+#           ,subscription_start
+#           ,subscription_end
+#           ,LEAD(subscription_state, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_2
+#           ,LEAD(subscription_start, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_2
+#           ,LEAD(subscription_end, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_2
+#           ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_2
+#           ,LEAD(_ldts, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_2
+#           ,LEAD(subscription_state, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_state_3
+#           ,LEAD(subscription_start, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_start_3
+#           ,LEAD(subscription_end, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS subscription_end_3
+#           ,LEAD(local_time, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS local_time_3
+#           ,LEAD(_ldts, 2) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_state) AS ldts_3
+#           ,COUNT(DISTINCT subscription_state) OVER (PARTITION BY user_sso_guid_merged) AS number_of_subscription_states
+#       FROM raw_subscription_event_merged
+#       )
+#       ,raw_subscription_event_merged_erroneous_removed AS
+#       (
+#       SELECT
+#           user_sso_guid_merged AS merged_guid
+#           ,user_sso_guid
+#           ,MAX(lms_user) OVER (PARTITION BY user_sso_guid_merged) AS lms_user_status
+#           ,local_time
+#           ,_ldts
+#           ,_hash
+#           ,_rsrc
+#           ,contract_id
+#           ,platform_environment
+#           ,product_platform
+#           ,user_environment
+#           ,message_type
+#           ,subscription_state
+#           ,subscription_start
+#           ,subscription_end
+#           ,subscription_start AS effective_from
+#           ,LEAD(local_time, 1) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time, subscription_start) AS next_event_time
+#           ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
+#           ,local_time_2
+#           ,ldts_2
+#           ,subscription_state_2
+#           ,subscription_start_2
+#           ,subscription_end_2
+#           ,local_time_3
+#           ,ldts_3
+#           ,subscription_state_3
+#           ,subscription_start_3
+#           ,subscription_end_3
+#           ,LAST_VALUE(subscription_state) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_state_current
+#           ,LAST_VALUE(subscription_start) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_start_current
+#           ,LAST_VALUE(subscription_end) OVER (PARTITION BY user_sso_guid_merged ORDER BY local_time ASC) AS subscription_end_current
+#           ,DATEDIFF('month', subscription_start, subscription_end ) AS subscription_term_length
+#       FROM raw_subscription_event_merged_next_events
+#       )
+#        SELECT
+#           e.*
+#           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+#           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
+#           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
+#           ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
+#           ,LAST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as current_start
+#           ,LAST_VALUE(subscription_end) over(partition by merged_guid order by local_time) as current_end
+#           ,LAG(subscription_status) over(partition by merged_guid order by local_time) as prior_status
+#           ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
+#           ,LAG(subscription_end) over(partition by merged_guid order by local_time) as prior_end
+#           ,MAX(CASE
+#                 WHEN subscription_state = 'full_access'
+#                 /*    AND NOT cancelled  */
+#                 THEN subscription_start
+#                 END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_start
+#           ,MAX(CASE
+#                 WHEN subscription_state = 'full_access'
+#                 /*    AND NOT cancelled  */
+#                 THEN subscription_end
+#                 END) over(partition by merged_guid order by local_time rows between unbounded preceding and 1 preceding) as previous_full_access_end
+#           ,LEAD(subscription_status) over(partition by merged_guid order by local_time) as next_status
+#           ,LEAD(subscription_start) over(partition by merged_guid order by local_time) as next_start
+#           ,subscription_start < current_timestamp() AND subscription_end > current_timestamp() as active
+#           ,MAX(local_time) over(partition by merged_guid) as latest_update
+#           ,next_status IS NULL as latest
+#           ,prior_status IS NULL as earliest
+#       FROM raw_subscription_event_merged_erroneous_removed e
+#     ;;
+
+
 #   sql:
-#
-#
-#
-#
-#
 #     with
 #     subscription_event AS
 #     (
@@ -163,8 +225,8 @@ view: raw_subscription_event {
 #           ,prior_status IS NULL as earliest
 #       FROM subscription_event e
 #       --LEFT JOIN guid_map m ON e.user_sso_guid = m.partner_guid
-
 #       ;;
+
       persist_for: "60 minutes"
   }
 

@@ -4,7 +4,7 @@ view: live_subscription_status {
     sql:
       SELECT *
       FROM ${raw_subscription_event.SQL_TABLE_NAME}
-      WHERE latest;;
+      WHERE latest = 1;;
   }
   set: marketing_fields {
     fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,
@@ -53,6 +53,12 @@ view: live_subscription_status {
     sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
     sql_end: current_date() ;;
   }
+#
+#   dimension: time_in_curr {
+#     label: "Testing time in current state"
+#     sql: TIMEDIFF('d', ${subscription_end_raw}, CURRENT_TIMESTAMP()) ;;
+#   }
+
 
   dimension_group: time_left_in_current_status {
     type: duration
