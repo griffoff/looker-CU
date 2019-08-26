@@ -307,10 +307,10 @@ view: late_activators {
     sql_step:
       ALTER TABLE daily_messaging_info ADD COLUMN promo_code STRING, lookup STRING
       ;;
-    sql_step:
-      -- for testing, wipe out and start again
-      --DROP TABLE IF EXISTS late_activators_promo_codes
-      ;;
+    #sql_step:
+    #  -- for testing, wipe out and start again
+    #  --DROP TABLE IF EXISTS late_activators_promo_codes
+    #  ;;
       sql_step:
       --create table to store user + promo_code mapping so that we don't assign the same one to multiple users, or multiple codes to the same user
       CREATE TABLE IF NOT EXISTS late_activators_promo_codes
