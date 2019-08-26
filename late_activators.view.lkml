@@ -309,7 +309,7 @@ view: late_activators {
       ;;
     sql_step:
       -- for testing, wipe out and start again
-      DROP TABLE IF EXISTS late_activators_promo_codes;
+      --DROP TABLE IF EXISTS late_activators_promo_codes
       ;;
       sql_step:
       --create table to store user + promo_code mapping so that we don't assign the same one to multiple users, or multiple codes to the same user
@@ -376,13 +376,10 @@ view: late_activators {
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
       CLONE late_activations_all_messages
     ;;
-
-
-
-
     }
 
-    datagroup_trigger: daily_refresh
+    sql_trigger_value: CURRENT_DATE() ;;
+    #persist_for: "24 hours"
   }
 
 
