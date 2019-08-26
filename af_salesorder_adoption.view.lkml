@@ -4,18 +4,19 @@ view: af_salesorder_adoption {
         Select sal.*,ter.gsf_cd,prod.isbn_13,prod.division_cd,prod.pub_series_de,prod.tech_prod_cd,prod.print_digital_config_de,ent.institution_nm,ent.state_de as ent_state_de,dim_date.fiscalyearvalue,pf_master.course_as_provided_by_prd_team
               ,concat(concat(concat(concat(institution_nm,'|'),course_as_provided_by_prd_team),'|'),prod.pub_series_de) as adoption_key,
               CASE WHEN isbn_13 = '9781337792615' THEN 'Chegg Tutor' ELSE 'X' END AS chegg_tutor_flag,
-              CASE WHEN order_type_cd = 'SX' AND UPPER(sal.line_type_cd) = 'X' THEN 'Consingment/Rental Inventory Transfer'
-                   WHEN order_type_cd = 'SV' AND UPPER(sal.line_type_cd) = 'RS' THEN 'Consingment/Rental Inventory Transfer'
-                   WHEN order_type_cd = 'SV' AND UPPER(sal.line_type_cd) IN ('R1','R2','R3','R4','R5') THEN 'Consingment Rental'
-                   WHEN order_type_cd = 'CV' AND UPPER(sal.line_type_cd) IN ('C1','C2','C3','C4','C5') THEN 'Consingment Rental Return'
+              CASE WHEN order_type_cd = 'SX' AND UPPER(sal.line_type_cd) = 'X' THEN 'Consignment/Rental Inventory Transfer'
+                   WHEN order_type_cd = 'SV' AND UPPER(sal.line_type_cd) = 'RS' THEN 'Consignment/Rental Inventory Transfer'
+                   WHEN order_type_cd = 'SV' AND UPPER(sal.line_type_cd) IN ('R1','R2','R3','R4','R5') THEN 'Consignment Rental'
+                   WHEN order_type_cd = 'SV' THEN 'Rental Sale'
+                   WHEN order_type_cd = 'CV' AND UPPER(sal.line_type_cd) IN ('C1','C2','C3','C4','C5') THEN 'Consignment Rental Return'
                    WHEN order_type_cd = 'CV' AND UPPER(sal.line_type_cd) IN ('CE') THEN 'Rental Return'
                    WHEN order_type_cd = 'EB' THEN 'Accrual Reversal'
                    WHEN order_type_cd = 'SE' AND UPPER(sal.line_type_cd) IN ('RN') THEN 'Amazon Rental'
                 ELSE 'X' END AS cl_rental,
                CASE WHEN order_no IN (97281659,97378813,97379065,97379085,97424575,97424682) THEN '23K Order'
                 ELSE 'X' END AS Order23K
-        from  DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_SALES_ORDERS sal
-          LEFT JOIN STRATEGY.DW.DM_TERRITORIES_8_12_19 ter ON (sal."TERRITORY_SKEY")=(ter."TERRITORY_SKEY")
+        from  "STRATEGY"."ADOPTION_PIVOT"."SALES_UNITS_ADOPTIONPIVOT" sal
+          LEFT JOIN "STRATEGY"."ADOPTION_PIVOT"."TERRITORIES_ADOPTIONPIVOT" ter ON (sal."TERRITORY_SKEY")=(ter."TERRITORY_SKEY")
           LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS  prod ON (sal."PRODUCT_SKEY_BU") = (prod."PRODUCT_SKEY")
           LEFT JOIN DW_GA.DIM_DATE  AS dim_date ON (TO_CHAR(TO_DATE(sal."INVOICE_DT" ), 'YYYY-MM-DD'))::DATE = (TO_CHAR(TO_DATE(dim_date.datevalue ), 'YYYY-MM-DD'))
           LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_CUSTOMERS  cust ON (sal."CUST_NO_SHIP") = (cust."CUST_NO")
