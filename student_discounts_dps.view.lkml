@@ -3,7 +3,7 @@ explore: student_discounts_dps {}
 view: student_discounts_dps {
   derived_table: {
     sql:
-    WITH most_recent_run_time AS (SELECT MAX(run_time) AS most_recent_run FROM prod.cu_user_analysis_dev.student_discounts)
+    WITH most_recent_run_time AS (SELECT MAX(run_time) AS most_recent_run FROM prod.eloqua_discounts.student_discounts)
     ,most_recent_run AS
     (
         SELECT
@@ -12,7 +12,7 @@ view: student_discounts_dps {
           ,discount AS discount
           ,isbn AS isbn
           ,run_time
-       FROM prod.cu_user_analysis_dev.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time)
+       FROM prod.eloqua_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time)
     )
     SELECT user_sso_guid, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time FROM most_recent_run GROUP BY 1
       ;;
