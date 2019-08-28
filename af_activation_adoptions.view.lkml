@@ -23,9 +23,9 @@ view: af_activation_adoptions {
           concat(concat(concat(concat(institution_nm,'|'),pfmt.COURSE_CODE_DESCRIPTION),'|'),prod.pub_series_de) as adoption_key,
           sum(case when activations.platform = 'WebAssign' then activations.ACTV_COUNT_WO_SITELIC else activations.ACTV_COUNT_W_SITELIC end) AS actv_count
       FROM STRATEGY.ADOPTION_PIVOT.ACTIVATIONS_ADOPTIONPIVOT activations
-      JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS prod
+      LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS prod
       ON activations.Product_Skey = prod.Product_Skey
-      JOIN STRATEGY.DW.DM_ENTITIES ent
+      LEFT JOIN STRATEGY.DW.DM_ENTITIES ent
       ON activations.entity_no = ent.entity_no
       LEFT JOIN STRATEGY.ADOPTION_PIVOT.PFMT_ADOPTIONPIVOT pfmt on pfmt.product_family_code = prod.prod_family_cd
       JOIN prod.dw_ga.dim_date dimdate ON to_date(activations.actv_dt) = dimdate.datevalue

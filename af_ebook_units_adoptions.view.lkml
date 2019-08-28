@@ -10,9 +10,9 @@ view: af_ebook_units_adoptions {
             ,dimdate.fiscalyearvalue as fiscalyear
             ,concat(concat(concat(concat(institution_nm,'|'),pfmt.course_code_description),'|'),dm_products.pub_series_de) as adoption_key
             from STRATEGY.ADOPTION_PIVOT.CONSUMED_UNITS_ADOPTIONPIVOT units
-            JOIN STRATEGY.DW.DM_ENTITIES dm_entities
+            LEFT JOIN STRATEGY.DW.DM_ENTITIES dm_entities
             ON units.CONSUMED_ENTITY_NO = dm_entities.entity_no
-            Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
+            LEFT Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
             ON units.CONSUMED_PRODUCT_SKEY = dm_products.Product_Skey
             LEFT JOIN "STRATEGY"."ADOPTION_PIVOT"."PFMT_ADOPTIONPIVOT" pfmt on pfmt.product_family_code = dm_products.prod_family_cd
             JOIN prod.dw_ga.dim_date dimdate ON to_date(units.consumed_month_dt) = to_date(dimdate.datevalue)
