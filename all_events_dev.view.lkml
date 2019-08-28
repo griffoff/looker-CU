@@ -16,6 +16,7 @@ view: all_events_dev {
     hidden: no
     label: "Event Type"
     description: "Event category"
+    group_label: "Event Classification"
   }
 
   dimension: referral_host {
