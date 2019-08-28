@@ -93,6 +93,7 @@ view: live_subscription_status {
   }
 
   measure: student_count {
+    hidden: yes
     label: "# Students"
     type: number
     sql: COUNT(DISTINCT ${user_sso_guid}) ;;

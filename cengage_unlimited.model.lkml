@@ -64,6 +64,9 @@ explore: strategy_ecom_sales_orders {
 ######## User Experience Journey Start ###################
 
 explore: learner_profile {
+  extends: [dim_course, user_courses]
+  view_name: learner_profile
+  from: learner_profile
   extension: required
   join: merged_cu_user_info {
     view_label: "Learner Profile"
@@ -73,6 +76,60 @@ explore: learner_profile {
   join: live_subscription_status {
     view_label: "Learner Profile - Live Subscription Status"
     sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+
+  join: guid_latest_activity {
+    view_label: "Learner Profile"
+    fields: [guid_latest_activity.active]
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
+  join: user_institution_map {
+    fields: []
+    sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+  join: gateway_institution {
+    view_label: "Learner Profile"
+    sql_on: coalesce(${merged_cu_user_info.entity_id}::string, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no};;
+    relationship: many_to_one
+  }
+
+  join: raw_olr_provisioned_product {
+    fields: []
+    view_label: "Provisioned Products"
+    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: many_to_one
+  }
+
+  join: products_v {
+    fields: []
+    view_label: "Provisioned Products - Info"
+    sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
+    relationship: many_to_one
+  }
+
+  join: user_courses {
+    view_label: "Course / Section Details by User"
+    sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
+  join: dim_course {
+    sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
+  join: dim_date {
+    view_label: "Learner Profile"
+    sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
     relationship: one_to_one
   }
 
@@ -159,8 +216,6 @@ explore: live_subscription_status {
     relationship: one_to_many
   }
 
-
-
   join: dim_course {
     sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
     relationship: many_to_many
@@ -219,21 +274,22 @@ explore: all_sessions {
 
 explore: session_analysis {
   label: "CU User Analysis Prod"
-  extends: [live_subscription_status, all_sessions]
-  from: live_subscription_status
+  extends: [learner_profile, all_sessions]
+  from: learner_profile
+  view_name: learner_profile
 
   join: all_sessions {
-    sql_on: ${live_subscription_status.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     relationship: one_to_many
   }
 
   join: uploads_cu_sidebar_cohort {
-    sql_on: ${live_subscription_status.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
+    sql_on: ${learner_profile.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
     relationship: many_to_one
   }
 
   join: guid_cohort {
-    sql_on: ${live_subscription_status.user_sso_guid} = ${guid_cohort.guid} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_cohort.guid} ;;
     relationship: many_to_one
     type: inner
   }
@@ -529,18 +585,15 @@ explore: all_events_dev {
 
 explore: session_analysis_dev {
   label: "CU User Analysis Dev"
-  from: live_subscription_status
+  from: learner_profile_dev
+  view_name: learner_profile
 #   extends: [session_analysis, all_events_dev, dim_course, learner_profile]
   required_access_grants: [can_view_CU_dev_data]
   extends: [session_analysis]
-  view_name: live_subscription_status
 
   join: all_sessions {
     from: all_sessions_dev
 #     sql_on: a = b ;;
-  }
-  join: learner_profile {
-    from: learner_profile_dev
   }
 
   join: guid_cohort {

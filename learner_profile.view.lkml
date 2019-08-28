@@ -441,7 +441,7 @@ view: learner_profile {
     type: count
     label: "# Students"
     drill_fields: [details*]
-    hidden: yes
+    hidden: no
   }
 
   measure: average_lifetime_courses_used {
