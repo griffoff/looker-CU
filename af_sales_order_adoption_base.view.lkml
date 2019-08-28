@@ -4,29 +4,31 @@ view: sales_order_adoption_base {
     sql:
     WITH sales_adoption as
     (
-      Select sal.*,eb.FY18_total_consumed_units,eb.FY19_total_consumed_units,total_CD_actv_exCU_FY18,total_CD_actv_exCU_FY19,total_CD_actv_withCU_FY18,total_CD_actv_withCU_FY19,
+      Select sal.*,eb.FY18_ebook_units_byCU,eb.FY19_ebook_units_byCU,total_CD_actv_exCU_FY18,total_CD_actv_exCU_FY19,total_CD_actv_withCU_FY18,total_CD_actv_withCU_FY19,
           total_CD_actv_FY18,total_CD_actv_FY19,
           FY_17_IA_ADOPTION_Y_N_ AS FY_17_IA, FY_18_IA_ADOPTION_Y_N_ AS FY_18_IA,FY_19_IA_ADOPTION_Y_N_ AS FY_19_IA,FY_19_CU_I_INSTITUTION_Y_N_ AS FY_19_CUI,
         CASE WHEN FY_19_IA_ADOPTION_Y_N_ = 'Y' THEN
-        CASE WHEN total_CD_actv_FY19 > (total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19) THEN total_CD_actv_FY19
-             WHEN total_CD_actv_FY19 < (total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19) THEN total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19
+        CASE WHEN coalesce(total_CD_actv_FY19,0) > (coalesce(total_CD_actv_withCU_FY19,0) + coalesce(total_core_digital_ex_cu_net_units_fy19,0)) THEN coalesce(total_CD_actv_FY19,0)
+             WHEN coalesce(total_CD_actv_FY19,0) < (coalesce(total_CD_actv_withCU_FY19,0) + coalesce(total_core_digital_ex_cu_net_units_fy19,0)) THEN (coalesce(total_CD_actv_withCU_FY19,0) + coalesce(total_core_digital_ex_cu_net_units_fy19,0))
              END
-         ELSE (total_CD_actv_withCU_FY19 + total_core_digital_ex_cu_net_units_fy19)
-         END AS total_core_digit_units_fy19,
-      CASE WHEN FY_18_IA_ADOPTION_Y_N_ = 'Y' THEN
-        CASE WHEN total_CD_actv_FY18 > (total_CD_actv_withCU_FY18 + Total_core_digital_Ex_CU_Net_Units_fy18) THEN total_CD_actv_FY18
-        WHEN total_CD_actv_FY18 < (total_CD_actv_withCU_FY18 + Total_core_digital_Ex_CU_Net_Units_fy18) THEN total_CD_actv_withCU_FY18 + total_core_digital_ex_cu_net_units_fy18
-        END
-         ELSE (total_CD_actv_withCU_FY18 + Total_core_digital_Ex_CU_Net_Units_fy18)
-         END AS total_core_digit_units_fy18,
-      CASE WHEN (TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19) < 5 THEN 'Non Adoption'
-            WHEN (TOTAL_CORE_DIGIT_UNITS_FY19/(TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19)) > 0.5 THEN 'Digital'
+         ELSE (coalesce(total_CD_actv_withCU_FY19,0) + coalesce(total_core_digital_ex_cu_net_units_fy19,0))
+         END AS FY19_total_core_digital_consumed_units,
+        CASE WHEN FY_18_IA_ADOPTION_Y_N_ = 'Y' THEN
+        CASE WHEN coalesce(total_CD_actv_FY18,0) > (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0)) THEN total_CD_actv_FY18
+             WHEN coalesce(total_CD_actv_FY18,0) < (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0)) THEN (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0))
+             END
+         ELSE (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0))
+         END AS FY18_total_core_digital_consumed_units,
+      --(sal.FY18_ebook_units + eb.FY18_ebook_units_byCU) as FY18_total_ebook_activations,
+      --(sal.FY19_ebook_units + eb.FY19_ebook_units_byCU) as FY19_total_ebook_activations,
+      CASE WHEN (coalesce(TOTAL_PRINT_NET_UNITS_FY19,0) + coalesce(FY19_total_core_digital_consumed_units,0)) < 5 THEN 'Non Adoption'
+            WHEN (coalesce(FY19_total_core_digital_consumed_units,0)/(coalesce(TOTAL_PRINT_NET_UNITS_FY19,0) + coalesce(FY19_total_core_digital_consumed_units,0))) > 0.5 THEN 'Digital'
           ELSE 'Print' END AS Adoption_type_Fy19,
-       CASE WHEN (TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18) < 5 THEN 'Non Adoption'
-            WHEN (TOTAL_CORE_DIGIT_UNITS_FY18/(TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18)) > 0.5 THEN 'Digital'
+       CASE WHEN (coalesce(TOTAL_PRINT_NET_UNITS_FY18,0) + coalesce(FY18_total_core_digital_consumed_units,0)) < 5 THEN 'Non Adoption'
+            WHEN (coalesce(FY18_total_core_digital_consumed_units,0)/(coalesce(TOTAL_PRINT_NET_UNITS_FY18,0) + coalesce(FY18_total_core_digital_consumed_units,0))) > 0.5 THEN 'Digital'
           ELSE 'Print' END AS Adoption_type_Fy18,
-        TOTAL_PRINT_NET_UNITS_FY19 + TOTAL_CORE_DIGIT_UNITS_FY19 AS total_net_units_fy19,
-        TOTAL_PRINT_NET_UNITS_FY18 + TOTAL_CORE_DIGIT_UNITS_FY18 AS total_net_units_fy18,
+        coalesce(TOTAL_PRINT_NET_UNITS_FY19,0) + coalesce(FY19_total_core_digital_consumed_units,0) AS total_net_units_fy19,
+        Coalesce(TOTAL_PRINT_NET_UNITS_FY18,0) + Coalesce(FY18_total_core_digital_consumed_units,0) AS total_net_units_fy18,
         CASE WHEN Coalesce(total_net_units_fy19,0) > 0.5 AND Coalesce(total_net_units_fy18,0) > 0.5
           THEN
             CASE WHEN total_net_units_fy19/total_net_units_fy18 >= 10 THEN '10x larger'
@@ -64,9 +66,9 @@ view: sales_order_adoption_base {
 
 
       from  ${af_salesorder_adoption.SQL_TABLE_NAME} sal
-              LEFT JOIN ${af_activation_adoptions.SQL_TABLE_NAME} act
+              FULL OUTER JOIN ${af_activation_adoptions.SQL_TABLE_NAME} act
               ON sal.adoption_key = act.adoption_key
-              LEFT JOIN ${af_ebook_units_adoptions.SQL_TABLE_NAME} AS eb
+              FULL OUTER JOIN ${af_ebook_units_adoptions.SQL_TABLE_NAME} AS eb
               ON sal.adoption_key = eb.adoption_key
               LEFT JOIN UPLOADS.CU.IA_ADOPTIONS_SALESORDER ia
               ON ia.adoption_key = sal.adoption_key
@@ -89,8 +91,8 @@ view: sales_order_adoption_base {
   dimension: FY_19_IA {}
   dimension: FY_19_CUI {}
   dimension: institution_nm {}
-  dimension: total_core_digit_units_fy19 {}
-  dimension: total_core_digit_units_fy18 {}
+  dimension: FY19_total_core_digital_consumed_units {}
+  dimension: FY18_total_core_digital_consumed_units {}
   dimension: Adoption_type_Fy19 {}
   dimension: Adoption_type_Fy18 {}
   dimension: FY18_FY19_adoption_transition_type1 {
@@ -110,14 +112,14 @@ view: sales_order_adoption_base {
   dimension: actv_rate_fy19  {
     type: number
     sql: CASE WHEN total_core_digit_units_fy19 = 0 OR total_CD_actv_FY19 = 0 THEN 0
-          ELSE total_CD_actv_FY19/total_core_digit_units_fy19
+          ELSE total_CD_actv_FY19/FY19_total_core_digital_consumed_units
           END;;
   }
 
   dimension: actv_rate_fy18  {
     type: number
     sql: CASE WHEN total_core_digit_units_fy18 = 0 OR total_CD_actv_FY18 = 0 THEN 0
-          ELSE total_CD_actv_FY18/total_core_digit_units_fy18
+          ELSE total_CD_actv_FY18/FY18_total_core_digital_consumed_units
           END;;
   }
 
@@ -138,22 +140,27 @@ view: sales_order_adoption_base {
     sql: ${TABLE}."TOTAL_PRINT_NET_SALES_FY18";;
   }
 
+  dimension: total_print_net_sales_fy19 {
+    type: number
+    sql: ${TABLE}."TOTAL_PRINT_NET_SALES_FY19" ;;
+  }
+
   measure: sum_total_print_net_sales_fy19 {
     type: sum
     sql: ${TABLE}."TOTAL_PRINT_NET_SALES_FY19" ;;
   }
 
 #   FY19 Total Core Digital Consumed Units
-  measure: sum_total_core_digit_units_fy19 {
-    label: "Total Core Digital Consumed Units FY 19"
+  measure: sum_FY19_total_core_digital_consumed_units {
+    label: "FY19 Total Core Digital Consumed Units"
     type: sum
-    sql: ${TABLE}."TOTAL_CORE_DIGIT_UNITS_FY19" ;;
+    sql: ${TABLE}."FY19_TOTAL_CORE_DIGITAL_CONSUMED_UNITS" ;;
   }
 
-  measure: sum_total_core_digit_units_fy18 {
-    label: "Total Core Digital Consumed Units FY 18"
+  measure: sum_FY18_total_core_digital_consumed_units {
+    label: "FY18 Total Core Digital Consumed Units"
     type: sum
-    sql: ${TABLE}."TOTAL_CORE_DIGIT_UNITS_FY18" ;;
+    sql: ${TABLE}."FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS" ;;
   }
 
   dimension: total_net_units_fy19 {
@@ -179,10 +186,6 @@ view: sales_order_adoption_base {
     sql: ${total_net_units_fy18} ;;
   }
 
-  dimension: total_print_net_sales_fy19 {
-    type: number
-    sql: ${TABLE}."TOTAL_PRINT_NET_SALES_FY19" ;;
-  }
 
   dimension: total_core_digital_netsales_ex_cu_fy18 {
     type: number
