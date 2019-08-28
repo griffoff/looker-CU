@@ -3,10 +3,30 @@
 include: "ipm_browser_event.view.lkml"
 include: "ipm_campaign.view.lkml"
 include: "ipm_queue_event.view.lkml"
+include: "ipm.*.view"
+include: "all_events.view"
 include: "live_subscription_status.view.lkml"
 include: "raw_subscription_event.view.lkml"
 
 # include: "cengage_unlimited.model.lkml"
+
+explore: ipm_campaign {
+  label: "IPM Campaign"
+#   join: ipm_queue_event {
+#     # messages intended for display
+#     sql_on: ${ipm_campaign.message_id} = ${ipm_queue_event.message_id} ;;
+#     relationship: one_to_many
+#   }
+  join: ipm_browser_event {
+    from: ipm_browser_event_and_outcome
+    sql_on: ${ipm_campaign.message_id} = ${ipm_browser_event.message_id}
+            AND ${ipm_campaign.campaign_start_raw} <= ${ipm_browser_event.event_time}
+            AND ${ipm_campaign.next_campaign_start_time} > ${ipm_browser_event.event_time};;
+            #and ${ipm_queue_event.user_sso_guid} = ${ipm_browser_event.user_sso_guid};;
+    relationship: one_to_many
+  }
+
+}
 
 explore: ipm_browser_event {
   label: "IPM User Events"
