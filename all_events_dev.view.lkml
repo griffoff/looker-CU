@@ -11,6 +11,21 @@ view: all_events_dev {
     sql: ${event_data}:iac_isbn ;;
   }
 
+  dimension: event_type {
+    sql:${TABLE}."EVENT_TYPE" ;;
+    hidden: no
+    label: "Event Type"
+    description: "Event category"
+    group_label: "Event Classification"
+  }
+
+  dimension: event_name_temp {
+    sql:  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ;;
+    group_label: "Event Classification"
+    label: "event_classification concat with event_action"
+  }
+
+
   dimension: referral_host {
     type: string
     sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;

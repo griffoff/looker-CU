@@ -2,24 +2,26 @@ view: af_ebook_units_adoptions {
   derived_table: {
     sql: With ebook_unit1 as (
          select units.*
-            ,dm_entities.state_de as ent_state_de,dm_entities.institution_nm,dm_products.pub_series_de
-            ,dm_products.prod_family_cd,e1_product_family_master.course_as_provided_by_prd_team
+            ,dm_entities.state_cd as ent_state_cd
+            ,dm_entities.institution_nm
+            ,dm_products.pub_series_de
+            ,dm_products.prod_family_cd
+            ,pfmt.course_code_description
             ,dimdate.fiscalyearvalue as fiscalyear
-            ,concat(concat(concat(concat(institution_nm,'|'),course_as_provided_by_prd_team),'|'),dm_products.pub_series_de) as adoption_key
-            from STRATEGY.DW.DM_CONSUMED_UNITS units
-            LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_ENTITIES dm_entities
+            ,concat(concat(concat(concat(institution_nm,'|'),pfmt.course_code_description),'|'),dm_products.pub_series_de) as adoption_key
+            from STRATEGY.ADOPTION_PIVOT.CONSUMED_UNITS_ADOPTIONPIVOT units
+            JOIN STRATEGY.DW.DM_ENTITIES dm_entities
             ON units.CONSUMED_ENTITY_NO = dm_entities.entity_no
-            Left Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
+            Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
             ON units.CONSUMED_PRODUCT_SKEY = dm_products.Product_Skey
-            LEFT JOIN Uploads.CU.e1_product_family_master ON (e1_product_family_master."PF_CODE") = (dm_products."PROD_FAMILY_CD")
-            LEFT JOIN prod.dw_ga.dim_date dimdate ON units.consumed_month_dt = dimdate.datevalue
-            where  e1_product_family_master._file ilike 'E1 Product Family Master(12-20-18).csv'
+            LEFT JOIN "STRATEGY"."ADOPTION_PIVOT"."PFMT_ADOPTIONPIVOT" pfmt on pfmt.product_family_code = dm_products.prod_family_cd
+            JOIN prod.dw_ga.dim_date dimdate ON to_date(units.consumed_month_dt) = to_date(dimdate.datevalue)
           )
           Select
               adoption_key,
              institution_nm,
-              SUM(CASE WHEN fiscalyear = 'FY18' THEN cu_ebook_units END) AS FY18_total_consumed_units,
-              SUM(CASE WHEN fiscalyear = 'FY19' THEN cu_ebook_units END) AS FY19_total_consumed_units
+              SUM(CASE WHEN fiscalyear = 'FY18' THEN cu_ebook_units END) AS FY18_ebook_units_byCU,
+              SUM(CASE WHEN fiscalyear = 'FY19' THEN cu_ebook_units END) AS FY19_ebook_units_byCU
           from ebook_unit1
               group by 1,2
 

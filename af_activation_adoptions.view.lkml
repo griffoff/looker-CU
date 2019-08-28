@@ -1,10 +1,8 @@
+explore: af_activation_adoptions {}
+
 view: af_activation_adoptions {
   derived_table: {
-    sql: With activations as (
-        Select COLUMN_HASH,PLATFORM, ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY,ACTV_USER_TYPE,ORGANIZATION,CU_FLG from  STG_CLTS.ACTIVATIONS_OLR activations_olr
-        union all
-        Select COLUMN_HASH,PLATFORM,ACTV_TRIAL_PURCHASE,ACTV_DT, ACTV_CODE,entity_no,PRODUCT_SKEY,ACTV_USER_TYPE,ORGANIZATION,CU_FLG from PROD.STG_CLTS.ACTIVATIONS_NON_OLR
-      ),activations_1 as(
+    sql: With activations_1 as(
         Select
           ent."INSTITUTION_NM"  AS institution_nm,
           prod."PROD_FAMILY_CD"  AS prod_family_cd,
@@ -16,37 +14,33 @@ view: af_activation_adoptions {
           activations.PLATFORM  AS platform,
           activations.ACTV_TRIAL_PURCHASE  AS actv_trial_purchase,
           TO_CHAR(TO_DATE(activations.ACTV_DT ), 'YYYY-MM-DD') AS actv_dt_date,
-          CASE WHEN activations.PLATFORM  ilike 'webassign' AND (actv_trial_purchase ilike 'Continued Enrollment' OR actv_trial_purchase ilike 'Site License') then 'Y' else 'N' end as is_webassign_exclude,
-          pf_master."COURSE_AS_PROVIDED_BY_PRD_TEAM"  AS "course_as_provided_by_prd_team",
-      --  COUNT(DISTINCT activations.ACTV_CODE ) AS "activations_olr.actv_code_count"
-          activations.ACTV_CODE as ACTV_CODE,
+          pfmt.COURSE_CODE_DESCRIPTION,
           activations.ACTV_USER_TYPE as ACTV_USER_TYPE,
           activations.ORGANIZATION as ORGANIZATION,
           activations.CU_FLG AS CU_FLG,
-          activations.COLUMN_HASH AS COLUMN_HASH,
           dimdate.fiscalyearvalue as fiscalyear,
-          ent.state_de as ent_state_de,
-          concat(concat(concat(concat(institution_nm,'|'),course_as_provided_by_prd_team),'|'),prod.pub_series_de) as adoption_key
-      FROM
-          activations
-      LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS prod
+          ent.state_cd as ent_state_cd,
+          concat(concat(concat(concat(institution_nm,'|'),pfmt.COURSE_CODE_DESCRIPTION),'|'),prod.pub_series_de) as adoption_key,
+          sum(case when activations.platform = 'WebAssign' then activations.ACTV_COUNT_WO_SITELIC else activations.ACTV_COUNT_W_SITELIC end) AS actv_count
+      FROM STRATEGY.ADOPTION_PIVOT.ACTIVATIONS_ADOPTIONPIVOT activations
+      JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS prod
       ON activations.Product_Skey = prod.Product_Skey
-      LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_ENTITIES ent
+      JOIN STRATEGY.DW.DM_ENTITIES ent
       ON activations.entity_no = ent.entity_no
-      LEFT JOIN Uploads.CU.e1_product_family_master pf_master ON (pf_master."PF_CODE") = (prod."PROD_FAMILY_CD")
-      LEFT JOIN prod.dw_ga.dim_date dimdate ON activations.actv_dt = dimdate.datevalue
-      Where pf_master._file ilike 'E1 Product Family Master(12-20-18).csv'
+      LEFT JOIN STRATEGY.ADOPTION_PIVOT.PFMT_ADOPTIONPIVOT pfmt on pfmt.product_family_code = prod.prod_family_cd
+      JOIN prod.dw_ga.dim_date dimdate ON to_date(activations.actv_dt) = dimdate.datevalue
+      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
       )
 
       select
         adoption_key,
         institution_nm,
-        COUNT(CASE WHEN cu_flg = 'N' AND FISCALYEAR = 'FY18' THEN actv_code END) AS total_CD_actv_exCU_FY18,
-        COUNT(CASE WHEN cu_flg = 'N' AND FISCALYEAR = 'FY19' THEN actv_code END) AS total_CD_actv_exCU_FY19,
-        COUNT(CASE WHEN cu_flg = 'Y' AND FISCALYEAR = 'FY18' THEN actv_code END) AS total_CD_actv_withCU_FY18,
-        COUNT(CASE WHEN cu_flg = 'Y' AND FISCALYEAR = 'FY19' THEN actv_code END) AS total_CD_actv_withCU_FY19,
-        COUNT(CASE WHEN FISCALYEAR = 'FY18' THEN actv_code END) AS total_CD_actv_FY18,
-        COUNT(CASE WHEN FISCALYEAR = 'FY19' THEN actv_code END) AS total_CD_actv_FY19
+        sum(CASE WHEN cu_flg = 'N' AND FISCALYEAR = 'FY18' THEN actv_count END) AS total_CD_actv_exCU_FY18,
+        sum(CASE WHEN cu_flg = 'N' AND FISCALYEAR = 'FY19' THEN actv_count END) AS total_CD_actv_exCU_FY19,
+        sum(CASE WHEN cu_flg = 'Y' AND FISCALYEAR = 'FY18' THEN actv_count END) AS total_CD_actv_withCU_FY18,
+        sum(CASE WHEN cu_flg = 'Y' AND FISCALYEAR = 'FY19' THEN actv_count END) AS total_CD_actv_withCU_FY19,
+        sum(CASE WHEN FISCALYEAR = 'FY18' THEN actv_count END) AS total_CD_actv_FY18,
+        sum(CASE WHEN FISCALYEAR = 'FY19' THEN actv_count END) AS total_CD_actv_FY19
       from activations_1
       where
         ORGANIZATION = 'Higher Ed' AND actv_trial_purchase IN ('Site License','Purchase')
