@@ -6,11 +6,13 @@ view: ipm_campaign {
         HASH(c.message_id, c.campaign_start_date) as pk
         ,c.*
         ,ROW_NUMBER() OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date) AS message_version_no
-        ,LEAD(c.campaign_start_date) OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date) AS next_campaign_start_date
+        ,COALESCE(LEAD(c.campaign_start_date) OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date), CURRENT_TIMESTAMP()) AS next_campaign_start_date
         ,outcome.event_outcome
+        ,COALESCE(outcome.campaign_outcome, outcome.event_outcome) AS campaign_outcome
+        ,COALESCE(outcome.real_campaign_title, c.campaign_title) AS real_campaign_title
     FROM IPM.PROD.IPM_CAMPAIGN c
     LEFT JOIN (
-        SELECT DISTINCT campaign_title, event_outcome
+        SELECT DISTINCT campaign_title, event_outcome, real_campaign_title, campaign_outcome
         FROM uploads.ipm.campaign_to_outcome
         WHERE NOT _FIVETRAN_DELETED
         ) outcome ON c.campaign_title ilike outcome.campaign_title
@@ -39,7 +41,8 @@ view: ipm_campaign {
   }
 
   dimension: event_outcome {
-    label: "Campaign target"
+    label: "Campaign Target"
+    sql: ${TABLE}.campaign_outcome ;;
   }
 
   dimension_group: campaign_end {
@@ -82,7 +85,7 @@ view: ipm_campaign {
 
   dimension: next_campaign_start_time {
     hidden: yes
-    type: date_time
+    type: date_raw
     sql:  ${TABLE}.next_campaign_start_date ;;
   }
 

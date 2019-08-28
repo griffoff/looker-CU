@@ -20,8 +20,8 @@ explore: ipm_campaign {
   join: ipm_browser_event {
     from: ipm_browser_event_and_outcome
     sql_on: ${ipm_campaign.message_id} = ${ipm_browser_event.message_id}
-            AND ${ipm_campaign.campaign_start_raw} <= ${ipm_browser_event.event_time}
-            AND ${ipm_campaign.next_campaign_start_time} > ${ipm_browser_event.event_time};;
+            AND ${ipm_campaign.campaign_start_raw} <= ${ipm_browser_event.event_raw}
+            AND ${ipm_campaign.next_campaign_start_time} > ${ipm_browser_event.event_raw};;
             #and ${ipm_queue_event.user_sso_guid} = ${ipm_browser_event.user_sso_guid};;
     relationship: one_to_many
   }
