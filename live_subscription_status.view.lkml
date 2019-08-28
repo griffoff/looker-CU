@@ -24,6 +24,7 @@ view: live_subscription_status {
     description: "This flag is yes if a user has ever done a subscription event from a gateway account (from a shadow or gateway guid)"
   }
 
+
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {
@@ -53,6 +54,15 @@ view: live_subscription_status {
     sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
     sql_end: current_date() ;;
   }
+
+#   dimension_group: time_since_last_trial {
+# #     group_label: "Time at this status"
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: CASE (WHEN ${subscription_end_raw} < current_timestamp() AND ${prior_status} = 'Trial_Access') THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
+#     sql_end: current_date() ;;
+#   }
+
 
   dimension_group: time_in_current_status {
 #     group_label: "Time at this status"
