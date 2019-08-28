@@ -1244,63 +1244,6 @@ explore: sso_logins {
 
 # ------ Sales order explore -------------------------------------
 
-explore: dm_sales_orders {
-
-  join: dm_territories {
-    sql_on: ${dm_sales_orders.territory_skey}=${dm_territories.territory_skey} ;;
-    relationship: many_to_one
-  }
-
-  join: dm_products {
-    sql_on: ${dm_sales_orders.product_skey_bu} = ${dm_products.product_skey} ;;
-    relationship: many_to_one
-  }
-
-  join: dim_date {
-    sql_on: ${dm_sales_orders.invoice_dt_date}::DATE = ${dim_date.datevalue};;
-    relationship: many_to_one
-  }
-
-  join: dm_customers {
-    sql_on: ${dm_sales_orders.cust_no_ship} = ${dm_customers.cust_no} ;;
-    relationship:many_to_one
-  }
-
-  join: dm_entities {
-    sql_on: ${dm_entities.entity_no} = ${dm_customers.entity_no};;
-    relationship: one_to_many
-  }
-
-  join: e1_product_family_master {
-    sql_on: ${e1_product_family_master.pf_code} = ${dm_products.prod_family_cd} ;;
-    relationship: one_to_many
-  }
-
-#   join: activations_olr {
-#     sql_on: ${dm_entities.entity_no} = ${activations_olr.entity_no}
-#     and ${dm_products.product_skey} = ${activations_olr.product_skey};;
-#     relationship: many_to_many
-#   }
-
-  join: activations_for_salesorder_adoptions {
-    sql_on: ${dm_products.pub_series_de} = ${activations_for_salesorder_adoptions.dm_products_pub_series_de}
-    AND ${dm_entities.institution_nm} = ${activations_for_salesorder_adoptions.dm_entities_institution_nm}
-    AND ${e1_product_family_master.course_as_provided_by_prd_team} = ${activations_for_salesorder_adoptions.e1_product_family_master_course_as_provided_by_prd_team}
-    AND ${dm_entities.state_de} =${activations_for_salesorder_adoptions.state_de}
-    AND ${dim_date.fiscalyear} = ${activations_for_salesorder_adoptions.fiscalyear};;
-    relationship: one_to_one
-  }
-
-  join: ebook_consumed_for_sales_adoption {
-    sql_on: ${dm_products.pub_series_de} = ${ebook_consumed_for_sales_adoption.pub_series_de}
-          AND ${dm_entities.institution_nm} = ${ebook_consumed_for_sales_adoption.institution_nm}
-          AND ${e1_product_family_master.course_as_provided_by_prd_team} = ${ebook_consumed_for_sales_adoption.course_as_provided_by_prd_team}
-          AND ${dm_entities.state_de} =${ebook_consumed_for_sales_adoption.state_de}
-          AND ${dim_date.fiscalyear} = ${ebook_consumed_for_sales_adoption.fiscalyear};;
-    relationship: one_to_one
-  }
-
-}
 
 explore: sales_orders_forecasting {
   label: "Sales Order Forecasting"
