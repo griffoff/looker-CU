@@ -97,6 +97,13 @@ view: ipm_browser_event {
     sql: DECODE(${event_action_raw}, 'DISMISSED', ${user_sso_guid})  ;;
   }
 
+  measure: clicked_or_dismissed {
+    group_label: "Counts"
+    label: "# Seen"
+    type: count_distinct
+    sql: CASE WHEN ${event_action_raw} IN ('DISMISSED', 'CLICKED') THEN ${user_sso_guid} END  ;;
+  }
+
   measure: discarded_count {
     group_label: "Counts"
     label: "# Discards"
@@ -113,7 +120,7 @@ view: ipm_browser_event {
 
   measure: click_through_rate {
     group_label: "Rates"
-    label: "CTR"
+    label: "Click Through"
     type: number
     sql: ${clicked_count} / NULLIF(${displayed_count}, 0) ;;
     value_format_name: percent_2
@@ -124,6 +131,14 @@ view: ipm_browser_event {
     label: "Conversion from Click"
     type: number
     sql: ${converted_count} / NULLIF(${clicked_count}, 0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: conversion_rate_from_seen {
+    group_label: "Rates"
+    label: "Conversion from Seen"
+    type: number
+    sql: ${converted_count} / NULLIF(${clicked_or_dismissed}, 0) ;;
     value_format_name: percent_2
   }
 

@@ -8,13 +8,18 @@ view: ipm_campaign {
         ,ROW_NUMBER() OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date) AS message_version_no
         ,COALESCE(LEAD(c.campaign_start_date) OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date), CURRENT_TIMESTAMP()) AS next_campaign_start_date
         ,outcome.event_outcome
-        ,COALESCE(outcome.campaign_outcome, outcome.event_outcome) AS campaign_outcome
+        ,COALESCE(outcome.campaign_outcome, ARRAY_TO_STRING(outcome.event_outcome, ' OR ')) AS campaign_outcome
         ,COALESCE(outcome.real_campaign_title, c.campaign_title) AS real_campaign_title
     FROM IPM.PROD.IPM_CAMPAIGN c
     LEFT JOIN (
-        SELECT DISTINCT campaign_title, event_outcome, real_campaign_title, campaign_outcome
+        SELECT
+            campaign_title
+            ,MIN(NULLIF(real_campaign_title, '')) AS real_campaign_title
+            ,MIN(NULLIF(campaign_outcome, '')) AS campaign_outcome
+            ,ARRAY_AGG(DISTINCT UPPER(event_outcome)) AS event_outcome
         FROM uploads.ipm.campaign_to_outcome
         WHERE NOT _FIVETRAN_DELETED
+        GROUP BY 1
         ) outcome ON c.campaign_title ilike outcome.campaign_title
     WHERE platform_environment = 'production'
     AND campaign_start_date > '2018-09-21'
