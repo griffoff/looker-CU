@@ -25,6 +25,7 @@ explore: ipm_campaign {
             #and ${ipm_queue_event.user_sso_guid} = ${ipm_browser_event.user_sso_guid};;
     relationship: one_to_many
   }
+  sql_always_where: ${campaign_title} NOT ilike '%test%' ;;
 
 }
 

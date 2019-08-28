@@ -17,13 +17,6 @@ explore: late_activators {
     sql_on: ${late_activators.course_key} = ${dim_course.olr_course_key} ;;
     relationship: many_to_one
   }
-  join: daily_messaging_info {
-    sql_on: ${late_activators.user_sso_guid} = ${daily_messaging_info.merged_guid}
-        and ${late_activators.course_key} = ${daily_messaging_info.course_key}
-        and ${late_activators.email_msg_type}::STRING = ${daily_messaging_info.email_type};;
-    type: full_outer
-    relationship: one_to_one
-  }
 }
 
 explore: magellan_instructor_setup_status {
