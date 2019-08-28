@@ -17,7 +17,7 @@ view: student_discounts_dps {
     SELECT user_sso_guid, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time FROM most_recent_run GROUP BY 1
       ;;
 #   persist_for: "6 hours"
-  sql_trigger_value: Select * from prod.cu_user_analysis_dev.student_discounts   ;;
+  sql_trigger_value: Select * from prod.eloqua_discounts.student_discounts   ;;
   }
 
   measure: count {
