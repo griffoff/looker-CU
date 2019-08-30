@@ -106,7 +106,7 @@ view: student_discounts_dps {
 #             ;;
 #   }
 
-  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount, isbn, discount, run_time_date]}
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount, isbn, discount, run_time_date, marketing_mechanism]}
 
 
   set: detail {
