@@ -16,7 +16,8 @@ view: learner_profile {
       learner_profile.courseware_added_count, learner_profile.courseware_added_tier,purchase_path, learner_profile.no_a_la_carte_purchase_user, learner_profile.returning_cu_customer,
       learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
      ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date, learner_profile.count
-     ]
+      ,learner_profile.control_flag_1 ,learner_profile.control_flag_2 ,learner_profile.control_flag_3 ,learner_profile.control_flag_4 ,learner_profile.control_flag_5
+    ]
 
   }
 
@@ -521,6 +522,48 @@ view: learner_profile {
 #    ${user_courses.activation_date} > ${TABLE}.latest_full_access_subscription_end_date
 #            OR ${TABLE}.latest_full_access_subscription_end_date IS NULL AND  ${user_courses.activation_date} IS NOT NULL ;;
   }
+
+
+  dimension: control_flag_1 {
+    type: number
+    label: "Control flag 1"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_1";;
+  }
+
+  dimension: control_flag_2 {
+    type: number
+    label: "Control flag 2"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_2";;
+  }
+
+  dimension: control_flag_3 {
+    type: number
+    label: "Control flag 3"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_3";;
+  }
+
+  dimension: control_flag_4 {
+    type: number
+    label: "Control flag 4"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_4";;
+  }
+
+  dimension: control_flag_5 {
+    type: number
+    label: "Control flag 5"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_5";;
+  }
+
 
 
   dimension: cu_price {
