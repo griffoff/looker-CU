@@ -17,6 +17,7 @@ view: learner_profile {
       learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
      ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date, learner_profile.count
       ,learner_profile.control_flag_1 ,learner_profile.control_flag_2 ,learner_profile.control_flag_3 ,learner_profile.control_flag_4 ,learner_profile.control_flag_5
+      ,control_flag_1_abstract
     ]
 
   }
@@ -527,10 +528,25 @@ view: learner_profile {
   dimension: control_flag_1 {
     type: number
     label: "Control flag 1"
+    hidden: yes
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_1";;
   }
+
+  dimension: control_flag_1_abstract {
+    type: string
+    label: "Control flag 1"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: CASE WHEN ${TABLE}."CONTROL_FLAG_1" < 85 THEN 'Usage and conversion'
+              WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 85 AND 90 THEN 'Conversion only'
+              WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 90 and 95 THEN  'Usage only'
+              WHEN ${TABLE}."CONTROL_FLAG_1" > 95 THEN 'Hold Out' ELSE 'No group' END
+            ;;
+  }
+
+
 
   dimension: control_flag_2 {
     type: number
@@ -538,6 +554,7 @@ view: learner_profile {
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_2";;
+    hidden: yes
   }
 
   dimension: control_flag_3 {
@@ -546,6 +563,7 @@ view: learner_profile {
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_3";;
+    hidden: yes
   }
 
   dimension: control_flag_4 {
@@ -554,6 +572,7 @@ view: learner_profile {
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_4";;
+    hidden: yes
   }
 
   dimension: control_flag_5 {
@@ -562,6 +581,7 @@ view: learner_profile {
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_5";;
+    hidden: yes
   }
 
 
