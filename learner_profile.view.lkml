@@ -17,7 +17,7 @@ view: learner_profile {
       learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
      ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date, learner_profile.count
       ,learner_profile.control_flag_1 ,learner_profile.control_flag_2 ,learner_profile.control_flag_3 ,learner_profile.control_flag_4 ,learner_profile.control_flag_5
-      ,control_flag_1_abstract
+      ,learner_profile.email_control_flag, learner_profile.ipm_control_flag
     ]
 
   }
@@ -534,9 +534,9 @@ view: learner_profile {
     sql: ${TABLE}."CONTROL_FLAG_1";;
   }
 
-  dimension: control_flag_1_abstract {
+  dimension: email_control_flag {
     type: string
-    label: "Control flag 1"
+    label: "Control flag Email"
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: CASE WHEN ${TABLE}."CONTROL_FLAG_1" < 85 THEN 'Usage and conversion'
@@ -555,6 +555,18 @@ view: learner_profile {
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_2";;
     hidden: yes
+  }
+
+  dimension: ipm_control_flag {
+    type: string
+    label: "Control flag IPM"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: CASE WHEN ${TABLE}."CONTROL_FLAG_2" < 85 THEN 'Usage and conversion'
+              WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 85 AND 90 THEN 'Conversion only'
+              WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 90 and 95 THEN  'Usage only'
+              WHEN ${TABLE}."CONTROL_FLAG_2" > 95 THEN 'Hold Out' ELSE 'No group' END
+            ;;
   }
 
   dimension: control_flag_3 {
