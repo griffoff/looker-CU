@@ -15,7 +15,7 @@ view: learner_profile {
     fields: [learner_profile.user_sso_guid, learner_profile.subscription_start_date, learner_profile.subscription_end_date, learner_profile.products_added_count, learner_profile.products_added_tier,
       learner_profile.courseware_added_count, learner_profile.courseware_added_tier,purchase_path, learner_profile.no_a_la_carte_purchase_user, learner_profile.returning_cu_customer,
       learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
-     ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date
+     ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date,count
      ]
 
   }
@@ -206,6 +206,15 @@ view: learner_profile {
     hidden: no
     type: yesno
     sql: lower(${subscription_status}) = 'full access' ;;
+  }
+
+  dimension: is_cu_subscriber_desc {
+    group_label: "Customer Type"
+    label: "Is CU subscriber (Description)"
+    description: "True if user is currently a full access subscriber and false if they are not"
+    hidden: no
+    type: string
+    sql: CASE lower(${subscription_status}) WHEN 'full access' THEN 'Subscribed' WHEN 'provisional locker' THEN 'Locker' ELSE 'Not subscribed' END ;;
   }
 
   dimension: cu_subscription_length_raw  {
@@ -451,6 +460,7 @@ view: learner_profile {
     description: "average # of courses used over a student's life time"
     drill_fields: [details*]
     hidden: no
+    value_format_name: decimal_1
   }
 
   dimension: marketing_segment_fb {
@@ -486,8 +496,8 @@ view: learner_profile {
     hidden: yes
   }
 
-
   dimension: paid_flag {
+    group_label: "Paid Flag"
     type: yesno
     sql: paid_flag = 'Y' ;;
     label: "Paid flag"
@@ -495,6 +505,26 @@ view: learner_profile {
     hidden: no
   }
 
+  dimension: paid_flag_desc {
+    group_label: "Paid Flag"
+    type: string
+    sql: CASE WHEN ${paid_flag} THEN 'Paid' ELSE 'Unpaid' END ;;
+    label: "Paid (Description)"
+    description: "User currently has one or more current activation or a CU subscription."
+    hidden: no
+  }
+
+#   measure: users_paid_count {
+#     label: "# Students Paid"
+#     type: count_distinct
+#     sql: CASE WHEN ${paid_flag} THEN ${user_sso_guid} END ;;
+#   }
+#
+#   measure: users_paid_active_count {
+#     label: "# Students Paid and Active"
+#     type: count_distinct
+#     sql: CASE WHEN ${paid_flag} AND ${guid_latest_activity.active} THEN ${user_sso_guid} END ;;
+#   }
 
   dimension: courseware_net_price_non_cu_enrolled {
     type: number

@@ -10,6 +10,8 @@ view: ipm_browser_event_and_outcome {
       SELECT message_id, 'CONVERTED', COALESCE(event_name, 'UNKNOWN EVENT'), first_event_time, user_sso_guid
       FROM ${ipm_campaign_to_outcome.SQL_TABLE_NAME}
       ;;
+
+      persist_for: "60 minute"
   }
 }
 view: ipm_browser_event {
@@ -79,6 +81,7 @@ view: ipm_browser_event {
   measure: displayed_count {
     group_label: "Counts"
     label: "# Impressions"
+    description: "# Displayed"
     type: count_distinct
     sql: DECODE(${event_action_raw}, 'DISPLAYED', ${user_sso_guid})  ;;
   }
@@ -99,6 +102,7 @@ view: ipm_browser_event {
 
   measure: clicked_or_dismissed {
     group_label: "Counts"
+    description: "# Dismissed or Clicked"
     label: "# Seen"
     type: count_distinct
     sql: CASE WHEN ${event_action_raw} IN ('DISMISSED', 'CLICKED') THEN ${user_sso_guid} END  ;;
