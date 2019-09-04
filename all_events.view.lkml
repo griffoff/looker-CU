@@ -194,10 +194,11 @@ view: all_events {
   dimension: event_name {
     group_label: "Event Classification"
     type: string
-    sql: ${TABLE}."EVENT_NAME" ;;
+    sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
     label: "Event name"
     description: "The lowest level in hierarchy of event classification below event action. Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'"
   }
+
 
   dimension_group: local {
     type: time
