@@ -3,8 +3,8 @@ explore: student_discounts_dps {}
 view: student_discounts_dps {
   derived_table: {
     sql:
-    WITH most_recent_run_time AS (SELECT MAX(run_time) AS most_recent_run FROM prod.eloqua_discounts.student_discounts)
-    ,most_recent_run AS
+    WITH most_recent_run_time_eloqua AS (SELECT MAX(run_time) AS most_recent_run FROM prod.eloqua_discounts.student_discounts)
+    ,most_recent_run_eloqua AS
     (
         SELECT
           ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
@@ -12,12 +12,34 @@ view: student_discounts_dps {
           ,discount AS discount
           ,isbn AS isbn
           ,run_time
-       FROM prod.eloqua_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time)
+       FROM prod.eloqua_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_eloqua)
     )
-    SELECT user_sso_guid, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time FROM most_recent_run GROUP BY 1
+    ,most_recent_run_time_ipm AS (SELECT MAX(run_time) AS most_recent_run FROM prod.ipm_discounts.student_discounts)
+    ,most_recent_run_ipm AS
+    (
+        SELECT
+          ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
+          ,user_sso_guid
+          ,discount AS discount
+          ,isbn AS isbn
+          ,run_time
+       FROM prod.ipm_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_ipm)
+    )
+    SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
+    FROM most_recent_run_eloqua GROUP BY 1, 2
+    UNION
+    SELECT user_sso_guid, 'ipm' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
+    FROM most_recent_run_ipm GROUP BY 1, 2
+
+
       ;;
 #   persist_for: "6 hours"
-  sql_trigger_value: Select * from prod.eloqua_discounts.student_discounts   ;;
+  sql_trigger_value: Select * from prod.eloqua_discounts.student_discounts UNION SELECT * FROM prod.ipm_discounts.student_discounts  ;;
+  }
+
+  dimension: marketing_mechanism {
+    group_label: "Discount info"
+
   }
 
   measure: count {
@@ -49,6 +71,7 @@ view: student_discounts_dps {
 
 
   dimension_group: run_time {
+    group_label: "Discount info"
     type: time
     timeframes: [date, week, month, year, raw]
     sql: ${TABLE}."RUN_TIME" ;;
@@ -87,7 +110,7 @@ view: student_discounts_dps {
 #             ;;
 #   }
 
-  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount, isbn, discount, run_time_date]}
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount, isbn, discount, run_time_date, marketing_mechanism]}
 
 
   set: detail {

@@ -116,6 +116,7 @@ explore: marketing_analysis {
     ,cu_enterprise_licenses*
     ,student_discounts_dps.marketing_fields*
     ,institutional_savings.marketing_fields*
+    ,ipm_ff_20190830.marketing_fields*
     ]
 
 
@@ -175,6 +176,11 @@ explore: marketing_analysis {
   join: student_discounts_dps {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
+  join: ipm_ff_20190830 {
+    sql_on: ${learner_profile.user_sso_guid} = ${ipm_ff_20190830.user_sso_guid} ;;
     relationship: one_to_one
   }
 
