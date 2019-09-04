@@ -17,9 +17,9 @@ view: guid_latest_activity {
   }
   dimension: active {
     group_label: "Active"
-    description: "Active users are those who have had some activity within the past 7 days"
+    description: "Active users are those who have had some activity within the past 30 days"
     type: yesno
-    sql: ${date} >= DATEADD(day, -7, CURRENT_DATE()) ;;
+    sql: ${date} >= DATEADD(day, -30, CURRENT_DATE()) ;;
     label: "User Active Flag"
   }
   dimension: active_desc {

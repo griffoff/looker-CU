@@ -175,10 +175,16 @@ view: all_sessions {
     hidden: yes
   }
 
+  measure: user_week_count {
+    type: count_distinct
+    sql: HASH(${user_sso_guid}, ${session_start_week}) ;;
+    hidden: yes
+  }
+
   measure: sessions_per_user_per_week {
     label: "Average sessions per student per week"
     type: number
-    sql: ${count} / (${user_day_count} / 7);;
+    sql: ${count} / ${user_week_count};;
   }
 
   measure: session_length_mins_avg {
@@ -190,14 +196,14 @@ view: all_sessions {
 
   measure: session_length_total {
     hidden: yes
-    type: sum_distinct
+    type: sum
     sql: ${session_length} ;;
   }
 
   measure: session_length_average_per_student_per_week {
     label: "Average session time per student per week"
     type: number
-    sql: ${session_length_total} / (${user_day_count} / 7)  ;;
+    sql: ${session_length_total} / ${user_week_count}  ;;
     value_format: "[m] \m\i\n\s"
   }
 
