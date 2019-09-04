@@ -19,7 +19,6 @@ view: learner_profile {
       ,learner_profile.control_flag_1 ,learner_profile.control_flag_2 ,learner_profile.control_flag_3 ,learner_profile.control_flag_4 ,learner_profile.control_flag_5
       ,learner_profile.email_control_flag, learner_profile.ipm_control_flag
     ]
-
   }
 
 
@@ -208,6 +207,15 @@ view: learner_profile {
     hidden: no
     type: yesno
     sql: lower(${subscription_status}) = 'full access' ;;
+  }
+
+  dimension: is_cu_subscriber_desc {
+    group_label: "Customer Type"
+    label: "Is CU subscriber (Description)"
+    description: "True if user is currently a full access subscriber and false if they are not"
+    hidden: no
+    type: string
+    sql: CASE lower(${subscription_status}) WHEN 'full access' THEN 'Subscribed' WHEN 'provisional locker' THEN 'Locker' ELSE 'Not subscribed' END ;;
   }
 
   dimension: cu_subscription_length_raw  {
@@ -453,6 +461,7 @@ view: learner_profile {
     description: "average # of courses used over a student's life time"
     drill_fields: [details*]
     hidden: no
+    value_format_name: decimal_1
   }
 
   dimension: marketing_segment_fb {
@@ -488,8 +497,8 @@ view: learner_profile {
     hidden: yes
   }
 
-
   dimension: paid_flag {
+    group_label: "Paid Flag"
     type: yesno
     sql: paid_flag = 'Y' ;;
     label: "Paid flag"
@@ -497,6 +506,26 @@ view: learner_profile {
     hidden: no
   }
 
+  dimension: paid_flag_desc {
+    group_label: "Paid Flag"
+    type: string
+    sql: CASE WHEN ${paid_flag} THEN 'Paid' ELSE 'Unpaid' END ;;
+    label: "Paid (Description)"
+    description: "User currently has one or more current activation or a CU subscription."
+    hidden: no
+  }
+
+#   measure: users_paid_count {
+#     label: "# Students Paid"
+#     type: count_distinct
+#     sql: CASE WHEN ${paid_flag} THEN ${user_sso_guid} END ;;
+#   }
+#
+#   measure: users_paid_active_count {
+#     label: "# Students Paid and Active"
+#     type: count_distinct
+#     sql: CASE WHEN ${paid_flag} AND ${guid_latest_activity.active} THEN ${user_sso_guid} END ;;
+#   }
 
   dimension: courseware_net_price_non_cu_enrolled {
     type: number

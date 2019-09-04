@@ -21,10 +21,19 @@ derived_table: {
   }
 
   dimension: grace_period_flag {
+    group_label: "Grace Period?"
     type: yesno
     sql: ${TABLE}."GRACE_PERIOD_FLAG" = 'Yes';;
     description: "User has enrolled on a course but not activated andenrollment date was in the last 14 days"
     label: "In grace period"
+  }
+
+  dimension: grace_period_description {
+    type: string
+    group_label: "Grace Period?"
+    sql: CASE WHEN ${activated} THEN 'Paid' WHEN ${grace_period_flag} THEN 'In Grace Period' ELSE 'Unpaid, Grace period expired' END ;;
+    description: "User has enrolled on a course but not activated andenrollment date was in the last 14 days"
+    label: "In grace period (Description)"
   }
 
   dimension: amount_to_upgrade_tiers {
@@ -112,14 +121,32 @@ derived_table: {
   }
 
   dimension: enrolled {
+    group_label: "Enrolled?"
     type: yesno
     sql: ${TABLE}.enrolled = 'True'  ;;
     hidden: no
   }
 
+  dimension: enrolled_desc {
+    group_label: "Enrolled?"
+    label: "Enrolled (Description)"
+    type: string
+    sql: CASE WHEN ${enrolled} THEN 'Enrolled' ELSE 'Not enrolled' END  ;;
+    hidden: no
+  }
+
   dimension: activated {
+    group_label: "Activated?"
     type: yesno
     sql: ${TABLE}.activated = 'True'  ;;
+    hidden: no
+  }
+
+  dimension: activated_desc {
+    group_label: "Activated?"
+    label: "Activated (Description)"
+    type: yesno
+    sql: CASE WHEN ${activated} THEN 'Activated' ELSE 'Not activated' END  ;;
     hidden: no
   }
 
@@ -157,13 +184,6 @@ derived_table: {
 #     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
      label: "CU Flag"
 #     hidden: no
-  }
-
-    dimension: course_used_flag {
-    type: yesno
-    sql: ${olr_course_key} IS NOT NULL AND ${activation_code} IS NOT NULL;;
-    label: "Course used flag"
-    description: "This user's course has both an olr course key and an activation code"
   }
 
   dimension: activation_code {
@@ -318,7 +338,7 @@ derived_table: {
     label: "# Courses per Student"
     #required_fields: [learner_profile.count]
     #sql: ${user_course_count} / ${learner_profile.count}  ;;
-    sql: ${user_course_count} / ${user_count}  ;;
+    sql: ${user_course_count} / NULLIF(${user_count}, 0)  ;;
     value_format_name: decimal_1
   }
 

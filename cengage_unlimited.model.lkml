@@ -81,7 +81,7 @@ explore: learner_profile {
 
   join: guid_latest_activity {
     view_label: "Learner Profile"
-    fields: [guid_latest_activity.active]
+    fields: [guid_latest_activity.active, guid_latest_activity.active_desc]
     sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
     relationship: one_to_one
   }
