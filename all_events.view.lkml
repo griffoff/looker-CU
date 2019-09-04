@@ -258,6 +258,12 @@ view: all_events {
     sql: HASH(${user_sso_guid}, ${local_date}) ;;
   }
 
+  measure: user_week_count {
+    type: count_distinct
+    sql: HASH(${user_sso_guid}, ${local_week}) ;;
+    hidden: yes
+  }
+
   measure: day_count {
     type: count_distinct
     sql: ${local_date} ;;
@@ -285,7 +291,7 @@ view: all_events {
     group_label: "Time spent"
     label: "Average time spent per student per week"
     type: number
-    sql: ${event_duration_total} / ${user_count} / (${day_count} / 7);;
+    sql: ${event_duration_total} / ${user_week_count};;
     value_format: "[m] \m\i\n\s"
   }
 
