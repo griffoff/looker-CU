@@ -1,3 +1,4 @@
+include: "//core/common.lkml"
 connection: "snowflake_googlesheets"
 #Snowflake for accessing looks from google sheets
 #Snowflake_prod can't used for this purpose
