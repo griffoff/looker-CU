@@ -177,7 +177,7 @@ view: all_events {
   dimension: system_category {
     group_label: "Event Classification"
     type: string
-    sql: ${TABLE}."SYSTEM_CATEGORY" ;;
+    sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."PRODUCT_PLATFORM" ELSE ${TABLE}."SYSTEM_CATEGORY" END ;;
     label: "System category"
     description: " Categorizes events by system eg: Cengage Unlimited, Registrations"
   }
