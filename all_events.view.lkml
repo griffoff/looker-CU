@@ -1,4 +1,4 @@
-# include: "/core/common.lkml"
+include: "//core/common.lkml"
 view: all_events {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
@@ -284,7 +284,7 @@ view: all_events {
     label: "Average time spent per student"
     description: "Slice this metric by different dimensions"
     type: number
-    sql: ${event_duration_total} / ${user_count}  ;;
+    sql: ${event_duration_total} / NULLIF(${user_count}, 0)  ;;
     value_format_name: duration_hms
   }
 

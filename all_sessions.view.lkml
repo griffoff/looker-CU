@@ -188,6 +188,7 @@ view: all_sessions {
   }
 
   measure: session_length_mins_avg {
+    group_label: "Session length"
     label: "Average session length"
     type: average
     sql: ${session_length_mins} ;;
@@ -195,13 +196,17 @@ view: all_sessions {
   }
 
   measure: session_length_total {
-    hidden: yes
+    group_label: "Session length"
+    label: "Total session length"
+    hidden: no
     type: sum
     sql: ${session_length} ;;
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: session_length_average_per_student_per_week {
-    label: "Average session time per student per week"
+    group_label: "Session length"
+    label: "Average session length per student per week"
     type: number
     sql: ${session_length_total} / ${user_week_count}  ;;
     value_format: "[m] \m\i\n\s"
