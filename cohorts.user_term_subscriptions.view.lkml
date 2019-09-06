@@ -1,5 +1,6 @@
 view: cohorts_user_term_subscriptions {
   derived_table: {
+
     persist_for: "60 minutes"
 
     sql:

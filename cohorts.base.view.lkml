@@ -331,6 +331,18 @@ view: cohorts_base_string {
 }
 
 
+view: cohorts_base_date {
+  extension: required
+  extends: [cohorts_base]
+
+  dimension: current {sql: ${TABLE}."1"::DATE;;}
+  dimension: minus_1 {sql: ${TABLE}."2"::DATE;;}
+  dimension: minus_2 {sql: ${TABLE}."3"::DATE;;}
+  dimension: minus_3 {sql: ${TABLE}."4"::DATE;;}
+  dimension: minus_4 {sql: ${TABLE}."5"::DATE;;}
+}
+
+
   view: cohorts_base_events {
     extension: required
 

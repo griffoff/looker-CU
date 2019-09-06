@@ -22,7 +22,7 @@ view: cohorts_full_access_50 {
         ON a.active_date BETWEEN t.start_date AND t.end_date
       --WHERE  user_sso_guid = 'a9976257903fb4cb:c148e2a:15e533ee045:424'
       GROUP BY 1, 2
-      HAVING percent_term_days_active > .75
+      HAVING percent_term_days_active > .3
       )
       SELECT user_sso_guid
         ,MAX(CASE WHEN terms_chron_order_desc = 1 THEN 1 END) AS "1"
@@ -45,15 +45,15 @@ view: cohorts_full_access_50 {
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
 
-  dimension: current { group_label: "Full Access 51%" }
+  dimension: current { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
 
-  dimension: minus_1 { group_label: "Full Access 51%" }
+  dimension: minus_1 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
 
-  dimension: minus_2 { group_label: "Full Access 51%" }
+  dimension: minus_2 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
 
-  dimension: minus_3 { group_label: "Full Access 51%" }
+  dimension: minus_3 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
 
-  dimension: minus_4 { group_label: "Full Access 51%" }
+  dimension: minus_4 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
 
 
 }

@@ -459,6 +459,24 @@ explore: session_analysis {
     relationship:  one_to_many
   }
 
+#   join: cohort_full_access_ended {
+#     view_label: "Learner Profile"
+#     sql_on: ${learner_profile.user_sso_guid} = ${cohort_full_access_ended.user_sso_guid} ;;
+#     relationship:  one_to_many
+#   }
+#
+#   join: cohorts_full_access_50{
+#     view_label: "Learner Profile"
+#     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_full_access_50.user_sso_guid} ;;
+#     relationship:  one_to_many
+#   }
+#
+#   join: cohorts_extended {
+#     view_label: "Learner Profile"
+#     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_extended.user_sso_guid} ;;
+#     relationship:  one_to_many
+#   }
+
 }
 
 explore: session_analysis_old {

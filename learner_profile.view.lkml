@@ -568,10 +568,14 @@ view: learner_profile {
     label: "Control flag Email"
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
-    sql: CASE WHEN ${TABLE}."CONTROL_FLAG_1" < 85 THEN 'Usage and conversion'
+    sql:
+          CASE
+              WHEN ${TABLE}."CONTROL_FLAG_1" < 85 THEN 'Usage and conversion'
               WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 85 AND 90 THEN 'Conversion only'
               WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 90 and 95 THEN  'Usage only'
-              WHEN ${TABLE}."CONTROL_FLAG_1" > 95 THEN 'Hold Out' ELSE 'No group' END
+              WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 95 and 100 THEN 'Hold Out'
+              WHEN ${TABLE}."CONTROL_FLAG_1" = 999 THEN 'pre control/test tracking'
+              ELSE 'No group' END
             ;;
   }
 
@@ -591,12 +595,17 @@ view: learner_profile {
     label: "Control flag IPM"
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
-    sql: CASE WHEN ${TABLE}."CONTROL_FLAG_2" < 85 THEN 'Usage and conversion'
+    sql:
+          CASE
+              WHEN ${TABLE}."CONTROL_FLAG_2" < 85 THEN 'Usage and conversion'
               WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 85 AND 90 THEN 'Conversion only'
               WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 90 and 95 THEN  'Usage only'
-              WHEN ${TABLE}."CONTROL_FLAG_2" > 95 THEN 'Hold Out' ELSE 'No group' END
-            ;;
+              WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 95 and 100 THEN 'Hold Out'
+              WHEN ${TABLE}."CONTROL_FLAG_2" = 999 THEN 'pre control/test tracking'
+              ELSE 'No group' END
+    ;;
   }
+
 
   dimension: control_flag_3 {
     type: number
