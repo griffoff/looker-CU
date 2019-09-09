@@ -36,6 +36,13 @@ view: cohorts_full_access_new {
     hidden: yes
   }
 
+  measure: new_current {
+    type: number
+    sql: COUNT( DISTINCT CASE WHEN (${cohorts_full_access_new.current} = 1) THEN ${learner_profile.user_sso_guid} END )
+      ;;
+    hidden: yes
+  }
+
   measure: renewals_end_1 {
     group_label: "Renewal rates"
     type: number
@@ -73,7 +80,6 @@ view: cohorts_full_access_new {
   }
 
 
-
   measure: previous_term_fa_ends {
     group_label: "Renewal rates"
     type: number
@@ -84,7 +90,7 @@ view: cohorts_full_access_new {
 
   measure: renewal_rate_ends_1 {
     group_label: "Renewal rates"
-    label: "Renewal rate 2"
+    label: "Renewal rate 3"
     description: "(# of users that have a new subscription in the current term and had a subscription end in the priorterm + # users with current term extensions) / # of users with subscriptions ending in the previous term"
     type: number
     sql: (${renewals_end_1} + ${current_extensions}) / ${previous_term_fa_ends} ;;
@@ -116,8 +122,8 @@ view: cohorts_full_access_new {
 
   measure: renewal_rate {
     group_label: "Renewal rates"
-    label: "Renewal rate"
-    description: "# of users with a subscription in the previous term and a new subscription in the current term / # of users with a subscription in thep revious term"
+    label: "Renewal rate 2"
+    description: "# of users with a subscription in the previous term and a new subscription in the current term / # of users with a subscription in the revious term"
     type: number
     value_format_name: "percent_2"
     sql: ${renewals} / ${previous_full_access} ;;
@@ -130,6 +136,16 @@ view: cohorts_full_access_new {
     sql: (${renewals} + ${current_extensions}) / ${previous_full_access} ;;
     value_format_name: "percent_2"
     hidden: yes
+  }
+
+  measure: renewal_rate_3 {
+    group_label: "Renewal rates"
+    label: "Renewal rate"
+    description: "# of users with a new subscription in the current term / # of users with a subscription in the revious term"
+    type: number
+    value_format_name: "percent_2"
+    sql: ${new_current} / ${previous_full_access} ;;
+    hidden: no
   }
 
 }
