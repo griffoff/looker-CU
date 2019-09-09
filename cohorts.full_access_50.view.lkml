@@ -38,11 +38,13 @@ view: cohorts_full_access_50 {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden:  yes
   }
 
   dimension: current { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }

@@ -2,7 +2,27 @@ explore: cohorts_extended {}
 
 include: "cohorts.base.view"
 
-  view: cohorts_extended {
+view: cohorts_extended {
+  extends: [cohorts_base_events_binary]
+
+  parameter: events_to_include {
+    default_value: "Subscription: Subscription Extended"
+    hidden: yes
+  }
+
+  dimension: current { group_label: "Subscription Extended" }
+
+  dimension: minus_1 { group_label: "Subscription Extended" }
+
+  dimension: minus_2 { group_label: "Subscription Extended" }
+
+  dimension: minus_3 { group_label: "Subscription Extended" }
+
+  dimension: minus_4 { group_label: "Subscription Extended" }
+
+
+}
+  view: cohorts_extended_old {
     extends: [cohorts_base_binary]
 
 

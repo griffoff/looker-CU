@@ -1,8 +1,8 @@
-explore: cohort_full_access_ended {}
+explore: cohorts_full_access_ended {}
 
 include: "cohorts.base.view"
 
-view: cohort_full_access_ended {
+view: cohorts_full_access_ended {
     extends: [cohorts_base_binary]
 
 
@@ -70,11 +70,13 @@ view: cohort_full_access_ended {
     measure: count {
       type: count
       drill_fields: [detail*]
+      hidden: yes
     }
 
     dimension: user_sso_guid {
       type: string
       sql: ${TABLE}."USER_SSO_GUID" ;;
+      hidden:  yes
     }
 
     dimension: current { group_label: "Full access ended" }
