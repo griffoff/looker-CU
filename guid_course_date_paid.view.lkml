@@ -20,7 +20,6 @@ view: guid_course_date_paid {
               FROM prod.cu_user_analysis.user_courses u
               INNER JOIN tally t ON i <= DATEDIFF(DAY, u.course_start_date::DATE, LEAST(u.course_end_date::DATE, CURRENT_DATE()))
           )
-          ,
           SELECT * FROM paid_courses WHERE r = 1
        ;;
   }
