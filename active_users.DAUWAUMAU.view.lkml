@@ -110,7 +110,7 @@ view: au {
         INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
         SELECT date, product_platform, users, NULL
         FROM looker_scratch.au
-        WHERE product_platform IS NOT NULL;;
+        WHERE product_platform != 'UNKNOWN';;
       sql_step:
         MERGE INTO LOOKER_SCRATCH.{{ view_name._parameter_value }} a
         USING looker_scratch.au t ON a.date = t.date AND t.product_platform IS NULL

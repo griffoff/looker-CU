@@ -1,4 +1,5 @@
 include: "learner_profile.view"
+include: "//core/common.lkml"
 
 view: learner_profile_dev {
   extends: [learner_profile]

@@ -41,7 +41,7 @@ view: strategy_ecom_sales_orders {
     description: "EXTENDED_AMT_USD"
     type: sum
     sql: ${TABLE}.EXTENDED_AMT_USD;;
-    value_format_name: currency
+    value_format_name: usd_0
   }
 
   measure: user_count {
@@ -54,6 +54,6 @@ view: strategy_ecom_sales_orders {
   measure: ARPU {
     type: number
     sql: ${revenue} / ${user_count};;
-    value_format_name: currency
+    value_format_name: usd_0
   }
 }
