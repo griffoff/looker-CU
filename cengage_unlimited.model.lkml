@@ -1227,28 +1227,28 @@ explore: client_activity_event_prod {
   relationship: many_to_one
   }
 
-  join: dim_course {
-    sql_on: ${client_activity_event_prod.coursekey} = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
-
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
-
-  join: dim_institution {
-    fields: [dim_institution.CU_fields*]
-  }
-
-  join: dim_filter {
-    fields: [-dim_filter.ALL_FIELDS*]
-  }
-
-  join: dim_product {
-    sql_on: ${client_activity_event_prod.isbn} = ${dim_product.isbn13} ;;
-    relationship: many_to_one
-  }
+#   join: dim_course {
+#     sql_on: ${client_activity_event_prod.coursekey} = ${dim_course.coursekey} ;;
+#     relationship: many_to_many
+#   }
+#
+#   join: course_section_facts {
+#     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+#     relationship: one_to_one
+#   }
+#
+#   join: dim_institution {
+#     fields: [dim_institution.CU_fields*]
+#   }
+#
+#   join: dim_filter {
+#     fields: [-dim_filter.ALL_FIELDS*]
+#   }
+#
+#   join: dim_product {
+#     sql_on: ${client_activity_event_prod.isbn} = ${dim_product.isbn13} ;;
+#     relationship: many_to_one
+#   }
 }
 
 
