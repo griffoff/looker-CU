@@ -93,6 +93,12 @@ derived_table: {
 #     sql: ${TABLE}."merged_guid" ;;
   }
 
+  dimension: event_name_ {
+    sql: ${TABLE}."EVENT_NAME" ;;
+    label: "Event name"
+    group_label: "Event classification"
+  }
+
   dimension: event_name {
     label: "event_0"
     group_label: "Succeeding five events"
@@ -189,11 +195,13 @@ derived_table: {
   dimension: event_category {
     type: string
     sql: ${TABLE}."EVENT_CATEGORY" ;;
+    group_label: "Event classification"
   }
 
   dimension: event_action {
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
+    group_label: "Event classification"
   }
 
   dimension: is_load_sidebar {
@@ -205,6 +213,7 @@ derived_table: {
   dimension: product_platform {
     type: string
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    group_label: "Event classification"
   }
 
   dimension: product_environment {
@@ -225,6 +234,7 @@ derived_table: {
   dimension: host_platform {
     type: string
     sql: ${TABLE}."HOST_PLATFORM" ;;
+    group_label: "Event classification"
   }
 
   dimension: host_environment {
