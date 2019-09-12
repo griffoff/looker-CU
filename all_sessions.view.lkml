@@ -111,7 +111,7 @@ view: all_sessions {
     sql: ${TABLE}."SESSION_LENGTH_MINS" / 60 / 24 ;;
     label: "Session length"
     description: "Length of the given session (formated as HH:mm:ss)"
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   dimension_group: session_start {

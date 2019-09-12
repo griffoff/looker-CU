@@ -226,6 +226,22 @@ view: all_events {
     description: "Measure for counting events (drill fields)"
   }
 
+  measure: events_per_student {
+    group_label: "# Events"
+    label: "# Events per Student"
+    type: number
+    sql: ${count} / ${user_count} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: events_per_student_per_day {
+    group_label: "# Events"
+    label: "# Events per Student Per Day"
+    type: number
+    sql: ${count} / ${user_day_count} ;;
+    value_format_name: decimal_1
+  }
+
   measure: events_in_full_access {
     group_label: "# Events"
     label: "# Events while in full access"
@@ -276,7 +292,7 @@ view: all_events {
     label: "Total Time Active"
     type: sum
     sql: ${event_data}:event_duration / 3600 / 24  ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: average_time_spent_per_student {
@@ -285,7 +301,7 @@ view: all_events {
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_total} / NULLIF(${user_count}, 0)  ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: average_time_spent_per_student_per_week {
@@ -301,7 +317,7 @@ view: all_events {
     label: "Average time spent per student per month"
     type: number
     sql: ${event_duration_total} / ${user_month_count} ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: event_duration_per_day {

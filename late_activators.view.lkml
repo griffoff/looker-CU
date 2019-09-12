@@ -143,7 +143,9 @@ view: late_activators {
       sql_step:
         --get those eligible to remove
         create or replace temporary table removal_eligible as
-        select * from cu_course_actv where late_actv_flg = 1 and sometimes_cui_redemp_flg = 0 and multi_flg = 0 and course_beyond_subscrip_flg = 1
+        select
+        *, 'REMOVAL' as email_type, 'REM' as ipm_type
+        from cu_course_actv where late_actv_flg = 1 and sometimes_cui_redemp_flg = 0 and multi_flg = 0 and course_beyond_subscrip_flg = 1
          ;;
       sql_step:
         --email one: late activators activating yesterday
@@ -174,6 +176,8 @@ view: late_activators {
       --select * from email_two
       union all
       select * from daily_ipm_info
+      union all
+      select * from removal_eligible
             ;;
     sql_step:
       ALTER TABLE daily_messaging_info ADD COLUMN promo_code STRING, lookup STRING

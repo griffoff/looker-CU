@@ -67,7 +67,7 @@ view: all_events_dev {
   dimension: event_duration {
     type:  number
     sql: event_data:event_duration  / (60 * 60 * 24) ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
     label: "Event duration"
     description: "An event's duration calculated for events such as reading, viewing, and app usage, but not given to individual click events"
   }
@@ -75,7 +75,7 @@ view: all_events_dev {
   dimension: time_to_next_event {
     type:  number
     sql: event_data:time_until_next_event  / (60 * 60 * 24) ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
     label: "Event duration (time to next event)"
     description: "An event's duration calculated for all event types as the time until the next event is fired"
   }
@@ -383,7 +383,7 @@ view: all_events_dev {
   measure: sum_of_event_duration{
     type: sum
     sql:event_data:event_duration / (60 * 60 * 24);;
-    value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
     label: "Sum of event durations"
     description: "Calcualted as the sum of event durations grouped by selected dimensions"
   }
@@ -391,7 +391,7 @@ view: all_events_dev {
   measure: sum_of_time_to_next_event{
     type: sum
     sql: event_data:time_to_next_event  / (60 * 60 * 24) ;;
-    value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
     label: "Sum of event durations (time to next event)"
     description: "Calcualted as the sum of event durations (time to next event) grouped by selected dimensions"
   }
@@ -402,7 +402,7 @@ view: all_events_dev {
          WHEN (${event_name} ILIKE '%search%' AND event_data:time_to_next_event < 10) THEN event_data:time_to_next_event
          ELSE NULL END;;
 
-      value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
       label: "Search durations (time to next event)"
       description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
     }
@@ -411,7 +411,7 @@ view: all_events_dev {
       type: sum
       sql: CASE WHEN (CASE WHEN (event_name ILIKE '%search%') THEN event_data:time_to_next_event END) > 10 THEN 10 ELSE event_data:time_to_next_event END;;
 
-      value_format_name: duration_dhm
+      value_format: "[m] \m\i\n\s"
       label: "Sum of search durations (time to next event)"
       description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
     }
@@ -419,7 +419,7 @@ view: all_events_dev {
     measure: avg_search_event_duration{
       type: average
       sql: ${search_event_duration_dim}  / (60 * 60 * 24);;
-      value_format_name: duration_hms
+      value_format: "[m] \m\i\n\s"
       label: "Average search durations"
       description: "Calcualted as the sum of search durations (time to next event) grouped by selected dimensions"
     }
@@ -427,13 +427,13 @@ view: all_events_dev {
     measure: course_ware_duration {
       type: sum
       sql: CASE WHEN event_data:course_key IS NOT NULL THEN event_data:event_duration / (60 * 60 * 24) END   ;;
-      value_format_name: duration_dhm
+      value_format: "[m] \m\i\n\s"
     }
 
     measure: non_courseware_duration {
       type: sum
       sql: CASE WHEN event_data:course_key IS NULL THEN event_data:event_duration / (60 * 60 * 24) END  ;;
-      value_format_name: duration_dhm
+      value_format: "[m] \m\i\n\s"
     }
 
   measure:  no_cu_users_searched{

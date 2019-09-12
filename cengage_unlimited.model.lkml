@@ -52,7 +52,7 @@ explore: strategy_ecom_sales_orders {
   label: "Revenue"
   view_label: "Revenue"
   join: dim_date {
-    sql_on: ${strategy_ecom_sales_orders.invoice_dt} = ${dim_date.datevalue} ;;
+    sql_on: ${strategy_ecom_sales_orders.invoice_dt_raw} = ${dim_date.datevalue} ;;
     relationship: many_to_one
   }
   join: dim_product {
