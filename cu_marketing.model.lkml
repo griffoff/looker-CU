@@ -7,17 +7,26 @@ include: "//core/access_grants_file.view"
 
 case_sensitive: no
 
-explore: late_activators {
-  extends: [dim_course]
+explore: late_activators_removals {
+  from: late_activators_removals
+  view_name: late_activators
   join: cu_user_info {
     sql_on: ${late_activators.user_sso_guid} = ${cu_user_info.user_sso_guid}  ;;
     relationship: many_to_one
   }
+}
+
+explore: late_activators {
+  extends: [dim_course, late_activators_removals]
+  view_name: late_activators
+  from: late_activators_messages
+
   join: dim_course {
     sql_on: ${late_activators.course_key} = ${dim_course.olr_course_key} ;;
     relationship: many_to_one
   }
 }
+
 
 explore: magellan_instructor_setup_status {
 
