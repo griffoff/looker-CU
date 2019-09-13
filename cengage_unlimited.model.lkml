@@ -254,15 +254,15 @@ explore: all_sessions {
   }
 
 
-  join: dim_course {
-    sql_on: ${all_events.event_data}:course_key = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
-
 #   join: dim_course {
-#     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+#     sql_on: ${all_events.event_data}:course_key = ${dim_course.coursekey} ;;
 #     relationship: many_to_many
 #   }
+
+  join: dim_course {
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
 
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;

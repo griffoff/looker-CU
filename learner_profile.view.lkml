@@ -321,6 +321,7 @@ view: learner_profile {
     }
   }
 
+
   dimension:  non_courseware_net_value {
     group_label: "Provisioned Products"
     type: number
