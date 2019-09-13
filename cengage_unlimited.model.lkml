@@ -253,6 +253,14 @@ explore: all_sessions {
     relationship: one_to_many
   }
 
+  join: all_events_diff {
+    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
+    view_label: "Event Path (preceeding and following events)"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
 
 #   join: dim_course {
 #     sql_on: ${all_events.event_data}:course_key = ${dim_course.coursekey} ;;
