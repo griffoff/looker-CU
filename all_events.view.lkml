@@ -202,10 +202,28 @@ view: all_events {
 
   dimension_group: local {
     type: time
-    timeframes: [raw, time,  date, week, month, quarter, year]
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
     sql: convert_timezone('UTC', ${TABLE}."LOCAL_TIME") ;;
-    group_label: "Event Time"
-    label: "Event"
+    group_label: "Event Time (UTC)"
+    label: "Event (UTC)"
+    description: "Components of the events local timestamp converted to UTC"
+  }
+
+  dimension_group: local_est {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql: convert_timezone('America/New_York', ${TABLE}."LOCAL_TIME") ;;
+    group_label: "Event Time (EST)"
+    label: "Event (EST)"
+    description: "Components of the events local timestamp converted to EST"
+  }
+
+  dimension_group: local_unconverted {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql: ${TABLE}."LOCAL_TIME" ;;
+    group_label: "Event Time (Local)"
+    label: "Event (Local)"
     description: "Components of the events local timestamp"
   }
 
