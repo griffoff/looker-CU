@@ -30,14 +30,6 @@ view: all_events {
     description: "Subscription state at the time of the event"
   }
 
-  dimension: event_type {
-    type: string
-    sql: ${TABLE}."EVENT_TYPE" ;;
-    label: "Event type"
-    description: "The highest level in the hierarchy of event classicfication above event action"
-    hidden: yes
-  }
-
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
@@ -182,13 +174,25 @@ view: all_events {
     description: " Categorizes events by system eg: Cengage Unlimited, Registrations"
   }
 
+  dimension: event_type {
+    group_label: "Event Classification - Raw"
+    type: string
+    sql: ${TABLE}."EVENT_TYPE" ;;
+    label: "Event type"
+    description: "Direct from source.
+    The highest level in the hierarchy of event classicfication above event action"
+    hidden: no
+  }
+
+
   dimension: event_action {
-    group_label: "Event Classification"
+    group_label: "Event Classification - Raw"
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
     label: "Event action"
-    description: "A classification of event within the hierachy of events beneath event type and above event name i.e. 'OLR Enrollment'"
-    hidden: yes
+    description: "Direct from source.
+    A classification of event within the hierachy of events beneath event type and above event name i.e. 'OLR Enrollment'"
+    hidden: no
   }
 
   dimension: event_name {

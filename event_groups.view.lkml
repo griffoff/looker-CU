@@ -34,7 +34,7 @@ view: event_groups {
     sql: case
           when ${all_events.event_name} like 'Subscription:%'
           then ${all_events.event_name}
-          else COALESCE(${TABLE}."EVENT_GROUP", '** Uncategorized **')
+          else COALESCE(${TABLE}."EVENT_GROUP", '** ' || ${all_events.product_platform} || ' **', '** Uncategorized **')
           end;;
     label: "Event group"
     description: "Classification hard coded in for grouping events according to different business purposes"
