@@ -13,11 +13,15 @@ view: live_subscription_status {
 
   dimension: user_sso_guid {
     label: "User SSO GUID"
+    description: "Parimary user sso guid, after shadonw guid lookup and merge"
     sql: ${TABLE}.merged_guid ;;
     primary_key: yes
     hidden: no
  }
-  dimension: partner_guid {}
+  dimension: original_guid {
+    description: "Origiual guid captured in raw event"
+    alias: [partner_guid]
+  }
   dimension: lms_user {
     type: yesno
     sql: ${TABLE}.lms_user_status = 1;;
