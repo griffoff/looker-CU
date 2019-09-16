@@ -14,10 +14,10 @@ view: sales_order_adoption_base {
          ELSE (coalesce(total_CD_actv_withCU_FY19,0) + coalesce(total_core_digital_ex_cu_net_units_fy19,0))
          END AS FY19_total_core_digital_consumed_units,
         CASE WHEN FY_18_IA_ADOPTION_Y_N_ = 'Y' THEN
-        CASE WHEN coalesce(total_CD_actv_FY18,0) > (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0)) THEN total_CD_actv_FY18
-             WHEN coalesce(total_CD_actv_FY18,0) < (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0)) THEN (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0))
-             END
-         ELSE (coalesce(total_CD_actv_withCU_FY18,0) + coalesce(total_core_digital_ex_cu_net_units_fy18,0))
+        (CASE WHEN (coalesce(total_CD_actv_FY18,0) > (coalesce(total_core_digital_ex_cu_net_units_fy18,0))) THEN coalesce(total_CD_actv_FY18,0)
+             WHEN (coalesce(total_CD_actv_FY18,0) < (coalesce(total_core_digital_ex_cu_net_units_fy18,0))) THEN coalesce(total_core_digital_ex_cu_net_units_fy18,0)
+             END)
+         ELSE coalesce(total_core_digital_ex_cu_net_units_fy18,0)
          END AS FY18_total_core_digital_consumed_units,
       --(sal.FY18_ebook_units + eb.FY18_ebook_units_byCU) as FY18_total_ebook_activations,
       --(sal.FY19_ebook_units + eb.FY19_ebook_units_byCU) as FY19_total_ebook_activations,
@@ -70,7 +70,7 @@ view: sales_order_adoption_base {
               ON sal.adoption_key = act.adoption_key
               FULL OUTER JOIN ${af_ebook_units_adoptions.SQL_TABLE_NAME} AS eb
               ON sal.adoption_key = eb.adoption_key
-              LEFT JOIN UPLOADS.CU.IA_ADOPTIONS_SALESORDER ia
+              LEFT JOIN STRATEGY.ADOPTION_PIVOT.IA_ADOPTIONS_ADOPTION_PIVOT ia
               ON ia.adoption_key = sal.adoption_key
               LEFT JOIN UPLOADS.CU.CUI_ADOPTIONS_SALESORDERS cui
               ON cui.institution_name = sal.institution_nm
@@ -169,11 +169,18 @@ view: sales_order_adoption_base {
   dimension: total_net_units_fy18 {
   }
 
-  dimension: net_units_tiers_Fy19 {
+  dimension: net_units_bucket_Fy19 {
     type: tier
   tiers: [0,5,10,15,25,50,100,200,500,1000]
-  style: interval
+  style: integer
   sql: total_net_units_fy19 ;;
+  }
+
+  dimension: actv_rate_bucket_Fy18 {
+    type: tier
+    tiers: [0,0.1,0.25,0.5,0.75,1]
+    style: relational
+    sql: actv_rate_fy18 ;;
   }
 
   measure: sum_total_net_units_fy19 {
@@ -237,6 +244,16 @@ view: sales_order_adoption_base {
     sql: ${TABLE}."TOTAL_PRINT_NET_UNITS_FY19" ;;
   }
 
+  measure: sum_total_print_net_units_fy18{
+    type: sum
+    sql: ${TABLE}."TOTAL_PRINT_NET_UNITS_FY18" ;;
+  }
+
+  measure: sum_total_print_net_units_fy19 {
+    type: sum
+    sql: ${TABLE}."TOTAL_PRINT_NET_UNITS_FY19" ;;
+  }
+
   dimension: total_core_digital_ex_cu_net_units_fy18 {
     type: number
     sql: ${TABLE}."TOTAL_CORE_DIGITAL_EX_CU_NET_UNITS_FY18" ;;
@@ -244,6 +261,16 @@ view: sales_order_adoption_base {
 
   dimension: total_core_digital_ex_cu_net_units_fy19 {
     type: number
+    sql: ${TABLE}."TOTAL_CORE_DIGITAL_EX_CU_NET_UNITS_FY19" ;;
+  }
+
+  measure: sum_total_core_digital_ex_cu_net_units_fy18{
+    type: sum
+    sql: ${TABLE}."TOTAL_CORE_DIGITAL_EX_CU_NET_UNITS_FY18" ;;
+  }
+
+  measure: sum_total_core_digital_ex_cu_net_units_fy19 {
+    type: sum
     sql: ${TABLE}."TOTAL_CORE_DIGITAL_EX_CU_NET_UNITS_FY19" ;;
   }
 
@@ -277,6 +304,17 @@ view: sales_order_adoption_base {
     sql: ${TABLE}."TOTAL_CD_ACTV_EXCU_FY19" ;;
   }
 
+  measure: sum_total_cd_actv_excu_fy18{
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_EXCU_FY18" ;;
+  }
+
+  measure: sum_total_cd_actv_excu_fy19 {
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_EXCU_FY19" ;;
+  }
+
+
   dimension: total_cd_actv_withcu_fy18 {
     type: number
     sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY18" ;;
@@ -284,6 +322,16 @@ view: sales_order_adoption_base {
 
   dimension: total_cd_actv_withcu_fy19 {
     type: number
+    sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY19" ;;
+  }
+
+  measure: sum_total_cd_actv_withcu_fy18{
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY18" ;;
+  }
+
+  measure: sum_total_cd_actv_withcu_fy19 {
+    type: sum
     sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY19" ;;
   }
 
