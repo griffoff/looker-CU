@@ -6,17 +6,28 @@ view: ipm_campaign {
         HASH(c.message_id, c.campaign_start_date) as pk
         ,c.*
         ,ROW_NUMBER() OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date) AS message_version_no
-        ,LEAD(c.campaign_start_date) OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date) AS next_campaign_start_date
+        ,COALESCE(LEAD(c.campaign_start_date) OVER (PARTITION BY c.message_id ORDER BY c.campaign_start_date), CURRENT_TIMESTAMP()) AS next_campaign_start_date
         ,outcome.event_outcome
+        ,COALESCE(outcome.campaign_outcome, ARRAY_TO_STRING(outcome.event_outcome, ' OR ')) AS campaign_outcome
+        ,COALESCE(outcome.real_campaign_title, c.campaign_title) AS real_campaign_title
+        ,outcome.jira_link
     FROM IPM.PROD.IPM_CAMPAIGN c
     LEFT JOIN (
-        SELECT DISTINCT campaign_title, event_outcome
+        SELECT
+            campaign_title
+            ,MIN(NULLIF(real_campaign_title, '')) AS real_campaign_title
+            ,MIN(NULLIF(campaign_outcome, '')) AS campaign_outcome
+            ,MIN(NULLIF(CASE WHEN jira_link like 'http%' THEN jira_link END, '')) AS jira_link
+            ,ARRAY_AGG(DISTINCT UPPER(event_outcome)) AS event_outcome
         FROM uploads.ipm.campaign_to_outcome
         WHERE NOT _FIVETRAN_DELETED
+        GROUP BY 1
         ) outcome ON c.campaign_title ilike outcome.campaign_title
     WHERE platform_environment = 'production'
     AND campaign_start_date > '2018-09-21'
     ;;
+
+    persist_for: "60 minute"
   }
 
   dimension:pk {
@@ -38,8 +49,29 @@ view: ipm_campaign {
     sql: ${TABLE}."CAMPAIGN_AUTHOR" ;;
   }
 
+  dimension: real_campaign_title {
+    label: "Campaign Name"
+    description: "Friendly (not internal) name of campaign"
+    link: {label: "Link to the setup sheet" url: "{{ outcome_setup_link._value }}"}
+    link: {label: "Link to JIRA: {{ jira_no._value }}" url: "{{ jira_link._value }}"}
+  }
+
+  dimension: jira_no {
+    hidden: yes
+    sql: SPLIT_PART(${jira_link}, '/', -1) ;;
+  }
+  dimension: jira_link {
+    hidden: yes
+  }
+
+  dimension: outcome_setup_link {
+    hidden: yes
+    sql: 'https://docs.google.com/spreadsheets/d/1_XHPL3z2h7YEEQ3onZLvpcJ7Swi1pYWF95HAoaCxu58/edit#gid=0' ;;
+  }
+
   dimension: event_outcome {
-    label: "Campaign target"
+    label: "Campaign Target"
+    sql: ${TABLE}.campaign_outcome ;;
   }
 
   dimension_group: campaign_end {
@@ -82,7 +114,7 @@ view: ipm_campaign {
 
   dimension: next_campaign_start_time {
     hidden: yes
-    type: date_time
+    type: date_raw
     sql:  ${TABLE}.next_campaign_start_date ;;
   }
 

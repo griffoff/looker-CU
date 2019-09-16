@@ -1,23 +1,73 @@
 view: client_activity_event_prod {
 #   sql_table_name: CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT;;
 derived_table: {
-  sql: with prim_map AS(
-        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
-      ), mapped_cap as (
-        Select cs.*,COALESCE(m.primary_guid, cs.user_sso_guid) AS merged_guid
-        ,CONCAT(event_action,CONCAT(' - ',event_category)) as event_name
-        from CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT cs
+  sql: with
+        prim_map AS
+          (
+            SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
+          )
+        ,cae AS
+        (
+          SELECT
+              event_id AS event_id_cafe
+              ,COALESCE(user_environment, product_environment) AS platform_environment
+              ,_ldts
+              ,_rsrc
+              ,message_format_version
+              ,message_type
+              ,event_time
+              ,event_category
+              ,event_action
+              ,product_platform
+              ,session_id
+              ,user_sso_guid
+              ,event_uri
+              ,host_platform
+              ,tags
+              ,MAX(CASE WHEN s.value:key::string = 'courseKey' THEN s.value:value::string END) AS courseKey
+              ,MAX(CASE WHEN s.value:key::string = 'carouselName' THEN s.value:value::string END) AS carouselName
+              ,MAX(CASE WHEN s.value:key::string = 'carouselSessionId' THEN s.value:value::string END) AS carouselSessionId
+              ,MAX(CASE WHEN s.value:key::string = 'activityId' THEN s.value:value::string END) AS activityId
+              ,MAX(CASE WHEN s.value:key::string = 'checkpointId' THEN s.value:value::string END) AS checkpointId
+              ,MAX(CASE WHEN s.value:key::string = 'contentType' THEN s.value:value::string END) AS contentType
+              ,MAX(CASE WHEN s.value:key::string = 'appName' THEN s.value:value::string END) AS appName
+              ,MAX(CASE WHEN s.value:key::string = 'externalTakeUri' THEN s.value:value::string END) AS externalTakeUri
+              ,MAX(CASE WHEN s.value:key::string = 'itemUri' THEN s.value:value::string END) AS itemUri
+              ,MAX(CASE WHEN s.value:key::string = 'showGradeIndicators' THEN s.value:value::string END) AS showGradeIndicators
+              ,MAX(CASE WHEN s.value:key::string = 'courseUri' THEN s.value:value::string END) AS courseUri
+              ,MAX(CASE WHEN s.value:key::string = 'attemptId' THEN s.value:value::string END) AS attemptId
+              ,MAX(CASE WHEN s.value:key::string = 'activityUri' THEN s.value:value::string END) AS activityUri
+              ,MAX(CASE WHEN s.value:key::string = 'claPageNumber' THEN s.value:value::string END) AS claPageNumber
+              ,MAX(CASE WHEN s.value:key::string = 'numberOfPages' THEN s.value:value::string END) AS numberOfPages
+              ,MAX(CASE WHEN s.value:key::string = 'studyToolCgi' THEN s.value:value::string END) AS studyToolCgi
+              ,MAX(CASE WHEN s.value:key::string = 'sequenceUuid' THEN s.value:value::string END) AS sequenceUuid
+              ,MAX(CASE WHEN s.value:key::string = 'pointInSemester' THEN s.value:value::string END) AS pointInSemester
+              ,MAX(CASE WHEN s.value:key::string = 'discipline' THEN s.value:value::string END) AS discipline
+              ,MAX(CASE WHEN s.value:key::string = 'ISBN' THEN s.value:value::string END) AS ISBN
+          FROM cap_eventing.prod.client_activity_event wa
+          CROSS JOIN LATERAL FLATTEN(WA.tags,outer=>true) s
+          GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+        )
+        ,mapped_cap as
+        (
+        Select
+            cs.*,
+            COALESCE(m.primary_guid, cs.user_sso_guid) AS merged_guid
+            ,CONCAT(event_action,CONCAT(' - ',event_category)) as event_name
+        from cae cs --CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT cs
         LEFT JOIN prim_map m on cs.user_sso_guid = m.partner_guid
-      ) Select
-        CASE WHEN event_name ilike 'Load%sidebar' THEN 'Yes' ELSE 'No' END AS is_load_sidebar
-        ,Rank() over (partition by user_sso_guid order by event_time) as event_rank
-        ,LAG(session_id,1) OVER (PARTITION BY user_sso_guid,session_id ORDER BY event_time) AS lag_session
-        ,LEAD(event_name, 1) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id,event_name) AS event_1
-        ,LEAD(event_name, 2) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_2
-        ,LEAD(event_name, 3) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_3
-        ,LEAD(event_name, 4) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_4
-        ,LEAD(event_name, 5) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_5
-        ,* from  mapped_cap
+        )
+        Select
+          CASE WHEN event_name ilike 'Load%sidebar' THEN 'Yes' ELSE 'No' END AS is_load_sidebar
+          ,Rank() over (partition by user_sso_guid order by event_time) as event_rank
+          ,LAG(session_id,1) OVER (PARTITION BY user_sso_guid,session_id ORDER BY event_time) AS lag_session
+          ,LEAD(event_name, 1) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id,event_name) AS event_1
+          ,LEAD(event_name, 2) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_2
+          ,LEAD(event_name, 3) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_3
+          ,LEAD(event_name, 4) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_4
+          ,LEAD(event_name, 5) OVER (PARTITION BY user_sso_guid ORDER BY event_time,session_id, event_name) AS event_5
+          ,*
+        from  mapped_cap
         ;;
         persist_for: "6 hours"
 }
@@ -41,6 +91,12 @@ derived_table: {
   dimension: merged_guid {
     type: string
 #     sql: ${TABLE}."merged_guid" ;;
+  }
+
+  dimension: event_name_ {
+    sql: ${TABLE}."EVENT_NAME" ;;
+    label: "Event name"
+    group_label: "Event classification"
   }
 
   dimension: event_name {
@@ -139,11 +195,13 @@ derived_table: {
   dimension: event_category {
     type: string
     sql: ${TABLE}."EVENT_CATEGORY" ;;
+    group_label: "Event classification"
   }
 
   dimension: event_action {
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
+    group_label: "Event classification"
   }
 
   dimension: is_load_sidebar {
@@ -155,6 +213,7 @@ derived_table: {
   dimension: product_platform {
     type: string
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    group_label: "Event classification"
   }
 
   dimension: product_environment {
@@ -175,6 +234,7 @@ derived_table: {
   dimension: host_platform {
     type: string
     sql: ${TABLE}."HOST_PLATFORM" ;;
+    group_label: "Event classification"
   }
 
   dimension: host_environment {
@@ -207,6 +267,127 @@ derived_table: {
     type: string
     sql: ${TABLE}."TAGS" ;;
   }
+
+  dimension: coursekey {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."COURSEKEY" ;;
+  }
+
+  dimension: carouselname {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."CAROUSELNAME" ;;
+  }
+
+  dimension: carouselsessionid {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."CAROUSELSESSIONID" ;;
+  }
+
+  dimension: activityid {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."ACTIVITYID" ;;
+  }
+
+  dimension: checkpointid {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."CHECKPOINTID" ;;
+  }
+
+  dimension: contenttype {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."CONTENTTYPE" ;;
+  }
+
+  dimension: appname {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."APPNAME" ;;
+  }
+
+  dimension: externaltakeuri {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."EXTERNALTAKEURI" ;;
+  }
+
+  dimension: itemuri {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."ITEMURI" ;;
+  }
+
+  dimension: showgradeindicators {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."SHOWGRADEINDICATORS" ;;
+  }
+
+  dimension: courseuri {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."COURSEURI" ;;
+  }
+
+  dimension: attemptid {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."ATTEMPTID" ;;
+  }
+
+  dimension: activityuri {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."ACTIVITYURI" ;;
+  }
+
+  dimension: clapagenumber {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."CLAPAGENUMBER" ;;
+  }
+
+  dimension: numberofpages {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."NUMBEROFPAGES" ;;
+  }
+
+  dimension: studytoolcgi {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."STUDYTOOLCGI" ;;
+  }
+
+  dimension: sequenceuuid {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."SEQUENCEUUID" ;;
+  }
+
+  dimension: pointinsemester {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."POINTINSEMESTER" ;;
+  }
+
+  dimension: discipline {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."DISCIPLINE" ;;
+  }
+
+  dimension: isbn {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."ISBN" ;;
+  }
+
 
   set: detail {
     fields: [

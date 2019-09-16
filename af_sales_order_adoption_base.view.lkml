@@ -111,14 +111,14 @@ view: sales_order_adoption_base {
 
   dimension: actv_rate_fy19  {
     type: number
-    sql: CASE WHEN total_core_digit_units_fy19 = 0 OR total_CD_actv_FY19 = 0 THEN 0
+    sql: CASE WHEN FY19_total_core_digital_consumed_units = 0 OR total_CD_actv_FY19 = 0 THEN 0
           ELSE total_CD_actv_FY19/FY19_total_core_digital_consumed_units
           END;;
   }
 
   dimension: actv_rate_fy18  {
     type: number
-    sql: CASE WHEN total_core_digit_units_fy18 = 0 OR total_CD_actv_FY18 = 0 THEN 0
+    sql: CASE WHEN FY18_total_core_digital_consumed_units = 0 OR total_CD_actv_FY18 = 0 THEN 0
           ELSE total_CD_actv_FY18/FY18_total_core_digital_consumed_units
           END;;
   }
@@ -173,14 +173,21 @@ view: sales_order_adoption_base {
     type: tier
   tiers: [0,5,10,15,25,50,100,200,500,1000]
   style: integer
-  sql: total_net_units_fy19 ;;
+  sql: ${total_net_units_fy19} ;;
   }
 
-  dimension: actv_rate_bucket_Fy18 {
+  dimension: net_units_bucket_Fy18 {
     type: tier
-    tiers: [0,0.1,0.25,0.5,0.75,1]
+    tiers: [0,5,10,15,25,50,100,200,500,1000]
+    style: integer
+    sql: ${total_net_units_fy18} ;;
+  }
+
+  dimension: actv_rate_fy18_bucket {
+    type: tier
+    tiers: [0,0.1,0.25,0.5,0.75]
     style: relational
-    sql: actv_rate_fy18 ;;
+    sql: ${actv_rate_fy18} ;;
   }
 
   measure: sum_total_net_units_fy19 {

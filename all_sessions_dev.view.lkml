@@ -348,7 +348,7 @@ view: all_sessions_dev {
   measure:  average_session_duration{
     type: average
     sql:  ${session_length_mins} / (24 * 60);;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
     label: "Average session duration (minutes)"
 
   }

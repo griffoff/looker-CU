@@ -3,6 +3,12 @@ explore: cu_user_info {label: "CU User Info"}
 
 view: cu_user_info {
 
+#   filter: internal_user_flag_filter {
+#     default_value: "No"
+#     type: string
+#     sql: CASE WHEN ${TABLE}.internal THEN 'Yes' ELSE 'No' END ;;
+#   }
+
   derived_table: {
     sql: with hub_sat as (
           Select
@@ -124,6 +130,7 @@ view: cu_user_info {
     type: yesno
     sql: NOT ${TABLE}.internal OR ${TABLE}.internal IS NULL  ;;
   }
+
 
   dimension: entity_flag {
     label: "Entity Blacklist"

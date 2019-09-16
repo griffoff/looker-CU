@@ -16,8 +16,18 @@ view: guid_latest_activity {
     label: "Latest Date of Activity"
   }
   dimension: active {
-    description: "Active users are those who have had some activity within the past 7 days"
+    group_label: "Active"
+    description: "Active users are those who have had some activity within the past 30 days"
     type: yesno
-    sql: ${date} >= DATEADD(day, -7, CURRENT_DATE()) ;;
+    sql: ${date} >= DATEADD(day, -30, CURRENT_DATE()) ;;
+    label: "User Active Flag"
+  }
+  dimension: active_desc {
+    group_label: "Active"
+    label: "User Active (Description)"
+    description: "Active users are those who have had some activity within the past 7 days"
+    type: string
+    sql: CASE WHEN ${active} THEN 'Active' ELSE 'Inactive' END ;;
+
   }
 }

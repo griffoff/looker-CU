@@ -153,7 +153,7 @@ derived_table: {
 
   dimension: event_id {
     type: string
-    sql: ${TABLE}."EVENT_ID" ;;
+    sql: ${TABLE}."EVENT_ID_CAFE" ;;
   }
 
   dimension: user_sso_guid {

@@ -10,9 +10,9 @@ view: af_ebook_units_adoptions {
             ,dimdate.fiscalyearvalue as fiscalyear
             ,concat(concat(concat(concat(institution_nm,'|'),pfmt.course_code_description),'|'),dm_products.pub_series_de) as adoption_key
             from STRATEGY.ADOPTION_PIVOT.CONSUMED_UNITS_ADOPTIONPIVOT units
-            JOIN STRATEGY.DW.DM_ENTITIES dm_entities
+            LEFT JOIN STRATEGY.DW.DM_ENTITIES dm_entities
             ON units.CONSUMED_ENTITY_NO = dm_entities.entity_no
-            Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
+            LEFT Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
             ON units.CONSUMED_PRODUCT_SKEY = dm_products.Product_Skey
             LEFT JOIN "STRATEGY"."ADOPTION_PIVOT"."PFMT_ADOPTIONPIVOT" pfmt on pfmt.product_family_code = dm_products.prod_family_cd
             JOIN prod.dw_ga.dim_date dimdate ON to_date(units.consumed_month_dt) = to_date(dimdate.datevalue)
@@ -20,6 +20,7 @@ view: af_ebook_units_adoptions {
           Select
               adoption_key,
              institution_nm,
+              SUM(CASE WHEN fiscalyear = 'FY17' THEN cu_ebook_units END) AS FY17_ebook_units_byCU,
               SUM(CASE WHEN fiscalyear = 'FY18' THEN cu_ebook_units END) AS FY18_ebook_units_byCU,
               SUM(CASE WHEN fiscalyear = 'FY19' THEN cu_ebook_units END) AS FY19_ebook_units_byCU
           from ebook_unit1
@@ -43,6 +44,11 @@ view: af_ebook_units_adoptions {
     sql: ${TABLE}."INSTITUTION_NM" ;;
   }
 
+  dimension: fy17_total_consumed_units {
+    type: number
+    sql: ${TABLE}."FY17_TOTAL_CONSUMED_UNITS" ;;
+  }
+
   dimension: fy18_total_consumed_units {
     type: number
     sql: ${TABLE}."FY18_TOTAL_CONSUMED_UNITS" ;;
@@ -54,6 +60,6 @@ view: af_ebook_units_adoptions {
   }
 
   set: detail {
-    fields: [adoption_key, institution_nm, fy18_total_consumed_units, fy19_total_consumed_units]
+    fields: [adoption_key, institution_nm, fy17_total_consumed_units, fy18_total_consumed_units, fy19_total_consumed_units]
   }
 }

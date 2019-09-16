@@ -1,4 +1,5 @@
 include: "learner_profile.view"
+include: "//core/common.lkml"
 
 view: learner_profile_dev {
   extends: [learner_profile]
@@ -464,7 +465,7 @@ dimension: returning_cu_customer {
     group_label: "Time spent online with Cengage"
     type:  number
     sql: total_user_duration  / (60 * 60 * 24) ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
     label: "Total user time spent"
     description: "The total duration a user has spent doing something on one of the platforms or the dashboard"
   }
@@ -685,7 +686,7 @@ dimension: returning_cu_customer {
     group_label: "Time spent online with Cengage"
     type:  number
     sql: trial_events_duration  / (60 * 60 * 24) ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
     label: "Time active during trial period"
     # TO DO: better description
     description: "The sum of all event durations for this user while in CU trial access"
@@ -694,7 +695,7 @@ dimension: returning_cu_customer {
     group_label: "Time spent online with Cengage"
     type:  number
     sql: subscription_events_duration  / (60 * 60 * 24) ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
     label: "Time active during full access"
     description: "The sum of all event durations for this user while in a full access CU subscription"
 
@@ -709,14 +710,14 @@ dimension: returning_cu_customer {
   dimension:  courseware_duration {
     group_label: "Time spent in products"
     sql: ${TABLE}.course_ware_duration ;;
-    value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
     alias: [course_ware_duration]
   }
 
   dimension:  non_course_ware_duration {
     group_label: "Time spent in products"
     sql: ${TABLE}.non_course_ware_duration / (60 * 60 * 24) ;;
-    value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
   }
 
 #   dimension: no_a_la_carte_purchase_user {
@@ -809,13 +810,13 @@ dimension: returning_cu_customer {
   measure: average_cw_duration {
     type: average
     sql: course_ware_duration / (60 * 60 * 24) ;;
-    value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: average_non_cw_duration {
     type: average
     sql: non_course_ware_duration / (60 * 60 * 24) ;;
-    value_format_name: duration_dhm
+    value_format: "[m] \m\i\n\s"
   }
 
 
