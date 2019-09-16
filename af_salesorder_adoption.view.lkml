@@ -1,7 +1,11 @@
 explore: af_salesorder_adoption {}
 view: af_salesorder_adoption {
   derived_table: {
-    sql:with raw_sales as (select * from STRATEGY.ADOPTION_PIVOT.FY18_SALES_ADOPTIONPIVOT UNION select * from STRATEGY.ADOPTION_PIVOT.FY19_SALES_ADOPTIONPIVOT UNION select * from STRATEGY.ADOPTION_PIVOT.FY17_SALES_ADOPTIONPIVOT),
+    sql:with raw_sales as (select _file, _line, short_item_no_parent, sales_type_cd, reason_cd, extended_amt_usd, territory_skey, product_skey_bu, cust_no_ship, quantity, invoice_dt, order_taken_by, order_type_cd, line_type_cd, order_no, _fivetran_synced, order_line_no, company_cd from STRATEGY.ADOPTION_PIVOT.FY17_SALES_ADOPTIONPIVOT
+        UNION
+        select * from STRATEGY.ADOPTION_PIVOT.FY18_SALES_ADOPTIONPIVOT
+        UNION
+        select * from STRATEGY.ADOPTION_PIVOT.FY19_SALES_ADOPTIONPIVOT),
         sales_orders1 as (
         Select sal.*,ter.gsf_cd,prod.isbn_13,prod.division_cd,prod.pub_series_de,prod.tech_prod_cd,prod.print_digital_config_de, cust.mkt_seg_maj_de, ent.institution_nm,ent.state_cd as ent_state,dim_date.fiscalyearvalue,pfmt.course_code_description
               ,concat(concat(concat(concat(institution_nm,'|'),pfmt.course_code_description),'|'),prod.pub_series_de) as adoption_key,
