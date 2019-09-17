@@ -50,7 +50,7 @@ view: ipm_campaign {
   }
 
   dimension: real_campaign_title {
-    label: "Campaign Name"
+    label: "Real Campaign Title"
     description: "Friendly (not internal) name of campaign"
     link: {label: "Link to the setup sheet" url: "{{ outcome_setup_link._value }}"}
     link: {label: "Link to JIRA: {{ jira_no._value }}" url: "{{ jira_link._value }}"}
@@ -61,6 +61,7 @@ view: ipm_campaign {
     sql: SPLIT_PART(${jira_link}, '/', -1) ;;
   }
   dimension: jira_link {
+    sql: CASE WHEN ${TABLE}.jira_link like 'http://%' THEN ${TABLE}.jira_link END  ;;
     hidden: yes
   }
 
@@ -70,7 +71,8 @@ view: ipm_campaign {
   }
 
   dimension: event_outcome {
-    label: "Campaign Target"
+    label: "Campaign Expected Outcome"
+    description: "What is this campaign trying to get people to do?"
     sql: ${TABLE}.campaign_outcome ;;
   }
 
@@ -120,6 +122,7 @@ view: ipm_campaign {
 
   dimension: campaign_title {
     type: string
+    description: "Title of campaign in IPM feed"
     sql: ${TABLE}."CAMPAIGN_TITLE" ;;
   }
 
