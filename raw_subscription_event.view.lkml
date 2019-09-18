@@ -13,6 +13,7 @@ view: raw_subscription_event {
           ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
           ,LOCAL_TIME
           ,USER_SSO_GUID as original_guid
+          ,USER_SSO_GUID
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
           ,PLATFORM_ENVIRONMENT
