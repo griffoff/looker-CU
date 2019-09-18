@@ -50,7 +50,7 @@ view: ipm_campaign {
   }
 
   dimension: real_campaign_title {
-    label: "Real Campaign Title"
+    label: "Campaign Name"
     description: "Friendly (not internal) name of campaign"
     link: {label: "Link to the setup sheet" url: "{{ outcome_setup_link._value }}"}
     link: {label: "Link to JIRA: {{ jira_no._value }}" url: "{{ jira_link._value }}"}
@@ -121,6 +121,7 @@ view: ipm_campaign {
   }
 
   dimension: campaign_title {
+    label: "Message Name"
     type: string
     description: "Title of campaign in IPM feed"
     sql: ${TABLE}."CAMPAIGN_TITLE" ;;
