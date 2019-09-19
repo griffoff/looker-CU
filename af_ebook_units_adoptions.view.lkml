@@ -2,29 +2,35 @@ view: af_ebook_units_adoptions {
   derived_table: {
     sql: With ebook_unit1 as (
          select units.*
-            ,dm_entities.state_cd as ent_state_cd
-            ,dm_entities.institution_nm
+            ,ent.state_cd
+            ,ent.institution_nm
             ,dm_products.pub_series_de
             ,dm_products.prod_family_cd
-            ,pfmt.course_code_description
+            ,coalesce(pfmt.course_code_description,'.') as course_code_description
             ,dimdate.fiscalyearvalue as fiscalyear
-            ,concat(concat(concat(concat(institution_nm,'|'),pfmt.course_code_description),'|'),dm_products.pub_series_de) as adoption_key
+            ,concat(concat(concat(concat(concat(concat(ent.institution_nm,'|'),ent.state_cd),'|'),coalesce(pfmt.course_code_description,'.')),'|'),dm_products.pub_series_de) as adoption_key
+            ,concat(concat(concat(concat(ent.institution_nm,'|'),coalesce(pfmt.course_code_description,'.')),'|'),dm_products.pub_series_de) as old_adoption_key
             from STRATEGY.ADOPTION_PIVOT.CONSUMED_UNITS_ADOPTIONPIVOT units
-            LEFT JOIN STRATEGY.DW.DM_ENTITIES dm_entities
-            ON units.CONSUMED_ENTITY_NO = dm_entities.entity_no
-            LEFT Join DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS dm_products
+            LEFT JOIN STRATEGY.ADOPTION_PIVOT.ENTITIES_ADOPTIONPIVOT ent
+            ON units.CONSUMED_ENTITY_NO = ent.entity_no
+            LEFT Join STRATEGY.ADOPTION_PIVOT.PRODUCTS_ADOPTIONPIVOT dm_products
             ON units.CONSUMED_PRODUCT_SKEY = dm_products.Product_Skey
-            LEFT JOIN "STRATEGY"."ADOPTION_PIVOT"."PFMT_ADOPTIONPIVOT" pfmt on pfmt.product_family_code = dm_products.prod_family_cd
+            LEFT JOIN STRATEGY.ADOPTION_PIVOT.PFMT_ADOPTIONPIVOT pfmt on pfmt.product_family_code = dm_products.prod_family_cd
             JOIN prod.dw_ga.dim_date dimdate ON to_date(units.consumed_month_dt) = to_date(dimdate.datevalue)
+            where units.organization = 'Higher Ed'
           )
           Select
               adoption_key,
-             institution_nm,
+              old_adoption_key,
+              institution_nm,
+              state_cd,
+              course_code_description,
+              pub_series_de,
               SUM(CASE WHEN fiscalyear = 'FY17' THEN cu_ebook_units END) AS FY17_ebook_units_byCU,
               SUM(CASE WHEN fiscalyear = 'FY18' THEN cu_ebook_units END) AS FY18_ebook_units_byCU,
               SUM(CASE WHEN fiscalyear = 'FY19' THEN cu_ebook_units END) AS FY19_ebook_units_byCU
           from ebook_unit1
-              group by 1,2
+              group by 1,2,3,4,5,6
 
        ;;
   }
@@ -39,27 +45,48 @@ view: af_ebook_units_adoptions {
     sql: ${TABLE}."ADOPTION_KEY" ;;
   }
 
+  dimension: old_adoption_key {
+    type: string
+    sql: ${TABLE}."OLD_ADOPTION_KEY" ;;
+  }
+
+
   dimension: institution_nm {
     type: string
     sql: ${TABLE}."INSTITUTION_NM" ;;
   }
 
-  dimension: fy17_total_consumed_units {
-    type: number
-    sql: ${TABLE}."FY17_TOTAL_CONSUMED_UNITS" ;;
+  dimension: state_cd {
+    type: string
+    sql: ${TABLE}."STATE_CD" ;;
   }
 
-  dimension: fy18_total_consumed_units {
-    type: number
-    sql: ${TABLE}."FY18_TOTAL_CONSUMED_UNITS" ;;
+  dimension: course_code_description {
+    type: string
+    sql: ${TABLE}."COURSE_CODE_DESCRIPTION" ;;
   }
 
-  dimension: fy19_total_consumed_units {
+  dimension: pub_series_de {
+    type: string
+    sql: ${TABLE}."PUB_SERIES_DE" ;;
+  }
+
+  dimension: FY17_ebook_units_byCU {
     type: number
-    sql: ${TABLE}."FY19_TOTAL_CONSUMED_UNITS" ;;
+    sql: ${TABLE}."FY17_EBOOK_UNITS_BYCU" ;;
+  }
+
+  dimension: FY18_ebook_units_byCU {
+    type: number
+    sql: ${TABLE}."FY18_EBOOK_UNITS_BYCU" ;;
+  }
+
+  dimension: FY19_ebook_units_byCU {
+    type: number
+    sql: ${TABLE}."FY19_EBOOK_UNITS_BYCU" ;;
   }
 
   set: detail {
-    fields: [adoption_key, institution_nm, fy17_total_consumed_units, fy18_total_consumed_units, fy19_total_consumed_units]
+    fields: [adoption_key, old_adoption_key, institution_nm, state_cd, course_code_description, pub_series_de, FY17_ebook_units_byCU, FY18_ebook_units_byCU, FY19_ebook_units_byCU]
   }
 }
