@@ -9,7 +9,7 @@ derived_table: {
         ,cae AS
         (
           SELECT
-              event_id AS event_id_cafe
+              event_id
               ,COALESCE(user_environment, product_environment) AS platform_environment
               ,_ldts
               ,_rsrc
@@ -104,6 +104,7 @@ derived_table: {
     group_label: "Succeeding five events"
   }
 
+
   dimension: event_1 {
     group_label: "Succeeding five events"
     type: string
@@ -156,11 +157,18 @@ derived_table: {
 #     sql: ${TABLE}."EVENT_TIME" ;;
 #   }
 
+  dimension_group: event_time {
+    group_label: "Event time"
+    type: time
+    timeframes: [raw, hour_of_day, hour, date, week, month, month_name, year]
+  }
+
   dimension: event_hour {
     group_label: "Event time"
     label: "Event hour"
     type: date_hour
     sql: date_trunc('hour', ${TABLE}."EVENT_TIME") ;;
+    hidden: yes
   }
 
   dimension: event_date {
@@ -168,6 +176,7 @@ derived_table: {
     label: "Event date"
     type: date
     sql: ${TABLE}."EVENT_TIME"::DATE ;;
+    hidden: yes
   }
 
   dimension: event_week {
@@ -175,6 +184,7 @@ derived_table: {
     label: "Event week"
     type: date
     sql: DATE_TRUNC('week', ${TABLE}."EVENT_TIME" );;
+    hidden: yes
   }
 
   dimension: event_month {
@@ -182,6 +192,7 @@ derived_table: {
     label: "Event month"
     type: date
     sql: date_trunc('week', ${TABLE}."EVENT_TIME") ;;
+    hidden: yes
   }
 
 
