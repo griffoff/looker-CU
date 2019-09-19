@@ -11,5 +11,5 @@ datagroup: subscription_event_merged {
 }
 
 datagroup: daily_refresh {
-  sql_trigger: CURRENT_DATE() ;;
+  sql_trigger: SELECT CURRENT_DATE() ;;
 }

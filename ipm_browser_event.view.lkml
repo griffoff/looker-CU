@@ -117,14 +117,16 @@ view: ipm_browser_event {
 
   measure: converted_count {
     group_label: "Counts"
-    label: "# Conversions"
+    label: "# Successful outcomes"
+    description: ""
     type: count_distinct
     sql: DECODE(${event_action_raw}, 'CONVERTED', ${user_sso_guid})  ;;
   }
 
   measure: click_through_rate {
     group_label: "Rates"
-    label: "Click Through"
+    label: "% Click Through"
+    description: "What proprtion of those to whom the message was delivered actually clicked it"
     type: number
     sql: ${clicked_count} / NULLIF(${displayed_count}, 0) ;;
     value_format_name: percent_2
@@ -132,7 +134,8 @@ view: ipm_browser_event {
 
   measure: conversion_rate_from_click {
     group_label: "Rates"
-    label: "Conversion from Click"
+    label: "% Successful outcome from click"
+    description: "What proportion of those who opened the notification (Clicked) exhibited the desired action?"
     type: number
     sql: ${converted_count} / NULLIF(${clicked_count}, 0) ;;
     value_format_name: percent_2
@@ -140,7 +143,8 @@ view: ipm_browser_event {
 
   measure: conversion_rate_from_seen {
     group_label: "Rates"
-    label: "Conversion from Seen"
+    label: "% Successful outcome from seen"
+    description: "What proportion of those who saw (dismissed or clicked) the notification (Displayed) exhibited the desired action?"
     type: number
     sql: ${converted_count} / NULLIF(${clicked_or_dismissed}, 0) ;;
     value_format_name: percent_2
@@ -148,7 +152,8 @@ view: ipm_browser_event {
 
   measure: conversion_rate_from_impression{
     group_label: "Rates"
-    label: "Conversion from impression"
+    label: "% Successful outcome from impression"
+    description: "What proportion of those to whom the message was delivered (Displayed) exhibited the desired action?"
     type: number
     sql: ${converted_count} / NULLIF(${displayed_count}, 0) ;;
     value_format_name: percent_2
