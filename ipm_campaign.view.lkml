@@ -11,6 +11,7 @@ view: ipm_campaign {
         ,COALESCE(outcome.campaign_outcome, ARRAY_TO_STRING(outcome.event_outcome, ' OR ')) AS campaign_outcome
         ,COALESCE(outcome.real_campaign_title, c.campaign_title) AS real_campaign_title
         ,outcome.jira_link
+        ,outcome.campaign_title IS NOT NULL AS has_outcome_mapping
     FROM IPM.PROD.IPM_CAMPAIGN c
     LEFT JOIN (
         SELECT
@@ -61,13 +62,18 @@ view: ipm_campaign {
     sql: SPLIT_PART(${jira_link}, '/', -1) ;;
   }
   dimension: jira_link {
-    sql: CASE WHEN ${TABLE}.jira_link like 'http://%' THEN ${TABLE}.jira_link END  ;;
     hidden: yes
   }
 
   dimension: outcome_setup_link {
     hidden: yes
     sql: 'https://docs.google.com/spreadsheets/d/1_XHPL3z2h7YEEQ3onZLvpcJ7Swi1pYWF95HAoaCxu58/edit#gid=0' ;;
+  }
+
+  dimension: has_outcome_mapping {
+    type: yesno
+    description: "Has a matching outcome row on the setup sheet"
+    link: {label: "Link to the setup sheet" url: "{{ outcome_setup_link._value }}"}
   }
 
   dimension: event_outcome {
