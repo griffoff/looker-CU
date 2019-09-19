@@ -132,7 +132,7 @@ view: all_events {
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
-    sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    sql: UPPER(${TABLE}."PRODUCT_PLATFORM") ;;
     label: "Event Source"
     description: "Where did this event come from? e.g. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
     hidden: no
@@ -198,9 +198,18 @@ view: all_events {
   dimension: event_name {
     group_label: "Event Classification"
     type: string
-    sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
+    #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
+    sql:  COALESCE(${TABLE}."EVENT_NAME"
+              ,'** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **'
+          ) ;;
     label: "Event name"
-    description: "The lowest level in hierarchy of event classification below event action. Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'"
+    description: "The lowest level in hierarchy of event classification below event action.
+    Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
+    n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
+    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **
+    "
+    link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
+    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
   }
 
 
