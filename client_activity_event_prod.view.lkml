@@ -9,7 +9,7 @@ derived_table: {
         ,cae AS
         (
           SELECT
-              event_id AS event_id_cafe
+              event_id
               ,COALESCE(user_environment, product_environment) AS platform_environment
               ,_ldts
               ,_rsrc
@@ -103,6 +103,7 @@ derived_table: {
     label: "event_0"
     group_label: "Succeeding five events"
   }
+
 
   dimension: event_1 {
     group_label: "Succeeding five events"
