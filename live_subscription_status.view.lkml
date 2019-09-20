@@ -32,6 +32,7 @@ view: live_subscription_status {
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {
+
     type: time
     timeframes: [raw, date, week, month, year]
   }
@@ -59,6 +60,9 @@ view: live_subscription_status {
     sql_end: current_date() ;;
   }
 
+
+
+
 #   dimension_group: time_since_last_trial {
 # #     group_label: "Time at this status"
 #     type: duration
@@ -67,14 +71,14 @@ view: live_subscription_status {
 #     sql_end: current_date() ;;
 #   }
 
-
-  dimension_group: time_in_current_status {
+#
+#   dimension_group: time_in_current_status {
 #     group_label: "Time at this status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: ${subscription_start_raw}::date ;;
-    sql_end: current_date() ;;
-  }
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${subscription_start_raw}::date ;;
+#     sql_end: current_date() ;;
+#   }
 
 
 #

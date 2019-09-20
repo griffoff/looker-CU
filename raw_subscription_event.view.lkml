@@ -244,6 +244,40 @@ view: raw_subscription_event {
       persist_for: "60 minutes"
   }
 
+  dimension: effective_to {
+    type: date
+    label: "Effective to date"
+    description: "The day this status ended. e.g. different from subscription end date when a subscription gets cancelled or when a trial state upgrades to ful access early"
+    hidden: no
+    sql: ${TABLE}."effective_to" ;;
+  }
+
+  dimension: effective_from {
+    type: date
+    label: "Subscription effective from date"
+    description: "Start date of this status"
+    hidden: no
+    sql: ${TABLE}."effective_from" ;;
+  }
+
+  dimension_group: time_in_current_status {
+    view_label: "Learner Profile - Live Subscription Status"
+    type: duration
+    intervals: [day, week, month]
+    sql_start: ${effective_from} ;;
+    sql_end: ${effective_to} ;;
+    label: "Time in current status"
+  }
+
+#   dimension_group: time_in_current_status {
+#     view_label: "Learner Profile - Live Subscription Status"
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${raw_subscription_event.effective_from} ;;
+#     sql_end: ${raw_subscription_event.effective_to} ;;
+#     label: "Time in current status"
+#   }
+
   dimension: _hash {
     type: string
     sql: ${TABLE}."_HASH" ;;
