@@ -163,6 +163,7 @@ derived_table: {
   }
 
   dimension: cu_contract_id {
+    group_label: "Subscription"
     type: string
     sql: ${TABLE}.cu_contract_id;;
     label: "CU Contract ID"
