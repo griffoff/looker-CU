@@ -24,7 +24,7 @@ view: customer_support_all {
           ,product
           ,root_cause
           ,sso_guid
-      FROM uploads.support.escals_201961_2019918_current LIMIT 200
+      FROM uploads.support.escals_201961_2019918_current
       )
       ,old AS
       (
@@ -51,8 +51,8 @@ view: customer_support_all {
           ,root_cause
           ,sso_guid
       FROM uploads.cu.customer_support_cases20190707
-      LIMIT 200)
-      SELECT * FROM new UNION SELECT * FROM old;
+      )
+      SELECT * FROM new UNION SELECT * FROM old
        ;;
   }
 
