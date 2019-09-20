@@ -954,9 +954,9 @@ explore: customer_support_cases {
   description: "One time upload of customer support cases joined with CU user analysis to analyze support cases in the context of CU"
   extends: [session_analysis]
 
-  join: customer_support_cases {
+  join: customer_support_all {
     view_label: "Customer Support Cases"
-    sql_on: ${learner_profile.user_sso_guid} = ${customer_support_cases.sso_guid}::STRING ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${customer_support_all.sso_guid}::STRING ;;
     relationship: one_to_many
   }
   fields: [
@@ -976,7 +976,7 @@ explore: customer_support_cases {
 #     ,subscription_term_products_value.marketing_fields*
 #     ,subscription_term_cost.marketing_fields*
     ,user_courses.marketing_fields*
-    ,customer_support_cases.customer_support_case_fields*]
+    ,customer_support_all.detail*]
 }
 
 
