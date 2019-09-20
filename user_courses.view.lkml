@@ -159,7 +159,7 @@ derived_table: {
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag THEN ${isbn} END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN ${isbn} END;;
   }
 
   dimension: cu_contract_id {
@@ -180,9 +180,19 @@ derived_table: {
 
 
   dimension: cu_flag {
+    group_label: "Subscription"
      type: yesno
 #     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
      label: "CU Flag"
+#     hidden: no
+  }
+
+  dimension: cu_flag_desc {
+    group_label: "Subscription"
+    type: string
+    sql: CASE WHEN ${cu_flag} THEN 'Paid by subscription' WHEN ${activated} THEN 'Paid direct' ELSE 'Not paid' END;;
+#     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
+    label: "CU Flag (Description)"
 #     hidden: no
   }
 
