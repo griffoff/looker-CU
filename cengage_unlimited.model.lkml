@@ -63,6 +63,36 @@ explore: strategy_ecom_sales_orders {
 
 ######## User Experience Journey Start ###################
 
+# explore: user_courses_products {
+#   extends: [dim_course]
+#   label: "User courses products"
+#
+#   join: merged_cu_user_info {
+#     relationship: many_to_one
+#     sql_on: ${user_courses_products.user_sso_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+#   }
+#
+#   join: user_institution_map {
+#     fields: []
+#     sql_on: ${user_courses_products.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: gateway_institution {
+#     view_label: "Learner Profile"
+#     sql_on: coalesce(${merged_cu_user_info.entity_id}::string, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no};;
+#     relationship: many_to_one
+#   }
+#
+#   join: dim_institution {
+#     relationship: many_to_one
+#     sql_on: ${dim_course.institutionid} = ${dim_institution.institutionid} ;;
+#   }
+#
+#
+# }
+#
+
 explore: learner_profile {
   extends: [dim_course, user_courses]
   view_name: learner_profile
