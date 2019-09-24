@@ -121,6 +121,7 @@ view: cu_user_info {
     label: "Internal User Flag"
     type: yesno
     sql: ${TABLE}.internal ;;
+    hidden: yes
   }
 
   dimension: real_user_flag {
