@@ -614,11 +614,11 @@ view: learner_profile {
 
   dimension: control_flag_3 {
     type: number
-    label: "Control flag 3"
+    label: "Randomization flag"
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_3";;
-    hidden: yes
+    hidden: no
   }
 
   dimension: control_flag_4 {

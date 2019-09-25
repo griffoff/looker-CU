@@ -96,6 +96,7 @@ view: user_courses_dev {
 
 
 
+
   dimension: date_added {
     type: date
   }

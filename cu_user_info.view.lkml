@@ -72,6 +72,12 @@ view: cu_user_info {
     #hidden: yes
   }
 
+  dimension: instructor {
+    type: string
+    sql: ${TABLE}."INSTRUCTOR" ;;
+    hidden: yes
+  }
+
   dimension: primary_guid {
     type: string
     sql: ${TABLE}."LINKED_GUID" ;;

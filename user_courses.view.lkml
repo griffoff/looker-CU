@@ -59,6 +59,15 @@ derived_table: {
     hidden: yes
   }
 
+  dimension_group: week_in_course {
+    label: "Time in course"
+    description: "The difference in weeks from the course start date to the current date."
+    type: duration
+    sql_start: ${course_start_date} ;;
+    sql_end: CURRENT_DATE() ;;
+    intervals: [week]
+  }
+
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
