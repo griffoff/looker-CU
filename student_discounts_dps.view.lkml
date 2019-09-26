@@ -90,7 +90,7 @@ view: student_discounts_dps {
     type: tier
     sql: ${amount_to_upgrade} ;;
     tiers: [0, 10, 20, 30, 40, 50, 60, 70]
-    style: interval
+    style: integer
   }
 
 

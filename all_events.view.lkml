@@ -37,6 +37,13 @@ view: all_events {
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
+  dimension: role {
+    type: string
+    sql: TRIM(${event_data}:role) ;;
+    label: "Webassign role"
+    description: "Role from WA CAFe"
+  }
+
   dimension: campaign_msg_id{
     type: string
     sql: CASE WHEN ${event_name} ilike 'IPM%'
