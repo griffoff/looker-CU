@@ -1,4 +1,4 @@
-explore: milday_cafe_events_temp {}
+# explore: milday_cafe_events_temp {}
 
 view: milday_cafe_events_temp {
   derived_table: {

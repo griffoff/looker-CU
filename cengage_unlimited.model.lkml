@@ -1264,31 +1264,48 @@ explore: client_activity_event_prod {
   sql_on: ${client_activity_event_prod.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
   relationship: many_to_one
   }
-
-#   join: dim_course {
-#     sql_on: ${client_activity_event_prod.coursekey} = ${dim_course.coursekey} ;;
-#     relationship: many_to_many
-#   }
-#
-#   join: course_section_facts {
-#     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-#     relationship: one_to_one
-#   }
-#
-#   join: dim_institution {
-#     fields: [dim_institution.CU_fields*]
-#   }
-#
-#   join: dim_filter {
-#     fields: [-dim_filter.ALL_FIELDS*]
-#   }
-#
-#   join: dim_product {
-#     sql_on: ${client_activity_event_prod.isbn} = ${dim_product.isbn13} ;;
-#     relationship: many_to_one
-#   }
 }
 
+
+explore: milady_temp {
+  from: client_activity_event_prod
+  view_label: "Milday events"
+  label: "Milady events Prod"
+
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${milady_temp.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${milady_temp.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+  join: dim_course {
+    sql_on: ${milady_temp.coursekey} = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
+  join: dim_institution {
+    fields: [dim_institution.CU_fields*]
+  }
+
+  join: dim_filter {
+    fields: [-dim_filter.ALL_FIELDS*]
+  }
+
+  join: dim_product {
+    sql_on: ${milady_temp.isbn} = ${dim_product.isbn13} ;;
+    relationship: many_to_one
+  }
+
+  }
 
 ############################ Discount email campaign ##################################
 
