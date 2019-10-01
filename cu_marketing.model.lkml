@@ -14,6 +14,10 @@ explore: late_activators_removals {
     sql_on: ${late_activators.user_sso_guid} = ${cu_user_info.user_sso_guid}  ;;
     relationship: many_to_one
   }
+  join: live_subscription_status {
+    sql_on: ${cu_user_info.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+    relationship: one_to_one
+  }
 }
 
 explore: late_activators {
