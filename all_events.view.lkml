@@ -24,6 +24,7 @@ view: all_events {
   }
 
   dimension: event_subscription_state {
+    group_label: "Subscription State"
     label: "Subscription State"
     type: string
     sql: COALESCE(${TABLE}.subscription_state, INITCAP(REPLACE(${TABLE}.event_data:subscription_state, '_', ' ')));;
@@ -35,6 +36,22 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA" ;;
     label: "Event data"
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
+  }
+
+  dimension: days_in_state {
+    group_label: "Subscription State"
+    label: "Days in state"
+    description: "Number of days user was in a subscription state when they executed this event"
+    type: number
+    sql: ${event_data}:days_in_state ;;
+
+  }
+
+  dimension: role {
+    type: string
+    sql: TRIM(${event_data}:role) ;;
+    label: "Webassign role"
+    description: "Role from WA CAFe"
   }
 
   dimension: campaign_msg_id{
@@ -361,7 +378,7 @@ view: all_events {
   measure: user_week_count {
     type: count_distinct
     sql: HASH(${user_sso_guid}, ${local_week}) ;;
-    hidden: yes
+    hidden: no
   }
 
   measure: day_count {

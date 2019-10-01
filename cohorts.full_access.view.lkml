@@ -36,14 +36,14 @@ view: FullAccess_cohort {
       ;;
   }
 
-  dimension: current { group_label: "Full Access" }
+  dimension: current { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
 
-  dimension: minus_1 { group_label: "Full Access" }
+  dimension: minus_1 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
 
-  dimension: minus_2 { group_label: "Full Access" }
+  dimension: minus_2 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
 
-  dimension: minus_3 { group_label: "Full Access" }
+  dimension: minus_3 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
 
-  dimension: minus_4 { group_label: "Full Access" }
+  dimension: minus_4 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
 
 }
