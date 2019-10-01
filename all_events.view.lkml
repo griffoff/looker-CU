@@ -240,6 +240,58 @@ view: all_events {
     description: "Components of the events local timestamp"
   }
 
+  dimension: referral_path {
+    group_label: "Referral Path"
+    description: "Which page did the student come from to get here?"
+    sql: ${event_data}:"referral path"::STRING ;;
+  }
+
+  dimension: referral_host {
+    group_label: "Referral Path"
+    description: "Which site did the student come from to get here?"
+    type: string
+    sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
+  }
+
+  dimension: referral_host_type {
+    description: "What type of site did the student come from to get here?"
+    group_label: "Referral Path"
+    type: string
+    sql:  case
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%bing%' then 'Bing'
+        when ${referral_host} like '%yahoo%' then 'Yahoo'
+        when ${referral_host} like '%msn.%' then 'MSN'
+        when ${referral_host} like '%aol.%' then 'AOL'
+        when ${referral_host} like '%moodle%' then 'Moodle'
+        when ${referral_host} like '%blackboard%' or ${referral_host} like 'bblearn%' then 'Blackboard'
+        when ${referral_host} like '%d2l%' then 'D2L'
+        when ${referral_host} like '%canvas%' then 'Canvas'
+        when ${referral_host} like '%ilearn%' then 'ILearn'
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%qualtrics%' then 'Qualtrics'
+        when ${referral_host} like '%quia%' then 'Quia'
+        when ${referral_host} like 'cengage.vitalsource.com' then 'VitalSource'
+        when ${referral_host} like 'www.chegg.com' then 'Chegg'
+        when ${referral_host} like '%.edu' then 'Other EDU'
+        when ${referral_host} like 'secureacceptance.cybersource.com' then 'Cengage Support' --??
+        when ${referral_host} in ('cengageportal.secure.force.com', 'cengage.force.com', 'support.cengage.com') then 'Cengage Support'
+        when ${referral_host} like '%cengagebrain%' or ${referral_host} like '%nelsonbrain%' then 'Cengage Brain'
+        when ${referral_host} like 'olradmin.cengage.com' then 'Cengage OLR Admin'
+        when ${referral_host} like 'gateway.cengage%' then 'Cengage Gateway'
+        when ${referral_host} like '%aplia.com' or ${referral_host} like  'aplia.apps.ng.cengage.com' then 'Cengage Aplia'
+        when ${referral_host} like 'sam.cengage.com' then 'Cengage SAM'
+        when ${referral_host} like '4ltrpressonline.cengage.com' then 'Cengage 4LTR'
+        when ${referral_host} like '%.cengagenow.%' or ${referral_host} like  'www.owlv2.com' then 'Cengage CNow'
+        when ${referral_host} like 'instructor.cengage.com' then 'Cengage Instructor Site'
+        when ${referral_host} in ('ng.cengage.com', 'mindtap.cengage.com') then 'Cengage MindTap'
+        when ${referral_host} like 'www.webassign.net' then 'Cengage Webassign'
+        when ${referral_host} like '%.cengage.com' then 'Cengage.com'
+        when ${referral_path} is null then 'UNKNOWN'
+        else 'Other'
+       end;;
+  }
+
   measure: user_count {
     label: "# people"
     type: count_distinct
