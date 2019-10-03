@@ -250,6 +250,12 @@ view: all_events {
     description: "Components of the events local timestamp converted to UTC"
   }
 
+  dimension: event_date_raw {
+    hidden: yes
+    type: date
+    sql: ${TABLE}.local_time::date ;;
+  }
+
   dimension_group: local_est {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
@@ -365,7 +371,60 @@ view: all_events {
     label: "# Events while in locker status"
     type: number
     sql: COUNT(CASE WHEN ${event_subscription_state} = 'Provisional Locker' THEN 1 END) ;;
+  }
 
+  measure: events_last_1_days {
+    group_label: "# Events"
+    label: "Avg # Events per day yesterday"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_7_days {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 7 days"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_30_days {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 30 days"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day,${event_date_raw}, CURRENT_DATE()) <= 30 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 30 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_6_months {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 6 months"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_12_months {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 12 months"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 12 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: event_first_captured {
+    group_label: "# Events"
+    type: string
+    description: "Since when have we been tracking this event?"
+    sql: MIN(${event_date_raw}) ;;
+  }
+
+  measure: event_last_captured {
+    group_label: "# Events"
+    type: string
+    description: "When was the last time we caught this event?"
+    sql: MAX(${event_date_raw}) ;;
   }
 
   measure: month_count {
