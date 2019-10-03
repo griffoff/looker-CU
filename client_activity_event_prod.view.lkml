@@ -1,3 +1,5 @@
+# explore: test_cae {from: client_activity_event_prod}
+
 view: client_activity_event_prod {
 #   sql_table_name: CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT;;
 derived_table: {
@@ -15,6 +17,7 @@ derived_table: {
               ,_rsrc
               ,message_format_version
               ,message_type
+--              , CONVERT_TIMEZONE('UTC', event_time) AS event_time
               ,event_time
               ,event_category
               ,event_action
@@ -107,6 +110,12 @@ derived_table: {
     type: count
     drill_fields: [detail*]
   }
+
+#   measure: user_count {
+#     type: count_distinct
+#     sql_distinct_key: ${user_sso_guid} ;;
+#     drill_fields: [detail*]
+#   }
 
   dimension: lag_session {
     hidden: yes

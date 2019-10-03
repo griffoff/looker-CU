@@ -1,3 +1,5 @@
+#explore: test_events {from:all_events}
+
 include: "//core/common.lkml"
 view: all_events {
   view_label: "Events"
@@ -13,6 +15,8 @@ view: all_events {
     label: "User SSO GUID"
     hidden: yes
   }
+
+
 
   dimension: event_id {
     type: number
@@ -52,6 +56,13 @@ view: all_events {
     sql: TRIM(${event_data}:role) ;;
     label: "Webassign role"
     description: "Role from WA CAFe"
+  }
+
+  dimension: host_platform {
+    type: string
+    sql: TRIM(${event_data}:host_platform) ;;
+    label: "Host platform (CAFe)"
+    description: "Host platform from client activity events"
   }
 
   dimension: campaign_msg_id{
