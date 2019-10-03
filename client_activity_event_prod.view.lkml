@@ -111,6 +111,18 @@ derived_table: {
     drill_fields: [detail*]
   }
 
+    measure: industry_linkurl_count {
+    type: count_distinct
+    sql:  ${industryLinkURL};;
+    drill_fields: [detail*]
+  }
+
+  measure: user_count {
+    type: count_distinct
+    sql:  ${user_sso_guid};;
+    drill_fields: [detail*]
+  }
+
 #   measure: user_count {
 #     type: count_distinct
 #     sql_distinct_key: ${user_sso_guid} ;;
