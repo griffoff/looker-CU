@@ -73,6 +73,15 @@ view: ipm_browser_event {
     description: "Components of the events timestamp converted to EST"
   }
 
+  dimension_group: raw_time {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql:  ${TABLE}."EVENT_TIME" ;;
+    group_label: "Raw Time"
+    label: "Event raw"
+  }
+
+
 
   dimension: prim_key {
     sql: CONCAT(${event_time},${user_sso_guid}) ;;
