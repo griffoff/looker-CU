@@ -57,8 +57,22 @@ view: ipm_browser_event {
       quarter,
       year
     ]
-    sql: ${TABLE}."EVENT_TIME" ;;
+    sql: convert_timezone('UTC', ${TABLE}."EVENT_TIME") ;;
+    group_label: "Event Time (UTC)"
+    label: "Event (UTC)"
+    description: "Components of the events timestamp converted to UTC"
+
   }
+
+  dimension_group: local_est {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql: convert_timezone('America/New_York', ${TABLE}."EVENT_TIME") ;;
+    group_label: "Event Time (EST)"
+    label: "Event (EST)"
+    description: "Components of the events timestamp converted to EST"
+  }
+
 
   dimension: prim_key {
     sql: CONCAT(${event_time},${user_sso_guid}) ;;

@@ -241,6 +241,8 @@ view: learner_profile {
       when: {label: "24 months" sql: ${cu_subscription_length_raw} in (23,24,25) ;;}
       else: "Other"
     }
+    hidden: yes
+    # this logic doesn't work
   }
 
   dimension_group: subscription_length {
@@ -251,6 +253,7 @@ view: learner_profile {
     sql_start: ${subscription_start_raw};;
     sql_end: ${subscription_end_raw} ;;
     intervals: [week, month]
+    # this logic doesn't work
   }
 
   measure: subscription_length_average {
