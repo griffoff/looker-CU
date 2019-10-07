@@ -231,8 +231,8 @@ view: learner_profile {
   dimension: cu_subscription_length {
     type: string
     group_label: "CU Subscription"
-    label: "CU subscription Length"
-    description: "Current length of CU subscription in months (Needs to be used with Subscription Status filter or dimension)"
+    label: "CU subscription state duration/length"
+    description: "Duration of current CU subscription state in months (Needs to be used with Subscription Status filter or dimension)"
     case: {
       when: {label: "Less than 4 months" sql: ${cu_subscription_length_raw} < 4 ;;}
       when: {label: "4 months" sql: ${cu_subscription_length_raw} = 4 ;;}
