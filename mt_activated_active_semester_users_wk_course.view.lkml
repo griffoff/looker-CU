@@ -50,6 +50,9 @@ view: mt_activated_active_semester_users_wk_course {
            LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
               ON mt.user_identifier = m.partner_guid
           WHERE semester IN ('Fall 18', 'Fall 19')
+          --AND mt.event_action = 'ACTIVITY-SUBMITTED'
+          AND mt.event_category IN ('READING', 'ACTIVITY', 'ASSESSMENT', 'HOMEWORK')
+          AND mt.event_action NOT ILIKE '%unfocused%'
           GROUP BY 1, 2, 3
         )
         ,active_users_mt_semester AS
