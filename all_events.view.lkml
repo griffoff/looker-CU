@@ -250,6 +250,17 @@ view: all_events {
     description: "Components of the events local timestamp converted to UTC"
   }
 
+  dimension: semester {
+    type: string
+    sql: CASE
+          WHEN ${event_date_raw} BETWEEN '2018-08-01' AND '2018-12-31' THEN '1. Fall 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-01-01' AND '2019-06-30' THEN '2. Spring 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-07-01' AND '2019-07-3`' THEN '3. Summer 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-08-01' AND CURRENT_DATE() THEN '4. Fall 2020'
+          ELSE 'Other' END
+          ;;
+  }
+
   dimension: event_date_raw {
     hidden: yes
     type: date
