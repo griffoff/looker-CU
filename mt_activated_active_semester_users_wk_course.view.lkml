@@ -39,6 +39,7 @@ view: mt_activated_active_semester_users_wk_course {
           SELECT
             COALESCE(m.primary_guid, user_identifier) AS merged_guid
            ,mt.event_time::date AS event_date
+          ,mt.event_category
            ,CASE
               WHEN mt.event_time::date BETWEEN '2018-08-01' AND '2018-09-30' THEN 'Fall 18'
               WHEN mt.event_time::date BETWEEN '2019-08-01' AND '2019-09-30' THEN 'Fall 19'
@@ -53,7 +54,7 @@ view: mt_activated_active_semester_users_wk_course {
           --AND mt.event_action = 'ACTIVITY-SUBMITTED'
           AND mt.event_category IN ('READING', 'ACTIVITY', 'ASSESSMENT', 'HOMEWORK')
           AND mt.event_action NOT ILIKE '%unfocused%'
-          GROUP BY 1, 2, 3
+          GROUP BY 1, 2, 3, 4
         )
         ,active_users_mt_semester AS
         (
@@ -88,6 +89,7 @@ view: mt_activated_active_semester_users_wk_course {
         (
             SELECT
               uac.semester
+              ,ma.event_category
               ,DATEDIFF('week', begin_date, ma.event_date) AS week_in_course
               ,AVG(unique_activities) AS avg_weekly_activites
               ,AVG(unique_sessions) AS avg_weekly_sessions
@@ -98,7 +100,7 @@ view: mt_activated_active_semester_users_wk_course {
               AND uac.activation_count > 0
               AND ma.unique_sessions > 0
             WHERE uac.semester IN ('Fall 18', 'Fall 19')
-            GROUP BY 1, 2
+            GROUP BY 1, 2, 3
         )
         SELECT * FROM week_in_course_usage
        ;;
@@ -122,6 +124,11 @@ view: mt_activated_active_semester_users_wk_course {
   dimension: semester {
     type: string
     sql: ${TABLE}."SEMESTER" ;;
+  }
+
+  dimension: event_category {
+    type: string
+    sql: ${TABLE}."EVENT_CATEGORY" ;;
   }
 
   dimension: week_in_course {
