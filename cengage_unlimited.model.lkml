@@ -571,6 +571,11 @@ join: gateway_institution {
 }
 
 
+explore: guided_course_setup {
+  from: guided_course_setup
+}
+
+
 explore: event_analysis {
   label: "Event Analysis"
   extends: [all_events_dev, learner_profile]
