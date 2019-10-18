@@ -4,7 +4,7 @@ view: event_name_lookup {
   derived_table: {
     sql: SELECT DISTINCT COALESCE(event_name
               ,'** ' || UPPER(event_type || ': ' || event_action) || ' **'
-          )
+          ) as event_name
          FROM ${all_events.SQL_TABLE_NAME};;
     persist_for: "24 hours"
   }
