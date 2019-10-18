@@ -2,14 +2,22 @@ include: "//core/common.lkml"
 
 view: event_name_lookup {
   derived_table: {
-    sql: SELECT DISTINCT COALESCE(event_name
+    sql:
+        SELECT
+          COALESCE(event_name
               ,'** ' || UPPER(event_type || ': ' || event_action) || ' **'
           ) as event_name
-         FROM ${all_events.SQL_TABLE_NAME};;
+          ,COUNT(*) as event_count
+        FROM ${all_events.SQL_TABLE_NAME}
+        GROUP BY 1
+        HAVING COUNT(*) > 100
+        ORDER BY 1
+;;
     persist_for: "24 hours"
   }
 
   dimension: event_name {}
+  dimension: event_count {}
 }
 
 explore: event_name_lookup {
