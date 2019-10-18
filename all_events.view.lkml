@@ -1,6 +1,21 @@
-#explore: test_events {from:all_events}
-
 include: "//core/common.lkml"
+
+view: event_name_lookup {
+  derived_table: {
+    sql: SELECT DISTINCT COALESCE(event_name
+              ,'** ' || UPPER(event_type || ': ' || event_action) || ' **'
+          )
+         FROM ${all_events.SQL_TABLE_NAME};;
+    persist_for: "24 hours"
+  }
+
+  dimension: event_name {}
+}
+
+explore: event_name_lookup {
+  hidden: yes
+}
+
 view: all_events {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
@@ -238,6 +253,8 @@ view: all_events {
     "
     link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
+    suggest_explore: event_name_lookup
+    suggest_dimension: event_name_lookup.event_name
   }
 
 
