@@ -4,7 +4,9 @@ view: raw_subscription_event {
      WITH
   distinct_primary AS
   (
-      SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
+      SELECT DISTINCT primary_guid
+      FROM prod.unlimited.vw_partner_to_primary_user_guid
+      WHERE partner_guid IS NOT NULL
   )
   ,raw_subscription_event_merged_clean AS
   (
@@ -17,8 +19,9 @@ view: raw_subscription_event {
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
           ,PLATFORM_ENVIRONMENT
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE SUBSCRIPTION_START END AS SUBSCRIPTION_START
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE greatest(local_time, subscription_start) END AS SUBSCRIPTION_START
           ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
           ,SUBSCRIPTION_STATE
           ,CONTRACT_ID
           ,TRANSFERRED_CONTRACT
@@ -48,7 +51,8 @@ view: raw_subscription_event {
     )
         SELECT
           e.*
-          ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+          ,REPLACE(INITCAP(subscription_state), '_', ' ') AS subscription_status
+          ,subscription_state not in ('cancelled', 'banned', 'no_access') AND subscription_end < CURRENT_TIMESTAMP() AS expired
           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
           ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
@@ -74,8 +78,8 @@ view: raw_subscription_event {
           ,MAX(local_time) over(partition by merged_guid) as latest_update
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
-          ,CASE WHEN CONTAINS(subscription_status, 'Expired') THEN subscription_end ELSE subscription_start END AS effective_from
-          ,CASE WHEN CONTAINS(subscription_status, 'Expired') THEN CURRENT_DATE() ELSE COALESCE(LEAST(next_event_time, subscription_end), subscription_end) END AS effective_to
+          ,subscription_start AS effective_from
+          ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
       FROM raw_subscription_event_merged_clean e
     ;;
 

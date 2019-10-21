@@ -154,7 +154,7 @@ derived_table: {
   dimension: activated_desc {
     group_label: "Activated?"
     label: "Activated (Description)"
-    type: yesno
+    type: string
     sql: CASE WHEN ${activated} THEN 'Activated' ELSE 'Not activated' END  ;;
     hidden: no
   }

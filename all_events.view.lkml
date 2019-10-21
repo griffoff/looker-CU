@@ -1,8 +1,29 @@
-#explore: test_events {from:all_events}
-
 include: "//core/common.lkml"
-# include: "//cube/dim_date.view"
 
+
+view: event_name_lookup {
+  derived_table: {
+    sql:
+        SELECT
+          COALESCE(event_name
+              ,'** ' || UPPER(event_type || ': ' || event_action) || ' **'
+          ) as event_name
+          ,COUNT(*) as event_count
+        FROM ${all_events.SQL_TABLE_NAME}
+        GROUP BY 1
+        HAVING COUNT(*) > 100
+        ORDER BY 1
+;;
+    persist_for: "24 hours"
+  }
+
+  dimension: event_name {}
+  dimension: event_count {}
+}
+
+explore: event_name_lookup {
+  hidden: yes
+}
 
 view: all_events {
   view_label: "Events"
@@ -241,6 +262,8 @@ view: all_events {
     "
     link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
+    suggest_explore: event_name_lookup
+    suggest_dimension: event_name_lookup.event_name
   }
 
 
