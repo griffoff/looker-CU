@@ -1,6 +1,9 @@
 #explore: test_events {from:all_events}
 
 include: "//core/common.lkml"
+# include: "//cube/dim_date.view"
+
+
 view: all_events {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
@@ -266,6 +269,29 @@ view: all_events {
     type: date
     sql: ${TABLE}.local_time::date ;;
   }
+
+#   dimension: event_day_of_course {
+#     label: "Day in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('day',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: event_week_of_course {
+#     label: "Week in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('week',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: course_start_date {
+#     label: "Course start date"
+#     hidden: no
+#     type: date
+#     sql:${dim_date.datevalue_date} ;;
+#   }
+
+
 
   dimension_group: local_est {
     type: time

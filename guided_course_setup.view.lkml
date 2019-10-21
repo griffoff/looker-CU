@@ -234,8 +234,8 @@ view: guided_course_setup {
   }
 
   dimension: session_date {
-    type: string
-    sql: ${TABLE}."SESSION_DATE" ;;
+    type: date
+    sql: to_date(${TABLE}."SESSION_DATE", 'YYYYMMDD') ;;
   }
 
   dimension: totals {
