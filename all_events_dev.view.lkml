@@ -1,6 +1,30 @@
 include: "all_events.view"
 include: "//core/common.lkml" # formats
 
+view: event_name_lookup {
+  derived_table: {
+    sql:
+        SELECT
+          COALESCE(event_name
+              ,'** ' || UPPER(event_type || ': ' || event_action) || ' **'
+          ) as event_name
+          ,COUNT(*) as event_count
+        FROM ${all_events_dev.SQL_TABLE_NAME}
+        GROUP BY 1
+        HAVING COUNT(*) > 100
+        ORDER BY 1
+;;
+    persist_for: "24 hours"
+  }
+
+  dimension: event_name {}
+  dimension: event_count {}
+}
+
+explore: event_name_lookup {
+  hidden: yes
+}
+
 
 view: all_events_dev {
   sql_table_name: dev.cu_user_analysis.all_events ;;
@@ -17,6 +41,11 @@ view: all_events_dev {
     label: "Event Type"
     description: "Event category"
     group_label: "Event Classification"
+  }
+
+  dimension: event_name {
+    suggest_explore: event_name_lookup
+    suggest_dimension: event_name_lookup.event_name
   }
 
   dimension: event_name_temp {
