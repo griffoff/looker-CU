@@ -266,6 +266,29 @@ view: all_events {
     sql: ${TABLE}.local_time::date ;;
   }
 
+#   dimension: event_day_of_course {
+#     label: "Day in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('day',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: event_week_of_course {
+#     label: "Week in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('week',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: course_start_date {
+#     label: "Course start date"
+#     hidden: no
+#     type: date
+#     sql:${dim_date.datevalue_date} ;;
+#   }
+
+
+
   dimension_group: local_est {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]

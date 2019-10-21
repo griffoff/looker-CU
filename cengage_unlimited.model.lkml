@@ -527,6 +527,12 @@ explore: session_analysis {
     relationship:  one_to_many
   }
 
+  join: continue_to_partner {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${continue_to_partner.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: session_analysis_old {
