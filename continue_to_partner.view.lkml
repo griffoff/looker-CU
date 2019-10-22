@@ -23,6 +23,7 @@ view: continue_to_partner {
 
   dimension: count_bucket {
     label: "# times 'Continue' clicked on partner offer (bucket)"
+    group_label: "Activity buckets"
     type: tier
     tiers: [0, 1, 2, 3]
     style: integer

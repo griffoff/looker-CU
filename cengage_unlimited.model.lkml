@@ -533,6 +533,18 @@ explore: session_analysis {
     relationship: one_to_one
   }
 
+  join: study_pack_material_launch {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${study_pack_material_launch.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
+  join: study_tool_launch {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${study_tool_launch.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: session_analysis_old {
