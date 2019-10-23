@@ -547,34 +547,35 @@ explore: session_analysis {
 
 }
 
-explore: session_analysis_old {
-  hidden: yes
-  label: "CU User Analysis Prod - Old"
-  extends: [all_sessions]
-  from: all_sessions
-  view_name: all_sessions
 
-  join: dim_course {
-    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
+#
+# explore: event_analysis_new {
+#   label: "Course Usage Event Analysis"
+#   from: learner_profile
+#
+#   join: live_subscription_status {
+#     view_label: "Learner Profile"
+#     sql_on: ${event_analysis_new.user_sso_guid}= ${live_subscription_status.user_sso_guid} ;;
+#     type: left_outer
+#     relationship: many_to_one
+#   }
+#
+#   join: user_courses {
+#     sql_on: ${event_analysis_new.user_sso_guid} = ${user_courses.user_sso_guid} ;;
+#     relationship: one_to_many
+#   }
+#
+#   join: all_events {
+#     sql_on: ${all_events.user_sso_guid} = ${event_analysis_new.user_sso_guid} ;;
+#     relationship: one_to_many
+#   }
+#
+#   join: dim_institution {
+#     relationship: many_to_one
+#     sql_on: ${user_courses.entity_id} = ${dim_institution.institutionid} ;;
+#   }
+# }
 
-join: user_institution_map {
-  fields: []
-  sql_on: ${all_sessions.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
-  relationship: many_to_one
-}
-
-join: gateway_institution {
-  view_label: "Learner Profile"
-  sql_on: ${user_institution_map.entity_no} = ${gateway_institution.entity_no} ;;
-  relationship: many_to_one
-}
-
-  join: learner_profile {
-    sql_on: ${all_sessions.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
-    relationship: many_to_one
-  }
 
 
 #   join: sessions_analysis_week {
@@ -586,7 +587,6 @@ join: gateway_institution {
 #     sql_on: ${all_events.iac_isbn} = ${products_v.isbn13} ;;
 #     relationship: many_to_one
 #   }
-}
 
 
 explore: guided_course_setup {
