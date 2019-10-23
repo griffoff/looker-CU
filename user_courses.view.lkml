@@ -244,9 +244,16 @@ derived_table: {
 
   measure: no_activated {
     group_label: "Lifetime metrics"
-    label: "# activated"
+    label: "# activations"
     type: sum
     sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
+  }
+
+  measure: no_courses_with_activations {
+    group_label: "Lifetime metrics"
+    label: "# courses with activations"
+    type: count_distinct
+    sql: CASE WHEN ${activated} THEN ${olr_course_key} END  ;;
   }
 
   measure: enrolled_courses {

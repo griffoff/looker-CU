@@ -168,176 +168,6 @@ explore: learner_profile {
     relationship: one_to_many
   }
 
-}
-
-explore: user_courses {
-  extension: required
-
-  join: guid_latest_course_activity {
-    view_label: "Course / Section Details by User"
-    sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
-      and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
-    relationship: one_to_one
-  }
-
-  join: guid_course_used {
-    view_label: "Course / Section Details by User"
-    sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
-      and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
-    relationship: one_to_one
-  }
-}
-
-explore: live_subscription_status {
-  extends: [dim_course, user_courses]
-  #extension: required
-  from: live_subscription_status
-  view_name: live_subscription_status
-  view_label: "Learner Profile"
-  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
-
-  join: merged_cu_user_info {
-    view_label: "Learner Profile"
-    sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
-    relationship: one_to_one
-  }
-
-  join: learner_profile {
-    view_label: "Learner Profile"
-    sql_on:  ${live_subscription_status.user_sso_guid} = ${learner_profile.user_sso_guid}  ;;
-    relationship: one_to_one
-  }
-
-  join: guid_latest_activity {
-    view_label: "Learner Profile"
-    fields: [guid_latest_activity.active]
-    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
-    relationship: one_to_one
-  }
-
-  join: user_institution_map {
-    fields: []
-    sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
-    relationship: many_to_one
-  }
-  join: gateway_institution {
-    view_label: "Learner Profile"
-    sql_on: coalesce(${merged_cu_user_info.entity_id}::string, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no};;
-    relationship: many_to_one
-  }
-
-  join: raw_olr_provisioned_product {
-    fields: []
-    view_label: "Provisioned Products"
-    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
-    relationship: many_to_one
-  }
-
-  join: products_v {
-    fields: []
-    view_label: "Provisioned Products - Info"
-    sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
-    relationship: many_to_one
-  }
-
-  join: user_courses {
-    view_label: "Course / Section Details by User"
-    sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
-    relationship: one_to_many
-  }
-
-  join: dim_course {
-    sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
-
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
-
-  join: dim_date {
-    view_label: "Learner Profile"
-    sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
-    relationship: one_to_one
-  }
-}
-
-explore: all_events {
-  extension: required
-  label: "all events prod"
-
-  join: event_groups {
-    fields: [event_group]
-    sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
-    relationship: many_to_one
-  }
-}
-
-explore: all_sessions {
-  extension: required
-  extends: [all_events, dim_course]
-
-  join: all_events {
-    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
-    relationship: one_to_many
-  }
-
-  join: all_events_diff {
-    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
-    view_label: "Event Path (preceeding and following events)"
-    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
-    relationship: many_to_one
-    type: inner
-  }
-
-
-#   join: dim_course {
-#     sql_on: ${all_events.event_data}:course_key = ${dim_course.coursekey} ;;
-#     relationship: many_to_many
-#   }
-
-  join: dim_course {
-    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
-
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
-
-  join: dim_institution {
-    fields: [dim_institution.CU_fields*]
-  }
-
-  join: dim_filter {
-    fields: [-dim_filter.ALL_FIELDS*]
-  }
-}
-
-explore: session_analysis {
-  label: "CU User Analysis Prod"
-  extends: [learner_profile, all_sessions]
-  from: learner_profile
-  view_name: learner_profile
-
-  join: all_sessions {
-    sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
-    relationship: one_to_many
-  }
-
-  join: uploads_cu_sidebar_cohort {
-    sql_on: ${learner_profile.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
-    relationship: many_to_one
-  }
-
-  join: guid_cohort {
-    sql_on: ${learner_profile.user_sso_guid} = ${guid_cohort.guid} ;;
-    relationship: many_to_one
-    type: inner
-  }
-
   join: cohorts_platforms_used {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_platforms_used.user_sso_guid_merged} ;;
@@ -353,23 +183,6 @@ explore: session_analysis {
   join: TrialAccess_cohorts {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
-    relationship:  one_to_many
-  }
-
-  join: subscription_term_cost {
-    view_label: "Institution"
-    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_cost.user_sso_guid_merged} ;;
-    relationship:  one_to_many
-  }
-  join: subscription_term_products_value {
-    view_label: "Institution"
-    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_products_value.user_sso_guid_merged} ;;
-    relationship:  one_to_many
-  }
-
-  join: subscription_term_savings {
-    view_label: "Institution"
-    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_savings.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 
@@ -543,6 +356,201 @@ explore: session_analysis {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${study_tool_launch.user_sso_guid} ;;
     relationship: one_to_one
+  }
+
+}
+
+explore: user_courses {
+  extension: required
+
+  join: guid_latest_course_activity {
+    view_label: "Course / Section Details by User"
+    sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
+      and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
+    relationship: one_to_one
+  }
+
+  join: guid_course_used {
+    view_label: "Course / Section Details by User"
+    sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
+      and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
+    relationship: one_to_one
+  }
+}
+
+explore: live_subscription_status {
+  extends: [dim_course, user_courses]
+  #extension: required
+  from: live_subscription_status
+  view_name: live_subscription_status
+  view_label: "Learner Profile"
+  fields: [ALL_FIELDS*, -learner_profile.user_sso_guid]
+
+  join: merged_cu_user_info {
+    view_label: "Learner Profile"
+    sql_on:  ${live_subscription_status.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+
+  join: learner_profile {
+    view_label: "Learner Profile"
+    sql_on:  ${live_subscription_status.user_sso_guid} = ${learner_profile.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+
+  join: guid_latest_activity {
+    view_label: "Learner Profile"
+    fields: [guid_latest_activity.active]
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
+  join: user_institution_map {
+    fields: []
+    sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+  join: gateway_institution {
+    view_label: "Learner Profile"
+    sql_on: coalesce(${merged_cu_user_info.entity_id}::string, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no};;
+    relationship: many_to_one
+  }
+
+  join: raw_olr_provisioned_product {
+    fields: []
+    view_label: "Provisioned Products"
+    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: many_to_one
+  }
+
+  join: products_v {
+    fields: []
+    view_label: "Provisioned Products - Info"
+    sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
+    relationship: many_to_one
+  }
+
+  join: user_courses {
+    view_label: "Course / Section Details by User"
+    sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
+  join: dim_course {
+    sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
+  join: dim_date {
+    view_label: "Learner Profile"
+    sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
+    relationship: one_to_one
+  }
+}
+
+explore: all_events {
+  extension: required
+  label: "all events prod"
+
+  join: event_groups {
+    fields: [event_group]
+    sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
+    relationship: many_to_one
+  }
+}
+
+explore: all_sessions {
+  extension: required
+  extends: [all_events, dim_course]
+
+  join: all_events {
+    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+    relationship: one_to_many
+  }
+
+  join: all_events_diff {
+    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
+    view_label: "Event Path (preceeding and following events)"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+
+#   join: dim_course {
+#     sql_on: ${all_events.event_data}:course_key = ${dim_course.coursekey} ;;
+#     relationship: many_to_many
+#   }
+
+  join: dim_course {
+    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+    relationship: many_to_many
+  }
+
+  join: course_section_facts {
+    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
+  join: user_courses {
+    view_label: "Course / Section Details by User"
+    sql_on: ${all_sessions.user_sso_guid} = ${user_courses.user_sso_guid}
+            and ${all_sessions.course_keys}[0] = ${user_courses.olr_course_key} ;;
+
+    relationship: one_to_many
+  }
+
+  join: dim_institution {
+    fields: [dim_institution.CU_fields*]
+  }
+
+  join: dim_filter {
+    fields: [-dim_filter.ALL_FIELDS*]
+  }
+}
+
+explore: session_analysis {
+  label: "CU User Analysis Prod"
+  extends: [learner_profile, all_sessions]
+  from: learner_profile
+  view_name: learner_profile
+
+  join: all_sessions {
+    sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
+  join: uploads_cu_sidebar_cohort {
+    sql_on: ${learner_profile.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: many_to_one
+  }
+
+  join: guid_cohort {
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_cohort.guid} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+  join: subscription_term_cost {
+    view_label: "Institution"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_cost.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+  join: subscription_term_products_value {
+    view_label: "Institution"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_products_value.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: subscription_term_savings {
+    view_label: "Institution"
+    sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_savings.user_sso_guid_merged} ;;
+    relationship:  one_to_many
   }
 
 }
