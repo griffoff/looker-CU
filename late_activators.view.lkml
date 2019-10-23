@@ -43,5 +43,13 @@ view: late_activators_messages {
     sql: ${TABLE}.ipm_type ;;
     }
 
+}
 
+view: late_activators_full_retroactive_email_list {
+  sql_table_name:  strategy.late_cu_course_activators.late_activations_full_retroactive_email_list ;;
+
+  dimension: batch_no {}
+  dimension: user_sso_guid { type:string sql:${TABLE}.merged_guid;; primary_key:yes}
+  dimension: subscription_end_date {type:date sql:${TABLE}.subscription_end_dt;;}
+  dimension: course_names {}
 }
