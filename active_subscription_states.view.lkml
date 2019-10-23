@@ -7,6 +7,7 @@ view: active_subscription_states {
       SELECT
         user_sso_guid
         ,DATEADD(DAY, t.i, effective_from::DATE) AS active_date
+        ,DATEDIFF(month, subscription_start, subscription_end) as subscription_length
         ,subscription_state
         ,HASH(user_sso_guid, active_date) AS pk
         ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE subscription_state WHEN 'full_access' THEN 0 ELSE 1 END, effective_from DESC, effective_to DESC) AS r
@@ -33,9 +34,12 @@ view: active_subscription_states {
     timeframes: [date, week, month, month_name, year, fiscal_year, fiscal_quarter, fiscal_quarter_of_year, fiscal_month_num]
   }
 
-  dimension: subscription_state {
-
+  dimension: subscription_length {
+    type: tier
+    tiers: [4, 12, 24]
+    style: integer
   }
+  dimension: subscription_state {}
 
   measure: subscribers {
     type: count_distinct

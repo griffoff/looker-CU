@@ -19,9 +19,10 @@ view: raw_subscription_event {
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
           ,PLATFORM_ENVIRONMENT
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE greatest(local_time, subscription_start) END AS SUBSCRIPTION_START
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
-          ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE greatest(local_time, subscription_start) END AS MOD_SUBSCRIPTION_START
+          ,MOD_SUBSCRIPTION_START AS SUBSCRIPTION_START
+          ,CASE SUBSCRIPTION_STATE WHEN 'cancelled' THEN CURRENT_DATE() WHEN 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,LEAD(mod_subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
           ,SUBSCRIPTION_STATE
           ,CONTRACT_ID
           ,TRANSFERRED_CONTRACT
