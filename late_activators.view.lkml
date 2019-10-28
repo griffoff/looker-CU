@@ -10,6 +10,13 @@ view: late_activators_removals {
   dimension: subscription_end_date {type:date sql:${TABLE}.subscription_end_dt;;}
   dimension: batch_no {}
 
+  dimension_group: _ldts {
+    group_label: "Generated"
+    label: "Generated"
+    type: time
+    timeframes: [raw, date]
+  }
+
   dimension: course_name {
     label: "Course Name"
   }
