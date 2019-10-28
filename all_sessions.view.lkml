@@ -27,11 +27,48 @@ view: all_sessions {
   }
 
   dimension: ips {
+    group_label: "IPs used"
     type: string
     sql: ${TABLE}."IPS"[0];;
     label: "IP address"
     description: "IP address from the first event in this session per Google Analytics"
     hidden: yes
+  }
+
+  dimension: ip1 {
+    group_label: "Internal IP"
+    type: string
+    sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[0], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
+    label: "IP address internal 1"
+    description: "IP address from the first event in this session per Google Analytics was internal"
+    hidden: no
+  }
+
+  dimension: ip2 {
+    group_label: "Internal IP"
+    type: string
+    sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[1], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
+    label: "IP address internal 2"
+    description: "IP address from the first event in this session per Google Analytics was internal"
+    hidden: no
+  }
+
+  dimension: ip3 {
+    group_label: "Internal IP"
+    type: string
+    sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[2], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
+    label: "IP address internal 3"
+    description: "IP address from the first event in this session per Google Analytics was internal"
+    hidden: no
+  }
+
+  dimension: ip4 {
+    group_label: "Internal IP"
+    type: string
+    sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[3], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
+    label: "IP address internal 4"
+    description: "IP address from the first event in this session per Google Analytics was internal"
+    hidden: no
   }
 
   dimension: number_of_courseware_events {
