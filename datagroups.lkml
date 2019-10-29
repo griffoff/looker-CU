@@ -13,3 +13,7 @@ datagroup: subscription_event_merged {
 datagroup: daily_refresh {
   sql_trigger: SELECT CURRENT_DATE() ;;
 }
+
+datagroup: do_not_update {
+  sql_trigger: SELECT 1 ;;
+}
