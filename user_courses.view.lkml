@@ -174,6 +174,25 @@ derived_table: {
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
   }
 
+  dimension: cu_price {
+    sql: 120 ;;
+    hidden: yes
+  }
+
+  dimension: overpayment {
+    case: {
+        when:{
+          sql:${net_price_enrolled} > 120 and not ${cu_flag};;
+          label: "Overpaid (a'la carte)"
+          }
+        when:{
+          sql:not ${activated};;
+          label: "No payment"
+        }
+        else: "Bought CU"
+      }
+  }
+
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
@@ -269,7 +288,7 @@ derived_table: {
     group_label: "Lifetime metrics"
     label: "# of enrollments not activated"
     type: number
-    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+    sql: greatest(${no_enrollments} -  ${no_activated}, 0) ;;
   }
 
   measure: current_course_sections {
