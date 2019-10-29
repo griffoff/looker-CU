@@ -3,7 +3,6 @@
 view: guided_course_setup {
   derived_table: {
     sql:
-    /*
     WITH
       cdp AS
         (
@@ -26,13 +25,10 @@ view: guided_course_setup {
             ,cdp:"basics"::string AS "basics"
             ,cdp:"lms"::string AS lms
             ,LENGTH(hit_custom_dimensions[0]) AS len
+            ,CASE WHEN (geo_network:networkLocation::string = 'cengage learning inc') THEN 'Cengage Lerning Inc network' ELSE 'Non Cengage network' END AS network
             ,*
         FROM ANALYTICS360.PROD.GUIDEDCOURSE
         )
-        */
-        WITH
-          cdp AS
-          (SELECT * FROM dev.zkc.cdp)
       SELECT
         *
         ,eventcategory || ' ' ||  eventaction AS event_name
@@ -62,6 +58,11 @@ view: guided_course_setup {
   dimension: cdp {
     type: string
     sql: ${TABLE}."CDP" ;;
+  }
+
+  dimension: network {
+    type: string
+    sql: ${TABLE}."NETWORK" ;;
   }
 
   dimension: course_key {

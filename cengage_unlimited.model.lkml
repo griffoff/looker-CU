@@ -597,8 +597,19 @@ explore: session_analysis {
 #   }
 
 
-explore: guided_course_setup {
-  from: guided_course_setup
+explore: guided_course_setup_instructor_vs_dss {
+  from: mt_courses_gcs_setup_status
+
+
+  join: guided_course_setup {
+    sql_on: ${guided_course_setup_instructor_vs_dss.course_key} = ${guided_course_setup.course_key} ;;
+    relationship: one_to_many
+  }
+
+#   join: raw_fair_use_logins {
+#     sql_on: ${guided_course_setup.userssoguid} =  ${raw_fair_use_logins.user_sso_guid};;
+#   }
+
 }
 
 

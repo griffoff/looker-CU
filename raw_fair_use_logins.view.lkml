@@ -69,6 +69,13 @@ view: raw_fair_use_logins {
     sql: ${TABLE}."IP_ADDRESS" ;;
   }
 
+
+  dimension: internal_ip {
+    type: string
+    sql: SPLIT_PART(${TABLE}."IP_ADDRESS", '.', 1) IN ('10', '172', '192', '127') THEN 'Internal' ELSE 'External' END
+    ;;
+  }
+
   dimension_group: local {
     type: time
     timeframes: [
@@ -112,6 +119,9 @@ view: raw_fair_use_logins {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
+
+
+
 
   measure: count {
     type: count
