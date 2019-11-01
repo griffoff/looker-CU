@@ -52,7 +52,8 @@ view: raw_subscription_event {
     )
         SELECT
           e.*
-          ,REPLACE(INITCAP(subscription_state), '_', ' ') AS subscription_status
+          --,REPLACE(INITCAP(subscription_state), '_', ' ') AS subscription_status
+          ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
           ,subscription_state not in ('cancelled', 'banned', 'no_access') AND subscription_end < CURRENT_TIMESTAMP() AS expired
           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start

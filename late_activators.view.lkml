@@ -34,6 +34,8 @@ view: late_activators_removals {
     type: count_distinct
     sql: ${user_sso_guid} ;;
   }
+
+
 }
 
 view: late_activators_messages {
