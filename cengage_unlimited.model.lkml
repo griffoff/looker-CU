@@ -1482,3 +1482,21 @@ join: cui_adoptions_salesorders {
 }
 
 explore: sales_order_adoption_base {}
+
+
+
+# **************************************** KPI Dashboard *************************************
+
+explore: z_kpi_sf_activations {
+  join: dim_date {
+    sql_on: ${z_kpi_sf_activations.actv_dt} = ${dim_date.datevalue} ;;
+    relationship: many_to_one
+  }
+}
+
+explore: dm_activations {
+  join: dim_date {
+    sql_on: ${dm_activations.actv_dt} = ${dim_date.datevalue} ;;
+    relationship: many_to_one
+  }
+}

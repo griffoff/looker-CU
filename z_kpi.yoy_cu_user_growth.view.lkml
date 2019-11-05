@@ -2,7 +2,32 @@ explore: yoy_cu_user_growth {}
 
 view: yoy_cu_user_growth {
   derived_table: {
-    sql: WITH today_active_subscribers AS
+    sql:
+     WITH today_active_subscribers AS
+      (
+      SELECT
+        1 AS jk
+        ,COUNT(DISTINCT active_subscription_states.user_sso_guid ) AS "active_subscription_states.subscribers"
+      FROM ${active_subscription_states.SQL_TABLE_NAME} AS active_subscription_states
+      WHERE ((((active_subscription_states.active_date) >= ((TO_TIMESTAMP(CURRENT_DATE() ))) AND (active_subscription_states.active_date) < ((DATEADD('day', 1, TO_TIMESTAMP(CURRENT_DATE() ))))))) AND ((UPPER(active_subscription_states.subscription_state) = UPPER('full_access')))
+      )
+      -- SELECT * FROM today_active_subscribers
+      ,active_subscribers_one_year_ago AS
+      (
+      SELECT
+        1 AS jk
+        ,COUNT(DISTINCT active_subscription_states.user_sso_guid ) AS "active_subscription_states.subscribers"
+      FROM ${active_subscription_states.SQL_TABLE_NAME} AS active_subscription_states
+      WHERE ((((active_subscription_states.active_date) >= ((TO_TIMESTAMP(DATEADD(year, -1, CURRENT_DATE())))) AND (active_subscription_states.active_date) < ((DATEADD('day', 1, TO_TIMESTAMP(DATEADD(year, -1, CURRENT_DATE())))))))) AND ((UPPER(active_subscription_states.subscription_state) = UPPER('full_access')))
+      )
+      SELECT
+          (today."active_subscription_states.subscribers" / year_ago."active_subscription_states.subscribers") * 100 AS CU_user_growth_yoy
+      FROM today_active_subscribers today
+      JOIN active_subscribers_one_year_ago year_ago
+        ON today.jk = year_ago.jk
+
+    /*
+    WITH today_active_subscribers AS
       (
       SELECT
         1 AS jk
@@ -23,6 +48,7 @@ view: yoy_cu_user_growth {
       FROM today_active_subscribers today
       JOIN active_subscribers_one_year_ago year_ago
         ON today.jk = year_ago.jk
+        */
        ;;
   }
 
