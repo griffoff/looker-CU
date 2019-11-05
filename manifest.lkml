@@ -9,5 +9,9 @@ local_dependency: {
 }
 
 local_dependency: {
+  project: "mongo_sync"
+}
+
+local_dependency: {
   project: "cengage_unlimited"
 }
