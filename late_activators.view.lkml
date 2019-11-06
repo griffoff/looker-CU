@@ -1,6 +1,6 @@
 view: late_activators_removals {
-#   sql_table_name: strategy.late_cu_course_activators.late_activations_removals_temp ;;
-  sql_table_name: strategy.late_cu_course_activators.late_activations_removals ;;
+  sql_table_name: strategy.late_cu_course_activators.late_activations_removals_temp ;;
+#   sql_table_name: strategy.late_cu_course_activators.late_activations_removals ;;
   #sql_table_name: strategy.late_cu_course_activators.daily_removal_info ;;
 
   dimension: user_sso_guid { type:string sql:${TABLE}.merged_guid;;}
