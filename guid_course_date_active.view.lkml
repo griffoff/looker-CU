@@ -29,11 +29,11 @@ view: guid_course_date_active {
           all_events.local_time::DATE
           ,all_events.user_sso_guid
           ,dim_course.olr_course_key
-          ,COALESCE(all_events.product_platform, dim_productplatform.productplatform)
+          ,COALESCE(all_events.product_platform, dim_productplatform.productplatform) AS platform
           ,COUNT(*) AS event_count
           ,SUM(all_events.event_data:event_duration / 3600 / 24) AS event_duration_total
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid ORDER BY local_time::DATE DESC) = 1 AS latest
-          ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_productplatform.productplatform ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_platform
+          ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, platform ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_platform
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid, dim_course.olr_course_key ORDER BY all_events.local_time::DATE DESC) = 1 AS latest_by_course
           ,COUNT(CASE WHEN all_events.product_platform NOT IN ('ENROLLMENT', 'PROVISIONED PRODUCT', 'OLR Activations') THEN 1 END) AS number_of_course_use_events
       FROM ${all_events.SQL_TABLE_NAME} all_events
