@@ -12,6 +12,7 @@ view: guid_platform_date_active {
         date DATE
         ,user_sso_guid STRING
         ,productplatform STRING
+        ,instructor BOOLEAN
         ,event_count INT
         ,event_duration_total NUMERIC(12, 4)
         ,latest BOOLEAN
@@ -24,11 +25,14 @@ view: guid_platform_date_active {
         date
         ,user_sso_guid
         ,productplatform
+        ,instructor AS role
         ,SUM(event_count)
         ,SUM(event_duration_total)
         ,MAX(latest)
         ,MAX(latest_by_platform)
-      FROM ${guid_course_date_active.SQL_TABLE_NAME}
+      FROM ${guid_course_date_active.SQL_TABLE_NAME} g
+      LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} m
+        g.user_sso_guid = m.user_sso_guid
       WHERE date > (SELECT MAX(date) FROM looker_scratch.guid_platform_date_active)
       GROUP BY 1, 2, 3
       /*
@@ -57,6 +61,11 @@ view: guid_platform_date_active {
     datagroup_trigger: daily_refresh
   }
 
+  dimension: instructor {
+    type:  yesno
+    label: "Instructor"
+    hidden: no
+  }
 
   dimension: user_sso_guid {
     label: "User SSO GUID"
