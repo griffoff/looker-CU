@@ -29,7 +29,7 @@ view: guid_course_date_active {
           all_events.local_time::DATE
           ,all_events.user_sso_guid
           ,dim_course.olr_course_key
-          ,dim_productplatform.productplatform
+          ,COALESCE(all_events.product_platform, dim_productplatform.productplatform)
           ,COUNT(*) AS event_count
           ,SUM(all_events.event_data:event_duration / 3600 / 24) AS event_duration_total
           ,ROW_NUMBER() OVER (PARTITION BY all_events.user_sso_guid ORDER BY local_time::DATE DESC) = 1 AS latest
