@@ -23,18 +23,18 @@ view: guid_platform_date_active {
       INSERT INTO looker_scratch.guid_platform_date_active
       SELECT
         date
-        ,user_sso_guid
+        ,g.user_sso_guid
         ,productplatform
         ,instructor AS role
         ,SUM(event_count)
         ,SUM(event_duration_total)
-        ,MAX(latest)
+        ,MAX(g.latest)
         ,MAX(latest_by_platform)
-      FROM ${guid_course_date_active.SQL_TABLE_NAME} g
-      LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} m
-        g.user_sso_guid = m.user_sso_guid
-      WHERE date > (SELECT MAX(date) FROM looker_scratch.guid_platform_date_active)
-      GROUP BY 1, 2, 3
+      FROM ${guid_course_date_active.SQL_TABLE_NAME} AS g
+      LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} AS m
+        ON g.user_sso_guid = m.user_sso_guid
+      WHERE date > (SELECT COALESCE(MAX(date), '2018-08-01'::DATE) FROM looker_scratch.guid_platform_date_active)
+      GROUP BY 1, 2, 3, 4
       /*
       SELECT
           all_events.local_time::DATE
