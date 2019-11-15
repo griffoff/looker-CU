@@ -348,6 +348,11 @@ derived_table: {
     drill_fields: [marketing_fields*]
   }
 
+  measure: student_course_list {
+    type: string
+    sql: LISTAGG(DISTINCT ${dim_course.coursename}, ', ') ;;
+  }
+
 #   measure: activations_minus_a_la_carte {
 #     label: "Activations minus a la carte"
 #     type: number
