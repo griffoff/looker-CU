@@ -1,10 +1,11 @@
 view: customer_support_cases {
   derived_table: {
-    sql: SELECT u.*
+    sql:
+          SELECT u.*
                 ,s.polarity
                 ,s.subjectivity
          FROM uploads.cu.customer_support_cases20190707 u left join dev.zsp.sentiment s on u.case_number = s.case_number
-      ;;
+        ;;
   }
 
   measure: count {

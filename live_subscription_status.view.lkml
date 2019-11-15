@@ -8,7 +8,33 @@ view: live_subscription_status {
   }
   set: marketing_fields {
     fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,
-        live_subscription_status.days_time_in_current_status, live_subscription_status.lms_user]
+        live_subscription_status.days_time_in_current_status, live_subscription_status.lms_user, live_subscription_status.effective_from, live_subscription_status.effective_to
+        ,live_subscription_status.local_time_date]
+  }
+
+  dimension: effective_to {
+    type: date
+    label: "Effective to date"
+    description: "The day this status ended. e.g. different from subscription end date when a subscription gets cancelled or when a trial state upgrades to ful access early"
+    hidden: no
+    sql: ${TABLE}."EFFECTIVE_TO" ;;
+  }
+
+  dimension: effective_from {
+    type: date
+    label: "Subscription effective from date"
+    description: "Start date of this status"
+    hidden: no
+    sql: ${TABLE}."EFFECTIVE_FROM" ;;
+  }
+
+  dimension_group: time_in_current_status {
+    view_label: "Learner Profile - Live Subscription Status"
+    type: duration
+    intervals: [day, week, month]
+    sql_start: ${effective_from} ;;
+    sql_end:  CURRENT_DATE();;
+    label: "Time in current status"
   }
 
   dimension: user_sso_guid {
@@ -32,6 +58,7 @@ view: live_subscription_status {
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {
+
     type: time
     timeframes: [raw, date, week, month, year]
   }
@@ -59,6 +86,9 @@ view: live_subscription_status {
     sql_end: current_date() ;;
   }
 
+
+
+
 #   dimension_group: time_since_last_trial {
 # #     group_label: "Time at this status"
 #     type: duration
@@ -67,14 +97,14 @@ view: live_subscription_status {
 #     sql_end: current_date() ;;
 #   }
 
-
-  dimension_group: time_in_current_status {
+#
+#   dimension_group: time_in_current_status {
 #     group_label: "Time at this status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: ${subscription_start_raw}::date ;;
-    sql_end: current_date() ;;
-  }
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${subscription_start_raw}::date ;;
+#     sql_end: current_date() ;;
+#   }
 
 
 #

@@ -17,7 +17,8 @@ view: strategy_ecom_sales_orders {
         ,ecom.GSF_CD
         ,ecom.CONTACT_USER_GUID
       FROM  strategy.non_dw_uploads.hed_sales_orders_ecom ecom
-      LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid guids        ON   ecom.contact_user_guid = guids.partner_guid;;
+      LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid guids
+        ON   ecom.contact_user_guid = guids.partner_guid;;
 
       datagroup_trigger: daily_refresh
   }

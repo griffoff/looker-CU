@@ -1,4 +1,5 @@
 include: "//core/common.lkml"
+
 view: all_events {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
@@ -14,6 +15,8 @@ view: all_events {
     hidden: yes
   }
 
+
+
   dimension: event_id {
     type: number
     sql: ${TABLE}."EVENT_ID" ;;
@@ -24,6 +27,7 @@ view: all_events {
   }
 
   dimension: event_subscription_state {
+    group_label: "Subscription State"
     label: "Subscription State"
     type: string
     sql: COALESCE(${TABLE}.subscription_state, INITCAP(REPLACE(${TABLE}.event_data:subscription_state, '_', ' ')));;
@@ -35,6 +39,29 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA" ;;
     label: "Event data"
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
+  }
+
+  dimension: days_in_state {
+    group_label: "Subscription State"
+    label: "Days in state"
+    description: "Number of days user was in a subscription state when they executed this event"
+    type: number
+    sql: ${event_data}:days_in_state ;;
+
+  }
+
+  dimension: role {
+    type: string
+    sql: TRIM(${event_data}:role) ;;
+    label: "Webassign role"
+    description: "Role from WA CAFe"
+  }
+
+  dimension: host_platform {
+    type: string
+    sql: TRIM(${event_data}:host_platform) ;;
+    label: "Host platform (CAFe)"
+    description: "Host platform from client activity events"
   }
 
   dimension: campaign_msg_id{
@@ -222,6 +249,46 @@ view: all_events {
     description: "Components of the events local timestamp converted to UTC"
   }
 
+  dimension: semester {
+    type: string
+    sql: CASE
+          WHEN ${event_date_raw} BETWEEN '2018-08-01' AND '2018-12-31' THEN '1. Fall 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-01-01' AND '2019-06-30' THEN '2. Spring 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-07-01' AND '2019-07-3`' THEN '3. Summer 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-08-01' AND CURRENT_DATE() THEN '4. Fall 2020'
+          ELSE 'Other' END
+          ;;
+  }
+
+  dimension: event_date_raw {
+    hidden: yes
+    type: date
+    sql: ${TABLE}.local_time::date ;;
+  }
+
+#   dimension: event_day_of_course {
+#     label: "Day in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('day',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: event_week_of_course {
+#     label: "Week in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('week',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: course_start_date {
+#     label: "Course start date"
+#     hidden: no
+#     type: date
+#     sql:${dim_date.datevalue_date} ;;
+#   }
+
+
+
   dimension_group: local_est {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
@@ -238,6 +305,58 @@ view: all_events {
     group_label: "Event Time (Local)"
     label: "Event (Local)"
     description: "Components of the events local timestamp"
+  }
+
+  dimension: referral_path {
+    group_label: "Referral Path"
+    description: "Which page did the student come from to get here?"
+    sql: ${event_data}:"referral path"::STRING ;;
+  }
+
+  dimension: referral_host {
+    group_label: "Referral Path"
+    description: "Which site did the student come from to get here?"
+    type: string
+    sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
+  }
+
+  dimension: referral_host_type {
+    description: "What type of site did the student come from to get here?"
+    group_label: "Referral Path"
+    type: string
+    sql:  case
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%bing%' then 'Bing'
+        when ${referral_host} like '%yahoo%' then 'Yahoo'
+        when ${referral_host} like '%msn.%' then 'MSN'
+        when ${referral_host} like '%aol.%' then 'AOL'
+        when ${referral_host} like '%moodle%' then 'Moodle'
+        when ${referral_host} like '%blackboard%' or ${referral_host} like 'bblearn%' then 'Blackboard'
+        when ${referral_host} like '%d2l%' then 'D2L'
+        when ${referral_host} like '%canvas%' then 'Canvas'
+        when ${referral_host} like '%ilearn%' then 'ILearn'
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%qualtrics%' then 'Qualtrics'
+        when ${referral_host} like '%quia%' then 'Quia'
+        when ${referral_host} like 'cengage.vitalsource.com' then 'VitalSource'
+        when ${referral_host} like 'www.chegg.com' then 'Chegg'
+        when ${referral_host} like '%.edu' then 'Other EDU'
+        when ${referral_host} like 'secureacceptance.cybersource.com' then 'Cengage Support' --??
+        when ${referral_host} in ('cengageportal.secure.force.com', 'cengage.force.com', 'support.cengage.com') then 'Cengage Support'
+        when ${referral_host} like '%cengagebrain%' or ${referral_host} like '%nelsonbrain%' then 'Cengage Brain'
+        when ${referral_host} like 'olradmin.cengage.com' then 'Cengage OLR Admin'
+        when ${referral_host} like 'gateway.cengage%' then 'Cengage Gateway'
+        when ${referral_host} like '%aplia.com' or ${referral_host} like  'aplia.apps.ng.cengage.com' then 'Cengage Aplia'
+        when ${referral_host} like 'sam.cengage.com' then 'Cengage SAM'
+        when ${referral_host} like '4ltrpressonline.cengage.com' then 'Cengage 4LTR'
+        when ${referral_host} like '%.cengagenow.%' or ${referral_host} like  'www.owlv2.com' then 'Cengage CNow'
+        when ${referral_host} like 'instructor.cengage.com' then 'Cengage Instructor Site'
+        when ${referral_host} in ('ng.cengage.com', 'mindtap.cengage.com') then 'Cengage MindTap'
+        when ${referral_host} like 'www.webassign.net' then 'Cengage Webassign'
+        when ${referral_host} like '%.cengage.com' then 'Cengage.com'
+        when ${referral_path} is null then 'UNKNOWN'
+        else 'Other'
+       end;;
   }
 
   measure: user_count {
@@ -285,7 +404,60 @@ view: all_events {
     label: "# Events while in locker status"
     type: number
     sql: COUNT(CASE WHEN ${event_subscription_state} = 'Provisional Locker' THEN 1 END) ;;
+  }
 
+  measure: events_last_1_days {
+    group_label: "# Events"
+    label: "Avg # Events per day yesterday"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_7_days {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 7 days"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_30_days {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 30 days"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day,${event_date_raw}, CURRENT_DATE()) <= 30 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 30 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_6_months {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 6 months"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_12_months {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 12 months"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 12 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: event_first_captured {
+    group_label: "# Events"
+    type: string
+    description: "Since when have we been tracking this event?"
+    sql: MIN(${event_date_raw}) ;;
+  }
+
+  measure: event_last_captured {
+    group_label: "# Events"
+    type: string
+    description: "When was the last time we caught this event?"
+    sql: MAX(${event_date_raw}) ;;
   }
 
   measure: month_count {
@@ -309,7 +481,7 @@ view: all_events {
   measure: user_week_count {
     type: count_distinct
     sql: HASH(${user_sso_guid}, ${local_week}) ;;
-    hidden: yes
+    hidden: no
   }
 
   measure: day_count {

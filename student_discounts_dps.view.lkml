@@ -84,6 +84,17 @@ view: student_discounts_dps {
     sql: CASE WHEN (120 - COALESCE(${TABLE}."DISCOUNT", 0)) < 0 THEN 0 ELSE (120 - COALESCE(${TABLE}."DISCOUNT", 0)) END ;;
   }
 
+  dimension: amount_to_upgrade_buckets {
+    group_label: "Discount info"
+    label: "Amount to upgrade buckets"
+    type: tier
+    sql: ${amount_to_upgrade} ;;
+    tiers: [0, 10, 20, 30, 40, 50, 60, 70]
+    style: integer
+  }
+
+
+
 
   dimension: amount_to_upgrade_string {
     group_label: "Discount info"
@@ -110,7 +121,9 @@ view: student_discounts_dps {
 #             ;;
 #   }
 
-  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount, isbn, discount, run_time_date, marketing_mechanism]}
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount
+      , isbn, discount, run_time_date, marketing_mechanism
+      ,amount_to_upgrade_buckets]}
 
 
   set: detail {
