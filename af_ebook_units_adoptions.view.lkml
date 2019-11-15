@@ -18,6 +18,7 @@ view: af_ebook_units_adoptions {
             LEFT JOIN STRATEGY.ADOPTION_PIVOT.PFMT_ADOPTIONPIVOT pfmt on pfmt.product_family_code = dm_products.prod_family_cd
             JOIN prod.dw_ga.dim_date dimdate ON to_date(units.consumed_month_dt) = to_date(dimdate.datevalue)
             where units.organization = 'Higher Ed'
+            AND ((units.consumed_month_dt between '2016-04-01' AND '2016-09-30') OR (units.consumed_month_dt between '2017-04-01' AND '2017-09-30') OR (units.consumed_month_dt between '2018-04-01' AND '2018-09-30') OR (units.consumed_month_dt between '2019-04-01' AND '2019-09-30'))
           )
           Select
               adoption_key,
@@ -28,7 +29,8 @@ view: af_ebook_units_adoptions {
               pub_series_de,
               SUM(CASE WHEN fiscalyear = 'FY17' THEN cu_ebook_units END) AS FY17_ebook_units_byCU,
               SUM(CASE WHEN fiscalyear = 'FY18' THEN cu_ebook_units END) AS FY18_ebook_units_byCU,
-              SUM(CASE WHEN fiscalyear = 'FY19' THEN cu_ebook_units END) AS FY19_ebook_units_byCU
+              SUM(CASE WHEN fiscalyear = 'FY19' THEN cu_ebook_units END) AS FY19_ebook_units_byCU,
+              SUM(CASE WHEN fiscalyear = 'FY20' THEN cu_ebook_units END) AS FY20_ebook_units_byCU
           from ebook_unit1
               group by 1,2,3,4,5,6
 
@@ -86,7 +88,12 @@ view: af_ebook_units_adoptions {
     sql: ${TABLE}."FY19_EBOOK_UNITS_BYCU" ;;
   }
 
+  dimension: FY20_ebook_units_byCU {
+    type: number
+    sql: ${TABLE}."FY20_EBOOK_UNITS_BYCU" ;;
+  }
+
   set: detail {
-    fields: [adoption_key, old_adoption_key, institution_nm, state_cd, course_code_description, pub_series_de, FY17_ebook_units_byCU, FY18_ebook_units_byCU, FY19_ebook_units_byCU]
+    fields: [adoption_key, old_adoption_key, institution_nm, state_cd, course_code_description, pub_series_de, FY17_ebook_units_byCU, FY18_ebook_units_byCU, FY19_ebook_units_byCU, FY20_ebook_units_byCU]
   }
 }
