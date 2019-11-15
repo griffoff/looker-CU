@@ -4,7 +4,9 @@ view: raw_subscription_event {
      WITH
   distinct_primary AS
   (
-      SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
+      SELECT DISTINCT primary_guid
+      FROM prod.unlimited.vw_partner_to_primary_user_guid
+      WHERE partner_guid IS NOT NULL
   )
   ,raw_subscription_event_merged_clean AS
   (
@@ -17,8 +19,10 @@ view: raw_subscription_event {
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
           ,PLATFORM_ENVIRONMENT
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE SUBSCRIPTION_START END AS SUBSCRIPTION_START
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE greatest(local_time, subscription_start) END AS MOD_SUBSCRIPTION_START
+          ,MOD_SUBSCRIPTION_START AS SUBSCRIPTION_START
+          ,CASE SUBSCRIPTION_STATE WHEN 'cancelled' THEN CURRENT_DATE() WHEN 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,LEAD(mod_subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
           ,SUBSCRIPTION_STATE
           ,CONTRACT_ID
           ,TRANSFERRED_CONTRACT
@@ -48,7 +52,9 @@ view: raw_subscription_event {
     )
         SELECT
           e.*
+          --,REPLACE(INITCAP(subscription_state), '_', ' ') AS subscription_status
           ,REPLACE(INITCAP(subscription_state), '_', ' ') || CASE WHEN subscription_state not in ('cancelled', 'banned','read_only', 'no_access', 'provisional_locker') AND subscription_end < CURRENT_TIMESTAMP() THEN ' (Expired)' ELSE '' END as subscription_status
+          ,subscription_state not in ('cancelled', 'banned', 'no_access') AND subscription_end < CURRENT_TIMESTAMP() AS expired
           ,FIRST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as first_status
           ,FIRST_VALUE(subscription_start) over(partition by merged_guid order by local_time) as first_start
           ,LAST_VALUE(subscription_status) over(partition by merged_guid order by local_time) as current_status
@@ -75,7 +81,7 @@ view: raw_subscription_event {
           ,next_status IS NULL as latest
           ,prior_status IS NULL as earliest
           ,subscription_start AS effective_from
-          ,COALESCE(LEAST(next_event_time, subscription_end), subscription_end) AS effective_to
+          ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
       FROM raw_subscription_event_merged_clean e
     ;;
 
@@ -244,39 +250,6 @@ view: raw_subscription_event {
       persist_for: "60 minutes"
   }
 
-  dimension: effective_to {
-    type: date
-    label: "Effective to date"
-    description: "The day this status ended. e.g. different from subscription end date when a subscription gets cancelled or when a trial state upgrades to ful access early"
-    hidden: no
-    sql: ${TABLE}."effective_to" ;;
-  }
-
-  dimension: effective_from {
-    type: date
-    label: "Subscription effective from date"
-    description: "Start date of this status"
-    hidden: no
-    sql: ${TABLE}."effective_from" ;;
-  }
-
-  dimension_group: time_in_current_status {
-    view_label: "Learner Profile - Live Subscription Status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: ${effective_from} ;;
-    sql_end: ${effective_to} ;;
-    label: "Time in current status"
-  }
-
-#   dimension_group: time_in_current_status {
-#     view_label: "Learner Profile - Live Subscription Status"
-#     type: duration
-#     intervals: [day, week, month]
-#     sql_start: ${raw_subscription_event.effective_from} ;;
-#     sql_end: ${raw_subscription_event.effective_to} ;;
-#     label: "Time in current status"
-#   }
 
   dimension: _hash {
     type: string

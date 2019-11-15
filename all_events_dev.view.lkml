@@ -1,6 +1,30 @@
 include: "all_events.view"
 include: "//core/common.lkml" # formats
 
+view: event_name_lookup {
+  derived_table: {
+    sql:
+        SELECT
+          COALESCE(event_name
+              ,'** ' || UPPER(event_type || ': ' || event_action) || ' **'
+          ) as event_name
+          ,COUNT(*) as event_count
+        FROM ${all_events_dev.SQL_TABLE_NAME}
+        GROUP BY 1
+        HAVING COUNT(*) > 100
+        ORDER BY 1
+;;
+    persist_for: "24 hours"
+  }
+
+  dimension: event_name {}
+  dimension: event_count {}
+}
+
+explore: event_name_lookup {
+  hidden: yes
+}
+
 
 view: all_events_dev {
   sql_table_name: dev.cu_user_analysis.all_events ;;
@@ -19,37 +43,15 @@ view: all_events_dev {
     group_label: "Event Classification"
   }
 
+  dimension: event_name {
+    suggest_explore: event_name_lookup
+    suggest_dimension: event_name_lookup.event_name
+  }
+
   dimension: event_name_temp {
     sql:  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ;;
     group_label: "Event Classification"
     label: "event_classification concat with event_action"
-  }
-
-
-  dimension: referral_host {
-    type: string
-    sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
-  }
-
-  dimension: referral_host_type {
-    type: string
-    sql:  case
-        when ${referral_host} like '%google%' then 'Google'
-        when ${referral_host} like '%bing%' then 'Bing'
-        when ${referral_host} like '%yahoo%' then 'Yahoo'
-        when ${referral_host} like '%msn.%' then 'MSN'
-        when ${referral_host} like '%aol.%' then 'AOL'
-        when ${referral_host} like '%moodle%' then 'Moodle'
-        when ${referral_host} like '%blackboard%' or ${referral_host} like 'bblearn%' then 'Blackboard'
-        when ${referral_host} like '%d2l%' then 'D2L'
-        when ${referral_host} like '%canvas%' then 'Canvas'
-        when ${referral_host} like '%ilearn%' then 'ILearn'
-        when ${referral_host} like '%google%' then 'Google'
-        when ${referral_host} like '%qualtrics%' then 'Qualtrics'
-        when ${referral_host} like 'gateway.cengage%' then 'Gateway'
-        when ${referral_host} like '%.edu' then 'Other EDU'
-        else ${referral_host}
-       end;;
   }
 
   dimension: has_shadow_guid {

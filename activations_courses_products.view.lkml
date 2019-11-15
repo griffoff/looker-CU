@@ -8,10 +8,9 @@ view: activations_courses_products {
         FROM stg_clts.activations_olr a
         LEFT JOIN prod.stg_clts.olr_courses c ON a.context_id = c."#CONTEXT_ID"
         LEFT JOIN prod.stg_clts.products_v p ON c.isbn = p.isbn13
-
         WHERE organization = 'Higher Ed'
         AND a.latest = True
-        AND p.net_price IS NOT NULL
+        -- AND p.net_price IS NOT NULL
          GROUP BY 1
  ;;
   }

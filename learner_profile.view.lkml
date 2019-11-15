@@ -231,8 +231,8 @@ view: learner_profile {
   dimension: cu_subscription_length {
     type: string
     group_label: "CU Subscription"
-    label: "CU subscription Length"
-    description: "Current length of CU subscription in months"
+    label: "CU subscription state duration/length"
+    description: "Duration of current CU subscription state in months (Needs to be used with Subscription Status filter or dimension)"
     case: {
       when: {label: "Less than 4 months" sql: ${cu_subscription_length_raw} < 4 ;;}
       when: {label: "4 months" sql: ${cu_subscription_length_raw} = 4 ;;}
@@ -241,6 +241,7 @@ view: learner_profile {
       when: {label: "24 months" sql: ${cu_subscription_length_raw} in (23,24,25) ;;}
       else: "Other"
     }
+    hidden: no
   }
 
   dimension_group: subscription_length {
@@ -251,6 +252,7 @@ view: learner_profile {
     sql_start: ${subscription_start_raw};;
     sql_end: ${subscription_end_raw} ;;
     intervals: [week, month]
+    # this logic doesn't work
   }
 
   measure: subscription_length_average {
@@ -614,11 +616,11 @@ view: learner_profile {
 
   dimension: control_flag_3 {
     type: number
-    label: "Control flag 3"
+    label: "Randomization flag"
     group_label: "Marketing control flags"
     description: "Control flag used to conduct control/treatment testing for marketing campaigns"
     sql: ${TABLE}."CONTROL_FLAG_3";;
-    hidden: yes
+    hidden: no
   }
 
   dimension: control_flag_4 {

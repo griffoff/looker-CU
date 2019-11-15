@@ -56,16 +56,16 @@ view: cohorts_term_courses {
   }
 
   dimension: current { group_label: "# Courses in Terms"
-    sql: CASE WHEN ${TABLE}."1" > 4 THEN '4+' ELSE ${TABLE}."1"::string END;;
+    type:number
   }
 
-  dimension: minus_1 { group_label: "# Courses in Terms" }
+  dimension: minus_1 { group_label: "# Courses in Terms" type:number}
 
-  dimension: minus_2 { group_label: "# Courses in Terms" }
+  dimension: minus_2 { group_label: "# Courses in Terms" type:number}
 
-  dimension: minus_3 { group_label: "# Courses in Terms" }
+  dimension: minus_3 { group_label: "# Courses in Terms" type:number}
 
-  dimension: minus_4 { group_label: "# Courses in Terms" }
+  dimension: minus_4 { group_label: "# Courses in Terms" type:number}
 
 }
 

@@ -59,6 +59,15 @@ derived_table: {
     hidden: yes
   }
 
+  dimension_group: week_in_course {
+    label: "Time in course"
+    description: "The difference in weeks from the course start date to the current date."
+    type: duration
+    sql_start: ${course_start_date} ;;
+    sql_end: CURRENT_DATE() ;;
+    intervals: [week]
+  }
+
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
@@ -69,6 +78,13 @@ derived_table: {
     type: string
     sql: ${TABLE}."instructor_guid" ;;
   }
+
+  dimension: entity_id {
+    type: string
+    sql: ${TABLE}."entity_id" ;;
+  }
+
+
 
 #   dimension: is_new_customer {
 #     group_label: "Instructor"
@@ -102,6 +118,8 @@ derived_table: {
 
   dimension: course_start_date {
     type: date_raw
+    sql: ${TABLE}."COURSE_START_DATE"
+    ;;
   }
 
   dimension: course_end_date {
@@ -145,7 +163,7 @@ derived_table: {
   dimension: activated_desc {
     group_label: "Activated?"
     label: "Activated (Description)"
-    type: yesno
+    type: string
     sql: CASE WHEN ${activated} THEN 'Activated' ELSE 'Not activated' END  ;;
     hidden: no
   }
@@ -154,6 +172,25 @@ derived_table: {
     label: "$ value of enrolled courses"
     type: number
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
+  }
+
+  dimension: cu_price {
+    sql: 120 ;;
+    hidden: yes
+  }
+
+  dimension: overpayment {
+    case: {
+        when:{
+          sql:${net_price_enrolled} > 120 and not ${cu_flag};;
+          label: "Overpaid (a'la carte)"
+          }
+        when:{
+          sql:not ${activated};;
+          label: "No payment"
+        }
+        else: "Bought CU"
+      }
   }
 
   measure: distinct_ala_cart_purchase {
@@ -226,9 +263,16 @@ derived_table: {
 
   measure: no_activated {
     group_label: "Lifetime metrics"
-    label: "# activated"
+    label: "# activations"
     type: sum
     sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
+  }
+
+  measure: no_courses_with_activations {
+    group_label: "Lifetime metrics"
+    label: "# courses with activations"
+    type: count_distinct
+    sql: CASE WHEN ${activated} THEN ${olr_course_key} END  ;;
   }
 
   measure: enrolled_courses {
@@ -244,7 +288,7 @@ derived_table: {
     group_label: "Lifetime metrics"
     label: "# of enrollments not activated"
     type: number
-    sql: ${no_enrollments} -  ${course_section_facts.total_noofactivations} ;;
+    sql: greatest(${no_enrollments} -  ${no_activated}, 0) ;;
   }
 
   measure: current_course_sections {
@@ -304,13 +348,17 @@ derived_table: {
     drill_fields: [marketing_fields*]
   }
 
+  measure: student_course_list {
+    type: string
+    sql: LISTAGG(DISTINCT ${dim_course.coursename}, ', ') ;;
+  }
+
 #   measure: activations_minus_a_la_carte {
 #     label: "Activations minus a la carte"
 #     type: number
 #     sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
 #     hidden: yes
 #   }
-
 
 
 
@@ -353,15 +401,15 @@ derived_table: {
     value_format_name: decimal_1
   }
 
-  measure: courses_used_per_student {
-    type: number
-    label: "# courses used per Student"
-    #required_fields: [learner_profile.count]
-    #sql: ${user_course_count} / ${learner_profile.count}  ;;
-    sql:  ${guid_course_used.user_courses_used} /${user_count} ;;
-    value_format_name: decimal_2
-  }
-
+#   measure: courses_used_per_student {
+#     type: number
+#     label: "# courses used per Student"
+#     #required_fields: [learner_profile.count]
+#     #sql: ${user_course_count} / ${learner_profile.count}  ;;
+#     sql:  ${guid_course_used.user_courses_used} /${user_count} ;;
+#     value_format_name: decimal_2
+#   }
+#
 
 
 }

@@ -31,7 +31,8 @@ view: guid_course_used{
     }
 
   measure: user_courses_used {
-    label: "Total courses used"
+    label: "Total user + courses used"
+    description: "Distinct number of user/course combinations"
     type: count_distinct
     sql: ${course_key} || ${user_sso_guid} ;;
   }
