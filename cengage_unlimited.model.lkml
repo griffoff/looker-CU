@@ -1389,3 +1389,19 @@ join: cui_adoptions_salesorders {
 }
 
 explore: sales_order_adoption_base {}
+
+
+
+#account_creation
+
+explore: account_creation {
+  label: "Account creation"
+  extends: [session_analysis]
+  join: jia_account_creation {
+    view_label: "account creation F19"
+    sql_on: ${jia_account_creation.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: one_to_one
+  }
+}
+
+#adding account_creation to CU analysis prod
