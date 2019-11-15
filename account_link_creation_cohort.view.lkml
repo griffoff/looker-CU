@@ -1,4 +1,4 @@
-explore: account_link_creation_cohort {}
+# explore: account_link_creation_cohort {}
 
 view: account_link_creation_cohort {
 
@@ -28,4 +28,3 @@ view: account_link_creation_cohort {
 
 
     }
-
