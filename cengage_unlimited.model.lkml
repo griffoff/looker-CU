@@ -1485,6 +1485,7 @@ explore: sales_order_adoption_base {}
 
 
 
+
 # **************************************** KPI Dashboard *************************************
 
 explore: z_kpi_sf_activations {
@@ -1497,6 +1498,29 @@ explore: z_kpi_sf_activations {
 explore: dm_activations {
   join: dim_date {
     sql_on: ${dm_activations.actv_dt} = ${dim_date.datevalue} ;;
-    relationship: many_to_one
+
+  }
+}
+
+
+
+
+
+#account_creation
+
+#account_creation
+
+explore: account_creation {
+  label: "Account creation"
+  extends: [session_analysis]
+  join: jia_account_creation {
+    view_label: "account creation F19"
+    sql_on: ${jia_account_creation.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: one_to_one
+  }
+  join: account_link_creation_cohort {
+    view_label: "account link creation cohort"
+    sql_on: ${account_link_creation_cohort.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: one_to_one
   }
 }
