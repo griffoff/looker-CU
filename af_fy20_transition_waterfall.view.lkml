@@ -170,42 +170,42 @@ view: af_fy20_transition_waterfall{
 
   measure: sum_hardside_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Hardside Core Digital Consumed Units"
+    label: "Hardside"
     type: sum
     sql: ${TABLE}."HARDSIDE_CONSUMED_UNITS_TOTAL";;
   }
 
   measure: sum_softside_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Softside Core Digital Consumed Units"
+    label: "Softside"
     type: sum
     sql: ${TABLE}."SOFTSIDE_CONSUMED_UNITS_TOTAL";;
   }
 
   measure: sum_be_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "B&E Core Digital Consumed Units"
+    label: "B&E"
     type: sum
     sql: ${TABLE}."BE_CONSUMED_UNITS_TOTAL";;
   }
 
   measure: sum_computing_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Computing Core Digital Consumed Units"
+    label: "Computing"
     type: sum
     sql: ${TABLE}."COMPUTING_CONSUMED_UNITS_TOTAL";;
   }
 
   measure: sum_other_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Other Core Digital Consumed Units"
+    label: "Other Disciplines"
     type: sum
     sql: ${TABLE}."OTHER_CONSUMED_UNITS_TOTAL";;
   }
 
   measure: sum_career_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Career Ed Core Digital Consumed Units"
+    label: "Career Ed"
     type: sum
     sql: ${TABLE}."CAREER_ED_CONSUMED_UNITS_TOTAL";;
   }
