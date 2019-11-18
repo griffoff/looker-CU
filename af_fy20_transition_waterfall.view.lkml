@@ -55,8 +55,7 @@ view: af_fy20_transition_waterfall{
            case when discipline_category = 'Softside' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as softside_consumed_units,
            case when discipline_category = 'B&E' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
            case when discipline_category = 'Computing' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as computing_consumed_units,
-           case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units,
-           case when discipline_category = 'Other' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as other_consumed_units
+           case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
     and course_code_description <> '.'),
@@ -81,8 +80,7 @@ view: af_fy20_transition_waterfall{
            0 as Softside_Consumed_Units_Total,
            0 as BE_Consumed_Units_Total,
            0 as Computing_Consumed_Units_Total,
-           0 as Careered_Consumed_Units_Total,
-           0 as Other_Consumed_Units_Total
+           0 as Careered_Consumed_Units_Total
     from pivot_1
     group by 1,2,3,4,5,6,7,8,9,10,11),
 
@@ -106,8 +104,7 @@ view: af_fy20_transition_waterfall{
            softside_consumed_units/1000 as Softside_Consumed_Units_Total,
            be_consumed_units/1000 as BE_Consumed_Units_Total,
            computing_consumed_units/1000 as Computing_Consumed_Units_Total,
-           careered_consumed_units/1000 as Career_Ed_Consumed_Units_Total,
-           other_consumed_units/1000 as Other_Consumed_Units_Total
+           careered_consumed_units/1000 as Career_Ed_Consumed_Units_Total
     from pivot_1)
 
     select * from fy19_20_pivot
@@ -196,12 +193,6 @@ view: af_fy20_transition_waterfall{
     sql: ${TABLE}."COMPUTING_CONSUMED_UNITS_TOTAL";;
   }
 
-  measure: sum_other_digital_consumed_units {
-    value_format: "#,##0.0"
-    label: "Other Disciplines"
-    type: sum
-    sql: ${TABLE}."OTHER_CONSUMED_UNITS_TOTAL";;
-  }
 
   measure: sum_career_digital_consumed_units {
     value_format: "#,##0.0"
