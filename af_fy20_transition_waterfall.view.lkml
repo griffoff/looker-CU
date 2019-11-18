@@ -74,6 +74,9 @@ view: af_fy20_transition_waterfall{
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units_Growth,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
+           0 as PY_Core_Digital_Consumed_Units,
+           0 as Loss_Rate,
+           0 as Takeaway_Rate,
            sum(total_cd_actv_fy19)/1000 as Total_Core_Digital_Activations,
            sum(total_cd_actv_withcu_FY19)/1000 as Core_Digital_Activations_within_CU,
            0 as Hardside_Consumed_Units_Total,
@@ -98,6 +101,9 @@ view: af_fy20_transition_waterfall{
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
            ((FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) - (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS))/1000 as Core_Digital_Consumed_Units_Growth,
            (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
+           (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as PY_Core_Digital_Consumed_Units,
+           nvl(Core_Digital_Consumed_Units_Growth,0)/nvl(PY_Core_Digital_Consumed_Units,1)*100 as Loss_Rate,
+           nvl(Core_Digital_Consumed_Units_Growth,0)/nvl(PY_Core_Digital_Consumed_Units,1)*100 as Takeaway_Rate,
            ((total_cd_actv_fy20) - (total_cd_actv_fy19))/1000 as Total_Core_Digital_Activations,
            ((total_cd_actv_withcu_FY20) - (total_cd_actv_withcu_FY19))/1000 as Core_Digital_Activations_within_CU,
            hardside_consumed_units/1000 as Hardside_Consumed_Units_Total,
@@ -158,11 +164,32 @@ view: af_fy20_transition_waterfall{
     label: "FY20 Activation Rate Bucket"
   }
 
+  measure: sum_loss_rate {
+    value_format: "#,##0.0%"
+    label: "Loss Rate"
+    type: sum
+    sql: ${TABLE}."LOSS_RATE";;
+  }
+
+  measure: sum_takeaway_rate {
+    value_format: "#,##0.0%"
+    label: "Takeaway Rate"
+    type: sum
+    sql: ${TABLE}."TAKEAWAY_RATE";;
+  }
+
   measure: sum_core_digital_consumed_units {
     value_format: "#,##0.0"
     label: "Core Digital Consumed Units Growth"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_CONSUMED_UNITS_GROWTH";;
+  }
+
+  measure: sum_py_core_digital_consumed_units {
+    value_format: "#,##0.0"
+    label: "FY19 Core Digital Consumed Units"
+    type: sum
+    sql: ${TABLE}."PY_CORE_DIGITAL_CONSUMED_UNITS";;
   }
 
   measure: sum_hardside_digital_consumed_units {
