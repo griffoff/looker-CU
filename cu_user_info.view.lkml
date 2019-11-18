@@ -75,7 +75,7 @@ view: cu_user_info {
   dimension: instructor {
     type: string
     sql: ${TABLE}."INSTRUCTOR" ;;
-    hidden: yes
+    hidden: no
   }
 
   dimension: primary_guid {

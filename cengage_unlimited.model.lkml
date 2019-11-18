@@ -1498,6 +1498,7 @@ explore: z_kpi_sf_activations {
 explore: dm_activations {
   join: dim_date {
     sql_on: ${dm_activations.actv_dt} = ${dim_date.datevalue} ;;
+    relationship: one_to_one
 
   }
 }

@@ -46,7 +46,7 @@ view: all_events {
     label: "Days in state"
     description: "Number of days user was in a subscription state when they executed this event"
     type: number
-    sql: ${event_data}:days_in_state ;;
+    sql: ${event_data}:days_in_current_state ;;
 
   }
 
@@ -495,6 +495,24 @@ view: all_events {
     label: "Total Time Active"
     type: sum
     sql: ${event_data}:event_duration / 3600 / 24  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
+
+  measure: event_duration_time_to_next_event {
+    group_label: "Time spent"
+    label: "Total Time Active (time_to_next_event)"
+    type: sum
+    sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
+  measure: average_time__to_next_event_spent_per_student {
+    group_label: "Time spent"
+    label: "Average time to next event per student"
+    description: "Slice this metric by different dimensions"
+    type: number
+    sql: ${event_duration_time_to_next_event} / NULLIF(${user_count}, 0)  ;;
     value_format: "[m] \m\i\n\s"
   }
 

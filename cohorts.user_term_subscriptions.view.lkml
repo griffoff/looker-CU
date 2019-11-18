@@ -17,8 +17,8 @@ view: cohorts_user_term_subscriptions {
         FROM ${date_latest_5_terms.SQL_TABLE_NAME} d
         INNER JOIN prod.cu_user_analysis.subscription_event_merged s
              ON (
-                s.local_time::DATE BETWEEN d.start_date AND DATEADD(day, -8, d.end_date) -- starts before the last week of the term
-                OR s.local_time::DATE BETWEEN DATEADD(day, 8, d.start_date) AND d.end_date -- ends after the first week of the term
+                (s.local_time::DATE BETWEEN d.start_date AND DATEADD(day, -8, d.end_date)) -- starts before the last week of the term
+                OR (s.local_time::DATE BETWEEN DATEADD(day, 8, d.start_date) AND d.end_date) -- ends after the first week of the term
               )
       --WHERE user_sso_guid_merged IN ('033b20b27ca503d5:20c4c7b6:15f6f339f0c:-5f8b', '033b20b27ca503d5:20c4c7b6:15e2fad1470:5223', 'efa047457a23f24d:-260a5249:1655840aed1:-1568')
       ;;
