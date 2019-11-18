@@ -1,4 +1,4 @@
-# explore: guided_course_setup {}
+explore: guided_course_setup {}
 
 view: guided_course_setup {
   derived_table: {
