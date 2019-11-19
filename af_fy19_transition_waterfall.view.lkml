@@ -1,4 +1,4 @@
-explore:  af_fy19_transition_waterfall{}
+explore: af_fy19_transition_waterfall {}
 view: af_fy19_transition_waterfall{
   derived_table: {
     sql:

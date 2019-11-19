@@ -1,9 +1,10 @@
-explore:  af_fy20_transition_waterfall{}
+explore: af_fy20_transition_waterfall {}
 view: af_fy20_transition_waterfall{
   derived_table: {
     sql:
     with pivot_1 as (
-    select institution_nm,
+    select adoption_key,
+           institution_nm,
            pub_series_de,
            course_code_description,
            discipline_category,
@@ -55,13 +56,16 @@ view: af_fy20_transition_waterfall{
            case when discipline_category = 'Softside' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as softside_consumed_units,
            case when discipline_category = 'B&E' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
            case when discipline_category = 'Computing' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as computing_consumed_units,
-           case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units
+           case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units,
+           case when FY19_FY20_adoption_transition_aggregated = 'Digital Loss' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_lost_units,
+           case when FY19_FY20_adoption_transition_aggregated = 'Digital Takeaway' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_takeaway_units
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
     and course_code_description <> '.'),
 
     fy19_unit_total as (
-    select institution_nm,
+    select adoption_key,
+           institution_nm,
            pub_series_de,
            course_code_description,
            discipline_category,
@@ -71,24 +75,26 @@ view: af_fy20_transition_waterfall{
            activation_rate_bucket_fy19,
            activation_rate_bucket_fy20,
            'FY19 starting value' as Adoption_Transition,
+           concat(adoption_key, adoption_transition) as Adoption_Key_Transition,
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units_Growth,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            0 as PY_Core_Digital_Consumed_Units,
-           0 as Loss_Rate,
-           0 as Takeaway_Rate,
            sum(total_cd_actv_fy19)/1000 as Total_Core_Digital_Activations,
            sum(total_cd_actv_withcu_FY19)/1000 as Core_Digital_Activations_within_CU,
            0 as Hardside_Consumed_Units_Total,
            0 as Softside_Consumed_Units_Total,
            0 as BE_Consumed_Units_Total,
            0 as Computing_Consumed_Units_Total,
-           0 as Careered_Consumed_Units_Total
+           0 as Careered_Consumed_Units_Total,
+           0 as FY20_lost_units_total,
+           0 as FY20_takeaway_units_total
     from pivot_1
-    group by 1,2,3,4,5,6,7,8,9,10,11),
+    group by 1,2,3,4,5,6,7,8,9,10,11,12,13),
 
     fy19_20_pivot as (
-    select institution_nm,
+    select adoption_key,
+           institution_nm,
            pub_series_de,
            course_code_description,
            discipline_category,
@@ -98,19 +104,20 @@ view: af_fy20_transition_waterfall{
            activation_rate_bucket_fy19,
            activation_rate_bucket_fy20,
            FY19_FY20_adoption_transition_aggregated as Adoption_Transition,
+           concat(adoption_key, adoption_transition) as Adoption_Key_Transition,
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
            ((FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) - (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS))/1000 as Core_Digital_Consumed_Units_Growth,
            (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as PY_Core_Digital_Consumed_Units,
-           nvl(Core_Digital_Consumed_Units_Growth,0)/nvl(PY_Core_Digital_Consumed_Units,1)*100 as Loss_Rate,
-           nvl(Core_Digital_Consumed_Units_Growth,0)/nvl(PY_Core_Digital_Consumed_Units,1)*100 as Takeaway_Rate,
            ((total_cd_actv_fy20) - (total_cd_actv_fy19))/1000 as Total_Core_Digital_Activations,
            ((total_cd_actv_withcu_FY20) - (total_cd_actv_withcu_FY19))/1000 as Core_Digital_Activations_within_CU,
            hardside_consumed_units/1000 as Hardside_Consumed_Units_Total,
            softside_consumed_units/1000 as Softside_Consumed_Units_Total,
            be_consumed_units/1000 as BE_Consumed_Units_Total,
            computing_consumed_units/1000 as Computing_Consumed_Units_Total,
-           careered_consumed_units/1000 as Career_Ed_Consumed_Units_Total
+           careered_consumed_units/1000 as Career_Ed_Consumed_Units_Total,
+           fy20_lost_units/1000 as FY20_lost_units_total,
+           fy20_takeaway_units/1000 as FY20_takeaway_units_total
     from pivot_1)
 
     select * from fy19_20_pivot
@@ -118,6 +125,10 @@ view: af_fy20_transition_waterfall{
     select * from fy19_unit_total
 
     ;;
+  }
+
+  dimension: adoption_key {
+    label: "Adoption Key"
   }
 
   dimension: pub_series_de {
@@ -144,6 +155,11 @@ view: af_fy20_transition_waterfall{
     label: "Discipline Category"
   }
 
+  dimension: Adoption_Key_Transition {
+    label: "Adoption Key | Transition"
+    primary_key: yes
+  }
+
   dimension: fy19_account_segment {
     label: "FY19 Account Segment"
   }
@@ -162,20 +178,6 @@ view: af_fy20_transition_waterfall{
 
   dimension: activation_rate_bucket_fy20 {
     label: "FY20 Activation Rate Bucket"
-  }
-
-  measure: sum_loss_rate {
-    value_format: "#,##0.0%"
-    label: "Loss Rate"
-    type: sum
-    sql: ${TABLE}."LOSS_RATE";;
-  }
-
-  measure: sum_takeaway_rate {
-    value_format: "#,##0.0%"
-    label: "Takeaway Rate"
-    type: sum
-    sql: ${TABLE}."TAKEAWAY_RATE";;
   }
 
   measure: sum_core_digital_consumed_units {
@@ -226,6 +228,20 @@ view: af_fy20_transition_waterfall{
     label: "Career Ed"
     type: sum
     sql: ${TABLE}."CAREER_ED_CONSUMED_UNITS_TOTAL";;
+  }
+
+  measure: sum_lost_units {
+    value_format: "#,##0.0"
+    label: "Lost Units"
+    type: sum
+    sql: ${TABLE}."FY20_LOST_UNITS_TOTAL";;
+  }
+
+  measure: sum_takeaway_units {
+    value_format: "#,##0.0"
+    label: "Takeaway Units"
+    type: sum
+    sql: ${TABLE}."FY20_TAKEAWAY_UNITS_TOTAL";;
   }
 
 

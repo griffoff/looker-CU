@@ -1485,7 +1485,6 @@ explore: sales_order_adoption_base {}
 
 
 
-
 # **************************************** KPI Dashboard *************************************
 
 explore: z_kpi_sf_activations {
