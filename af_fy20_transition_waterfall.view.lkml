@@ -58,7 +58,8 @@ view: af_fy20_transition_waterfall{
            case when discipline_category = 'Computing' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as computing_consumed_units,
            case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units,
            case when FY19_FY20_adoption_transition_aggregated = 'Courseware Loss' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_lost_units,
-           case when FY19_FY20_adoption_transition_aggregated = 'Courseware Takeaway' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_takeaway_units
+           case when FY19_FY20_adoption_transition_aggregated = 'Courseware Takeaway' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_takeaway_units,
+           case when FY18_FY19_adoption_transition_aggregated = 'Courseware Takeaway' then (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy19_takeaway_units
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
     and course_code_description <> '.'),
@@ -89,6 +90,7 @@ view: af_fy20_transition_waterfall{
            0 as Careered_Consumed_Units_Total,
            0 as FY20_lost_units_total,
            0 as FY20_takeaway_units_total,
+           0 as FY19_takeaway_units_total,
            case when FY20_account_segment = 'CU-I Institution' then 1
                 when FY20_account_segment = 'High IA Penetration' then 2
                 when FY20_account_segment = 'High CU Penetration' then 3
@@ -123,6 +125,7 @@ view: af_fy20_transition_waterfall{
            careered_consumed_units/1000 as Career_Ed_Consumed_Units_Total,
            fy20_lost_units/1000 as FY20_lost_units_total,
            fy20_takeaway_units/1000 as FY20_takeaway_units_total,
+           fy19_takeaway_units/1000 as FY19_takeaway_units_total,
            case when FY20_account_segment = 'CU-I Institution' then 1
                 when FY20_account_segment = 'High IA Penetration' then 2
                 when FY20_account_segment = 'High CU Penetration' then 3
@@ -246,11 +249,18 @@ view: af_fy20_transition_waterfall{
     sql: ${TABLE}."FY20_LOST_UNITS_TOTAL";;
   }
 
-  measure: sum_takeaway_units {
+  measure: sum_fy20_takeaway_units {
     value_format: "#,##0.0"
-    label: "Takeaway Units"
+    label: "FY20 Takeaway Units"
     type: sum
     sql: ${TABLE}."FY20_TAKEAWAY_UNITS_TOTAL";;
+  }
+
+  measure: sum_fy19_takeaway_units {
+    value_format: "#,##0.0"
+    label: "FY19 Takeaway Units"
+    type: sum
+    sql: ${TABLE}."FY19_TAKEAWAY_UNITS_TOTAL";;
   }
 
 
