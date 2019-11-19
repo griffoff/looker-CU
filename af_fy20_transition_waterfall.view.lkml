@@ -42,12 +42,12 @@ view: af_fy20_transition_waterfall{
            TOTAL_CD_ACTV_WITHCU_FY18,
            TOTAL_CD_ACTV_WITHCU_FY19,
            TOTAL_CD_ACTV_WITHCU_FY20,
-           case when FY18_FY19_adoption_transition = 'Digital Takeaway' then 'Digital Takeaway'
+           case when FY18_FY19_adoption_transition = 'Digital Takeaway' then 'Courseware Takeaway'
                 when FY18_FY19_adoption_transition = 'Reinvent' then 'Reinvent'
                 else 'Installed Base'
                 end as FY18_FY19_adoption_transition_aggregated,
-           case when FY19_FY20_adoption_transition = 'Digital Takeaway' then 'Digital Takeaway'
-                when FY19_FY20_adoption_transition = 'Digital Loss' then 'Digital Loss'
+           case when FY19_FY20_adoption_transition = 'Digital Takeaway' then 'Courseware Takeaway'
+                when FY19_FY20_adoption_transition = 'Digital Loss' then 'Courseware Loss'
                 when FY19_FY20_adoption_transition = 'Reinvent' then 'Reinvent'
                 when FY19_FY20_adoption_transition = 'Regression' then 'Regression'
                 else 'Installed Base'
@@ -57,8 +57,8 @@ view: af_fy20_transition_waterfall{
            case when discipline_category = 'B&E' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
            case when discipline_category = 'Computing' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as computing_consumed_units,
            case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units,
-           case when FY19_FY20_adoption_transition_aggregated = 'Digital Loss' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_lost_units,
-           case when FY19_FY20_adoption_transition_aggregated = 'Digital Takeaway' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_takeaway_units
+           case when FY19_FY20_adoption_transition_aggregated = 'Courseware Loss' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_lost_units,
+           case when FY19_FY20_adoption_transition_aggregated = 'Courseware Takeaway' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_takeaway_units
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
     and course_code_description <> '.'),
@@ -78,7 +78,7 @@ view: af_fy20_transition_waterfall{
            concat(adoption_key, adoption_transition) as Adoption_Key_Transition,
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units_Growth,
-           sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
+           0 as Core_Digital_Consumed_Units,
            0 as PY_Core_Digital_Consumed_Units,
            sum(total_cd_actv_fy19)/1000 as Total_Core_Digital_Activations,
            sum(total_cd_actv_withcu_FY19)/1000 as Core_Digital_Activations_within_CU,
@@ -88,7 +88,12 @@ view: af_fy20_transition_waterfall{
            0 as Computing_Consumed_Units_Total,
            0 as Careered_Consumed_Units_Total,
            0 as FY20_lost_units_total,
-           0 as FY20_takeaway_units_total
+           0 as FY20_takeaway_units_total,
+           case when FY20_account_segment = 'CU-I Institution' then 1
+                when FY20_account_segment = 'High IA Penetration' then 2
+                when FY20_account_segment = 'High CU Penetration' then 3
+                when FY20_account_segment = 'Medium CU Penetration' then 4
+                else 5 end as account_segment_order
     from pivot_1
     group by 1,2,3,4,5,6,7,8,9,10,11,12,13),
 
@@ -117,7 +122,12 @@ view: af_fy20_transition_waterfall{
            computing_consumed_units/1000 as Computing_Consumed_Units_Total,
            careered_consumed_units/1000 as Career_Ed_Consumed_Units_Total,
            fy20_lost_units/1000 as FY20_lost_units_total,
-           fy20_takeaway_units/1000 as FY20_takeaway_units_total
+           fy20_takeaway_units/1000 as FY20_takeaway_units_total,
+           case when FY20_account_segment = 'CU-I Institution' then 1
+                when FY20_account_segment = 'High IA Penetration' then 2
+                when FY20_account_segment = 'High CU Penetration' then 3
+                when FY20_account_segment = 'Medium CU Penetration' then 4
+                else 5 end as account_segment_order
     from pivot_1)
 
     select * from fy19_20_pivot
@@ -155,11 +165,6 @@ view: af_fy20_transition_waterfall{
     label: "Discipline Category"
   }
 
-  dimension: Adoption_Key_Transition {
-    label: "Adoption Key | Transition"
-    primary_key: yes
-  }
-
   dimension: fy19_account_segment {
     label: "FY19 Account Segment"
   }
@@ -180,16 +185,20 @@ view: af_fy20_transition_waterfall{
     label: "FY20 Activation Rate Bucket"
   }
 
+  dimension: account_segment_order {
+    label: "Account Segment Order"
+  }
+
   measure: sum_core_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Core Digital Consumed Units Growth"
+    label: "Courseware Consumed Units"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_CONSUMED_UNITS_GROWTH";;
   }
 
   measure: sum_py_core_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "FY19 Core Digital Consumed Units"
+    label: "FY19 Courseware Consumed Units"
     type: sum
     sql: ${TABLE}."PY_CORE_DIGITAL_CONSUMED_UNITS";;
   }
@@ -250,21 +259,22 @@ view: af_fy20_transition_waterfall{
 
   measure: sum_fy20_core_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Core Digital Consumed Units"
+    label: "Courseware Consumed Units"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_CONSUMED_UNITS";;
+
   }
 
   measure: sum_core_digital_activations {
     value_format: "#,##0.0"
-    label: "Total Core Digital Activations"
+    label: "Total Courseware Activations"
     type: sum
     sql: ${TABLE}."TOTAL_CORE_DIGITAL_ACTIVATIONS";;
   }
 
   measure: sum_core_digital_activations_within_CU {
     value_format: "#,##0.0"
-    label: "Core Digital Activations within CU"
+    label: "Courseware Activations within CU"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_ACTIVATIONS_WITHIN_CU";;
   }

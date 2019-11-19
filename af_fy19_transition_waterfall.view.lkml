@@ -39,8 +39,8 @@ view: af_fy19_transition_waterfall{
            TOTAL_CD_ACTV_WITHCU_FY18,
            TOTAL_CD_ACTV_WITHCU_FY19,
            TOTAL_CD_ACTV_WITHCU_FY20,
-           case when FY18_FY19_adoption_transition = 'Digital Takeaway' then 'Digital Takeaway'
-                when FY18_FY19_adoption_transition = 'Digital Loss' then 'Digital Loss'
+           case when FY18_FY19_adoption_transition = 'Digital Takeaway' then 'Courseware Takeaway'
+                when FY18_FY19_adoption_transition = 'Digital Loss' then 'Courseware Loss'
                 when FY18_FY19_adoption_transition = 'Reinvent' then 'Reinvent'
                 when FY18_FY19_adoption_transition = 'Regression' then 'Regression'
                 else 'Installed Base'
@@ -131,21 +131,21 @@ view: af_fy19_transition_waterfall{
 
   measure: sum_core_digital_consumed_units {
     value_format: "#,##0.0"
-    label: "Core Digital Consumed Units"
+    label: "Courseware Consumed Units"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_CONSUMED_UNITS";;
   }
 
   measure: sum_core_digital_activations {
     value_format: "#,##0.0"
-    label: "Total Core Digital Activations"
+    label: "Total Courseware Activations"
     type: sum
     sql: ${TABLE}."TOTAL_CORE_DIGITAL_ACTIVATIONS";;
   }
 
   measure: sum_core_digital_activations_within_CU {
     value_format: "#,##0.0"
-    label: "Core Digital Activations within CU"
+    label: "Courseware Activations within CU"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_ACTIVATIONS_WITHIN_CU";;
   }
