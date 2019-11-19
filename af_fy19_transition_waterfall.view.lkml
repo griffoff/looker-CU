@@ -59,7 +59,7 @@ view: af_fy19_transition_waterfall{
            activation_rate_bucket_fy18,
            activation_rate_bucket_fy19,
            activation_rate_bucket_fy20,
-           'FY18 starting value' as Adoption_Transition,
+           'FY18 ending value' as Adoption_Transition,
            sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            sum(total_cd_actv_fy18)/1000 as Total_Core_Digital_Activations,
            sum(total_cd_actv_withcu_FY18)/1000 as Core_Digital_Activations_within_CU

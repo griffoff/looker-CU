@@ -74,7 +74,7 @@ view: af_fy20_transition_waterfall{
            activation_rate_bucket_fy18,
            activation_rate_bucket_fy19,
            activation_rate_bucket_fy20,
-           'FY19 starting value' as Adoption_Transition,
+           'FY19 ending value' as Adoption_Transition,
            concat(adoption_key, adoption_transition) as Adoption_Key_Transition,
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units_Growth,
