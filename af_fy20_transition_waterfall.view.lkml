@@ -2,11 +2,35 @@ explore: af_fy20_transition_waterfall {}
 view: af_fy20_transition_waterfall{
   derived_table: {
     sql:
-    with pivot_1 as (
+    with relevant_courses as (
+    select course_code_description,
+           sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) as FY18_core_digital_units,
+           sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY19_core_digital_units,
+           sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY20_core_digital_units,
+           case when (fy18_core_digital_units <= 0 AND fy19_core_digital_units <= 0 AND fy20_core_digital_units <= 0) then 'Remove'
+                else 'Keep' end as relevant_course_flag
+    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
+    where institution_nm <> 'Not Specified'
+    and course_code_description <> '.'
+    group by 1),
+
+    relevant_disc as (
+    select pub_series_de,
+           sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) as FY18_core_digital_units,
+           sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY19_core_digital_units,
+           sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY20_core_digital_units,
+           case when (fy18_core_digital_units <= 0 AND fy19_core_digital_units <= 0 AND fy20_core_digital_units <= 0) then 'Remove'
+                else 'Keep' end as relevant_disc_flag
+    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
+    where institution_nm <> 'Not Specified'
+    and course_code_description <> '.'
+    group by 1),
+
+    pivot_1 as (
     select adoption_key,
            institution_nm,
-           pub_series_de,
-           course_code_description,
+           pivot.pub_series_de,
+           pivot.course_code_description,
            discipline_category,
            CASE WHEN FY19_account_type = 'Rest of Business' then 'Medium CU Penetration'
                 ELSE FY19_account_type end as FY19_account_segment,
@@ -62,9 +86,13 @@ view: af_fy20_transition_waterfall{
            case when FY18_FY19_adoption_transition_aggregated = 'FY18->FY19 Courseware Takeaway' then (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy19_takeaway_units,
            case when FY19_FY20_adoption_transition = 'Digital Installed Base' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy20_base_units,
            case when FY19_FY20_adoption_transition = 'Digital Installed Base' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy19_base_units
-    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
+    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019" pivot
+    left join relevant_courses course on course.course_code_description = pivot.course_code_description
+    left join relevant_disc disc on disc.pub_series_de = pivot.pub_series_de
     where institution_nm <> 'Not Specified'
-    and course_code_description <> '.'),
+    and pivot.course_code_description <> '.'
+    and relevant_course_flag = 'Keep'
+    and relevant_disc_flag = 'Keep'),
 
     fy19_unit_total as (
     select adoption_key,
@@ -250,7 +278,7 @@ view: af_fy20_transition_waterfall{
 
   measure: sum_lost_units {
     value_format: "#,##0.0"
-    label: "Lost Units"
+    label: "FY20 Lost Units"
     type: sum
     sql: ${TABLE}."FY20_LOST_UNITS_TOTAL";;
   }

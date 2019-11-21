@@ -2,10 +2,34 @@ explore: af_fy19_transition_waterfall {}
 view: af_fy19_transition_waterfall{
   derived_table: {
     sql:
-    with pivot_1 as (
+    with relevant_courses as (
+    select course_code_description,
+           sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) as FY18_core_digital_units,
+           sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY19_core_digital_units,
+           sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY20_core_digital_units,
+           case when (fy18_core_digital_units <= 0 AND fy19_core_digital_units <= 0 AND fy20_core_digital_units <= 0) then 'Remove'
+                else 'Keep' end as relevant_course_flag
+    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
+    where institution_nm <> 'Not Specified'
+    and course_code_description <> '.'
+    group by 1),
+
+    relevant_disc as (
+    select pub_series_de,
+           sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) as FY18_core_digital_units,
+           sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY19_core_digital_units,
+           sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY20_core_digital_units,
+           case when (fy18_core_digital_units <= 0 AND fy19_core_digital_units <= 0 AND fy20_core_digital_units <= 0) then 'Remove'
+                else 'Keep' end as relevant_disc_flag
+    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
+    where institution_nm <> 'Not Specified'
+    and course_code_description <> '.'
+    group by 1),
+
+    pivot_1 as (
     select institution_nm,
-           pub_series_de,
-           course_code_description,
+           pivot.pub_series_de,
+           pivot.course_code_description,
            discipline_category,
            CASE WHEN FY19_account_type = 'Rest of Business' then 'Medium CU Penetration'
                 ELSE FY19_account_type end as FY19_account_segment,
@@ -52,9 +76,13 @@ view: af_fy19_transition_waterfall{
            case when discipline_category = 'B&E' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
            case when discipline_category = 'Computing' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as computing_consumed_units,
            case when discipline_category = 'Career Ed' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units
-    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
+    from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019" pivot
+    left join relevant_courses course on course.course_code_description = pivot.course_code_description
+    left join relevant_disc disc on disc.pub_series_de = pivot.pub_series_de
     where institution_nm <> 'Not Specified'
-    and course_code_description <> '.'),
+    and pivot.course_code_description <> '.'
+    and relevant_course_flag = 'Keep'
+    and relevant_disc_flag = 'Keep'),
 
     fy18_unit_total as (
     select institution_nm,
