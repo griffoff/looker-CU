@@ -87,7 +87,7 @@ view: af_fy20_transition_waterfall{
            0 as Softside_Consumed_Units_Total,
            0 as BE_Consumed_Units_Total,
            0 as Computing_Consumed_Units_Total,
-           0 as Careered_Consumed_Units_Total,
+           0 as Career_Ed_Consumed_Units_Total,
            0 as FY20_lost_units_total,
            0 as FY20_takeaway_units_total,
            0 as FY19_takeaway_units_total,

@@ -7,8 +7,10 @@ view: af_fy19_transition_waterfall{
            pub_series_de,
            course_code_description,
            discipline_category,
-           FY19_account_type as FY19_account_segment,
-           FY20_account_type as FY20_account_segment,
+           CASE WHEN FY19_account_type = 'Rest of Business' then 'Medium CU Penetration'
+                ELSE FY19_account_type end as FY19_account_segment,
+           CASE WHEN FY20_account_type = 'Rest of Business' then 'Medium CU Penetration'
+                ELSE FY20_account_type end as FY20_account_segment,
            CASE WHEN ((coalesce(FY18_total_core_digital_consumed_units,0) = 0) OR (coalesce(total_CD_actv_FY18,0) = 0)) THEN 0
                 WHEN (total_CD_actv_FY18/FY18_total_core_digital_consumed_units) <0 then 0
                 else (total_CD_actv_FY18/FY18_total_core_digital_consumed_units) END as activation_rate_fy18,
@@ -44,7 +46,12 @@ view: af_fy19_transition_waterfall{
                 when FY18_FY19_adoption_transition = 'Reinvent' then 'Reinvent'
                 when FY18_FY19_adoption_transition = 'Regression' then 'Regression'
                 else 'Installed Base'
-                end as FY18_FY19_adoption_transition_aggregated
+                end as FY18_FY19_adoption_transition_aggregated,
+           case when discipline_category = 'Hardside' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as hardside_consumed_units,
+           case when discipline_category = 'Softside' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as softside_consumed_units,
+           case when discipline_category = 'B&E' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
+           case when discipline_category = 'Computing' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as computing_consumed_units,
+           case when discipline_category = 'Career Ed' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
     and course_code_description <> '.'),
@@ -62,7 +69,17 @@ view: af_fy19_transition_waterfall{
            'FY18 ending value' as Adoption_Transition,
            sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            sum(total_cd_actv_fy18)/1000 as Total_Core_Digital_Activations,
-           sum(total_cd_actv_withcu_FY18)/1000 as Core_Digital_Activations_within_CU
+           sum(total_cd_actv_withcu_FY18)/1000 as Core_Digital_Activations_within_CU,
+           0 as Hardside_Consumed_Units_Total,
+           0 as Softside_Consumed_Units_Total,
+           0 as BE_Consumed_Units_Total,
+           0 as Computing_Consumed_Units_Total,
+           0 as Career_Ed_Consumed_Units_Total,
+           case when FY19_account_segment = 'CU-I Institution' then 1
+                when FY19_account_segment = 'High IA Penetration' then 2
+                when FY19_account_segment = 'High CU Penetration' then 3
+                when FY19_account_segment = 'Medium CU Penetration' then 4
+                else 5 end as account_segment_order
     from pivot_1
     group by 1,2,3,4,5,6,7,8,9),
 
@@ -79,7 +96,17 @@ view: af_fy19_transition_waterfall{
            FY18_FY19_adoption_transition_aggregated as Adoption_Transition,
            ((FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) - (FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS))/1000 as Core_Digital_Consumed_Units,
            ((total_cd_actv_fy19) - (total_cd_actv_fy18))/1000 as Total_Core_Digital_Activations,
-           ((total_cd_actv_withcu_FY19) - (total_cd_actv_withcu_FY18))/1000 as Core_Digital_Activations_within_CU
+           ((total_cd_actv_withcu_FY19) - (total_cd_actv_withcu_FY18))/1000 as Core_Digital_Activations_within_CU,
+           hardside_consumed_units/1000 as Hardside_Consumed_Units_Total,
+           softside_consumed_units/1000 as Softside_Consumed_Units_Total,
+           be_consumed_units/1000 as BE_Consumed_Units_Total,
+           computing_consumed_units/1000 as Computing_Consumed_Units_Total,
+           nvl(careered_consumed_units,0)/1000 as Career_Ed_Consumed_Units_Total,
+           case when FY19_account_segment = 'CU-I Institution' then 1
+                when FY19_account_segment = 'High IA Penetration' then 2
+                when FY19_account_segment = 'High CU Penetration' then 3
+                when FY19_account_segment = 'Medium CU Penetration' then 4
+                else 5 end as account_segment_order
     from pivot_1)
 
     select * from fy18_unit_total
@@ -129,6 +156,10 @@ view: af_fy19_transition_waterfall{
     label: "FY20 Activation Rate Bucket"
   }
 
+  dimension: account_segment_order {
+    label: "Account Segment Order"
+  }
+
   measure: sum_core_digital_consumed_units {
     value_format: "#,##0.0"
     label: "Courseware Consumed Units"
@@ -148,6 +179,42 @@ view: af_fy19_transition_waterfall{
     label: "Courseware Activations within CU"
     type: sum
     sql: ${TABLE}."CORE_DIGITAL_ACTIVATIONS_WITHIN_CU";;
+  }
+
+  measure: sum_hardside_digital_consumed_units {
+    value_format: "#,##0.0"
+    label: "Hardside"
+    type: sum
+    sql: ${TABLE}."HARDSIDE_CONSUMED_UNITS_TOTAL";;
+  }
+
+  measure: sum_softside_digital_consumed_units {
+    value_format: "#,##0.0"
+    label: "Softside"
+    type: sum
+    sql: ${TABLE}."SOFTSIDE_CONSUMED_UNITS_TOTAL";;
+  }
+
+  measure: sum_be_digital_consumed_units {
+    value_format: "#,##0.0"
+    label: "B&E"
+    type: sum
+    sql: ${TABLE}."BE_CONSUMED_UNITS_TOTAL";;
+  }
+
+  measure: sum_computing_digital_consumed_units {
+    value_format: "#,##0.0"
+    label: "Computing"
+    type: sum
+    sql: ${TABLE}."COMPUTING_CONSUMED_UNITS_TOTAL";;
+  }
+
+
+  measure: sum_career_digital_consumed_units {
+    value_format: "#,##0.0"
+    label: "Career Ed"
+    type: sum
+    sql: ${TABLE}."CAREER_ED_CONSUMED_UNITS_TOTAL";;
   }
 
 }
