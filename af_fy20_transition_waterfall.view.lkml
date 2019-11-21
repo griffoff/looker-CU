@@ -42,9 +42,9 @@ view: af_fy20_transition_waterfall{
            TOTAL_CD_ACTV_WITHCU_FY18,
            TOTAL_CD_ACTV_WITHCU_FY19,
            TOTAL_CD_ACTV_WITHCU_FY20,
-           case when FY18_FY19_adoption_transition = 'Digital Takeaway' then 'Courseware Takeaway'
-                when FY18_FY19_adoption_transition = 'Reinvent' then 'Reinvent'
-                else 'Installed Base'
+           case when FY18_FY19_adoption_transition = 'Digital Takeaway' then 'FY18->FY19 Courseware Takeaway'
+                when FY18_FY19_adoption_transition = 'Reinvent' then 'FY18->FY19 Reinvent'
+                else 'FY18->FY19 Installed Base'
                 end as FY18_FY19_adoption_transition_aggregated,
            case when FY19_FY20_adoption_transition = 'Digital Takeaway' then 'Courseware Takeaway'
                 when FY19_FY20_adoption_transition = 'Digital Loss' then 'Courseware Loss'
