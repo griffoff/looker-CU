@@ -59,7 +59,7 @@ view: af_fy20_transition_waterfall{
            case when discipline_category = 'Career Ed' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as careered_consumed_units,
            case when FY19_FY20_adoption_transition_aggregated = 'Courseware Loss' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_lost_units,
            case when FY19_FY20_adoption_transition_aggregated = 'Courseware Takeaway' then (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy20_takeaway_units,
-           case when FY18_FY19_adoption_transition_aggregated = 'Courseware Takeaway' then (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy19_takeaway_units,
+           case when FY18_FY19_adoption_transition_aggregated = 'FY18->FY19 Courseware Takeaway' then (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy19_takeaway_units,
            case when FY19_FY20_adoption_transition = 'Digital Installed Base' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy20_base_units,
            case when FY19_FY20_adoption_transition = 'Digital Installed Base' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy19_base_units
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
