@@ -7,7 +7,7 @@ view: af_fy20_transition_waterfall{
            sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) as FY18_core_digital_units,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY19_core_digital_units,
            sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY20_core_digital_units,
-           case when (fy18_core_digital_units <= 0 AND fy19_core_digital_units <= 0 AND fy20_core_digital_units <= 0) then 'Remove'
+           case when (fy18_core_digital_units = 0 AND fy19_core_digital_units = 0 AND fy20_core_digital_units = 0) then 'Remove'
                 else 'Keep' end as relevant_course_flag
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
@@ -19,7 +19,7 @@ view: af_fy20_transition_waterfall{
            sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) as FY18_core_digital_units,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY19_core_digital_units,
            sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) as FY20_core_digital_units,
-           case when (fy18_core_digital_units <= 0 AND fy19_core_digital_units <= 0 AND fy20_core_digital_units <= 0) then 'Remove'
+           case when (fy18_core_digital_units = 0 AND fy19_core_digital_units = 0 AND fy20_core_digital_units = 0) then 'Remove'
                 else 'Keep' end as relevant_disc_flag
     from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
     where institution_nm <> 'Not Specified'
