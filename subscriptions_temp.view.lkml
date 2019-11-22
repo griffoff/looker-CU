@@ -82,6 +82,7 @@ view: subscriptions_temp {
                 ,subscription_start AS effective_from
                 ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
                 ,MAX(CASE WHEN subscription_state = 'full_access' THEN subscription_start END) OVER (PARTITION BY merged_guid) AS latest_full_access_subscription_start_date
+                ,MIN(CASE WHEN subscription_state = 'full_access' THEN subscription_start END) OVER (PARTITION BY merged_guid) AS first_full_access_subscription_start_date
             FROM raw_subscription_event_merged_clean e
        ;;
   }
@@ -270,6 +271,12 @@ view: subscriptions_temp {
     type: date
     sql: ${TABLE}."LATEST_FULL_ACCESS_SUBSCRIPTION_START_DATE" ;;
     label: "Most recent full access start date"
+  }
+
+  dimension: first_full_access_subscription_start_date {
+    type: date
+    sql: ${TABLE}."FIRST_FULL_ACCESS_SUBSCRIPTION_START_DATE" ;;
+    label: "First full access start date"
   }
 
   dimension_group: effective_from {
