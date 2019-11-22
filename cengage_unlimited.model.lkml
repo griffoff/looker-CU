@@ -1503,7 +1503,15 @@ explore: dm_activations {
 }
 
 
+# ************** TEMP SUBSCRIPTION EXPLORE ********************
 
+explore: subscriptions_temp {
+  label: "Temp Subscription Explore"
+  join: guid_cohort {
+    sql_on: ${subscriptions_temp.merged_guid} = ${guid_cohort.guid} ;;
+    relationship: many_to_many
+  }
+}
 
 
 #account_creation
