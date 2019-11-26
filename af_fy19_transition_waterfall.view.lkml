@@ -103,10 +103,10 @@ view: af_fy19_transition_waterfall{
            0 as BE_Consumed_Units_Total,
            0 as Computing_Consumed_Units_Total,
            0 as Career_Ed_Consumed_Units_Total,
-           case when FY19_account_segment = 'CU-I Institution' then 1
-                when FY19_account_segment = 'High IA Penetration' then 2
-                when FY19_account_segment = 'High CU Penetration' then 3
-                when FY19_account_segment = 'Medium CU Penetration' then 4
+           case when FY19_account_segment = 'High CU Penetration' then 1
+                when FY19_account_segment = 'Medium CU Penetration' then 2
+                when FY19_account_segment = 'Low CU Penetration' then 3
+                when FY19_account_segment = 'CU-I Institution' then 4
                 else 5 end as account_segment_order
     from pivot_1
     group by 1,2,3,4,5,6,7,8,9),
@@ -130,10 +130,10 @@ view: af_fy19_transition_waterfall{
            be_consumed_units/1000 as BE_Consumed_Units_Total,
            computing_consumed_units/1000 as Computing_Consumed_Units_Total,
            nvl(careered_consumed_units,0)/1000 as Career_Ed_Consumed_Units_Total,
-           case when FY19_account_segment = 'CU-I Institution' then 1
-                when FY19_account_segment = 'High IA Penetration' then 2
-                when FY19_account_segment = 'High CU Penetration' then 3
-                when FY19_account_segment = 'Medium CU Penetration' then 4
+           case when FY19_account_segment = 'High CU Penetration' then 1
+                when FY19_account_segment = 'Medium CU Penetration' then 2
+                when FY19_account_segment = 'Low CU Penetration' then 3
+                when FY19_account_segment = 'CU-I Institution' then 4
                 else 5 end as account_segment_order
     from pivot_1)
 

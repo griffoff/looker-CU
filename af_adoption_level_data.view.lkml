@@ -4,7 +4,7 @@ derived_table: {
   sql:  with relevant_adoptions as (
         select adoption_key,
                case when (FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS = 0 AND FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS = 0 AND FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS = 0
-                          AND TOTAL_CD_ACTV_FY18 = 0 AND TOTAL_CD_ACTV_FY19 = 0 AND TOTAL_CD_ACTV_FY20 = 0) then 'Remove'
+                          AND TOTAL_CD_ACTV_FY18 = 0 AND TOTAL_CD_ACTV_FY19 = 0 AND TOTAL_CD_ACTV_FY20 = 0 AND TOTAL_PRINT_NET_UNITS_FY19 = 0) then 'Remove'
                    else 'Keep' end as relevant_adoption_flag
         from "STRATEGY"."ADOPTION_PIVOT"."MASTER_PIVOT_28OCT2019"
         where institution_nm <> 'Not Specified'
