@@ -1513,6 +1513,11 @@ explore: subscriptions_temp {
   }
 }
 
+explore: savings_cann_takes {
+  label: "Savings, Cannibalization and Take Analysis (strategy)"
+  view_label: "Savings, Cannibalization and Takes"
+}
+
 
 #account_creation
 
