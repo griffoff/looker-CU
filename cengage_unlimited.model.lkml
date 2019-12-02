@@ -555,6 +555,7 @@ explore: session_analysis {
 
 }
 
+explore: cu_ebook_usage {}
 
 #
 # explore: event_analysis_new {
