@@ -41,6 +41,12 @@ view: all_events {
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
+  dimension: time_to_next_event {
+    type:  number
+    sql: ${TABLE}."EVENT_DATA":time_to_next_event ;;
+    label: "Time to next event"
+  }
+
   dimension: days_in_state {
     group_label: "Subscription State"
     label: "Days in state"
@@ -76,7 +82,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Course key"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:courseKey::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:courseKey::string END ;;
     hidden: no
   }
 
@@ -85,7 +91,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Carousel name"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:carouselName::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselName::string END ;;
     hidden: no
   }
 
@@ -93,7 +99,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Carousel session Id"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:carouselSessionId::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselSessionId::string END ;;
     hidden: no
   }
 
@@ -102,7 +108,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Activity Id"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:activityId::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:activityId::string END ;;
     hidden: no
   }
 
@@ -110,7 +116,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "checkpoint Id"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:checkpointId::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:checkpointId::string END ;;
     hidden: no
   }
 
@@ -119,7 +125,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Content type"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:contentType::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:contentType::string END ;;
     hidden: no
   }
 
@@ -127,7 +133,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Point In Semester"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:pointInSemester::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:pointInSemester::string END ;;
     hidden: no
   }
 
@@ -135,7 +141,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Discipline"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:discipline::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:discipline::string END ;;
     hidden: no
   }
 
@@ -143,7 +149,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Study Tool Cgi"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:studyToolCgi::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:studyToolCgi::string END ;;
     hidden: no
   }
 
@@ -151,9 +157,60 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "ISBN"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:ISBN::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:ISBN::string END ;;
     hidden: no
   }
+
+  dimension: institutionId {
+    group_label: "Industry Link tag events"
+    label: "Institution ID"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP' THEN ${event_data}:institutionId::string END ;;
+    #
+    hidden: no
+  }
+
+  dimension: industryLinkURL {
+    group_label: "Industry Link tag events"
+    label: "Industry Link URL"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkURL::string END ;;
+    hidden: no
+  }
+
+  dimension: industryLinkType {
+    group_label: "Industry Link tag events"
+    label: "Industry Link Type"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkType::string END ;;
+    hidden: no
+  }
+
+  dimension: userRole {
+    group_label: "Industry Link tag events"
+    label: "User Role"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:userRole::string END ;;
+    hidden: no
+  }
+
+  dimension: titleIsbn {
+    group_label: "Industry Link tag events"
+    label: "Industry Link Title ISBN"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:titleIsbn::string END ;;
+    hidden: no
+  }
+
+  dimension: industryLinkCoursekey {
+    group_label: "Industry Link tag events"
+    label: "Course key"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP' THEN ${event_data}:courseKey::string END ;;
+    hidden: no
+  }
+
+
 
 
   dimension: product_platform {
@@ -226,9 +283,8 @@ view: all_events {
     group_label: "Event Classification"
     type: string
     #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
-    sql:  COALESCE(${TABLE}."EVENT_NAME"
-              ,'** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **'
-          ) ;;
+    sql: CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action}))
+              ELSE COALESCE(${TABLE}."EVENT_NAME", '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END ;;
     label: "Event name"
     description: "The lowest level in hierarchy of event classification below event action.
     Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
