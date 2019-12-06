@@ -275,11 +275,43 @@ view: all_events {
     hidden: no
   }
 
+  dimension: tags_item_uri {
+    group_label: "Client Activity Tags"
+    label: "Item URI"
+    type: string
+    sql: ${event_data}:itemUri::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_attempt_id {
+    group_label: "Client Activity Tags"
+    label: "Attempt ID"
+    type: string
+    sql: ${event_data}:attemptId::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_activity_uri {
+    group_label: "Client Activity Tags"
+    label: "Activity URI"
+    type: string
+    sql: ${event_data}:activityUri::string  ;;
+    hidden: no
+  }
+
   dimension: tags_show_grade_indicators {
     group_label: "Client Activity Tags"
     label: "Show Grade Indicators"
     type: string
     sql: ${event_data}:showGradeIndicators::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_course_uri {
+    group_label: "Client Activity Tags"
+    label: "Course URI"
+    type: string
+    sql: ${event_data}:courseUri::string  ;;
     hidden: no
   }
 
@@ -307,6 +339,14 @@ view: all_events {
     hidden: no
   }
 
+  dimension: tags_sequence_uuid {
+    group_label: "Client Activity Tags"
+    label: "Sequence UUID"
+    type: string
+    sql: ${event_data}:sequenceUuid::string  ;;
+    hidden: no
+  }
+
   dimension: tags_ISBN {
     group_label: "Client Activity Tags"
     label: "ISBN"
@@ -329,6 +369,22 @@ view: all_events {
     label: "User Role"
     type: string
     sql: ${event_data}:userRole::string ;;
+    hidden: no
+  }
+
+  dimension: tags_cla_page_number {
+    group_label: "Client Activity Tags"
+    label: "CLA Page Number"
+    type: string
+    sql: ${event_data}:claPageNumber::string ;;
+    hidden: no
+  }
+
+  dimension: tags_number_of_pages {
+    group_label: "Client Activity Tags"
+    label: "Number of Pages"
+    type: string
+    sql: ${event_data}:numberOfPages::string ;;
     hidden: no
   }
 
