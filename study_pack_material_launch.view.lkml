@@ -5,7 +5,7 @@ view: study_pack_material_launch {
         column: count { field: all_events.count }
         filters: {
           field: all_events.event_name
-          value: "** STUDY_PACK_MATERIAL: LAUNCH **"
+          value: "Launch Study Pack Material"
         }
       }
     }
@@ -33,6 +33,7 @@ view: study_pack_material_launch {
     }
 
     measure: users {
+      hidden: yes
       type: count_distinct
       sql: ${user_sso_guid} ;;
     }
