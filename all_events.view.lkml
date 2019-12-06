@@ -206,12 +206,170 @@ view: all_events {
     group_label: "Industry Link tag events"
     label: "Course key"
     type: string
-    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP' THEN ${event_data}:courseKey::string END ;;
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN  ${event_data}:courseKey::string END ;;
     hidden: no
   }
 
 
+## **********************
 
+  dimension: tags_coursekey {
+    group_label: "Client Activity Tags"
+    label: "Course key"
+    type: string
+    sql: ${event_data}:courseKey::string ;;
+    hidden: no
+  }
+
+
+  dimension: tags_carouselName {
+    group_label: "Client Activity Tags"
+    label: "Carousel name"
+    type: string
+    sql: ${event_data}:carouselName::string ;;
+    hidden: no
+  }
+
+  dimension: tags_carouselSessionId {
+    group_label: "Client Activity Tags"
+    label: "Carousel session Id"
+    type: string
+    sql: ${event_data}:carouselSessionId::string  ;;
+    hidden: no
+  }
+
+
+  dimension: tags_activityId {
+    group_label: "Client Activity Tags"
+    label: "Activity Id"
+    type: string
+    sql: ${event_data}:activityId::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_checkpointId {
+    group_label: "Client Activity Tags"
+    label: "checkpoint Id"
+    type: string
+    sql: ${event_data}:checkpointId::string  ;;
+    hidden: no
+  }
+
+
+  dimension: tags_contentType {
+    group_label: "Client Activity Tags"
+    label: "Content type"
+    type: string
+    sql: ${event_data}:contentType::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_appName {
+    group_label: "Client Activity Tags"
+    label: "App Name"
+    type: string
+    sql: ${event_data}:appName::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_external_take_uri {
+    group_label: "Client Activity Tags"
+    label: "External Take URI"
+    type: string
+    sql: ${event_data}:externalTakeUri::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_show_grade_indicators {
+    group_label: "Client Activity Tags"
+    label: "Show Grade Indicators"
+    type: string
+    sql: ${event_data}:showGradeIndicators::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_pointInSemester {
+    group_label: "Client Activity Tags"
+    label: "Point In Semester"
+    type: string
+    sql: ${event_data}:pointInSemester::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_discipline {
+    group_label: "Client Activity Tags"
+    label: "Discipline"
+    type: string
+    sql: ${event_data}:discipline::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_studyToolCgi {
+    group_label: "Client Activity Tags"
+    label: "Study Tool Cgi"
+    type: string
+    sql: ${event_data}:studyToolCgi::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_ISBN {
+    group_label: "Client Activity Tags"
+    label: "ISBN"
+    type: string
+    sql: ${event_data}:ISBN::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_institutionId {
+    group_label: "Client Activity Tags"
+    label: "Institution ID"
+    type: string
+    sql: ${event_data}:institutionId::string  ;;
+    #
+    hidden: no
+  }
+
+#   dimension: tags_industryLinkURL {
+#     group_label: "Client Activity Tags"
+#     label: "Industry Link URL"
+#     type: string
+#     sql: ${event_data}:industryLinkURL::string ;;
+#     hidden: no
+#   }
+
+#   dimension: tags_industryLinkType {
+#     group_label: "Client Activity Tags"
+#     label: "Industry Link Type"
+#     type: string
+#     sql: ${event_data}:industryLinkType::string ;;
+#     hidden: no
+#   }
+#
+#   dimension: tags_userRole {
+#     group_label: "Client Activity Tags"
+#     label: "User Role"
+#     type: string
+#     sql: ${event_data}:userRole::string ;;
+#     hidden: no
+#   }
+
+  dimension: tags_titleIsbn {
+    group_label: "Client Activity Tags"
+    label: "Title ISBN"
+    type: string
+    sql: ${event_data}:titleIsbn::string ;;
+    hidden: no
+  }
+
+  dimension: tags_industryLinkCoursekey {
+    group_label: "Client Activity Tags"
+    label: "Course key"
+    type: string
+    sql: ${event_data}:courseKey::string ;;
+    hidden: no
+  }
+
+  # ******************
 
   dimension: product_platform {
     type: string
@@ -343,6 +501,12 @@ view: all_events {
 #     sql:${dim_date.datevalue_date} ;;
 #   }
 
+dimension: load_metadata_source {
+  group_label: "Load Metadata"
+  label: "Load source"
+  type: string
+  sql: ${TABLE}."LOAD_METADATA":source ;;
+}
 
 
   dimension_group: local_est {
