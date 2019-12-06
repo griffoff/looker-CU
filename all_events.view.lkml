@@ -210,9 +210,6 @@ view: all_events {
     hidden: no
   }
 
-
-## **********************
-
   dimension: tags_coursekey {
     group_label: "Client Activity Tags"
     label: "Course key"
@@ -238,7 +235,6 @@ view: all_events {
     hidden: no
   }
 
-
   dimension: tags_activityId {
     group_label: "Client Activity Tags"
     label: "Activity Id"
@@ -254,7 +250,6 @@ view: all_events {
     sql: ${event_data}:checkpointId::string  ;;
     hidden: no
   }
-
 
   dimension: tags_contentType {
     group_label: "Client Activity Tags"
@@ -329,29 +324,13 @@ view: all_events {
     hidden: no
   }
 
-#   dimension: tags_industryLinkURL {
-#     group_label: "Client Activity Tags"
-#     label: "Industry Link URL"
-#     type: string
-#     sql: ${event_data}:industryLinkURL::string ;;
-#     hidden: no
-#   }
-
-#   dimension: tags_industryLinkType {
-#     group_label: "Client Activity Tags"
-#     label: "Industry Link Type"
-#     type: string
-#     sql: ${event_data}:industryLinkType::string ;;
-#     hidden: no
-#   }
-#
-#   dimension: tags_userRole {
-#     group_label: "Client Activity Tags"
-#     label: "User Role"
-#     type: string
-#     sql: ${event_data}:userRole::string ;;
-#     hidden: no
-#   }
+  dimension: tags_userRole {
+    group_label: "Client Activity Tags"
+    label: "User Role"
+    type: string
+    sql: ${event_data}:userRole::string ;;
+    hidden: no
+  }
 
   dimension: tags_titleIsbn {
     group_label: "Client Activity Tags"
@@ -360,16 +339,6 @@ view: all_events {
     sql: ${event_data}:titleIsbn::string ;;
     hidden: no
   }
-
-  dimension: tags_industryLinkCoursekey {
-    group_label: "Client Activity Tags"
-    label: "Course key"
-    type: string
-    sql: ${event_data}:courseKey::string ;;
-    hidden: no
-  }
-
-  # ******************
 
   dimension: product_platform {
     type: string
