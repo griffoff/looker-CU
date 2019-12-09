@@ -71,6 +71,12 @@ view: af_fy19_transition_waterfall{
                 when FY18_FY19_adoption_transition = 'Regression' then 'Regression'
                 else 'Installed Base'
                 end as FY18_FY19_adoption_transition_aggregated,
+           case when FY18_FY19_adoption_transition_aggregated = 'Courseware Takeaway' then 1
+                when FY18_FY19_adoption_transition_aggregated = 'Courseware Loss' then 2
+                when FY18_FY19_adoption_transition_aggregated = 'Reinvent' then 3
+                when FY18_FY19_adoption_transition_aggregated = 'Regression' then 4
+                else 5
+                end as FY18_FY19_adoption_order,
            case when discipline_category = 'Hardside' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as hardside_consumed_units,
            case when discipline_category = 'Softside' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as softside_consumed_units,
            case when discipline_category = 'B&E' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
@@ -95,6 +101,7 @@ view: af_fy19_transition_waterfall{
            activation_rate_bucket_fy19,
            activation_rate_bucket_fy20,
            'FY18 ending value' as Adoption_Transition,
+           0 as FY18_FY19_adoption_order,
            sum(FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            sum(total_cd_actv_fy18)/1000 as Total_Core_Digital_Activations,
            sum(total_cd_actv_withcu_FY18)/1000 as Core_Digital_Activations_within_CU,
@@ -122,6 +129,7 @@ view: af_fy19_transition_waterfall{
            activation_rate_bucket_fy19,
            activation_rate_bucket_fy20,
            FY18_FY19_adoption_transition_aggregated as Adoption_Transition,
+           FY18_FY19_adoption_order,
            ((FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) - (FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS))/1000 as Core_Digital_Consumed_Units,
            ((total_cd_actv_fy19) - (total_cd_actv_fy18))/1000 as Total_Core_Digital_Activations,
            ((total_cd_actv_withcu_FY19) - (total_cd_actv_withcu_FY18))/1000 as Core_Digital_Activations_within_CU,
@@ -158,6 +166,10 @@ view: af_fy19_transition_waterfall{
 
   dimension: Adoption_Transition {
     label: "FY18->FY19 Adoption Transition"
+  }
+
+  dimension: FY18_FY19_adoption_order {
+    label: "Transition Order"
   }
 
   dimension: discipline_category {

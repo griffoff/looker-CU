@@ -78,6 +78,12 @@ view: af_fy20_transition_waterfall{
                 when FY19_FY20_adoption_transition = 'Regression' then 'Regression'
                 else 'Installed Base'
                 end as FY19_FY20_adoption_transition_aggregated,
+           case when FY19_FY20_adoption_transition_aggregated = 'Courseware Takeaway' then 1
+                when FY19_FY20_adoption_transition_aggregated = 'Courseware Loss' then 2
+                when FY19_FY20_adoption_transition_aggregated = 'Reinvent' then 3
+                when FY19_FY20_adoption_transition_aggregated = 'Regression' then 4
+                else 5
+                end as FY19_FY20_transition_order,
            case when discipline_category = 'Hardside' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as hardside_consumed_units,
            case when discipline_category = 'Softside' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as softside_consumed_units,
            case when discipline_category = 'B&E' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as be_consumed_units,
@@ -88,6 +94,8 @@ view: af_fy20_transition_waterfall{
            case when FY18_FY19_adoption_transition_aggregated = 'FY18->FY19 Courseware Takeaway' then (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS-FY18_TOTAL_CORE_DIGITAL_CONSUMED_UNITS) else '0' end as fy19_takeaway_units,
            case when FY19_FY20_adoption_transition = 'Digital Installed Base' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy20_base_units,
            case when FY19_FY20_adoption_transition = 'Digital Installed Base' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy19_base_units,
+           case when FY19_FY20_adoption_transition <> 'Digital Takeaway' AND FY19_FY20_adoption_transition <> 'Digital Loss' AND FY19_FY20_adoption_transition <> 'Reinvent' AND FY19_FY20_adoption_transition <> 'Regression' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else 0 end as fy20_base_units_aggregated,
+           case when FY19_FY20_adoption_transition <> 'Digital Takeaway' AND FY19_FY20_adoption_transition <> 'Digital Loss' AND FY19_FY20_adoption_transition <> 'Reinvent' AND FY19_FY20_adoption_transition <> 'Regression' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else 0 end as fy19_base_units_aggregated,
            case when FY19_FY20_adoption_transition = 'Reinvent' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy20_reinvent_units,
            case when FY19_FY20_adoption_transition = 'Reinvent' then FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy19_reinvent_units,
            case when FY19_FY20_adoption_transition = 'Regression' then FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS else '0' end as fy20_regression_units,
@@ -115,6 +123,7 @@ view: af_fy20_transition_waterfall{
            'FY19 ending value' as Adoption_Transition,
            concat(adoption_key, adoption_transition) as Adoption_Key_Transition,
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
+           0 as FY19_FY20_transition_order,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units_Growth,
            0 as Core_Digital_Consumed_Units,
            0 as PY_Core_Digital_Consumed_Units,
@@ -131,6 +140,8 @@ view: af_fy20_transition_waterfall{
            0 as FY19_takeaway_units_total,
            0 as FY20_base_units_total,
            0 as FY19_base_units_total,
+           0 as FY20_base_units_aggregated_total,
+           0 as FY19_base_units_aggregated_total,
            0 as FY20_reinvent_units_total,
            0 as FY19_reinvent_units_total,
            0 as FY20_regression_units_total,
@@ -158,6 +169,7 @@ view: af_fy20_transition_waterfall{
            'Total' as Adoption_Transition,
            'Total' as Adoption_Key_Transition,
            'Total' as PY_Adoption_Transition,
+           6 as FY19_FY20_transition_order,
            0 as Core_Digital_Consumed_Units_Growth,
            sum(FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            sum(FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as PY_Core_Digital_Consumed_Units,
@@ -174,6 +186,8 @@ view: af_fy20_transition_waterfall{
            sum(fy19_takeaway_units)/1000 as FY19_takeaway_units_total,
            sum(fy20_base_units)/1000 as FY20_base_units_total,
            sum(fy19_base_units)/1000 as FY19_base_units_total,
+           sum(fy20_base_units_aggregated)/1000 as FY20_base_units_aggregated_total,
+           sum(fy19_base_units_aggregated)/1000 as FY19_base_units_aggregated_total,
            sum(fy20_reinvent_units)/1000 as FY20_reinvent_units_total,
            sum(fy19_reinvent_units)/1000 as FY19_reinvent_units_total,
            sum(fy20_regression_units)/1000 as FY20_regression_units_total,
@@ -198,6 +212,7 @@ view: af_fy20_transition_waterfall{
            FY19_FY20_adoption_transition_aggregated as Adoption_Transition,
            concat(adoption_key, adoption_transition) as Adoption_Key_Transition,
            FY18_FY19_adoption_transition_aggregated as PY_Adoption_Transition,
+           FY19_FY20_transition_order,
            ((FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS) - (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS))/1000 as Core_Digital_Consumed_Units_Growth,
            (FY20_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as Core_Digital_Consumed_Units,
            (FY19_UNADJUSTED_CORE_DIGITAL_CONSUMED_UNITS)/1000 as PY_Core_Digital_Consumed_Units,
@@ -214,6 +229,8 @@ view: af_fy20_transition_waterfall{
            fy19_takeaway_units/1000 as FY19_takeaway_units_total,
            fy20_base_units/1000 as FY20_base_units_total,
            fy19_base_units/1000 as FY19_base_units_total,
+           fy20_base_units_aggregated/1000 as FY20_base_units_aggregated_total,
+           fy19_base_units_aggregated/1000 as FY19_base_units_aggregated_total,
            fy20_reinvent_units/1000 as FY20_reinvent_units_total,
            fy19_reinvent_units/1000 as FY19_reinvent_units_total,
            fy20_regression_units/1000 as FY20_regression_units_total,
@@ -259,6 +276,10 @@ view: af_fy20_transition_waterfall{
 
   dimension: PY_Adoption_Transition {
     label: "FY18->FY19 Adoption Transition"
+  }
+
+  dimension: FY19_FY20_transition_order {
+    label: "Transition Order"
   }
 
   dimension: discipline_category {
@@ -372,6 +393,20 @@ view: af_fy20_transition_waterfall{
     label: "FY20 Installed Base Units"
     type: sum
     sql: ${TABLE}."FY20_BASE_UNITS_TOTAL";;
+  }
+
+  measure: sum_fy19_base_aggregated_units {
+    value_format: "#,##0.0"
+    label: "FY19 Installed Base Units"
+    type: sum
+    sql: ${TABLE}."FY19_BASE_UNITS_AGGREGATED_TOTAL";;
+  }
+
+  measure: sum_fy20_base_aggregated_units {
+    value_format: "#,##0.0"
+    label: "FY20 Installed Base Units"
+    type: sum
+    sql: ${TABLE}."FY20_BASE_UNITS_AGGREGATED_TOTAL";;
   }
 
   measure: sum_fy20_reinvent_units {
