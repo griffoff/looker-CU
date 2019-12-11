@@ -466,8 +466,10 @@ view: all_events {
     group_label: "Event Classification"
     type: string
     #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
-    sql: CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action}))
-              ELSE COALESCE(${TABLE}."EVENT_NAME", '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END ;;
+    sql: ${TABLE}."EVENT_NAME" ;;
+
+#     CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action}))
+#               ELSE COALESCE(${TABLE}."EVENT_NAME", '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END ;;
     label: "Event name"
     description: "The lowest level in hierarchy of event classification below event action.
     Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
