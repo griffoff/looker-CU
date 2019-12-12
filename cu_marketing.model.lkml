@@ -138,6 +138,7 @@ explore: marketing_analysis {
     ,cu_enterprise_licenses*
     ,student_discounts_dps.marketing_fields*
     ,institutional_savings.marketing_fields*
+    ,ipm_260_email_list.marketing_fields*
 #     ,ipm_ff_20190830.marketing_fields*
     ]
 
@@ -199,6 +200,12 @@ explore: marketing_analysis {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
     relationship: one_to_one
+  }
+
+  join: ipm_260_email_list {
+    view_label: " IPM 260 email list"
+    sql_on: ${merged_cu_user_info.email} = ${ipm_260_email_list.email} ;;
+    relationship: many_to_one
   }
 
 #   join: ipm_ff_20190830 {
