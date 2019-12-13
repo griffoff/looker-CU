@@ -204,7 +204,7 @@ explore: marketing_analysis {
 
   join: ipm_260_email_list {
     view_label: " IPM 260 email list"
-    sql_on: ${merged_cu_user_info.email} = ${ipm_260_email_list.email} ;;
+    sql_on: ${courseinstructor.instructoremail} = ${ipm_260_email_list.email} ;;
     relationship: many_to_one
   }
 
