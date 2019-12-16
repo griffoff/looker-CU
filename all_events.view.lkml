@@ -41,6 +41,11 @@ view: all_events {
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
+  dimension: code_type {
+    label: "Activation Code Type"
+    sql:  ${event_data}:code_type::string ;;
+  }
+
   dimension: time_to_next_event {
     type:  number
     sql: ${TABLE}."EVENT_DATA":time_to_next_event ;;
@@ -466,10 +471,10 @@ view: all_events {
     group_label: "Event Classification"
     type: string
     #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
-    sql: ${TABLE}."EVENT_NAME" ;;
-
-#     CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action}))
-#               ELSE COALESCE(${TABLE}."EVENT_NAME", '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END ;;
+  sql:
+     CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN TRIM(INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action})))
+          ELSE COALESCE(TRIM(${TABLE}."EVENT_NAME"), '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END
+          ;;
     label: "Event name"
     description: "The lowest level in hierarchy of event classification below event action.
     Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
@@ -545,10 +550,11 @@ dimension: load_metadata_source {
     description: "Components of the events local timestamp converted to EST"
   }
 
+
   dimension_group: local_unconverted {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
-    sql: ${TABLE}."LOCAL_TIME" ;;
+    sql:  ${TABLE}."LOCAL_TIME" ;;
     group_label: "Event Time (Local)"
     label: "Event (Local)"
     description: "Components of the events local timestamp"
@@ -741,7 +747,7 @@ dimension: load_metadata_source {
     group_label: "Time spent"
     label: "Total Time Active"
     type: sum
-    sql: ${event_data}:event_duration / 3600 / 24  ;;
+    sql: ${event_data}:event_duration  ;;
     value_format: "[m] \m\i\n\s"
   }
 
@@ -750,11 +756,12 @@ dimension: load_metadata_source {
     group_label: "Time spent"
     label: "Total Time Active (time_to_next_event)"
     type: sum
-    sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    sql: ${event_data}:event_duration / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m] \m\i\n\s"
   }
 
-  measure: average_time__to_next_event_spent_per_student {
+  measure: average_time_to_next_event_spent_per_student {
     group_label: "Time spent"
     label: "Average time to next event per student"
     description: "Slice this metric by different dimensions"
