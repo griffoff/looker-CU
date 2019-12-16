@@ -208,13 +208,14 @@ derived_table: {
     hidden: no
   }
 
-  dimension: cui_flag {
-    type: string
-    sql: ${TABLE}.cui_flag;;
-    hidden: no
-    label: "CUI Flag"
-    description: "Flag to identify Cengage Unlimited Institutional Subscription"
-  }
+#   dimension: cui_flag {
+#     type: string
+#     # the CUI field is incorrectly named - needs to be switched to just CU
+#     sql: ${TABLE}.cui_flag;;
+#     hidden: no
+#     label: "CU Flag"
+#     description: "Flag to identify Cengage Unlimited Subscriptions"
+#   }
 
 
   dimension: cu_flag {
