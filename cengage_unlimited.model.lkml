@@ -1538,3 +1538,38 @@ explore: account_creation {
     relationship: one_to_one
   }
 }
+
+
+#
+# explore: event_durations_median {
+#   label: "Duration dev"
+#   extends: [session_analysis]
+#   join: event_durations_median {
+#     view_label: "events - new durations"
+#     sql_on: ${event_durations_median.event_id} = ${all_events.event_id};;
+#     relationship: one_to_one
+#   }
+# }
+
+
+explore: adoption_usage_analysis {
+  label: "Adoption Usage Analysis"
+  extends: [session_analysis]
+  join: adoption_platform_pivot {
+    view_label: "Adoption Platform Pivot"
+    sql_on:  ${products.prod_family_cd} = ${adoption_platform_pivot.product_family_code} ;;
+    relationship: one_to_one
+  }
+
+  join: entity_names {
+    view_label: "Entity Names"
+    sql_on: ${dim_institution.entity_no}::string =  ${entity_names.entity_no}::string;;
+    relationship: one_to_one
+  }
+
+  join: cw_adoption_driver_20191217 {
+    view_label: "Courseware Adoption Driver"
+    sql_on: ${cw_adoption_driver_20191217.adoption_key} = ${entity_names.institution_nm} || '|' ||  ${entity_names.state_cd} || '|' || ${adoption_platform_pivot.course_code_description} ||  '|' ||  ${dim_product.publicationseries}
+    ;;
+  }
+  }
