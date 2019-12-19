@@ -148,7 +148,7 @@ explore: learner_profile {
   }
 
   join: dim_course {
-    sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
+    sql_on: ${user_courses.olr_course_key} = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
