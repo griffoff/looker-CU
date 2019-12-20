@@ -11,6 +11,7 @@ view: ipm_campaign {
         ,COALESCE(outcome.campaign_outcome, ARRAY_TO_STRING(outcome.event_outcome, ' OR ')) AS campaign_outcome
         ,COALESCE(outcome.real_campaign_title, c.campaign_title) AS real_campaign_title
         ,outcome.jira_link
+        ,outcome.campaign_title IS NOT NULL AS has_outcome_mapping
     FROM IPM.PROD.IPM_CAMPAIGN c
     LEFT JOIN (
         SELECT
@@ -69,8 +70,15 @@ view: ipm_campaign {
     sql: 'https://docs.google.com/spreadsheets/d/1_XHPL3z2h7YEEQ3onZLvpcJ7Swi1pYWF95HAoaCxu58/edit#gid=0' ;;
   }
 
+  dimension: has_outcome_mapping {
+    type: yesno
+    description: "Has a matching outcome row on the setup sheet"
+    link: {label: "Link to the setup sheet" url: "{{ outcome_setup_link._value }}"}
+  }
+
   dimension: event_outcome {
-    label: "Campaign Target"
+    label: "Campaign Expected Outcome"
+    description: "What is this campaign trying to get people to do?"
     sql: ${TABLE}.campaign_outcome ;;
   }
 
@@ -119,7 +127,9 @@ view: ipm_campaign {
   }
 
   dimension: campaign_title {
+    label: "Message Name"
     type: string
+    description: "Title of campaign in IPM feed"
     sql: ${TABLE}."CAMPAIGN_TITLE" ;;
   }
 

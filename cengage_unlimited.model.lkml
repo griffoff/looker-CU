@@ -52,7 +52,7 @@ explore: strategy_ecom_sales_orders {
   label: "Revenue"
   view_label: "Revenue"
   join: dim_date {
-    sql_on: ${strategy_ecom_sales_orders.invoice_dt} = ${dim_date.datevalue} ;;
+    sql_on: ${strategy_ecom_sales_orders.invoice_dt_raw} = ${dim_date.datevalue} ;;
     relationship: many_to_one
   }
   join: dim_product {
@@ -252,6 +252,20 @@ explore: all_sessions {
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
     relationship: one_to_many
   }
+
+  join: all_events_diff {
+    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
+    view_label: "Event Path (preceeding and following events)"
+    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+
+#   join: dim_course {
+#     sql_on: ${all_events.event_data}:course_key = ${dim_course.coursekey} ;;
+#     relationship: many_to_many
+#   }
 
   join: dim_course {
     sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
@@ -940,9 +954,9 @@ explore: customer_support_cases {
   description: "One time upload of customer support cases joined with CU user analysis to analyze support cases in the context of CU"
   extends: [session_analysis]
 
-  join: customer_support_cases {
+  join: customer_support_all {
     view_label: "Customer Support Cases"
-    sql_on: ${learner_profile.user_sso_guid} = ${customer_support_cases.sso_guid}::STRING ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${customer_support_all.sso_guid}::STRING ;;
     relationship: one_to_many
   }
   fields: [
@@ -962,7 +976,7 @@ explore: customer_support_cases {
 #     ,subscription_term_products_value.marketing_fields*
 #     ,subscription_term_cost.marketing_fields*
     ,user_courses.marketing_fields*
-    ,customer_support_cases.customer_support_case_fields*]
+    ,customer_support_all.detail*]
 }
 
 
@@ -1220,6 +1234,29 @@ explore: client_activity_event_prod {
   sql_on: ${client_activity_event_prod.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
   relationship: many_to_one
   }
+
+#   join: dim_course {
+#     sql_on: ${client_activity_event_prod.coursekey} = ${dim_course.coursekey} ;;
+#     relationship: many_to_many
+#   }
+#
+#   join: course_section_facts {
+#     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+#     relationship: one_to_one
+#   }
+#
+#   join: dim_institution {
+#     fields: [dim_institution.CU_fields*]
+#   }
+#
+#   join: dim_filter {
+#     fields: [-dim_filter.ALL_FIELDS*]
+#   }
+#
+#   join: dim_product {
+#     sql_on: ${client_activity_event_prod.isbn} = ${dim_product.isbn13} ;;
+#     relationship: many_to_one
+#   }
 }
 
 

@@ -13,11 +13,15 @@ view: live_subscription_status {
 
   dimension: user_sso_guid {
     label: "User SSO GUID"
+    description: "Parimary user sso guid, after shadonw guid lookup and merge"
     sql: ${TABLE}.merged_guid ;;
     primary_key: yes
     hidden: no
  }
-  dimension: partner_guid {}
+  dimension: original_guid {
+    description: "Origiual guid captured in raw event"
+    alias: [partner_guid]
+  }
   dimension: lms_user {
     type: yesno
     sql: ${TABLE}.lms_user_status = 1;;
@@ -28,6 +32,7 @@ view: live_subscription_status {
   dimension: prior_status {}
   dimension: subscription_status {}
   dimension_group: subscription_start {
+
     type: time
     timeframes: [raw, date, week, month, year]
   }
@@ -55,6 +60,9 @@ view: live_subscription_status {
     sql_end: current_date() ;;
   }
 
+
+
+
 #   dimension_group: time_since_last_trial {
 # #     group_label: "Time at this status"
 #     type: duration
@@ -63,14 +71,14 @@ view: live_subscription_status {
 #     sql_end: current_date() ;;
 #   }
 
-
-  dimension_group: time_in_current_status {
+#
+#   dimension_group: time_in_current_status {
 #     group_label: "Time at this status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: ${subscription_start_raw}::date ;;
-    sql_end: current_date() ;;
-  }
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${subscription_start_raw}::date ;;
+#     sql_end: current_date() ;;
+#   }
 
 
 #

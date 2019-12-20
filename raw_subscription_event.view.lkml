@@ -12,6 +12,7 @@ view: raw_subscription_event {
           COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
           ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
           ,LOCAL_TIME
+          ,USER_SSO_GUID as original_guid
           ,USER_SSO_GUID
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
@@ -243,17 +244,67 @@ view: raw_subscription_event {
       persist_for: "60 minutes"
   }
 
+  dimension: effective_to {
+    type: date
+    label: "Effective to date"
+    description: "The day this status ended. e.g. different from subscription end date when a subscription gets cancelled or when a trial state upgrades to ful access early"
+    hidden: no
+    sql: ${TABLE}."effective_to" ;;
+  }
+
+  dimension: effective_from {
+    type: date
+    label: "Subscription effective from date"
+    description: "Start date of this status"
+    hidden: no
+    sql: ${TABLE}."effective_from" ;;
+  }
+
+  dimension_group: time_in_current_status {
+    view_label: "Learner Profile - Live Subscription Status"
+    type: duration
+    intervals: [day, week, month]
+    sql_start: ${effective_from} ;;
+    sql_end: ${effective_to} ;;
+    label: "Time in current status"
+  }
+
+#   dimension_group: time_in_current_status {
+#     view_label: "Learner Profile - Live Subscription Status"
+#     type: duration
+#     intervals: [day, week, month]
+#     sql_start: ${raw_subscription_event.effective_from} ;;
+#     sql_end: ${raw_subscription_event.effective_to} ;;
+#     label: "Time in current status"
+#   }
+
   dimension: _hash {
     type: string
     sql: ${TABLE}."_HASH" ;;
     hidden: yes
   }
 
-  dimension: partner_guid {
+  dimension: original_guid {
+    description: "SSO Guid captured in event.  This could be a shadow guid or primary guid"
+    alias: [partner_guid]
     type: string
-    sql: ${TABLE}.partner_guid;;
     hidden: no
   }
+
+  dimension: user_sso_guid {
+    label: "User SSO GUID"
+    type: string
+    sql: ${merged_guid} ;;
+    description: "Primary SSO User Identifier (Merged)"
+  }
+
+  # source of raw_subscription_event is SSO - all guids are good
+  dimension: merged_guid {
+    type: string
+    description: "Primary SSO GUID (After shadow guids have been identified and merged)"
+    hidden: no
+  }
+
 
   dimension: lms_user {
     type: yesno
@@ -490,20 +541,6 @@ view: raw_subscription_event {
   dimension: user_environment {
     type: string
     sql: ${TABLE}."USER_ENVIRONMENT" ;;
-    hidden: yes
-  }
-
-  dimension: user_sso_guid {
-    label: "User SSO GUID"
-    type: string
-    sql: ${merged_guid} ;;
-    description: "Primary SSO User Identifier"
-  }
-
-  # source of raw_subscription_event is SSO - all guids are good
-  dimension: merged_guid {
-    type: string
-    description: "Primary SSO GUID (After shadow guids have been identified and merged)"
     hidden: yes
   }
 

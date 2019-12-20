@@ -28,8 +28,10 @@ view: strategy_ecom_sales_orders {
     hidden: yes
   }
 
-  dimension: invoice_dt {
-    hidden: yes
+  dimension_group: invoice_dt {
+  type:time
+  timeframes: [year, raw]
+    hidden: no
   }
 
   dimension: isbn_13 {
@@ -44,6 +46,15 @@ view: strategy_ecom_sales_orders {
     value_format_name: usd_0
   }
 
+  measure:  revenue_td {
+    label: "Total Revenue (To date by year)"
+    required_fields: [invoice_dt_year]
+    description: "EXTENDED_AMT_USD"
+    type: number
+    sql: SUM(${TABLE}.EXTENDED_AMT_USD) OVER (PARTITION BY ${invoice_dt_year});;
+    value_format_name: usd_0
+  }
+
   measure: user_count {
     label: "# Users"
     type: count_distinct
@@ -51,7 +62,14 @@ view: strategy_ecom_sales_orders {
     value_format_name: decimal_0
   }
 
-  measure: ARPU {
+  measure: arpu {
+    alias: [ARPU]
+    type: number
+    sql: ${revenue} / ${user_count};;
+    value_format_name: usd_0
+  }
+
+  measure: arpu_yoy {
     type: number
     sql: ${revenue} / ${user_count};;
     value_format_name: usd_0

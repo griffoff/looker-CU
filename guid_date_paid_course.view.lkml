@@ -1,8 +1,7 @@
-explore: guid_date_paid {}
-
-view: guid_date_paid {
+view: guid_date_paid_course  {
   derived_table: {
-    sql: WITH
+    sql:
+    WITH
           tally AS
           (
               SELECT
@@ -15,19 +14,19 @@ view: guid_date_paid {
                   user_sso_guid
                   ,DATEADD(DAY, t.i, u.course_start_date::DATE) AS active_date
                   ,CASE WHEN activated THEN 1 ELSE 0 END AS paid_status
-                  ,1 AS payment_type
+                  ,CASE WHEN (cu_contract_id IS NOT NULL AND cu_contract_id <> 'TRIAL') THEN 2 ELSE 1 END AS payment_type
                   ,HASH(user_sso_guid, active_date) AS pk
                   ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE WHEN ACTIVATED THEN 0 ELSE 1 END, u.course_start_date DESC, u.course_end_date DESC) AS r
               FROM prod.cu_user_analysis.user_courses u
               INNER JOIN tally t ON i <= DATEDIFF(DAY, u.course_start_date::DATE, LEAST(u.course_end_date::DATE, CURRENT_DATE()))
               WHERE paid_status = 1
          )
-          ,active_subs AS (
+         ,active_subs AS (
             SELECT
               user_sso_guid
               ,DATEADD(DAY, t.i, effective_from::DATE) AS active_date
               ,CASE WHEN subscription_state = 'full_access' THEN 1 ELSE 0 END AS paid_status
-              ,2 AS payment_type
+              ,3 AS payment_type
               ,HASH(user_sso_guid, active_date) AS pk
               ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE subscription_state WHEN 'full_access' THEN 0 ELSE 1 END, effective_from DESC, effective_to DESC) AS r
             FROM ${raw_subscription_event.SQL_TABLE_NAME} e
@@ -35,8 +34,6 @@ view: guid_date_paid {
             -- FILTER FOR ONLY FULL ACCESS
             WHERE paid_status = 1
           )
-          -- only union for guids not in first CTE
-          ,combined AS (
           SELECT
             user_sso_guid
             ,active_date
@@ -52,9 +49,11 @@ view: guid_date_paid {
             ,MAX(paid_status) AS paid_status
             ,MAX(payment_type) AS payment_type
           FROM active_subs
-          WHERE r = 1
+          WHERE r = 1 AND user_sso_guid NOT IN (SELECT DISTINCT user_sso_guid FROM paid_courses)
           GROUP BY 1, 2
           )
+          ,guid_date_payment_type AS
+          (
           SELECT
             user_sso_guid
             ,active_date
@@ -62,7 +61,9 @@ view: guid_date_paid {
             ,SUM(payment_type) AS payment_type
           FROM combined
           GROUP BY 1, 2
-       ;;
+          )
+          SELECT * FROM guid_date_payment_type
+            ;;
   }
 
   measure: count {

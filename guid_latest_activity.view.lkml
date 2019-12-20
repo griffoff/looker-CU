@@ -8,7 +8,6 @@ view: guid_latest_activity {
         value: "Yes"
       }
     }
-
   }
 
   dimension: user_sso_guid {hidden:yes}

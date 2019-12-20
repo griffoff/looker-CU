@@ -30,14 +30,6 @@ view: all_events {
     description: "Subscription state at the time of the event"
   }
 
-  dimension: event_type {
-    type: string
-    sql: ${TABLE}."EVENT_TYPE" ;;
-    label: "Event type"
-    description: "The highest level in the hierarchy of event classicfication above event action"
-    hidden: yes
-  }
-
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
@@ -140,7 +132,7 @@ view: all_events {
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
-    sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    sql: UPPER(${TABLE}."PRODUCT_PLATFORM") ;;
     label: "Event Source"
     description: "Where did this event come from? e.g. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
     hidden: no
@@ -182,30 +174,69 @@ view: all_events {
     description: " Categorizes events by system eg: Cengage Unlimited, Registrations"
   }
 
+  dimension: event_type {
+    group_label: "Event Classification - Raw"
+    type: string
+    sql: ${TABLE}."EVENT_TYPE" ;;
+    label: "Event type"
+    description: "Direct from source.
+    The highest level in the hierarchy of event classicfication above event action"
+    hidden: no
+  }
+
+
   dimension: event_action {
-    group_label: "Event Classification"
+    group_label: "Event Classification - Raw"
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
     label: "Event action"
-    description: "A classification of event within the hierachy of events beneath event type and above event name i.e. 'OLR Enrollment'"
-    hidden: yes
+    description: "Direct from source.
+    A classification of event within the hierachy of events beneath event type and above event name i.e. 'OLR Enrollment'"
+    hidden: no
   }
 
   dimension: event_name {
     group_label: "Event Classification"
     type: string
-    sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
+    #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
+    sql:  COALESCE(${TABLE}."EVENT_NAME"
+              ,'** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **'
+          ) ;;
     label: "Event name"
-    description: "The lowest level in hierarchy of event classification below event action. Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'"
+    description: "The lowest level in hierarchy of event classification below event action.
+    Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
+    n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
+    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **
+    "
+    link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
+    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
   }
 
 
   dimension_group: local {
     type: time
-    timeframes: [raw, time,  date, week, month, quarter, year]
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
     sql: convert_timezone('UTC', ${TABLE}."LOCAL_TIME") ;;
-    group_label: "Event Time"
-    label: "Event"
+    group_label: "Event Time (UTC)"
+    label: "Event (UTC)"
+    description: "Components of the events local timestamp converted to UTC"
+  }
+
+  dimension_group: local_est {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql: convert_timezone('America/New_York', ${TABLE}."LOCAL_TIME") ;;
+    group_label: "Event Time (EST)"
+    label: "Event (EST)"
+    description: "Components of the events local timestamp converted to EST"
+  }
+
+  dimension_group: local_unconverted {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql: ${TABLE}."LOCAL_TIME" ;;
+    group_label: "Event Time (Local)"
+    label: "Event (Local)"
     description: "Components of the events local timestamp"
   }
 
@@ -224,6 +255,22 @@ view: all_events {
     type: count
 #     drill_fields: [event_day_of_week, count]
     description: "Measure for counting events (drill fields)"
+  }
+
+  measure: events_per_student {
+    group_label: "# Events"
+    label: "# Events per Student"
+    type: number
+    sql: ${count} / ${user_count} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: events_per_student_per_day {
+    group_label: "# Events"
+    label: "# Events per Student Per Day"
+    type: number
+    sql: ${count} / ${user_day_count} ;;
+    value_format_name: decimal_1
   }
 
   measure: events_in_full_access {
@@ -276,7 +323,7 @@ view: all_events {
     label: "Total Time Active"
     type: sum
     sql: ${event_data}:event_duration / 3600 / 24  ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: average_time_spent_per_student {
@@ -285,7 +332,7 @@ view: all_events {
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_total} / NULLIF(${user_count}, 0)  ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: average_time_spent_per_student_per_week {
@@ -301,7 +348,7 @@ view: all_events {
     label: "Average time spent per student per month"
     type: number
     sql: ${event_duration_total} / ${user_month_count} ;;
-    value_format_name: duration_hms
+    value_format: "[m] \m\i\n\s"
   }
 
   measure: event_duration_per_day {
