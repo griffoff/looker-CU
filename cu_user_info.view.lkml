@@ -72,6 +72,12 @@ view: cu_user_info {
     #hidden: yes
   }
 
+  dimension: instructor {
+    type: string
+    sql: ${TABLE}."INSTRUCTOR" ;;
+    hidden: no
+  }
+
   dimension: primary_guid {
     type: string
     sql: ${TABLE}."LINKED_GUID" ;;
@@ -121,6 +127,7 @@ view: cu_user_info {
     label: "Internal User Flag"
     type: yesno
     sql: ${TABLE}.internal ;;
+    hidden: yes
   }
 
   dimension: real_user_flag {
@@ -167,14 +174,14 @@ view: cu_user_info {
   dimension: first_name {
     group_label: "User Info - PII"
     type: string
-    sql: ${TABLE}."FIRST_NAME" ;;
+    sql: InitCap(${TABLE}."FIRST_NAME");;
     required_access_grants: [can_view_CU_pii_data]
   }
 
   dimension: last_name {
     group_label: "User Info - PII"
     type: string
-    sql: ${TABLE}."LAST_NAME" ;;
+    sql: InitCap(${TABLE}."LAST_NAME") ;;
     required_access_grants: [can_view_CU_pii_data]
   }
 
@@ -214,7 +221,7 @@ view: cu_user_info {
 
   dimension: user_sso_guid {
     type: string
-    sql: ${TABLE}."USER_SSO_GUID" ;;
+    sql: ${TABLE}."MERGED_GUID" ;;
     hidden: yes
   }
 

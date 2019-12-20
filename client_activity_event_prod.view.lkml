@@ -1,3 +1,5 @@
+# explore: test_cae {from: client_activity_event_prod}
+
 view: client_activity_event_prod {
 #   sql_table_name: CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT;;
 derived_table: {
@@ -15,6 +17,7 @@ derived_table: {
               ,_rsrc
               ,message_format_version
               ,message_type
+--              , CONVERT_TIMEZONE('UTC', event_time) AS event_time
               ,event_time
               ,event_category
               ,event_action
@@ -44,6 +47,11 @@ derived_table: {
               ,MAX(CASE WHEN s.value:key::string = 'pointInSemester' THEN s.value:value::string END) AS pointInSemester
               ,MAX(CASE WHEN s.value:key::string = 'discipline' THEN s.value:value::string END) AS discipline
               ,MAX(CASE WHEN s.value:key::string = 'ISBN' THEN s.value:value::string END) AS ISBN
+              ,MAX(CASE WHEN s.value:key::string = 'institutionId' THEN s.value:value::string END) AS institutionId
+              ,MAX(CASE WHEN s.value:key::string = 'industryLinkURL' THEN s.value:value::string END) AS industryLinkURL
+              ,MAX(CASE WHEN s.value:key::string = 'industryLinkType' THEN s.value:value::string END) AS industryLinkType
+              ,MAX(CASE WHEN s.value:key::string = 'userRole' THEN s.value:value::string END) AS userRole
+              ,MAX(CASE WHEN s.value:key::string = 'titleIsbn' THEN s.value:value::string END) AS titleIsbn
           FROM cap_eventing.prod.client_activity_event wa
           CROSS JOIN LATERAL FLATTEN(WA.tags,outer=>true) s
           GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
@@ -72,11 +80,54 @@ derived_table: {
         persist_for: "6 hours"
 }
 
+  dimension: institutionId {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."INSTITUTIONALID" ;;
+  }
+  dimension: industryLinkURL {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."INDUSTRYLINKURL" ;;
+  }
+  dimension: industryLinkType {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."INDUSTRYLINKTYPE" ;;
+  }
+  dimension: userRole {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."USERROLE" ;;
+  }
+  dimension: titleIsbn {
+    group_label: "Tags meta data"
+    type: string
+    sql: ${TABLE}."TITLEISBN" ;;
+  }
 
   measure: count {
     type: count
     drill_fields: [detail*]
   }
+
+    measure: industry_linkurl_count {
+    type: count_distinct
+    sql:  ${industryLinkURL};;
+    drill_fields: [detail*]
+  }
+
+  measure: user_count {
+    type: count_distinct
+    sql:  ${user_sso_guid};;
+    drill_fields: [detail*]
+  }
+
+#   measure: user_count {
+#     type: count_distinct
+#     sql_distinct_key: ${user_sso_guid} ;;
+#     drill_fields: [detail*]
+#   }
 
   dimension: lag_session {
     hidden: yes

@@ -131,6 +131,12 @@ dimension: event_action {
   sql: ${TABLE}."EVENT_ACTION" ;;
 }
 
+  dimension: event_name_temp {
+    label: "Event name (temp)"
+    type: string
+    sql: ${TABLE}."EVENT_ACTION" || ' ' ||  ${TABLE}."EVENT_CATEGORY" ;;
+  }
+
 dimension: is_load_sidebar {
   label: "Is Load Sidebar Event"
   description: "Make this filtered to 'No' to remove LOAD SIDEBAR events"

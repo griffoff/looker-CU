@@ -21,9 +21,25 @@ view: dau {
 
   measure: dau {
     label: "DAU"
-    description: "Daily Active Users  (average if not reported on a single day)"
+    description: "Daily Active Users (average if not reported on a single day)"
     type: number
     sql: AVG(${au}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: dau_instructor {
+    label: "DAU Instructor"
+    description: "Daily Active Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: dau_students {
+    label: "DAU Students"
+    description: "Daily Active Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
   }
 
@@ -38,9 +54,25 @@ view: wau {
 
   measure: wau {
     label: "WAU"
-    description: "Weekly Active Users  (average if not reported on a single day)"
+    description: "Weekly Active Users (average if not reported on a single day)"
     type: number
     sql: AVG(${au}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: wau_instructors {
+    label: "WAU Instructors"
+    description: "Weekly Active Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: wau_students {
+    label: "WAU Students"
+    description: "Weekly Active Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
   }
 }
@@ -56,6 +88,22 @@ view: mau {
     description: "Monthly Active Users (average if not reported on a single day)"
     type: number
     sql: AVG(${au}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: mau_instructors {
+    label: "MAU Instructors"
+    description: "Monthly Active Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: mau_students {
+    label: "MAU Students"
+    description: "Monthly Active Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
   }
 
@@ -88,7 +136,11 @@ view: au {
           date DATE
           ,product_platform STRING
           ,users INT
+          ,instructors INT
+          ,students INT
           ,total_users INT
+          ,total_instructors INT
+          ,total_students INT
         )
       ;;
       sql_step:
@@ -97,6 +149,8 @@ view: au {
         SELECT
             d.datevalue AS date
             ,COALESCE(au.productplatform, 'UNKNOWN') as product_platform
+            ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
+            ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
             ,COUNT(DISTINCT au.user_sso_guid) AS users
         FROM dw_ga.dim_date d
         LEFT JOIN ${guid_platform_date_active.SQL_TABLE_NAME} AS au ON au.date <= d.datevalue
@@ -108,7 +162,7 @@ view: au {
       ;;
       sql_step:
         INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
-        SELECT date, product_platform, users, NULL
+        SELECT date, product_platform, users, instructors, students, NULL, NULL, NULL
         FROM looker_scratch.au
         WHERE product_platform != 'UNKNOWN';;
       sql_step:
@@ -116,6 +170,8 @@ view: au {
         USING looker_scratch.au t ON a.date = t.date AND t.product_platform IS NULL
         WHEN MATCHED THEN UPDATE
           SET a.total_users = t.users
+            ,a.total_instructors = t.instructors
+            ,a.total_students = t.students
       ;;
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
@@ -124,6 +180,7 @@ view: au {
     }
     datagroup_trigger: daily_refresh
   }
+
 
   dimension: pk {
     primary_key: yes
@@ -150,6 +207,32 @@ view: au {
         {{ _view._name }}.users
       {% else %}
         {{ _view._name }}.total_users
+      {% endif %}
+      ;;
+  }
+
+  dimension: au_instructors {
+    hidden: yes
+    label: "Active Instructors"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query %}
+        {{ _view._name }}.instructors
+      {% else %}
+        {{ _view._name }}.total_instructors
+      {% endif %}
+      ;;
+  }
+
+  dimension: au_students {
+    hidden: yes
+    label: "Active Students"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query %}
+        {{ _view._name }}.students
+      {% else %}
+        {{ _view._name }}.total_students
       {% endif %}
       ;;
   }

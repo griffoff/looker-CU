@@ -10,23 +10,36 @@ case_sensitive: no
 explore: late_activators_removals {
   from: late_activators_removals
   view_name: late_activators
+  label: "Late Activations - daily removals"
   join: cu_user_info {
     sql_on: ${late_activators.user_sso_guid} = ${cu_user_info.user_sso_guid}  ;;
     relationship: many_to_one
   }
+  join: live_subscription_status {
+    sql_on: ${cu_user_info.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+}
+
+explore: late_activators_retroactive {
+  extends: [late_activators_removals]
+  from: late_activators_full_retroactive_email_list
+  view_name: late_activators
+
+  label: "Late Activations - Retroactive removals emails"
 }
 
 explore: late_activators {
   extends: [dim_course, late_activators_removals]
   view_name: late_activators
   from: late_activators_messages
+  label: "Late Activations - daily removals emails"
 
   join: dim_course {
     sql_on: ${late_activators.course_key} = ${dim_course.olr_course_key} ;;
     relationship: many_to_one
   }
 }
-
 
 explore: magellan_instructor_setup_status {
 
@@ -125,7 +138,8 @@ explore: marketing_analysis {
     ,cu_enterprise_licenses*
     ,student_discounts_dps.marketing_fields*
     ,institutional_savings.marketing_fields*
-    ,ipm_ff_20190830.marketing_fields*
+    ,ipm_260_email_list.marketing_fields*
+#     ,ipm_ff_20190830.marketing_fields*
     ]
 
 
@@ -188,12 +202,28 @@ explore: marketing_analysis {
     relationship: one_to_one
   }
 
-  join: ipm_ff_20190830 {
-    sql_on: ${learner_profile.user_sso_guid} = ${ipm_ff_20190830.user_sso_guid} ;;
-    relationship: one_to_one
+  join: ipm_260_email_list {
+    view_label: " IPM 260 email list"
+    sql_on: ${courseinstructor.instructoremail} = ${ipm_260_email_list.email} ;;
+    relationship: many_to_one
   }
 
+#   join: ipm_ff_20190830 {
+#     sql_on: ${learner_profile.user_sso_guid} = ${ipm_ff_20190830.user_sso_guid} ;;
+#     relationship: one_to_one
+#   }
 
 
 
+
+}
+
+explore: marketing_learner_profile {
+  extends: [learner_profile]
+
+  join: student_discounts_dps {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
+    relationship: one_to_one
+  }
 }

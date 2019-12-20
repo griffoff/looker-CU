@@ -2,12 +2,19 @@ explore: af_activation_adoptions {}
 
 view: af_activation_adoptions {
   derived_table: {
-    sql:with raw_actv as (select * from STRATEGY.ADOPTION_PIVOT.FY17_ACTIVATIONS_ADOPTIONPIVOT UNION select * from STRATEGY.ADOPTION_PIVOT.FY18_ACTIVATIONS_ADOPTIONPIVOT UNION select * from STRATEGY.ADOPTION_PIVOT.FY19_ACTIVATIONS_ADOPTIONPIVOT),
+    sql:with raw_actv as (
+        select * from STRATEGY.ADOPTION_PIVOT.FY17_ACTIVATIONS_ADOPTIONPIVOT
+        UNION
+        select * from STRATEGY.ADOPTION_PIVOT.FY18_ACTIVATIONS_ADOPTIONPIVOT
+        UNION
+        select * from STRATEGY.ADOPTION_PIVOT.FY19_ACTIVATIONS_ADOPTIONPIVOT
+        UNION
+        select * from STRATEGY.ADOPTION_PIVOT.FY20_ACTIVATIONS_ADOPTIONPIVOT),
         activations_1 as(
         Select
           ent."INSTITUTION_NM"  AS institution_nm,
           prod."PROD_FAMILY_CD"  AS prod_family_cd,
-          prod."PUB_SERIES_DE"  AS pub_series_de,
+          coalesce(prod."PUB_SERIES_DE", 'Not Specified')  AS pub_series_de,
           activations.ENTITY_NO  AS entity_no,
           prod."MEDIA_TYPE_CD"  AS media_type_cd,
           prod."MEDIA_TYPE_DE"  AS media_type_de,
@@ -21,9 +28,9 @@ view: af_activation_adoptions {
           activations.CU_FLG AS CU_FLG,
           dimdate.fiscalyearvalue as fiscalyear,
           ent.state_cd as state_cd,
-          concat(concat(concat(concat(concat(concat(institution_nm,'|'),state_cd),'|'),coalesce(pfmt.COURSE_CODE_DESCRIPTION,'.')),'|'),prod.pub_series_de) as adoption_key,
-          concat(concat(concat(concat(institution_nm,'|'),coalesce(pfmt.COURSE_CODE_DESCRIPTION,'.')),'|'),prod.pub_series_de) as old_adoption_key,
-          sum(case when activations.platform = 'WebAssign' then activations.ACTV_COUNT_WO_SITELIC else activations.ACTV_COUNT_W_SITELIC end) AS actv_count
+          concat(concat(concat(concat(concat(concat(institution_nm,'|'),state_cd),'|'),coalesce(pfmt.COURSE_CODE_DESCRIPTION,'.')),'|'),coalesce(prod.pub_series_de,'Not Specified')) as adoption_key,
+          concat(concat(concat(concat(institution_nm,'|'),coalesce(pfmt.COURSE_CODE_DESCRIPTION,'.')),'|'),coalesce(prod.pub_series_de,'Not Specified')) as old_adoption_key,
+          sum(case when activations.platform = 'WebAssign' then activations.ACTV_COUNT_W_SITELIC else activations.ACTV_COUNT_W_SITELIC end) AS actv_count
       FROM raw_actv activations
       LEFT JOIN DEV.STRATEGY_SPRING_REVIEW_QUERIES.DM_PRODUCTS prod
       ON activations.Product_Skey = prod.Product_Skey
@@ -31,6 +38,11 @@ view: af_activation_adoptions {
       ON activations.entity_no = ent.entity_no
       LEFT JOIN STRATEGY.ADOPTION_PIVOT.PFMT_ADOPTIONPIVOT pfmt on pfmt.product_family_code = prod.prod_family_cd
       JOIN prod.dw_ga.dim_date dimdate ON to_date(activations.actv_dt) = dimdate.datevalue
+      where activations.ORGANIZATION = 'Higher Ed'
+      AND activations.actv_trial_purchase IN ('Site License','Purchase')
+      AND activations.ACTV_USER_TYPE = 'student'
+      AND activations.platform IN ('4LTR Online','Aplia', 'CNOW', 'Diet Analysis Plus', 'Insite', 'MindTap', 'OWL V2', 'Quia', 'SAM', 'Speech Studio', 'WebAssign', 'Write Experience')
+      AND ((activations.actv_dt between '2016-04-01' AND '2016-09-30') OR (activations.actv_dt between '2017-04-01' AND '2017-09-30') OR (activations.actv_dt between '2018-04-01' AND '2018-09-30') OR (activations.actv_dt between '2019-04-01' AND '2019-09-30'))
       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
       ),
 
@@ -40,10 +52,6 @@ view: af_activation_adoptions {
              fiscalyear,
              sum(actv_count) as actv_count
       from activations_1
-      where ORGANIZATION = 'Higher Ed'
-      AND actv_trial_purchase IN ('Site License','Purchase')
-      AND ACTV_USER_TYPE = 'student'
-      AND platform IN ('4LTR Online','Aplia', 'CNOW', 'Diet Analysis Plus', 'Insite', 'MindTap', 'OWL V2', 'Quia', 'SAM', 'Speech Studio', 'WebAssign', 'Write Experience')
       group by 1,2,3),
 
       primary_platform2 as (
@@ -58,7 +66,8 @@ view: af_activation_adoptions {
              select plat.adoption_key,
              case when fiscalyear = 'FY17' then plat.platform else null end as fy17_primary_platform,
              case when fiscalyear = 'FY18' then plat.platform else null end as fy18_primary_platform,
-             case when fiscalyear = 'FY19' then plat.platform else null end as fy19_primary_platform
+             case when fiscalyear = 'FY19' then plat.platform else null end as fy19_primary_platform,
+             case when fiscalyear = 'FY20' then plat.platform else null end as fy20_primary_platform
       from primary_platform2 plat
       where primary_platform_flag = '1'
       order by 1),
@@ -68,7 +77,8 @@ view: af_activation_adoptions {
       select adoption_key,
              coalesce(max(fy17_primary_platform), 'No Activations') as act_fy17_primary_platform,
              coalesce(max(fy18_primary_platform), 'No Activations') as act_fy18_primary_platform,
-             coalesce(max(fy19_primary_platform), 'No Activations') as act_fy19_primary_platform
+             coalesce(max(fy19_primary_platform), 'No Activations') as act_fy19_primary_platform,
+             coalesce(max(fy20_primary_platform), 'No Activations') as act_fy20_primary_platform
       from primary_platform3
       group by 1)
 
@@ -82,22 +92,22 @@ view: af_activation_adoptions {
         plat.act_fy17_primary_platform,
         plat.act_fy18_primary_platform,
         plat.act_fy19_primary_platform,
+        plat.act_fy20_primary_platform,
         sum(CASE WHEN act.cu_flg = 'N' AND act.FISCALYEAR = 'FY17' THEN act.actv_count END) AS total_CD_actv_exCU_FY17,
         sum(CASE WHEN act.cu_flg = 'N' AND act.FISCALYEAR = 'FY18' THEN act.actv_count END) AS total_CD_actv_exCU_FY18,
         sum(CASE WHEN act.cu_flg = 'N' AND act.FISCALYEAR = 'FY19' THEN act.actv_count END) AS total_CD_actv_exCU_FY19,
+        sum(CASE WHEN act.cu_flg = 'N' AND act.FISCALYEAR = 'FY20' THEN act.actv_count END) AS total_CD_actv_exCU_FY20,
         sum(CASE WHEN act.cu_flg = 'Y' AND act.FISCALYEAR = 'FY17' THEN act.actv_count END) AS total_CD_actv_withCU_FY17,
         sum(CASE WHEN act.cu_flg = 'Y' AND act.FISCALYEAR = 'FY18' THEN act.actv_count END) AS total_CD_actv_withCU_FY18,
         sum(CASE WHEN act.cu_flg = 'Y' AND act.FISCALYEAR = 'FY19' THEN act.actv_count END) AS total_CD_actv_withCU_FY19,
+        sum(CASE WHEN act.cu_flg = 'Y' AND act.FISCALYEAR = 'FY20' THEN act.actv_count END) AS total_CD_actv_withCU_FY20,
         sum(CASE WHEN act.FISCALYEAR = 'FY17' THEN act.actv_count END) AS total_CD_actv_FY17,
         sum(CASE WHEN act.FISCALYEAR = 'FY18' THEN act.actv_count END) AS total_CD_actv_FY18,
-        sum(CASE WHEN act.FISCALYEAR = 'FY19' THEN act.actv_count END) AS total_CD_actv_FY19
+        sum(CASE WHEN act.FISCALYEAR = 'FY19' THEN act.actv_count END) AS total_CD_actv_FY19,
+        sum(CASE WHEN act.FISCALYEAR = 'FY20' THEN act.actv_count END) AS total_CD_actv_FY20
       from activations_1 act
       left join primary_platform4 plat on plat.adoption_key = act.adoption_key
-      where act.ORGANIZATION = 'Higher Ed'
-      AND act.actv_trial_purchase IN ('Site License','Purchase')
-      AND act.ACTV_USER_TYPE = 'student'
-      AND act.platform IN ('4LTR Online','Aplia', 'CNOW', 'Diet Analysis Plus', 'Insite', 'MindTap', 'OWL V2', 'Quia', 'SAM', 'Speech Studio', 'WebAssign', 'Write Experience')
-      group by 1,2,3,4,5,6,7,8,9
+      group by 1,2,3,4,5,6,7,8,9,10
 
  ;;
   }
@@ -152,6 +162,11 @@ view: af_activation_adoptions {
     sql: ${TABLE}."act_FY19_PRIMARY_PLATFORM" ;;
   }
 
+  dimension: act_fy20_primary_platform {
+    type: string
+    sql: ${TABLE}."act_FY20_PRIMARY_PLATFORM" ;;
+  }
+
   dimension: total_cd_actv_excu_fy17 {
     type: number
     sql: ${TABLE}."TOTAL_CD_ACTV_EXCU_FY17" ;;
@@ -165,6 +180,11 @@ view: af_activation_adoptions {
   dimension: total_cd_actv_excu_fy19 {
     type: number
     sql: ${TABLE}."TOTAL_CD_ACTV_EXCU_FY19" ;;
+  }
+
+  dimension: total_cd_actv_excu_fy20 {
+    type: number
+    sql: ${TABLE}."TOTAL_CD_ACTV_EXCU_FY20" ;;
   }
 
   dimension: total_cd_actv_withcu_fy17 {
@@ -182,9 +202,31 @@ view: af_activation_adoptions {
     sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY19" ;;
   }
 
+  measure: sum_total_cd_actv__withcu_fy19 {
+    label: "FY19 Total CD Activations within CU"
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY19";;
+  }
+
+  dimension: total_cd_actv_withcu_fy20 {
+    type: number
+    sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY20" ;;
+  }
+
+  measure: sum_total_cd_actv__withcu_fy20 {
+    label: "FY20 Total CD Activations within CU"
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_WITHCU_FY20";;
+  }
   dimension: total_cd_actv_fy17 {
     type: number
     sql: ${TABLE}."TOTAL_CD_ACTV_FY17" ;;
+  }
+
+  measure: sum_total_cd_actv_fy17 {
+    label: "FY17 Total CD Activations"
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY17";;
   }
 
   dimension: total_cd_actv_fy18 {
@@ -192,9 +234,32 @@ view: af_activation_adoptions {
     sql: ${TABLE}."TOTAL_CD_ACTV_FY18" ;;
   }
 
+  measure: sum_total_cd_actv_fy18 {
+    label: "FY18 Total CD Activations"
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY18";;
+  }
+
   dimension: total_cd_actv_fy19 {
     type: number
     sql: ${TABLE}."TOTAL_CD_ACTV_FY19" ;;
+  }
+
+  measure: sum_total_cd_actv_fy19 {
+    label: "FY19 Total CD Activations"
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY19";;
+  }
+
+  dimension: total_cd_actv_fy20 {
+    type: number
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY20" ;;
+  }
+
+  measure: sum_total_cd_actv_fy20 {
+    label: "FY20 Total CD Activations"
+    type: sum
+    sql: ${TABLE}."TOTAL_CD_ACTV_FY20";;
   }
 
   set: detail {
@@ -211,11 +276,14 @@ view: af_activation_adoptions {
       total_cd_actv_excu_fy17,
       total_cd_actv_excu_fy18,
       total_cd_actv_excu_fy19,
+      total_cd_actv_excu_fy20,
       total_cd_actv_withcu_fy17,
       total_cd_actv_withcu_fy18,
       total_cd_actv_withcu_fy19,
+      total_cd_actv_withcu_fy20,
       total_cd_actv_fy18,
-      total_cd_actv_fy19
+      total_cd_actv_fy19,
+      total_cd_actv_fy20
     ]
   }
 }

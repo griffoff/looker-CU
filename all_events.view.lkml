@@ -1,4 +1,5 @@
 include: "//core/common.lkml"
+
 view: all_events {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
@@ -14,6 +15,8 @@ view: all_events {
     hidden: yes
   }
 
+
+
   dimension: event_id {
     type: number
     sql: ${TABLE}."EVENT_ID" ;;
@@ -24,6 +27,7 @@ view: all_events {
   }
 
   dimension: event_subscription_state {
+    group_label: "Subscription State"
     label: "Subscription State"
     type: string
     sql: COALESCE(${TABLE}.subscription_state, INITCAP(REPLACE(${TABLE}.event_data:subscription_state, '_', ' ')));;
@@ -35,6 +39,40 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA" ;;
     label: "Event data"
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
+  }
+
+  dimension: code_type {
+    label: "Activation Code Type"
+    sql:  ${event_data}:code_type::string ;;
+  }
+
+  dimension: time_to_next_event {
+    type:  number
+    sql: ${TABLE}."EVENT_DATA":time_to_next_event ;;
+    label: "Time to next event"
+  }
+
+  dimension: days_in_state {
+    group_label: "Subscription State"
+    label: "Days in state"
+    description: "Number of days user was in a subscription state when they executed this event"
+    type: number
+    sql: ${event_data}:days_in_current_state ;;
+
+  }
+
+  dimension: role {
+    type: string
+    sql: TRIM(${event_data}:role) ;;
+    label: "Webassign role"
+    description: "Role from WA CAFe"
+  }
+
+  dimension: host_platform {
+    type: string
+    sql: TRIM(${event_data}:host_platform) ;;
+    label: "Host platform (CAFe)"
+    description: "Host platform from client activity events"
   }
 
   dimension: campaign_msg_id{
@@ -49,7 +87,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Course key"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:courseKey::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:courseKey::string END ;;
     hidden: no
   }
 
@@ -58,7 +96,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Carousel name"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:carouselName::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselName::string END ;;
     hidden: no
   }
 
@@ -66,7 +104,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Carousel session Id"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:carouselSessionId::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselSessionId::string END ;;
     hidden: no
   }
 
@@ -75,7 +113,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Activity Id"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:activityId::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:activityId::string END ;;
     hidden: no
   }
 
@@ -83,7 +121,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "checkpoint Id"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:checkpointId::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:checkpointId::string END ;;
     hidden: no
   }
 
@@ -92,7 +130,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Content type"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:contentType::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:contentType::string END ;;
     hidden: no
   }
 
@@ -100,7 +138,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Point In Semester"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:pointInSemester::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:pointInSemester::string END ;;
     hidden: no
   }
 
@@ -108,7 +146,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Discipline"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:discipline::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:discipline::string END ;;
     hidden: no
   }
 
@@ -116,7 +154,7 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "Study Tool Cgi"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:studyToolCgi::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:studyToolCgi::string END ;;
     hidden: no
   }
 
@@ -124,10 +162,244 @@ view: all_events {
     group_label: "Sidebar tag events"
     label: "ISBN"
     type: string
-    sql: CASE WHEN ${product_platform} = 'cu-side-bar' THEN ${event_data}:ISBN::string END ;;
+    sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:ISBN::string END ;;
     hidden: no
   }
 
+  dimension: institutionId {
+    group_label: "Industry Link tag events"
+    label: "Institution ID"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP' THEN ${event_data}:institutionId::string END ;;
+    #
+    hidden: no
+  }
+
+  dimension: industryLinkURL {
+    group_label: "Industry Link tag events"
+    label: "Industry Link URL"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkURL::string END ;;
+    hidden: no
+  }
+
+  dimension: industryLinkType {
+    group_label: "Industry Link tag events"
+    label: "Industry Link Type"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkType::string END ;;
+    hidden: no
+  }
+
+  dimension: userRole {
+    group_label: "Industry Link tag events"
+    label: "User Role"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:userRole::string END ;;
+    hidden: no
+  }
+
+  dimension: titleIsbn {
+    group_label: "Industry Link tag events"
+    label: "Industry Link Title ISBN"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:titleIsbn::string END ;;
+    hidden: no
+  }
+
+  dimension: industryLinkCoursekey {
+    group_label: "Industry Link tag events"
+    label: "Course key"
+    type: string
+    sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN  ${event_data}:courseKey::string END ;;
+    hidden: no
+  }
+
+  dimension: tags_coursekey {
+    group_label: "Client Activity Tags"
+    label: "Course key"
+    type: string
+    sql: ${event_data}:courseKey::string ;;
+    hidden: no
+  }
+
+
+  dimension: tags_carouselName {
+    group_label: "Client Activity Tags"
+    label: "Carousel name"
+    type: string
+    sql: ${event_data}:carouselName::string ;;
+    hidden: no
+  }
+
+  dimension: tags_carouselSessionId {
+    group_label: "Client Activity Tags"
+    label: "Carousel session Id"
+    type: string
+    sql: ${event_data}:carouselSessionId::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_activityId {
+    group_label: "Client Activity Tags"
+    label: "Activity Id"
+    type: string
+    sql: ${event_data}:activityId::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_checkpointId {
+    group_label: "Client Activity Tags"
+    label: "checkpoint Id"
+    type: string
+    sql: ${event_data}:checkpointId::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_contentType {
+    group_label: "Client Activity Tags"
+    label: "Content type"
+    type: string
+    sql: ${event_data}:contentType::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_appName {
+    group_label: "Client Activity Tags"
+    label: "App Name"
+    type: string
+    sql: ${event_data}:appName::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_external_take_uri {
+    group_label: "Client Activity Tags"
+    label: "External Take URI"
+    type: string
+    sql: ${event_data}:externalTakeUri::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_item_uri {
+    group_label: "Client Activity Tags"
+    label: "Item URI"
+    type: string
+    sql: ${event_data}:itemUri::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_attempt_id {
+    group_label: "Client Activity Tags"
+    label: "Attempt ID"
+    type: string
+    sql: ${event_data}:attemptId::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_activity_uri {
+    group_label: "Client Activity Tags"
+    label: "Activity URI"
+    type: string
+    sql: ${event_data}:activityUri::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_show_grade_indicators {
+    group_label: "Client Activity Tags"
+    label: "Show Grade Indicators"
+    type: string
+    sql: ${event_data}:showGradeIndicators::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_course_uri {
+    group_label: "Client Activity Tags"
+    label: "Course URI"
+    type: string
+    sql: ${event_data}:courseUri::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_pointInSemester {
+    group_label: "Client Activity Tags"
+    label: "Point In Semester"
+    type: string
+    sql: ${event_data}:pointInSemester::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_discipline {
+    group_label: "Client Activity Tags"
+    label: "Discipline"
+    type: string
+    sql: ${event_data}:discipline::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_studyToolCgi {
+    group_label: "Client Activity Tags"
+    label: "Study Tool Cgi"
+    type: string
+    sql: ${event_data}:studyToolCgi::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_sequence_uuid {
+    group_label: "Client Activity Tags"
+    label: "Sequence UUID"
+    type: string
+    sql: ${event_data}:sequenceUuid::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_ISBN {
+    group_label: "Client Activity Tags"
+    label: "ISBN"
+    type: string
+    sql: ${event_data}:ISBN::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_institutionId {
+    group_label: "Client Activity Tags"
+    label: "Institution ID"
+    type: string
+    sql: ${event_data}:institutionId::string  ;;
+    #
+    hidden: no
+  }
+
+  dimension: tags_userRole {
+    group_label: "Client Activity Tags"
+    label: "User Role"
+    type: string
+    sql: ${event_data}:userRole::string ;;
+    hidden: no
+  }
+
+  dimension: tags_cla_page_number {
+    group_label: "Client Activity Tags"
+    label: "CLA Page Number"
+    type: string
+    sql: ${event_data}:claPageNumber::string ;;
+    hidden: no
+  }
+
+  dimension: tags_number_of_pages {
+    group_label: "Client Activity Tags"
+    label: "Number of Pages"
+    type: string
+    sql: ${event_data}:numberOfPages::string ;;
+    hidden: no
+  }
+
+  dimension: tags_titleIsbn {
+    group_label: "Client Activity Tags"
+    label: "Title ISBN"
+    type: string
+    sql: ${event_data}:titleIsbn::string ;;
+    hidden: no
+  }
 
   dimension: product_platform {
     type: string
@@ -199,9 +471,10 @@ view: all_events {
     group_label: "Event Classification"
     type: string
     #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
-    sql:  COALESCE(${TABLE}."EVENT_NAME"
-              ,'** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **'
-          ) ;;
+  sql:
+     CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN TRIM(INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action})))
+          ELSE COALESCE(TRIM(${TABLE}."EVENT_NAME"), '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END
+          ;;
     label: "Event name"
     description: "The lowest level in hierarchy of event classification below event action.
     Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
@@ -222,6 +495,52 @@ view: all_events {
     description: "Components of the events local timestamp converted to UTC"
   }
 
+  dimension: semester {
+    type: string
+    sql: CASE
+          WHEN ${event_date_raw} BETWEEN '2018-08-01' AND '2018-12-31' THEN '1. Fall 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-01-01' AND '2019-06-30' THEN '2. Spring 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-07-01' AND '2019-07-3`' THEN '3. Summer 2019'
+          WHEN ${event_date_raw} BETWEEN '2019-08-01' AND CURRENT_DATE() THEN '4. Fall 2020'
+          ELSE 'Other' END
+          ;;
+  }
+
+  dimension: event_date_raw {
+    hidden: yes
+    type: date
+    sql: ${TABLE}.local_time::date ;;
+  }
+
+#   dimension: event_day_of_course {
+#     label: "Day in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('day',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: event_week_of_course {
+#     label: "Week in course"
+#     hidden: no
+#     type: number
+#     sql: DATEDIFF('week',${dim_date.datevalue_date}, ${local_date}) ;;
+#   }
+#
+#   dimension: course_start_date {
+#     label: "Course start date"
+#     hidden: no
+#     type: date
+#     sql:${dim_date.datevalue_date} ;;
+#   }
+
+dimension: load_metadata_source {
+  group_label: "Load Metadata"
+  label: "Load source"
+  type: string
+  sql: ${TABLE}."LOAD_METADATA":source ;;
+}
+
+
   dimension_group: local_est {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
@@ -231,13 +550,66 @@ view: all_events {
     description: "Components of the events local timestamp converted to EST"
   }
 
+
   dimension_group: local_unconverted {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
-    sql: ${TABLE}."LOCAL_TIME" ;;
+    sql:  ${TABLE}."LOCAL_TIME" ;;
     group_label: "Event Time (Local)"
     label: "Event (Local)"
     description: "Components of the events local timestamp"
+  }
+
+  dimension: referral_path {
+    group_label: "Referral Path"
+    description: "Which page did the student come from to get here?"
+    sql: ${event_data}:"referral path"::STRING ;;
+  }
+
+  dimension: referral_host {
+    group_label: "Referral Path"
+    description: "Which site did the student come from to get here?"
+    type: string
+    sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
+  }
+
+  dimension: referral_host_type {
+    description: "What type of site did the student come from to get here?"
+    group_label: "Referral Path"
+    type: string
+    sql:  case
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%bing%' then 'Bing'
+        when ${referral_host} like '%yahoo%' then 'Yahoo'
+        when ${referral_host} like '%msn.%' then 'MSN'
+        when ${referral_host} like '%aol.%' then 'AOL'
+        when ${referral_host} like '%moodle%' then 'Moodle'
+        when ${referral_host} like '%blackboard%' or ${referral_host} like 'bblearn%' then 'Blackboard'
+        when ${referral_host} like '%d2l%' then 'D2L'
+        when ${referral_host} like '%canvas%' then 'Canvas'
+        when ${referral_host} like '%ilearn%' then 'ILearn'
+        when ${referral_host} like '%google%' then 'Google'
+        when ${referral_host} like '%qualtrics%' then 'Qualtrics'
+        when ${referral_host} like '%quia%' then 'Quia'
+        when ${referral_host} like 'cengage.vitalsource.com' then 'VitalSource'
+        when ${referral_host} like 'www.chegg.com' then 'Chegg'
+        when ${referral_host} like '%.edu' then 'Other EDU'
+        when ${referral_host} like 'secureacceptance.cybersource.com' then 'Cengage Support' --??
+        when ${referral_host} in ('cengageportal.secure.force.com', 'cengage.force.com', 'support.cengage.com') then 'Cengage Support'
+        when ${referral_host} like '%cengagebrain%' or ${referral_host} like '%nelsonbrain%' then 'Cengage Brain'
+        when ${referral_host} like 'olradmin.cengage.com' then 'Cengage OLR Admin'
+        when ${referral_host} like 'gateway.cengage%' then 'Cengage Gateway'
+        when ${referral_host} like '%aplia.com' or ${referral_host} like  'aplia.apps.ng.cengage.com' then 'Cengage Aplia'
+        when ${referral_host} like 'sam.cengage.com' then 'Cengage SAM'
+        when ${referral_host} like '4ltrpressonline.cengage.com' then 'Cengage 4LTR'
+        when ${referral_host} like '%.cengagenow.%' or ${referral_host} like  'www.owlv2.com' then 'Cengage CNow'
+        when ${referral_host} like 'instructor.cengage.com' then 'Cengage Instructor Site'
+        when ${referral_host} in ('ng.cengage.com', 'mindtap.cengage.com') then 'Cengage MindTap'
+        when ${referral_host} like 'www.webassign.net' then 'Cengage Webassign'
+        when ${referral_host} like '%.cengage.com' then 'Cengage.com'
+        when ${referral_path} is null then 'UNKNOWN'
+        else 'Other'
+       end;;
   }
 
   measure: user_count {
@@ -285,7 +657,60 @@ view: all_events {
     label: "# Events while in locker status"
     type: number
     sql: COUNT(CASE WHEN ${event_subscription_state} = 'Provisional Locker' THEN 1 END) ;;
+  }
 
+  measure: events_last_1_days {
+    group_label: "# Events"
+    label: "Avg # Events per day yesterday"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_7_days {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 7 days"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_30_days {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 30 days"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(day,${event_date_raw}, CURRENT_DATE()) <= 30 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 30 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_6_months {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 6 months"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: events_last_12_months {
+    group_label: "# Events"
+    label: "Avg # Events per day per user in the last 12 months"
+    type: number
+    sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 12 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
+    value_format_name: decimal_1
+  }
+
+  measure: event_first_captured {
+    group_label: "# Events"
+    type: string
+    description: "Since when have we been tracking this event?"
+    sql: MIN(${event_date_raw}) ;;
+  }
+
+  measure: event_last_captured {
+    group_label: "# Events"
+    type: string
+    description: "When was the last time we caught this event?"
+    sql: MAX(${event_date_raw}) ;;
   }
 
   measure: month_count {
@@ -309,7 +734,7 @@ view: all_events {
   measure: user_week_count {
     type: count_distinct
     sql: HASH(${user_sso_guid}, ${local_week}) ;;
-    hidden: yes
+    hidden: no
   }
 
   measure: day_count {
@@ -322,7 +747,26 @@ view: all_events {
     group_label: "Time spent"
     label: "Total Time Active"
     type: sum
+    sql: ${event_data}:event_duration  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
+
+  measure: event_duration_time_to_next_event {
+    group_label: "Time spent"
+    label: "Total Time Active (time_to_next_event)"
+    type: sum
     sql: ${event_data}:event_duration / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
+  measure: average_time_to_next_event_spent_per_student {
+    group_label: "Time spent"
+    label: "Average time to next event per student"
+    description: "Slice this metric by different dimensions"
+    type: number
+    sql: ${event_duration_time_to_next_event} / NULLIF(${user_count}, 0)  ;;
     value_format: "[m] \m\i\n\s"
   }
 
