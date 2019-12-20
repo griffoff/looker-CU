@@ -85,7 +85,7 @@ view: raw_mt_resource_interactions {
   }
 
   dimension: event_value {
-    type: string
+    type: number
     sql: ${TABLE}."EVENT_VALUE" ;;
   }
 
@@ -122,6 +122,12 @@ view: raw_mt_resource_interactions {
   dimension: user_identifier {
     type: string
     sql: ${TABLE}."USER_IDENTIFIER" ;;
+  }
+
+  measure: event_value_sum {
+    label: "Event Value Sum"
+    type: sum
+    sql: ${event_value} ;;
   }
 
   measure: user_count {
