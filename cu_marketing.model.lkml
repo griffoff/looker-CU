@@ -226,4 +226,10 @@ explore: marketing_learner_profile {
     sql_on: ${learner_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
     relationship: one_to_one
   }
+
+  join: institutional_savings {
+    view_label: "Institution"
+    sql_on: ${dim_institution.entity_no}::STRING = ${institutional_savings.entity_no}::STRING ;;
+    relationship: many_to_one
+  }
 }
