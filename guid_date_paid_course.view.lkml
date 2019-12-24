@@ -14,7 +14,7 @@ view: guid_date_paid_course  {
                   user_sso_guid
                   ,DATEADD(DAY, t.i, u.course_start_date::DATE) AS active_date
                   ,CASE WHEN activated THEN 1 ELSE 0 END AS paid_status
-                  ,CASE WHEN (cu_contract_id IS NOT NULL AND cu_contract_id <> 'TRIAL') THEN 2 ELSE 1 END AS payment_type
+                  ,CASE WHEN (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') THEN 2 ELSE 1 END AS payment_type
                   ,HASH(user_sso_guid, active_date) AS pk
                   ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE WHEN ACTIVATED THEN 0 ELSE 1 END, u.course_start_date DESC, u.course_end_date DESC) AS r
               FROM prod.cu_user_analysis.user_courses u

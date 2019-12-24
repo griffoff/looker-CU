@@ -138,9 +138,10 @@ view: user_courses_products {
     sql: ${TABLE}."CUI_FLAG" ;;
   }
 
-  dimension: cu_contract_id {
+  dimension: cu_subscription_id {
     type: string
-    sql: ${TABLE}."CU_CONTRACT_ID" ;;
+    sql: ${TABLE}.cu_subscription_id ;;
+    alias: [cu_contract_id]
   }
 
   dimension: on_dashboard_courseware {
@@ -213,9 +214,9 @@ view: user_courses_products {
       product_type,
       entity_name,
       cui_flag,
-      cu_contract_id,
+      cu_subscription_id,
       on_dashboard_courseware,
-      on_dashboard_isbn_only,
+      #on_dashboard_isbn_only,
       enrolled,
       activated,
       course_used_flag,

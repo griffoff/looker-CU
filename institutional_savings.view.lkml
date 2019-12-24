@@ -7,7 +7,7 @@ view: institutional_savings {
         select count(distinct user_sso_guid) as total_stud,oc.entity_no from prod.cu_user_analysis.user_courses uc
         left join prod.stg_clts.olr_courses oc
               ON uc.olr_course_key = oc.course_key
-        where cu_contract_id IS NOT NULL AND to_date(course_start_date) > '2019-01-01'
+        where cu_subscription_id IS NOT NULL AND to_date(course_start_date) > '2019-01-01'
         group by 2
       ),
       entity_dt as (

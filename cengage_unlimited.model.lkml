@@ -1571,5 +1571,6 @@ explore: adoption_usage_analysis {
     view_label: "Courseware Adoption Driver"
     sql_on: ${cw_adoption_driver_20191217.adoption_key} = ${entity_names.institution_nm} || '|' ||  ${entity_names.state_cd} || '|' || ${adoption_platform_pivot.course_code_description} ||  '|' ||  ${dim_product.publicationseries}
     ;;
+    relationship: one_to_many
   }
   }

@@ -4,15 +4,15 @@ view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
 derived_table: {
-  sql: Select *, (cu_contract_id IS NOT NULL AND cu_contract_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
+  sql: Select *, (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
         from prod.cu_user_analysis.user_courses  ;;
 }
 
   set: marketing_fields {
     fields: [user_courses.net_price_enrolled, user_courses.amount_to_upgrade_tiers, user_courses.ala_cart_purchases, user_courses.distinct_ala_cart_purchase
-      , user_courses.cu_contract_id, user_courses.cui_flag, user_courses.no_enrollments, user_courses.cu_flag, user_courses.cu_purchase, user_courses.activations_minus_a_la_carte,
+      , user_courses.cu_subscription_id, user_courses.cui_flag, user_courses.no_enrollments, user_courses.cu_flag, user_courses.cu_purchase, user_courses.activations_minus_a_la_carte,
       user_courses.enrollments_minus_activations, user_courses_dev.net_price_enrolled, user_courses_dev.amount_to_upgrade_tiers, user_courses_dev.ala_cart_purchases, user_courses_dev.distinct_ala_cart_purchase
-      , user_courses_dev.cu_contract_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated
+      , user_courses_dev.cu_subscription_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated
       ,current_enrollments,current_activations,current_students,current_activations_cu,current_activations_non_cu, current_not_activated_enrollments,current_course_sections]
   }
 
@@ -199,13 +199,14 @@ derived_table: {
     sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN ${isbn} END;;
   }
 
-  dimension: cu_contract_id {
+  dimension: cu_subscription_id {
     group_label: "Subscription"
     type: string
-    sql: ${TABLE}.cu_contract_id;;
-    label: "CU Contract ID"
+    sql: ${TABLE}.cu_subscription_id;;
+    label: "CU Subscription ID"
     description: "Unique contract ID for Cengage Unlimited Subscription"
     hidden: no
+    alias: [cu_contract_id]
   }
 
 #   dimension: cui_flag {
@@ -221,7 +222,6 @@ derived_table: {
   dimension: cu_flag {
     group_label: "Subscription"
      type: yesno
-#     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
      label: "CU Flag"
 #     hidden: no
   }
@@ -230,7 +230,6 @@ derived_table: {
     group_label: "Subscription"
     type: string
     sql: CASE WHEN ${cu_flag} THEN 'Paid by subscription' WHEN ${activated} THEN 'Paid direct' ELSE 'Not paid' END;;
-#     sql: (${cu_contract_id} IS NOT NULL AND ${cu_contract_id} <> 'TRIAL') OR ${cui_flag} = 'Y' ;;
     label: "CU Flag (Description)"
 #     hidden: no
   }
@@ -353,28 +352,6 @@ derived_table: {
     type: string
     sql: LISTAGG(DISTINCT ${dim_course.coursename}, ', ') ;;
   }
-
-#   measure: activations_minus_a_la_carte {
-#     label: "Activations minus a la carte"
-#     type: number
-#     sql: ${course_section_facts.total_noofactivations} - ${ala_cart_purchases} ;;
-#     hidden: yes
-#   }
-
-
-
-#   dimension: cui_flag {
-#     type: yesno
-#     sql: ${TABLE}.cu_flag;;
-#     hidden: no
-#   }
-#
-#   dimension: cu_contract_id {
-#     type: yesno
-#     sql: ${TABLE}.cu_contract_id;;
-#     hidden: no
-#   }
-
 
   dimension: enrollment_date {
     label: "Date on which user enrolled into a course"
