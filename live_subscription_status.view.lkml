@@ -67,9 +67,8 @@ FROM subscription.prod.sap_subscription_event
       AND r.platform_environment = 'production'
       AND r.local_time >= to_date('01-Aug-2018')
       AND record_rank = 1
-      AND subscription_status = 'Active'
-      AND contract_status = 'Active'
-      AND subscription_end > CURRENT_DATE()
+      --AND subscription_status = 'Active'
+      --AND contract_status = 'Active'
        AND NOT
             (
               EXISTS(
