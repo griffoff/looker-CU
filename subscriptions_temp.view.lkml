@@ -26,7 +26,7 @@ view: subscriptions_temp {
                 ,CONTRACT_ID
                 ,TRANSFERRED_CONTRACT
                 ,ACCESS_CODE
-            FROM prod.unlimited.raw_subscription_event r
+            FROM subscription.prod.raw_subscription_event r
             LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
                 ON r.user_sso_guid = m.partner_guid
             LEFT JOIN distinct_primary m2

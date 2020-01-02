@@ -42,13 +42,13 @@ view: total_users {
   SELECT
     user_sso_guid
     ,MAX(SUBSCRIPTION_START) as current_record
-  FROM prod.unlimited.raw_subscription_event
+  FROM subscription.prod.raw_subscription_event
   GROUP BY user_sso_guid
 )
 ,recent_record_full as (
     SELECT
         rse.*
-    FROM prod.unlimited.raw_subscription_event rse
+    FROM subscription.prod.raw_subscription_event rse
     JOIN recent_record rr
         ON rse.user_sso_guid = rr.user_sso_guid
     AND rse.subscription_start = rr.current_record

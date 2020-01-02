@@ -11,7 +11,7 @@ view: dashboard_use_over_time {
                 ,LEAD(subscription_state) over(partition by user_sso_guid order by local_time) as change_in_state
                 ,LEAD(subscription_start) over(partition by user_sso_guid order by local_time) as change_in_start_date
                 ,*
-            FROM prod.unlimited.Raw_Subscription_event
+            FROM subscription.prod.raw_subscription_event
             --WHERE user_sso_guid NOT IN (SELECT user_sso_guid FROM unlimited.vw_user_blacklist)
             )
 
