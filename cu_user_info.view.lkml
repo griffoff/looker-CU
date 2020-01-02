@@ -72,6 +72,15 @@ view: cu_user_info {
     #hidden: yes
   }
 
+  measure: users {
+    type: count_distinct
+    sql: ${merged_guid} ;;
+    drill_fields: [detail*]
+    #hidden: yes
+  }
+
+
+
   dimension: instructor {
     type: string
     sql: ${TABLE}."INSTRUCTOR" ;;
