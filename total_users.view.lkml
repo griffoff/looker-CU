@@ -12,7 +12,7 @@ view: total_users {
     and platform_environment = 'production'
   UNION
   SELECT DISTINCT pp.user_sso_guid, context_id
-    from prod.unlimited.raw_olr_provisioned_product pp
+    from olr.prod.provisioned_product pp
     Where context_id IS NOT NULL
     AND date_added::date BETWEEN '2018-08-01' AND CURRENT_DATE()
   )
@@ -42,13 +42,13 @@ view: total_users {
   SELECT
     user_sso_guid
     ,MAX(SUBSCRIPTION_START) as current_record
-  FROM prod.unlimited.raw_subscription_event
+  FROM subscription.prod.raw_subscription_event
   GROUP BY user_sso_guid
 )
 ,recent_record_full as (
     SELECT
         rse.*
-    FROM prod.unlimited.raw_subscription_event rse
+    FROM subscription.prod.raw_subscription_event rse
     JOIN recent_record rr
         ON rse.user_sso_guid = rr.user_sso_guid
     AND rse.subscription_start = rr.current_record

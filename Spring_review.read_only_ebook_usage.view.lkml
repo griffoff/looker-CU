@@ -9,7 +9,7 @@ WITH
         SELECT
             COALESCE(m.primary_guid, r.user_sso_guid) AS user_sso_guid_merged
             ,r.*
-        FROM prod.unlimited.raw_subscription_event r
+        FROM subscription.prod.raw_subscription_event r
         LEFT JOIN unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID m
             ON r.user_sso_guid = m.partner_guid
         WHERE user_sso_guid_merged NOT IN (SELECT DISTINCT user_sso_guid FROM prod.unlimited.excluded_users)

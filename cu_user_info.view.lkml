@@ -197,10 +197,12 @@ view: cu_user_info {
   dimension: marketing_opt_out {
     type: string
     sql: ${TABLE}."MARKETING_OPT_OUT" ;;
+    hidden: yes
   }
 
   dimension: marketing_allowed {
     label: "Marketing allowed"
+    description: "Based on the opt out flag - if it is set to false or null then marketing is allowed"
     view_label: "** RECOMMENDED FILTERS **"
     type: yesno
     sql: ${marketing_opt_out} = 'false' OR  ${marketing_opt_out} IS NULL;;

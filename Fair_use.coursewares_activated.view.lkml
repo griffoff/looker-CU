@@ -5,7 +5,7 @@ view: coursewares_activated {
         SELECT
             prod.user_sso_guid
             ,count(distinct prod.product_id) as unique_products
-        FROM  prod.unlimited.raw_olr_provisioned_product prod
+        FROM  olr.prod.provisioned_product prod
         JOIN prod.unlimited.raw_olr_extended_iac iac
             ON iac.pp_pid = prod.product_id
         JOIN unlimited.raw_subscription_event se

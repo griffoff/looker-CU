@@ -18,7 +18,7 @@ view: cohorts_testprep_dashboard {
           LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
             OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
-          LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+          LEFT JOIN olr.prod.provisioned_product pp
             ON s.user_sso_guid_merged = pp.user_sso_guid
             AND d.start_date < pp.expiration_date
             AND d.end_date > pp.local_time
@@ -103,7 +103,7 @@ view: cohorts_testprep_dashboard_old {
           LEFT JOIN term_dates_five_most_recent d
             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
             OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
-          LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+          LEFT JOIN olr.prod.provisioned_product pp
             ON s.user_sso_guid_merged = pp.user_sso_guid
             AND d.start_date < pp.expiration_date
             AND d.end_date > pp.local_time

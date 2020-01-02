@@ -27,7 +27,7 @@ view: raw_subscription_event {
           ,CONTRACT_ID
           ,TRANSFERRED_CONTRACT
           ,ACCESS_CODE
-      FROM prod.unlimited.raw_subscription_event r
+      FROM subscription.prod.raw_subscription_event r
       LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
           ON r.user_sso_guid = m.partner_guid
       LEFT JOIN distinct_primary m2
@@ -212,7 +212,7 @@ view: raw_subscription_event {
 #         *
 #         ,user_sso_guid_merged as merged_guid
 #         ,LEAD(subscription_state) over (partition by user_sso_guid order by local_time) = 'cancelled' as cancelled
-#         FROM  /* prod.unlimited.raw_subscription_event */ prod.cu_user_analysis.subscription_event_merged
+#         FROM  /* subscription.prod.raw_subscription_event */ prod.cu_user_analysis.subscription_event_merged
 #       --FROM raw_subscription_event_merged_erroneous_removed e
 #       WHERE UPPER(user_environment) = 'PRODUCTION'
 #     )

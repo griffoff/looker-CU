@@ -13,7 +13,7 @@ view: fair_use_device_id {
       FROM prod.raw_ga.ga_dashboarddata g
       LEFT JOIN prod.stg_clts.products p
           ON p.title = SPLIT(g.eventlabel, '|')[1]
-      LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+      LEFT JOIN olr.prod.provisioned_product pp
           ON g.coursekey = pp.source_id
       LEFT JOIN prod.unlimited.raw_olr_extended_iac iac
           ON pp.product_id = iac.pp_pid

@@ -25,7 +25,7 @@ view: subscription_term_savings {
               LEFT JOIN user_entity_chron_desc_course_rank e
                      ON s.user_sso_guid_merged = e.user_sso_guid
                      AND chron_desc_course_rank = 1
-              LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+              LEFT JOIN olr.prod.provisioned_product pp
                      ON s.user_sso_guid_merged = pp.user_sso_guid
                       AND s.start_date < pp.expiration_date
                       AND s.end_date > pp.local_time
@@ -105,7 +105,7 @@ view: subscription_term_savings {
 #             LEFT JOIN user_entity_chron_desc_course_rank e
 #               ON s.user_sso_guid = e.user_sso_guid
 #               AND chron_desc_course_rank = 1
-#              LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+#              LEFT JOIN olr.prod.provisioned_product pp
 #               ON s.user_sso_guid_merged = pp.user_sso_guid
 #               AND d.start_date < pp.expiration_date
 #               AND d.end_date > pp.local_time
@@ -208,7 +208,7 @@ view: subscription_term_savings {
 #             LEFT JOIN user_entity_chron_desc_course_rank e
 #               ON s.user_sso_guid = e.user_sso_guid
 #               AND chron_desc_course_rank = 1
-#              LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+#              LEFT JOIN olr.prod.provisioned_product pp
 #               ON s.user_sso_guid_merged = pp.user_sso_guid
 #               AND d.start_date < pp.expiration_date
 #               AND d.end_date > pp.local_time

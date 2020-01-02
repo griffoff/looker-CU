@@ -13,7 +13,7 @@ WHERE partner_guid IS NOT NULL
 ,sap_subscriptions_ranked AS
 (
 SELECT
-ROW_NUMBER() OVER (PARTITION BY subscription_id ORDER BY event_time DESC) AS record_rank
+ROW_NUMBER() OVER (PARTITION BY contract_id ORDER BY event_time DESC, subscription_start DESC) AS record_rank
 ,current_guid AS user_sso_guid
 ,event_time AS local_time
 ,CASE

@@ -14,7 +14,7 @@ view: fall_over_fall_growth {
       LEFT JOIN LOOKER_SCRATCH.LR$JJNFG4DZGWRFN1IZJ86EE_FullAccess_cohort AS FullAccess_cohort ON learner_profile.user_sso_guid = (FullAccess_cohort."USER_SSO_GUID_MERGED")
        ;;
 
-      sql_trigger_value: SELECT * FROM prod.unlimited.raw_subscription_event ;;
+      sql_trigger_value: SELECT * FROM subscription.prod.raw_subscription_event ;;
   }
 
   measure: count {

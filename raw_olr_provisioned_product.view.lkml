@@ -28,7 +28,7 @@ view: raw_olr_provisioned_product {
 derived_table: {
 
 # --        SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
-#  --         FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
+#  --         FROM  olr.prod.provisioned_product Prod
 # --              JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
 # --                ON iac.pp_pid = prod.product_id
 # --                  AND prod.user_type like 'student'
@@ -38,7 +38,7 @@ derived_table: {
   sql:
  With pp as (
    SELECT prod.*
-          FROM  prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
+          FROM  olr.prod.provisioned_product Prod
               wHERE prod.user_type like 'student'
                   and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS)
      ),prim_map AS(
