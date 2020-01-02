@@ -70,7 +70,7 @@ with sub as (SELECT
         select distinct COALESCE(shadow.PRIMARY_GUID, raw_data.USER_SSO_GUID) AS USER_SSO_GUID
         ,course_key
         ,'enrol' as platform
-    from PROD.UNLIMITED.RAW_OLR_ENROLLMENT raw_data
+    from olr.prod.raw_enrollment raw_data
     LEFT OUTER JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID as shadow
        ON raw_data.USER_SSO_GUID = shadow.PARTNER_GUID
  )  ,enrol_final as ( select e.USER_SSO_GUID,state.subscription_start,state.subscription_end,local_time as local_date,'enrol' as platform,'enrol' as pp_name, course_key
