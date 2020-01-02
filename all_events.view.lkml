@@ -401,6 +401,15 @@ view: all_events {
     hidden: no
   }
 
+  dimension: tags_eventData {
+    group_label: "Client Activity Tags"
+    label: "MT Event Data"
+    type: string
+    sql: ${event_data}:eventData::string ;;
+    hidden: no
+  }
+
+
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
