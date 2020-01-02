@@ -52,7 +52,7 @@ with sub as (SELECT
         ,context_id
         ,'pp product' as platform
         ,iac.pp_name
-    from PROD.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT raw_data
+    from olr.prod.provisioned_product raw_data
     LEFT OUTER JOIN UNLIMITED.VW_PARTNER_TO_PRIMARY_USER_GUID as shadow
        ON raw_data.USER_SSO_GUID = shadow.PARTNER_GUID
    JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC iac

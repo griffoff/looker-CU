@@ -17,7 +17,7 @@ view: cohorts_flashcards_dashboard {
               ,CASE WHEN iac.pp_product_type = 'FLSH' THEN 1 END AS flashcard_count
                 --'STGU'
           FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME} s
-          LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+          LEFT JOIN olr.prod.provisioned_product pp
             ON s.user_sso_guid_merged = pp.user_sso_guid
             AND s.start_date < pp.expiration_date
             AND s.end_date > pp.local_time
@@ -84,7 +84,7 @@ view: cohorts_flashcards_dashboard {
 #           LEFT JOIN term_dates_five_most_recent d
 #             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
 #             OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
-#           LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+#           LEFT JOIN olr.prod.provisioned_product pp
 #             ON s.user_sso_guid_merged = pp.user_sso_guid
 #             AND d.start_date < pp.expiration_date
 #             AND d.end_date > pp.local_time

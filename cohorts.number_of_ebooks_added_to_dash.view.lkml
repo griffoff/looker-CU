@@ -36,7 +36,7 @@ view: cohorts_number_of_ebooks_added_dash {
            ,COUNT(DISTINCT CASE WHEN pp.context_id IS NOT NULL THEN pp.iac_isbn END) AS number_of_courseware_on_dashboard
            ,COUNT(DISTINCT CASE WHEN pp.context_id IS NULL THEN pp.iac_isbn END) AS number_of_ebooks_on_dashboard
     FROM term_dates_most_recent d
-    LEFT JOIN prod.unlimited.raw_olr_provisioned_product pp
+    LEFT JOIN olr.prod.provisioned_product pp
            ON pp.date_added::DATE >= d.start_date AND pp.date_added <= d.end_date
     GROUP BY 1, 2, 3
     )

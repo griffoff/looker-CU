@@ -10,7 +10,7 @@ view: courseware_activations_per_user {
                 WHEN {% parameter timeframe_picker %} = 'All time' THEN NULL
                 END AS time_period
           ,COUNT(DISTINCT prod.product_id) as unique_products
-        FROM prod.UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT Prod
+        FROM olr.prod.provisioned_product Prod
         JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
         ON iac.pp_pid = prod.product_id
         AND prod.user_type like 'student'
