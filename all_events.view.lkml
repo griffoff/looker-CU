@@ -320,6 +320,22 @@ view: all_events {
     hidden: no
   }
 
+  dimension: tags_course_cgi {
+    group_label: "Client Activity Tags"
+    label: "Course CGI"
+    type: string
+    sql: ${event_data}:courseCgi::string  ;;
+    hidden: no
+  }
+
+  dimension: tags_core_text_isbn {
+    group_label: "Client Activity Tags"
+    label: "Core Text ISBN"
+    type: string
+    sql: ${event_data}:coreTextISBN::string  ;;
+    hidden: no
+  }
+
   dimension: tags_pointInSemester {
     group_label: "Client Activity Tags"
     label: "Point In Semester"
@@ -398,6 +414,14 @@ view: all_events {
     label: "Title ISBN"
     type: string
     sql: ${event_data}:titleIsbn::string ;;
+    hidden: no
+  }
+
+  dimension: tags_eIsbn {
+    group_label: "Client Activity Tags"
+    label: "eISBN"
+    type: string
+    sql: ${event_data}:eIsbn::string ;;
     hidden: no
   }
 
