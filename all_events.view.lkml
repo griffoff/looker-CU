@@ -421,7 +421,7 @@ view: all_events {
     group_label: "Client Activity Tags"
     label: "eISBN"
     type: string
-    sql: ${event_data}:eIsbn::string ;;
+    sql: ${event_data}:eISBN::string ;;
     hidden: no
   }
 
