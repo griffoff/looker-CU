@@ -5,7 +5,7 @@ view: total_users {
   derived_table: {
     sql: with enrol_pp as(
     SelecT DISTINCT user_sso_guid,course_key as context_id
-    from prod.UNLIMITED.RAW_OLR_ENROLLMENT
+    from olr.prod.raw_enrollment
     where access_role = 'STUDENT'
     AND local_time::date BETWEEN '2018-08-01' AND CURRENT_DATE()
     and user_environment='production'

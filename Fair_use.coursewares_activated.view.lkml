@@ -11,7 +11,7 @@ view: coursewares_activated {
         JOIN unlimited.raw_subscription_event se
             ON prod.user_sso_guid = se.user_sso_guid
             AND prod.source_id = se.contract_id
-        JOIN prod.unlimited.raw_olr_enrollment e
+        JOIN olr.prod.raw_enrollment e
             ON prod.context_id = e.course_key
             AND prod.user_sso_guid = e.user_sso_guid
             WHERE context_id IS NOT NULL

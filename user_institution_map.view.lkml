@@ -98,7 +98,7 @@ view: user_institution_map {
             ,array_agg(distinct c.course_key) as course_keys
             ,array_agg(distinct c.entity_no) as entities
             ,case when institution_count = 1 then any_value(c.entity_no) end as entity_no
-          from prod.unlimited.raw_olr_enrollment r
+          from olr.prod.raw_enrollment r
           left join courses c on r.course_key = c.course_key
           group by user_sso_guid
         ) i on ui.user_sso_guid = i.user_sso_guid
