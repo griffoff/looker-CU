@@ -153,9 +153,10 @@ view: all_sessions {
 
   dimension_group: session_start {
     label: "Session"
+    description: "Start time of session converted to EST - captured from systems, so does not represent users local time"
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
-    sql: ${TABLE}."SESSION_START" ;;
+    sql: CONVERT_TIMEZONE('EST', ${TABLE}."SESSION_START");;
   }
 
   dimension: user_sso_guid {
