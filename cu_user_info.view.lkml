@@ -79,6 +79,13 @@ view: cu_user_info {
   dimension: instructor {
     type: string
     sql: ${TABLE}."INSTRUCTOR" ;;
+    hidden: yes
+  }
+
+  dimension: is_instructor {
+    label: "Is Instructor"
+    type: yesno
+    sql: ${TABLE}."INSTRUCTOR" = 'true';;
     hidden: no
   }
 
@@ -149,7 +156,7 @@ view: cu_user_info {
   }
 
   dimension: k12_user {
-    label: "K12 User"
+    label: "Is K12 User"
     description: "Data field to identify K12 customer"
     type: yesno
     sql: ${TABLE}.k12 ;;
