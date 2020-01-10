@@ -206,6 +206,13 @@ view: all_sessions {
     description: "Average number of search events"
   }
 
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    hidden: yes
+  }
+
+
   measure: user_day_count {
     type: count_distinct
     sql: HASH(${user_sso_guid}, ${session_start_date}) ;;
@@ -248,6 +255,15 @@ view: all_sessions {
     sql: ${session_length_total} / ${user_week_count}  ;;
     value_format: "[m] \m\i\n\s"
   }
+
+  measure: session_length_average_per_student {
+    group_label: "Session length"
+    label: "Average session length per student"
+    type: number
+    sql: ${session_length_total} / ${user_count}  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
 
   measure: count {
     label: "# Sessions"
