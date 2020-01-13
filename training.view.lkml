@@ -5,7 +5,7 @@
 
 
 # include all views in this project
-include: "*.view"
+# include: "*.view"
 
 # include all dashboards in this project
 
