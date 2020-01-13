@@ -50,19 +50,14 @@ view: cu_user_info {
           left join PROD.DATAVAULT.SAT_USER_MARKETING usmar
               ON hs.hub_user_key = usmar.hub_user_key
               and usmar.active
-          --temporary point to raw user classification table
-          left join (select distinct user_sso_guid, internal from prod.cu_user_analysis.user_classification_copy) usint
-              ON hs.merged_guid = usint.user_sso_guid
-          --put this back once DV is showing the correct data
-          --left join PROD.DATAVAULT.SAT_USER_INTERNAL usint
-          --    ON usint.hub_user_key = hs.hub_user_key
-          --    and usint.active
+          left join prod.datavault.sat_user_internal usint ON hs.hub_user_key = usint.hub_user_key
+                                                          AND usint.active
           LEFT JOIN (select distinct entity_id,flag  from UPLOADS.CU.ENTITY_BLACKLIST) bl
                ON hubin.institution_id::STRING = bl.entity_id
           where hs.latest = 1
   ;;
 
-  persist_for: "6 hour"
+  sql_trigger_value: select count(*) from prod.datavault.sat ;;
   }
 
 
@@ -84,6 +79,13 @@ view: cu_user_info {
   dimension: instructor {
     type: string
     sql: ${TABLE}."INSTRUCTOR" ;;
+    hidden: yes
+  }
+
+  dimension: is_instructor {
+    label: "Is Instructor"
+    type: yesno
+    sql: ${TABLE}."INSTRUCTOR" = 'true';;
     hidden: no
   }
 
@@ -154,7 +156,7 @@ view: cu_user_info {
   }
 
   dimension: k12_user {
-    label: "K12 User"
+    label: "Is K12 User"
     description: "Data field to identify K12 customer"
     type: yesno
     sql: ${TABLE}.k12 ;;

@@ -139,6 +139,7 @@ explore: marketing_analysis {
     ,student_discounts_dps.marketing_fields*
     ,institutional_savings.marketing_fields*
     ,ipm_260_email_list.marketing_fields*
+    ,ipm_guids_impressions_past_7_days.marketing_fields*
 #     ,ipm_ff_20190830.marketing_fields*
     ]
 
@@ -208,11 +209,16 @@ explore: marketing_analysis {
     relationship: many_to_one
   }
 
+  join: ipm_guids_impressions_past_7_days {
+    view_label: "IPM Impressions past 7 days guid list"
+    sql_on: ${learner_profile.user_sso_guid} = ${ipm_guids_impressions_past_7_days.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
 #   join: ipm_ff_20190830 {
 #     sql_on: ${learner_profile.user_sso_guid} = ${ipm_ff_20190830.user_sso_guid} ;;
 #     relationship: one_to_one
 #   }
-
 
 
 

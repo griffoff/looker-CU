@@ -34,7 +34,7 @@ view: student_discounts_dps {
 
       ;;
 #   persist_for: "6 hours"
-  sql_trigger_value: Select * from prod.eloqua_discounts.student_discounts UNION SELECT * FROM prod.ipm_discounts.student_discounts  ;;
+#   sql_trigger_value: Select COUNT(*) FROM (SELECT * from prod.eloqua_discounts.student_discounts UNION SELECT * FROM prod.ipm_discounts.student_discounts)  ;;
   }
 
   dimension: marketing_mechanism {

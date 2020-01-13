@@ -153,9 +153,10 @@ view: all_sessions {
 
   dimension_group: session_start {
     label: "Session"
+    description: "Start time of session converted to EST - captured from systems, so does not represent users local time"
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
-    sql: ${TABLE}."SESSION_START" ;;
+    sql: CONVERT_TIMEZONE('EST', ${TABLE}."SESSION_START");;
   }
 
   dimension: user_sso_guid {
@@ -206,6 +207,13 @@ view: all_sessions {
     description: "Average number of search events"
   }
 
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    hidden: yes
+  }
+
+
   measure: user_day_count {
     type: count_distinct
     sql: HASH(${user_sso_guid}, ${session_start_date}) ;;
@@ -219,13 +227,14 @@ view: all_sessions {
   }
 
   measure: sessions_per_user_per_week {
+    group_label: "Time in product"
     label: "Average sessions per student per week"
     type: number
     sql: ${count} / ${user_week_count};;
   }
 
   measure: session_length_mins_avg {
-    group_label: "Session length"
+    group_label: "Time in product"
     label: "Average session length"
     type: average
     sql: ${session_length_mins} ;;
@@ -233,8 +242,9 @@ view: all_sessions {
   }
 
   measure: session_length_total {
-    group_label: "Session length"
-    label: "Total session length"
+    group_label: "Time in product"
+    description: "Total of all session lengths"
+    label: "Total time in product"
     hidden: no
     type: sum
     sql: ${session_length} ;;
@@ -242,12 +252,31 @@ view: all_sessions {
   }
 
   measure: session_length_average_per_student_per_week {
-    group_label: "Session length"
-    label: "Average session length per student per week"
+    group_label: "Time in product"
+    description: "Average total session time per student per week"
+    label: "Average time in product per student per week"
     type: number
     sql: ${session_length_total} / ${user_week_count}  ;;
     value_format: "[m] \m\i\n\s"
   }
+
+  measure: session_length_average_per_student_per_day {
+    group_label: "Time in product"
+    description: "Average total session time per student per active day"
+    label: "Average time in product per student per day"
+    type: number
+    sql: ${session_length_total} / ${user_day_count}  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
+  measure: session_length_average_per_student {
+    group_label: "Time in product"
+    label: "Average time in product per student"
+    type: number
+    sql: ${session_length_total} / ${user_count}  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
 
   measure: count {
     label: "# Sessions"
