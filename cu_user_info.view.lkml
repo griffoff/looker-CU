@@ -33,17 +33,18 @@ view: cu_user_info {
                 ,COUNT(CASE WHEN sa.region = 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1 AS usa_by_party
                 ,COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1 AS non_usa_by_party
                 --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
-                ,usmar.opt_out AS marketing_opt_out
+                ,COALESCE(usmar.opt_out, 'true') AS marketing_opt_out
                 ,COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 as opt_out_by_party
             FROM prod.datavault.hub_user h
-            INNER JOIN prod.datavault.sat_user sa ON h.hub_user_key = sa.hub_user_key
-                                                  AND sa.active
+            INNER JOIN prod.datavault.sat_user sa
+                        ON h.hub_user_key = sa.hub_user_key
+                        AND sa.active
             LEFT JOIN prod.datavault.sat_user_pii p
                         ON h.hub_user_key = p.hub_user_key
                         AND p.active
             LEFT JOIN prod.datavault.sat_user_marketing usmar
-              ON h.hub_user_key = usmar.hub_user_key
-              AND usmar.active
+                        ON h.hub_user_key = usmar.hub_user_key
+                        AND usmar.active
           )
           ,latest_institution as (
             SELECT linkins.hub_user_key, linkins.hub_institution_key, ROW_NUMBER() OVER (PARTITION BY linkins.hub_user_key ORDER BY _ldts DESC ) = 1 as latest
