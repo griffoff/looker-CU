@@ -576,7 +576,7 @@ dimension: load_metadata_source {
 
   dimension_group: local_est {
     type: time
-    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
     sql: convert_timezone('EST', ${TABLE}."EVENT_TIME") ;;
     group_label: "Event Time (EST)"
     label: "Event (EST)"
