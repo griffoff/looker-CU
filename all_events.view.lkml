@@ -521,7 +521,7 @@ view: all_events {
 
   dimension_group: local {
     type: time
-    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
     sql: convert_timezone('UTC', ${TABLE}."EVENT_TIME") ;;
     group_label: "Event Time (UTC)"
     label: "Event (UTC)"
