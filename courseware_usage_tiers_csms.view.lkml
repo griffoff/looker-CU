@@ -1,3 +1,4 @@
+explore: courseware_usage_tiers_csms {}
 view: courseware_usage_tiers_csms {
     derived_table: {
       sql:  SELECT * FROM strategy.rmcdonough.cw_usage_csm_dashboard
@@ -12,7 +13,7 @@ view: courseware_usage_tiers_csms {
 
     dimension: calendar_year {
       type: number
-      sql:  ${TABLE}."CALENDAR YEAR""
+      sql:  ${TABLE}."CALENDAR YEAR"
       ;;
   }
 
@@ -25,18 +26,18 @@ view: courseware_usage_tiers_csms {
     dimension: state {
       type: string
       sql:  ${TABLE}.STATE
-       ;;
-    }
+      ;;
+  }
 
     dimension: institution {
       type:  string
       sql:  ${TABLE}.INSTITUTION
       ;;
-    }
+  }
 
-  dimension: entity {
-    type:  number
-    sql:  ${TABLE}.ENTITY
+    dimension: entity {
+      type:  number
+      sql:  ${TABLE}.ENTITY
       ;;
   }
 
@@ -45,7 +46,6 @@ view: courseware_usage_tiers_csms {
     sql:  ${TABLE}.CSM
       ;;
   }
-
 
     dimension:  instructor_name {
       type: string
@@ -83,23 +83,24 @@ view: courseware_usage_tiers_csms {
       ;;
     }
 
-  dimension:  usage_health {
+    dimension:  usage_health {
     type: string
     sql:  ${TABLE}."USAGE HEALTH"
       ;;
   }
 
-    dimension: medium_usage_threshold {
+    measure: medium_usage_threshold {
       type: number
       sql:  ${TABLE}.MEDIUM_USAGE_THRESHOLD
       ;;
     }
 
-  dimension: high_usage_threshold {
+  measure: high_usage_threshold {
     type: number
     sql:  ${TABLE}.HIGH_USAGE_THRESHOLD
       ;;
   }
+
 
   # # You can specify the table name if it's different from the view name:
   # sql_table_name: my_schema_name.tester ;;
