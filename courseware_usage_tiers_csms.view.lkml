@@ -1,11 +1,12 @@
 explore: courseware_usage_tiers_csms {}
+
 view: courseware_usage_tiers_csms {
     derived_table: {
       sql:  SELECT * FROM strategy.rmcdonough.cw_usage_csm_dashboard
       ;;
   }
 
-    measure: sum {
+    measure: courseware_activities {
       type:  sum
       sql:  ${TABLE}.CW_ACTIVITIES_PER_USER
       ;;
@@ -90,16 +91,17 @@ view: courseware_usage_tiers_csms {
   }
 
     measure: medium_usage_threshold {
-      type: number
+      type: sum
       sql:  ${TABLE}.MEDIUM_USAGE_THRESHOLD
       ;;
     }
 
-  measure: high_usage_threshold {
-    type: number
-    sql:  ${TABLE}.HIGH_USAGE_THRESHOLD
+    measure: high_usage_threshold {
+      type: sum
+      sql:  ${TABLE}.HIGH_USAGE_THRESHOLD
       ;;
   }
+
 
 
   # # You can specify the table name if it's different from the view name:
