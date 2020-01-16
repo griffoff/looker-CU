@@ -34,6 +34,19 @@ view: courseware_usage_tiers_csms {
       ;;
     }
 
+  dimension: entity {
+    type:  number
+    sql:  ${TABLE}.ENTITY
+      ;;
+  }
+
+  dimension:  csm {
+    type: string
+    sql:  ${TABLE}.CSM
+      ;;
+  }
+
+
     dimension:  instructor_name {
       type: string
       sql:  ${TABLE}."INSTRUCTOR NAME"
@@ -69,6 +82,12 @@ view: courseware_usage_tiers_csms {
       sql: ${TABLE}.PLATFORM
       ;;
     }
+
+  dimension:  usage_health {
+    type: string
+    sql:  ${TABLE}."USAGE HEALTH"
+      ;;
+  }
 
     dimension: medium_usage_threshold {
       type: number
