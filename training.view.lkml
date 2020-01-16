@@ -1,5 +1,4 @@
 ##Paste this file into a new model file in your instance.
-
 ##Replace "your connection" with a connection string actually in your instance.
 ##It doesn't matter which one, the model file itself builds the data.
 
