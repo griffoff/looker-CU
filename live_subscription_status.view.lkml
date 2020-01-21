@@ -161,6 +161,16 @@ FROM subscription.prod.sap_subscription_event
     description: "Origiual guid captured in raw event"
     alias: [partner_guid]
   }
+
+  dimension: gateway_guid {
+    label: "Gateway GUID"
+    description: "This event was done from the users gateway guid"
+    type: yesno
+    sql: ${user_sso_guid} <> ${original_guid} ;;
+    hidden: yes
+  }
+
+
   dimension: lms_user {
     type: yesno
     sql: ${TABLE}.lms_user_status = 1;;
