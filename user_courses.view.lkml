@@ -52,13 +52,6 @@ derived_table: {
     hidden:  yes
   }
 
-
-  dimension: captured_key {
-    type: string
-    sql: ${TABLE}."CAPTURED_KEY" ;;
-    hidden: yes
-  }
-
   dimension_group: week_in_course {
     label: "Time in course"
     description: "The difference in weeks from the course start date to the current date."
@@ -101,7 +94,7 @@ derived_table: {
 #   }
 
   dimension: pk {
-    sql: HASH(${user_sso_guid}, ${captured_key}) ;;
+    sql: HASH(${user_sso_guid}, ${olr_course_key}) ;;
     primary_key: yes
     hidden: yes
   }
@@ -114,6 +107,7 @@ derived_table: {
   dimension: olr_course_key {
     type: string
     sql: ${TABLE}."OLR_COURSE_KEY" ;;
+    alias: [captured_key]
   }
 
   dimension: course_start_date {

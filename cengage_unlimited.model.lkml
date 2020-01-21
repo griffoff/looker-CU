@@ -470,6 +470,7 @@ explore: all_sessions {
 
   join: all_events {
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+    type: inner
     relationship: one_to_many
   }
 
