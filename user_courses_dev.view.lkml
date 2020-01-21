@@ -141,12 +141,12 @@ view: user_courses_dev {
     value_format_name: decimal_0
   }
 
-  measure: captured_course_keys {
-    label: "# Users with Captured Course Keys"
-    type: count_distinct
-    sql: case when ${captured_key} is not null then ${user_sso_guid} end;;
-    value_format_name: decimal_0
-  }
+#   measure: captured_course_keys {
+#     label: "# Users with Captured Course Keys"
+#     type: count_distinct
+#     sql: case when ${captured_key} is not null then ${user_sso_guid} end;;
+#     value_format_name: decimal_0
+#   }
 
 
 }

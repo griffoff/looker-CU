@@ -780,7 +780,7 @@ dimension: load_metadata_source {
     group_label: "Time spent"
     label: "Total Time Active"
     type: sum
-    sql: ${event_data}:event_duration  ;;
+    sql: NULLIF(${event_data}:event_duration::int, 0) / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m] \m\i\n\s"
   }
 
