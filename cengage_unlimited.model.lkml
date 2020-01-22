@@ -105,7 +105,7 @@ explore: learner_profile {
   }
   join: live_subscription_status {
     view_label: "Learner Profile - Live Subscription Status"
-    sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.user_sso_guid}  ;;
+    sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
     relationship: one_to_one
   }
 

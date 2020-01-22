@@ -8,7 +8,7 @@ view: learner_profile {
   set: details {
     fields: [user_sso_guid, subscription_status, cu_subscription_length, subscription_start_date, subscription_end_date
       , non_courseware_net_value
-      ,new_customer, first_activation_date]
+      ,new_customer, first_activation_date, count]
   }
 
   set: marketing_fields {
@@ -454,9 +454,17 @@ view: learner_profile {
     }
   }
 
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    label: "# Students"
+    drill_fields: [details*]
+    hidden: no
+  }
+
   measure: count {
     type: count
-    label: "# Students"
+    label: "Count"
     drill_fields: [details*]
     hidden: no
   }

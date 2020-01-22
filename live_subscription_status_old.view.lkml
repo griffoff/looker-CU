@@ -1,6 +1,6 @@
 include: "raw_subscription_event.view"
 
-view: live_subscription_status {
+view: live_subscription_status_old {
   derived_table: {
     sql:
       WITH

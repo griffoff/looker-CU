@@ -75,14 +75,14 @@ view: cu_user_info {
   measure: count {
     type: count
     drill_fields: [detail*]
-    #hidden: yes
+    hidden: yes
   }
 
   measure: users {
     type: count_distinct
     sql: ${merged_guid} ;;
     drill_fields: [detail*]
-    #hidden: yes
+    hidden: yes
   }
 
 
@@ -302,7 +302,7 @@ view: cu_user_info {
     label: "User SSO Guid"
     description: "Primary User SSO Guid (not shadow guid)"
     sql: ${TABLE}."MERGED_GUID" ;;
-    hidden: no
+    hidden: yes
   }
 
   set: detail {

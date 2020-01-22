@@ -1,6 +1,6 @@
-explore: live_subscription_status_sap {}
+# explore: live_subscription_status_sap {}
 
-view: live_subscription_status_sap {
+view: live_subscription_status {
   derived_table: {
     sql: WITH
         distinct_primary AS
@@ -13,9 +13,9 @@ view: live_subscription_status_sap {
         ,sap_subscriptions_ranked AS
         (
           SELECT
-            ROW_NUMBER() OVER (PARTITION BY contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
-            ,COALESCE(m.primary_guid, r.current_guid) AS merged_guid
-             ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
+            COALESCE(m.primary_guid, r.current_guid) AS merged_guid
+            ,ROW_NUMBER() OVER (PARTITION BY subscription_id, contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
+            ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
             ,current_guid AS user_sso_guid
             ,r.event_time AS local_time
             ,CASE
@@ -56,14 +56,13 @@ view: live_subscription_status_sap {
             ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
         FROM sap_subscriptions_ranked
         )
-
         SELECT
            CASE
-              WHEN subscription_status = 'Active' AND contract_status = 'Active' THEN subscription_plan
-              WHEN subscription_status ILIKE '%cancelled%' THEN subscription_plan || ' (Cancelled)'
-              WHEN subscription_status ILIKE '%expired' THEN subscription_plan || ' ' || '(Expired)'
-              WHEN subscription_status ILIKE '%pending%' THEN subscription_plan || ' ' || '(Pending)'
+              WHEN subscription_status ILIKE '%expired' OR (subscription_end < CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Expired)'
+              WHEN subscription_status ILIKE '%pending%'OR (subscription_start > CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Pending)'
+              WHEN subscription_status ILIKE '%cancelled%' OR (contract_status ILIKE '%cancelled%') THEN subscription_plan || ' (Cancelled)'
               WHEN contract_status = 'Inactive' THEN 'Inactive Contract'
+              WHEN subscription_status = 'Active' AND contract_status = 'Active' THEN subscription_plan
               ELSE 'Other'
             END AS subscription_state
             ,*
@@ -85,11 +84,19 @@ view: live_subscription_status_sap {
   dimension: record_rank {
     type: number
     sql: ${TABLE}."RECORD_RANK" ;;
+    hidden: yes
+  }
+
+  dimension: pk {
+    type: string
+    sql: ${subscription_id} || ${contract_id} ;;
+    primary_key: yes
   }
 
   dimension: merged_guid {
     type: string
     sql: ${TABLE}."MERGED_GUID" ;;
+#     primary_key: merged_guid
   }
 
   dimension: user_sso_guid {
