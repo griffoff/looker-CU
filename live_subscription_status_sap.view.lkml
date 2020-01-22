@@ -14,7 +14,8 @@ view: live_subscription_status {
         (
           SELECT
             COALESCE(m.primary_guid, r.current_guid) AS merged_guid
-            ,ROW_NUMBER() OVER (PARTITION BY subscription_id, contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
+            --,ROW_NUMBER() OVER (PARTITION BY subscription_id, contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
+            ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
             ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
             ,current_guid AS user_sso_guid
             ,r.event_time AS local_time
