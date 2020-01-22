@@ -71,6 +71,11 @@ view: live_subscription_status {
        ;;
   }
 
+  set: marketing_fields {
+    fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,
+      live_subscription_status.days_time_in_current_status, live_subscription_status.lms_user, live_subscription_status.effective_from, live_subscription_status.effective_to
+      ,live_subscription_status.local_time_date, live_subscription_status.subscription_end_date]
+}
   measure: count {
     type: count
     drill_fields: [detail*]
