@@ -16,7 +16,7 @@ explore: late_activators_removals {
     relationship: many_to_one
   }
   join: live_subscription_status {
-    sql_on: ${cu_user_info.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+    sql_on: ${cu_user_info.user_sso_guid} = ${live_subscription_status.merged_guid} ;;
     relationship: one_to_one
   }
 }

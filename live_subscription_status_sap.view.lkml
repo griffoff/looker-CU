@@ -60,11 +60,12 @@ view: live_subscription_status {
         SELECT
            CASE
               WHEN subscription_status ILIKE '%expired' OR (subscription_end < CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Expired)'
-              WHEN subscription_status ILIKE '%pending%'OR (subscription_start > CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Pending)'
+              WHEN (subscription_status ILIKE '%pending%' AND subscription_start > CURRENT_TIMESTAMP()) OR (subscription_start > CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Pending)'
               WHEN subscription_status ILIKE '%cancelled%' OR (contract_status ILIKE '%cancelled%') THEN subscription_plan || ' (Cancelled)'
               WHEN contract_status = 'Inactive' THEN 'Inactive Contract'
-              WHEN subscription_status = 'Active' AND contract_status = 'Active' THEN subscription_plan
-              ELSE 'Other'
+              --WHEN subscription_status = 'Active' AND contract_status = 'Active' THEN subscription_plan
+              --ELSE 'Other'
+              ELSE subscription_plan
             END AS subscription_state
             ,*
          FROM sap_subscriptions_ranked
