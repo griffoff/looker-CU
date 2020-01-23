@@ -208,7 +208,7 @@ view: learner_profile {
     group_label: "Customer Type"
     label: "Is CU subscriber"
     description: "True if user is currently a full access subscriber and false if they are not"
-    hidden: no
+    hidden: yes
     type: yesno
     sql: lower(${subscription_status}) = 'full access' ;;
   }
@@ -217,7 +217,7 @@ view: learner_profile {
     group_label: "Customer Type"
     label: "Is CU subscriber (Description)"
     description: "True if user is currently a full access subscriber and false if they are not"
-    hidden: no
+    hidden: yes
     type: string
     sql: CASE lower(${subscription_status}) WHEN 'full access' THEN 'Subscribed' WHEN 'provisional locker' THEN 'Locker' ELSE 'Not subscribed' END ;;
   }
