@@ -1,5 +1,5 @@
 include: "merged_cu_user_info.view"
-include: "live_subscription_status.view"
+include: "live_subscription_status_sap.view"
 
 # explore: cafe_webassign {
 #   join: live_subscription_status {

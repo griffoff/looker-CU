@@ -227,7 +227,7 @@ view: live_subscription_status {
     view_label: "Learner Profile - Live Subscription Status"
     type: duration
     intervals: [day, week, month]
-    sql_start: ${effective_from} ;;
+    sql_start: ${subscription_start_date} ;;
     sql_end:  CURRENT_DATE();;
     label: "Time in current status"
   }
