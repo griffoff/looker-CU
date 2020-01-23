@@ -1,4 +1,4 @@
-include: "live_subscription_status_sap.view"
+include: "live_subscription_status.view"
 include: "merged_cu_user_info.view"
 include: "uploads.cu_sidebar_cohort.view"
 

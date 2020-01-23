@@ -73,16 +73,18 @@ view: cu_user_info {
 
 
   measure: count {
+    label: "Count"
     type: count
     drill_fields: [detail*]
-    hidden: yes
+    hidden: no
+#     hidden: yes
   }
 
   measure: users {
     type: count_distinct
     sql: ${merged_guid} ;;
     drill_fields: [detail*]
-    hidden: yes
+#     hidden: yes
   }
 
 
