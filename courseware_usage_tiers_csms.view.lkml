@@ -42,9 +42,27 @@ view: courseware_usage_tiers_csms {
       ;;
   }
 
-  dimension:  csm {
+  dimension:  ae_district_manager {
     type: string
-    sql:  ${TABLE}.CSM
+    sql:  ${TABLE}.ae_district_manager
+      ;;
+  }
+
+  dimension:  ae_territory {
+    type: string
+    sql:  ${TABLE}.ae_territory
+      ;;
+  }
+
+  dimension:  pslc_district_manager {
+    type: string
+    sql:  ${TABLE}.pslc_district_manager
+      ;;
+  }
+
+  dimension:  pslc_territory {
+    type: string
+    sql:  ${TABLE}.pslc_territory
       ;;
   }
 
@@ -83,6 +101,24 @@ view: courseware_usage_tiers_csms {
       sql: ${TABLE}.PLATFORM
       ;;
     }
+
+  dimension: first_year_with_cengage {
+    type: string
+    sql: ${TABLE}."FIRST YEAR WITH CENGAGE"
+      ;;
+  }
+
+  dimension: first_year_with_course {
+    type: string
+    sql: ${TABLE}."FIRST YEAR WITH COURSE"
+      ;;
+  }
+
+  dimension: activations {
+    type: number
+    sql: ${TABLE}.activations
+      ;;
+  }
 
     dimension:  usage_health {
     type: string
