@@ -10,6 +10,7 @@ view: late_activators_removals {
   dimension: activation_date {type:date sql:${TABLE}.actv_dt;;}
   dimension: subscription_end_date {type:date sql:${TABLE}.subscription_end_dt;;}
   dimension: batch_no {}
+  dimension: cui_flg {}
 
   dimension_group: _ldts {
     group_label: "Generated"
