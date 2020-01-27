@@ -1,4 +1,4 @@
-#  connection: "snowflake_ipm"
+ connection: "snowflake_ipm"
 connection: "snowflake_prod"
 
 include: "ipm_browser_event.view.lkml"

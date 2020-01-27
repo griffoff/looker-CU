@@ -9,8 +9,30 @@ view: active_users_platforms {
 
   dimension: product_platform {
     label: "Product Platform"
+    hidden: yes
   }
+
+  dimension: product_platform_clean {
+    sql: CASE
+          WHEN ${product_platform} ILIKE '%cnow%' THEN 'CNOW'
+          WHEN ${product_platform} ILIKE '%aplia%' THEN 'Aplia'
+          WHEN ${product_platform} ILIKE '%dashboard%' THEN 'CU Dashboard'
+          WHEN ${product_platform} ILIKE '%gradebook%' THEN 'Gradebook MT'
+          WHEN ${product_platform} ILIKE '%mindtap%' OR ${product_platform} ILIKE '%mt%' THEN 'MindTap'
+          WHEN ${product_platform} ILIKE '%side-bar%'  OR ${product_platform} ILIKE '%sidebar%' THEN 'CU Sidebar'
+          WHEN ${product_platform} ILIKE '%WA%' OR ${product_platform} ILIKE '%webassign%' THEN 'WebAssign'
+          WHEN ${product_platform} ILIKE '%natgeo%' THEN 'National Geographic'
+          WHEN ${product_platform} ILIKE '%ecomm%'  THEN 'Ecommerce'
+          WHEN ${product_platform} ='LO' OR ${product_platform} = 'LO-OPENNOW' THEN 'Learning Objectives'
+        ELSE ${product_platform} END
+
+    ;;
+    label: "Product Platform"
+  }
+
 }
+
+
 
 view: dau {
   extends: [au]

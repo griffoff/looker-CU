@@ -1,6 +1,6 @@
-# explore: live_subscription_status_sap {}
+explore: raw_subscription_event_sap  {}
 
-view: live_subscription_status {
+view: raw_subscription_event_sap {
   derived_table: {
     sql: WITH
         distinct_primary AS
@@ -69,19 +69,14 @@ view: live_subscription_status {
             END AS subscription_state
             ,*
          FROM subscription_event_changes
-         WHERE record_rank = 1
-       ;;
+ ;;
+
+persist_for: "3 hours"
   }
 
-  set: marketing_fields {
-    fields: [live_subscription_status.student_count, live_subscription_status.days_time_left_in_current_status, live_subscription_status.subscription_status,live_subscription_status.subscriber_count,
-      live_subscription_status.days_time_in_current_status, live_subscription_status.lms_user, live_subscription_status.effective_from, live_subscription_status.effective_to
-      ,live_subscription_status.local_time_date, live_subscription_status.subscription_end_date]
-}
   measure: count {
     type: count
     drill_fields: [detail*]
-    hidden: yes
   }
 
   dimension: subscription_state {
@@ -89,33 +84,24 @@ view: live_subscription_status {
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
   }
 
-  dimension: record_rank {
-    type: number
-    sql: ${TABLE}."RECORD_RANK" ;;
-    hidden: yes
-  }
-
-  dimension: pk {
-    type: string
-    sql: ${subscription_id} || ${contract_id} ;;
-    primary_key: yes
-  }
-
   dimension: merged_guid {
     type: string
     sql: ${TABLE}."MERGED_GUID" ;;
-#     primary_key: merged_guid
+  }
+
+  dimension: record_rank {
+    type: number
+    sql: ${TABLE}."RECORD_RANK" ;;
+  }
+
+  dimension: lms_user_status {
+    type: number
+    sql: ${TABLE}."LMS_USER_STATUS" ;;
   }
 
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
-  }
-
-  dimension: lms_user {
-    type: yesno
-    sql: ${TABLE}.lms_user_status = 1;;
-    description: "This flag is yes if a user has ever done a subscription event from a gateway account (from a shadow or gateway guid)"
   }
 
   dimension_group: local_time {
@@ -208,32 +194,6 @@ view: live_subscription_status {
     sql: ${TABLE}."SUBSCRIPTION_END" ;;
   }
 
-  dimension: effective_to {
-    type: date
-    label: "Effective to date"
-    description: "The day this status ended. e.g. different from subscription end date when a subscription gets cancelled or when a trial state upgrades to ful access early"
-    hidden: no
-    sql: ${TABLE}."EFFECTIVE_TO" ;;
-  }
-
-  dimension: effective_from {
-    type: date
-    label: "Subscription effective from date"
-    description: "Start date of this status"
-    hidden: no
-    sql: ${TABLE}."EFFECTIVE_FROM" ;;
-  }
-
-  dimension_group: time_in_current_status {
-    view_label: "Learner Profile - Live Subscription Status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: ${subscription_start_date} ;;
-    sql_end:  CURRENT_DATE();;
-    label: "Time in current status"
-  }
-
-
   dimension_group: available_until {
     type: time
     sql: ${TABLE}."AVAILABLE_UNTIL" ;;
@@ -242,19 +202,6 @@ view: live_subscription_status {
   dimension: subscription_status {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
-    description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
-  }
-
-
-  dimension: is_trial {
-    sql: ${subscription_status} = 'Trial Access' ;;
-    hidden: yes
-  }
-
-  dimension: subscription_status_sap {
-    type: string
-    description: "SAP subscription status"
-    sql: ${TABLE}."SUBSCRIPTION_STATUS" ;;
   }
 
   dimension: subscription_plan_id {
@@ -302,77 +249,24 @@ view: live_subscription_status {
     sql: ${TABLE}."PAYMENT_SOURCE_LINE" ;;
   }
 
-  dimension: prior_status {}
-
   dimension: item_id {
     type: string
     sql: ${TABLE}."ITEM_ID" ;;
   }
 
-  dimension_group: time_since_last_subscription {
-#     group_label: "Time at this status"
-    type: duration
-    intervals: [day, week, month]
-    sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
-    sql_end: current_date() ;;
+  dimension: subscription_status_sap {
+    type: string
+    sql: ${TABLE}."SUBSCRIPTION_STATUS" ;;
+    description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
   }
 
-  dimension_group: time_left_in_current_status {
-    type: duration
-    intervals: [day, week, month]
-    sql_start: current_timestamp() ;;
-    sql_end: ${subscription_end_date} ;;
-
-  }
-
-  dimension: gateway_guid {
-    label: "Gateway GUID"
-    description: "This event was done from the users gateway guid"
-    type: yesno
-    sql: ${user_sso_guid} <> ${original_guid} ;;
-    hidden: no
-  }
-
-
-  measure: student_count {
-    hidden: yes
-    label: "# Students"
-    type: number
-    sql: COUNT(DISTINCT ${user_sso_guid}) ;;
-    drill_fields: [user_sso_guid]
-  }
-
-  measure: subscriber_count {
-    label: "# Subscribers"
-    type: number
-    sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN ${user_sso_guid} END) ;;
-  }
-
-  measure: non_subscriber_count {
-    label: "# Non-subscribers"
-    type: number
-    sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN NULL ELSE ${user_sso_guid} END) ;;
-    hidden: yes
-  }
-
-  measure: latest_data_date {
-    description: "The latest time at which any subscription event has been received"
-    type: date_time
-    sql: max(${local_time_raw}) ;;
-  }
-
-  measure: user_count {
-    type: count_distinct
-    label: "# Users"
-    sql: ${TABLE}."USER_SSO_GUID" ;;
-    hidden: yes
-  }
 
   set: detail {
     fields: [
       subscription_state,
-      record_rank,
       merged_guid,
+      record_rank,
+      lms_user_status,
       user_sso_guid,
       local_time_time,
       subscription_plan,
