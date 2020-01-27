@@ -81,6 +81,7 @@ view: live_subscription_status {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: subscription_state {
@@ -351,6 +352,7 @@ view: live_subscription_status {
     label: "# Non-subscribers"
     type: number
     sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN NULL ELSE ${user_sso_guid} END) ;;
+    hidden: yes
   }
 
   measure: latest_data_date {
@@ -363,6 +365,7 @@ view: live_subscription_status {
     type: count_distinct
     label: "# Users"
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden: yes
   }
 
   set: detail {
