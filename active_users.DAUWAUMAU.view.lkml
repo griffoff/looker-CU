@@ -14,16 +14,20 @@ view: active_users_platforms {
 
   dimension: product_platform_clean {
     sql: CASE
-          WHEN ${product_platform} ILIKE '%cnow%' THEN 'CNOW'
-          WHEN ${product_platform} ILIKE '%aplia%' THEN 'Aplia'
+          WHEN ${product_platform} ILIKE 'cnow' THEN 'CNOW'
+          WHEN ${product_platform} ILIKE 'aplia' THEN 'Aplia'
+          WHEN ${product_platform} = 'imilac'  THEN 'IMILAC'
+          WHEN ${product_platform} = 'q4'  THEN 'Q4'
           WHEN ${product_platform} ILIKE '%dashboard%' THEN 'CU Dashboard'
-          WHEN ${product_platform} ILIKE '%gradebook%' THEN 'Gradebook MT'
-          WHEN ${product_platform} ILIKE '%mindtap%' OR ${product_platform} ILIKE '%mt%' THEN 'MindTap'
+          WHEN ${product_platform} ILIKE 'mobile-app' THEN 'Mobile'
+          WHEN ${product_platform} ILIKE '%gradebook%' THEN 'MindTap - Gradebook'
+          WHEN ${product_platform} ILIKE 'mindtap' OR ${product_platform} ILIKE 'mt%' THEN 'MindTap'
           WHEN ${product_platform} ILIKE '%side-bar%'  OR ${product_platform} ILIKE '%sidebar%' THEN 'CU Sidebar'
-          WHEN ${product_platform} ILIKE '%WA%' OR ${product_platform} ILIKE '%webassign%' THEN 'WebAssign'
-          WHEN ${product_platform} ILIKE '%natgeo%' THEN 'National Geographic'
-          WHEN ${product_platform} ILIKE '%ecomm%'  THEN 'Ecommerce'
-          WHEN ${product_platform} ='LO' OR ${product_platform} = 'LO-OPENNOW' THEN 'Learning Objectives'
+          WHEN ${product_platform} ILIKE 'WA' OR ${product_platform} ILIKE 'webassign' THEN 'WebAssign'
+          WHEN ${product_platform} ILIKE 'natgeo%' THEN 'National Geographic'
+          WHEN ${product_platform} ILIKE 'ecomm%'  THEN 'Ecommerce'
+          WHEN ${product_platform} ='LO' OR ${product_platform} = 'LO-OPENNOW' THEN 'Learning Objects'
+
         ELSE ${product_platform} END
 
     ;;
@@ -225,7 +229,7 @@ view: au {
     label: "Active Users"
     type: number
     sql:
-      {% if active_users_platforms.product_platform._in_query %}
+      {% if active_users_platforms.product_platform._in_query or active_users_platforms.product_platform_clean._in_query %}
         {{ _view._name }}.users
       {% else %}
         {{ _view._name }}.total_users
