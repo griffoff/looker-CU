@@ -178,7 +178,7 @@ view: au {
             ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
             ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
             ,COUNT(DISTINCT au.user_sso_guid) AS users
-        FROM dw_ga.dim_date d
+        FROM ${dim_date.SQL_TABLE_NAME} d
         LEFT JOIN ${guid_platform_date_active.SQL_TABLE_NAME} AS au ON au.date <= d.datevalue
                                                                     AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
         WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.{{ view_name._parameter_value }})
