@@ -170,7 +170,7 @@ view: au {
         )
       ;;
       sql_step:
-        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.au
+        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.{{ view_name._parameter_value }}_incremental
         AS
         SELECT
             d.datevalue AS date
@@ -189,11 +189,11 @@ view: au {
       sql_step:
         INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
         SELECT date, product_platform, users, instructors, students, NULL, NULL, NULL
-        FROM looker_scratch.au
+        FROM looker_scratch.{{ view_name._parameter_value }}_incremental
         WHERE product_platform != 'UNKNOWN';;
       sql_step:
         MERGE INTO LOOKER_SCRATCH.{{ view_name._parameter_value }} a
-        USING looker_scratch.au t ON a.date = t.date AND t.product_platform IS NULL
+        USING looker_scratch.{{ view_name._parameter_value }}_incremental t ON a.date = t.date AND t.product_platform IS NULL --join to the result of the ROLLUP function i.e. total for all platforms
         WHEN MATCHED THEN UPDATE
           SET a.total_users = t.users
             ,a.total_instructors = t.instructors
