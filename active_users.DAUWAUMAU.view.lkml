@@ -172,18 +172,22 @@ view: au {
       sql_step:
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.{{ view_name._parameter_value }}_incremental
         AS
+        WITH dates AS (
+          SELECT d.datevalue
+          FROM ${dim_date.SQL_TABLE_NAME} d
+          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.{{ view_name._parameter_value }})
+          AND d.datevalue > (SELECT MIN(date) FROM ${guid_platform_date_active.SQL_TABLE_NAME})
+          AND d.datevalue < CURRENT_DATE()
+        )
         SELECT
             d.datevalue AS date
             ,COALESCE(au.productplatform, 'UNKNOWN') as product_platform
             ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
             ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
             ,COUNT(DISTINCT au.user_sso_guid) AS users
-        FROM ${dim_date.SQL_TABLE_NAME} d
+        FROM dates d
         LEFT JOIN ${guid_platform_date_active.SQL_TABLE_NAME} AS au ON au.date <= d.datevalue
                                                                     AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
-        WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.{{ view_name._parameter_value }})
-        AND d.datevalue > (SELECT MIN(date) FROM ${guid_platform_date_active.SQL_TABLE_NAME})
-        AND d.datevalue < CURRENT_DATE()
         GROUP BY 1, ROLLUP(2)
       ;;
       sql_step:
