@@ -554,6 +554,13 @@ explore: session_analysis {
     relationship:  one_to_many
   }
 
+  join: products_v {
+    fields: [products_v.print_digital_config_cd]
+    view_label: "Product"
+    sql_on: ${dim_product.isbn13} = ${products_v.isbn13} ;;
+    relationship: one_to_one
+  }
+
 }
 
 explore: cu_ebook_usage {}
