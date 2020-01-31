@@ -555,7 +555,7 @@ explore: session_analysis {
   }
 
   join: products_v {
-    fields: [products_v.print_digital_config_cd]
+    fields: [products_v.print_digital_config_cd, products_v.print_digital_config_de]
     view_label: "Product"
     sql_on: ${dim_product.isbn13} = ${products_v.isbn13} ;;
     relationship: one_to_one
