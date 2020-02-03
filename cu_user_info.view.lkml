@@ -10,6 +10,7 @@ view: cu_user_info {
 #   }
 
   derived_table: {
+    publish_as_db_view: yes
     sql:
           WITH hub_sat_latest
           AS (
@@ -73,7 +74,7 @@ view: cu_user_info {
 
 
   measure: count {
-    label: "Count"
+    label: "# Users"
     type: count
     drill_fields: [detail*]
     hidden: no
