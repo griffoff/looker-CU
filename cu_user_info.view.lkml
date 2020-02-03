@@ -166,9 +166,9 @@ view: cu_user_info {
 
   dimension: entity_flag {
     type: yesno
-    label: "Not on Entity Blacklist"
-    sql: (${TABLE}.entity_flag <> 'Y') OR (${TABLE}.entity_flag IS NULL) ;;
-    description: "This flag is Yes for users that are NOT in IPM suppression lists i.e. it is okay to send IPMs to these students. IPM suppression lists are a list of institutions (typically IA or CUI institutions) who have requested that their students do not receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
+    label: "IPM Blacklist Institution"
+    sql: ${TABLE}.entity_flag = 'Y' ;;
+    description: "This flag is Yes for users that attend institutions that don't allow their student's to recieve IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do not receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
     link: {
         label: "IPM suppression list google sheet"
         url: "https://docs.google.com/spreadsheets/d/1GWByyBwWhMX-aXEzYqeHe_p-wCRsiwCMMPn_SyrzpWk/edit#gid=0"
