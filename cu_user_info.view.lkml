@@ -168,7 +168,7 @@ view: cu_user_info {
     type: yesno
     label: "IPM Blacklist Institution"
     sql: ${TABLE}.entity_flag = 'Y' ;;
-    description: "This flag is Yes for users that attend institutions that don't allow their student's to recieve IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do not receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
+    description: "This flag is Yes for users that attend institutions that do NOT allow their student's to recieve IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
     link: {
         label: "IPM suppression list google sheet"
         url: "https://docs.google.com/spreadsheets/d/1GWByyBwWhMX-aXEzYqeHe_p-wCRsiwCMMPn_SyrzpWk/edit#gid=0"
