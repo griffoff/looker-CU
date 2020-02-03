@@ -7,6 +7,14 @@ include: "//core/access_grants_file.view"
 
 case_sensitive: no
 
+explore: account_sharers {
+  label: "Account Sharing"
+  join: cu_user_info {
+    sql_on: ${account_sharers.merged_guid} = ${cu_user_info.user_sso_guid}  ;;
+    relationship: many_to_one
+  }
+}
+
 explore: late_activators_removals {
   from: late_activators_removals
   view_name: late_activators
