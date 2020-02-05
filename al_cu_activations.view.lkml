@@ -6,15 +6,6 @@ view: al_cu_activations {
       ;;
   }
 
-#   measure: cu_activations_sum {
-#     type: sum_distinct
-#     sql: ${TABLE}."CU_ACTIVATIONS" ;;
-#   }
-#
-#   measure: consumed_isbn_sum {
-#     type: sum_distinct
-#     sql: ${TABLE}."CONSUMED_ISBN" ;;
-#   }
 
   measure: count {
     type: count
