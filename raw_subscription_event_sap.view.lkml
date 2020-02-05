@@ -15,7 +15,7 @@ view: raw_subscription_event_sap {
           SELECT
             COALESCE(m.primary_guid, r.current_guid) AS merged_guid
             --,ROW_NUMBER() OVER (PARTITION BY subscription_id, contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
-            ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
+            ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY subscription_start, r.event_time DESC DESC) AS record_rank
             ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
             ,current_guid AS user_sso_guid
             ,r.event_time AS local_time
@@ -51,8 +51,8 @@ view: raw_subscription_event_sap {
         (
           SELECT
             *
-            ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
-            ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
+            ,LAG(subscription_start) over(partition by merged_guid order by subscription_start, local_time) as prior_start
+            ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY subscription_start, local_time) as next_subscription_start
             ,subscription_start AS effective_from
             ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
         FROM sap_subscriptions_ranked
