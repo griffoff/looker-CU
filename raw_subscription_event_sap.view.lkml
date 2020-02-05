@@ -51,8 +51,8 @@ view: raw_subscription_event_sap {
         (
           SELECT
             *
-            ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
-            ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
+            ,LAG(subscription_start) over(partition by merged_guid order by subscription_start, local_time) as prior_start
+            ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY subscription_start, local_time) as next_subscription_start
             ,subscription_start AS effective_from
             ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
         FROM sap_subscriptions_ranked
