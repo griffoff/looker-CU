@@ -2,74 +2,10 @@
 
 view: live_subscription_status {
   derived_table: {
-    sql: WITH
-        distinct_primary AS
-        (
-          SELECT
-            DISTINCT primary_guid
-          FROM prod.unlimited.vw_partner_to_primary_user_guid
-          WHERE partner_guid IS NOT NULL
-        )
-        ,sap_subscriptions_ranked AS
-        (
-          SELECT
-            COALESCE(m.primary_guid, r.current_guid) AS merged_guid
-            --,ROW_NUMBER() OVER (PARTITION BY subscription_id, contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
-            ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY r.subscription_start DESC, r.event_time DESC) AS record_rank
-            ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
-            ,current_guid AS user_sso_guid
-            ,r.event_time AS local_time
-            ,CASE
-                WHEN subscription_plan_id ILIKE '%full%' THEN 'Full Access'
-                WHEN subscription_plan_id ILIKE '%trial%' THEN 'Trial Access'
-                WHEN subscription_plan_id ILIKE '%read%' THEN subscription_plan_id
-                WHEN subscription_plan_id ILIKE '%limited%' THEN 'Limited Access'
-                ELSE subscription_plan_id
-             END AS subscription_plan
-             ,r.*
-          FROM subscription.prod.sap_subscription_event r
-          LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
-              ON r.current_guid = m.partner_guid
-          LEFT JOIN distinct_primary m2
-              ON  r.current_guid = m2.primary_guid
-          WHERE user_environment = 'production'
-          AND platform_environment = 'production'
-          AND NOT
-                (
-                  EXISTS
-                      (
-                          SELECT
-                              1
-                          FROM PROD.UNLIMITED.EXCLUDED_USERS excluded
-                          LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid guids_forexcl
-                              ON excluded.user_sso_guid = guids_forexcl.partner_guid
-                          WHERE COALESCE(guids_forexcl.primary_guid, excluded.user_sso_guid) = COALESCE(m.primary_guid, r.current_guid)
-                      )
-                )
-        )
-        ,subscription_event_changes AS
-        (
-          SELECT
-            *
-            ,LAG(subscription_start) over(partition by merged_guid order by local_time) as prior_start
-            ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
-            ,subscription_start AS effective_from
-            ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
-        FROM sap_subscriptions_ranked
-        )
-        SELECT
-           CASE
-              WHEN subscription_status ILIKE '%expired' OR (subscription_end < CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Expired)'
-              WHEN (subscription_status ILIKE '%pending%' AND subscription_start > CURRENT_TIMESTAMP()) OR (subscription_start > CURRENT_TIMESTAMP()) THEN subscription_plan || ' ' || '(Pending)'
-              WHEN subscription_status ILIKE '%cancelled%' OR (contract_status ILIKE '%cancelled%') THEN subscription_plan || ' (Cancelled)'
-              WHEN contract_status = 'Inactive' THEN 'Inactive Contract'
-              --WHEN subscription_status = 'Active' AND contract_status = 'Active' THEN subscription_plan
-              --ELSE 'Other'
-              ELSE subscription_plan
-            END AS subscription_state
-            ,*
-         FROM subscription_event_changes
-         WHERE record_rank = 1
+    sql:
+        SELECT *
+        FROM ${raw_subscription_event_sap.SQL_TABLE_NAME}
+        WHERE record_rank = 1
        ;;
   }
 

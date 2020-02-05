@@ -71,7 +71,7 @@ view: raw_subscription_event_sap {
          FROM subscription_event_changes
  ;;
 
-persist_for: "3 hours"
+persist_for: "1 hour"
   }
 
   measure: count {
