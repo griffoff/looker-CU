@@ -302,7 +302,7 @@ view: cu_user_info {
 
   dimension: user_sso_guid {
     type: string
-    sql: ${TABLE}."MERGED_GUID" ;;
+    sql: ${TABLE}."USER_SSO_GUID" ;;
     hidden: yes
   }
 
