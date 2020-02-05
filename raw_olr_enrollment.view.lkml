@@ -1,3 +1,5 @@
+explore: raw_olr_enrollments {from:raw_olr_enrollment}
+
 view: raw_olr_enrollment {
   sql_table_name: UNLIMITED.RAW_OLR_ENROLLMENT ;;
 
