@@ -7,6 +7,8 @@ include: "cafe_webassign.view.lkml"
 include: "merged_cu_user_info.view.lkml"
 include: "cu_user_info.view.lkml"
 include: "//core/access_grants_file.view"
+include: "live_subscription_status.view.lkml"
+include: "raw_subscription_event_sap.view.lkml"
 
 explore: cafe_webassign {
 
