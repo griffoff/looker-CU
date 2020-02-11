@@ -4,10 +4,10 @@ view: ipm_browser_event_and_outcome {
 
   derived_table: {
     sql:
-      SELECT message_id, event_action, event_category, event_time, user_sso_guid
+      SELECT message_id, event_action, event_category, user_platform, event_time, user_sso_guid
       FROM IPM.PROD.IPM_BROWSER_EVENT
       UNION ALL
-      SELECT message_id, 'CONVERTED', COALESCE(event_name, 'UNKNOWN EVENT'), first_event_time, user_sso_guid
+      SELECT message_id, 'CONVERTED', COALESCE(event_name, 'UNKNOWN EVENT'), product_platform, first_event_time, user_sso_guid
       FROM ${ipm_campaign_to_outcome.SQL_TABLE_NAME}
       ;;
 
