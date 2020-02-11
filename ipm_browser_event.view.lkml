@@ -41,6 +41,11 @@ view: ipm_browser_event {
     order_by_field: event_action_sort
   }
 
+  dimension: user_platform {
+    type: string
+    sql: ${TABLE}."USER_PLATFORM";;
+  }
+
   dimension: event_category {
     type: string
     sql: ${TABLE}."EVENT_CATEGORY" ;;

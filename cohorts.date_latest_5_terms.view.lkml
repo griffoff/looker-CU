@@ -5,23 +5,18 @@ view: date_latest_5_terms {
     WITH dates_broken AS
     (
       SELECT
-        governmentdefinedacademicterm
-        ,MIN(datevalue) AS start_date
-        ,MAX(datevalue) AS end_date
+        GOV_AY_TERM_FULL AS governmentdefinedacademicterm
+        ,MIN(date_value) AS start_date
+        ,MAX(date_value) AS end_date
         ,RANK() OVER (ORDER BY start_date DESC) AS terms_chron_order_desc
-      FROM prod.dw_ga.dim_date
-      WHERE governmentdefinedacademicterm IS NOT NULL
+      FROM INT.DM_COMMON.DIM_DATE
+      WHERE GOV_AY_TERM_FULL IS NOT NULL
       GROUP BY 1
-      HAVING MIN(datevalue) < CURRENT_DATE()
+      HAVING MIN(date_value) < CURRENT_DATE()
       ORDER BY end_date DESC
       LIMIT 5
       )
-      SELECT
-            governmentdefinedacademicterm
-            ,start_date
-            ,CASE WHEN end_date = '2019-10-07' THEN '2019-12-31'::date ELSE end_date END AS end_date
-            ,terms_chron_order_desc
-      FROM dates_broken
+      SELECT * FROM dates_broken
       ;;
   }
 
