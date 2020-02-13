@@ -69,12 +69,12 @@ derived_table: {
 
   dimension: instructor_guid {
     type: string
-    sql: ${TABLE}."instructor_guid" ;;
+    sql: ${TABLE}."INSTRUCTOR_GUID" ;;
   }
 
   dimension: entity_id {
     type: string
-    sql: ${TABLE}."entity_id" ;;
+    sql: ${TABLE}."ENTITY_ID"::string ;;
   }
 
 

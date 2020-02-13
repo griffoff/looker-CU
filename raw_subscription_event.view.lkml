@@ -24,10 +24,10 @@ view: raw_subscription_event {
           ,CASE SUBSCRIPTION_STATE WHEN 'cancelled' THEN CURRENT_DATE() WHEN 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
           ,LEAD(mod_subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
           ,SUBSCRIPTION_STATE
-          ,CONTRACT_ID
-          ,TRANSFERRED_CONTRACT
-          ,ACCESS_CODE
-      FROM subscription.prod.raw_subscription_event r
+          --,CONTRACT_ID
+          --,TRANSFERRED_CONTRACT
+          --,ACCESS_CODE
+      FROM prod.cu_user_analysis.subscription_event_merged r--subscription.prod.raw_subscription_event r
       LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
           ON r.user_sso_guid = m.partner_guid
       LEFT JOIN distinct_primary m2
