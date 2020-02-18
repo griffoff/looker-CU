@@ -400,6 +400,8 @@ SELECT * FROM CW_USAGE_CSM_DASHBOARD
 
 
       ;;
+
+      sql_trigger_value: SELECT COUNT(*) FROM PROD.WEBASSIGN.RESPONSES ;;
   }
 
     measure: courseware_activities {
