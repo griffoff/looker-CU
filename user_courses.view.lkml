@@ -77,6 +77,39 @@ derived_table: {
     sql: ${TABLE}."ENTITY_ID"::string ;;
   }
 
+  dimension: paid {
+    type: yesno
+    sql: ${TABLE}."PAID" ;;
+    group_label: "Payment Information"
+    label: "Paid"
+    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
+  }
+
+  dimension: paid_in_full {
+    type: yesno
+    sql: ${TABLE}."PAID_IN_FULL" = 'yes' ;;
+    group_label: "Payment Information"
+    label: "Paid in full"
+    description: "paid_in_full flag from OLR enrollments table"
+  }
+
+  dimension: payment_code {
+    type: string
+    sql: ${TABLE}."PAYMENT_CODE"::string ;;
+    group_label: "Payment Information"
+    label: "Payment code"
+    description: "Payment code from OLR enrollments table"
+  }
+
+  dimension: payment_isbn13 {
+    type: string
+    sql: ${TABLE}."PAYMENT_ISBN13"::string ;;
+    group_label: "Payment Information"
+    label: "Payment ISBN13"
+    description: "Payment ISBN13 from OLR enrollments table"
+  }
+
+
 
 
 #   dimension: is_new_customer {
