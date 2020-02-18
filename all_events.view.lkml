@@ -41,6 +41,27 @@ view: all_events {
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
+  dimension: filter {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":filter::string ;;
+    label: "Filter"
+    group_label: "Client Activity Tags"
+  }
+
+  dimension: filterGroup {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":filterGroup::string ;;
+    label: "Filter Group"
+    group_label: "Client Activity Tags"
+  }
+
+  dimension: sortFunction {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":sortFunction::string ;;
+    label: "Sort Function"
+    group_label: "Client Activity Tags"
+  }
+
   dimension: code_type {
     label: "Activation Code Type"
     sql:  ${event_data}:code_type::string ;;
