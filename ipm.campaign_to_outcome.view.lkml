@@ -30,7 +30,17 @@ view: ipm_campaign_to_outcome {
         ) response ON campaign.message_id = response.message_id
                                         AND campaign.message_version_no = response.message_version_no
       -- TO DO: check to see whether we need to only collect events after a "click" action from the user on the IPM notification
-     INNER JOIN ${all_events.SQL_TABLE_NAME} events ON ARRAY_CONTAINS(UPPER(events.event_name)::VARIANT, campaign.event_outcome)
+     INNER JOIN ${all_events.SQL_TABLE_NAME} events ON
+                                                        ARRAY_CONTAINS(
+                                                          UPPER(
+                                                            REPLACE(REPLACE(REPLACE(REPLACE(events.event_name
+                                                              ,'Sapsubscription Subscription', 'Subscription:')
+                                                              ,'Subscriptionservice Subscription', 'Subscription:')
+                                                              ,'Sapsubscription Subscriptiontransfer', 'Subscription:')
+                                                              ,'Subscriptionservice Cusubscription', 'Subscription:')
+                                                          )::VARIANT
+                                                          ,campaign.event_outcome
+                                                        )
                                                       AND response.user_sso_guid = events.user_sso_guid
                                                       AND response.clicked_time <= events.local_time
                                                       AND campaign.next_campaign_start_date > events.local_time
