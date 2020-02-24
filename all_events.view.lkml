@@ -41,6 +41,13 @@ view: all_events {
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
+  dimension: event_data_course_key {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":courseKey ;;
+    label: "Course key (event data)"
+  }
+
+
   dimension: filter {
     type: string
     sql: ${TABLE}."EVENT_DATA":filter::string ;;
