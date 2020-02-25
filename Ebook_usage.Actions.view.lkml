@@ -147,6 +147,15 @@ view: ebook_usage_actions {
     description: "Which reader the event came from: MindTap Reader, MindTap Mobile Reader, or VitalSource Reader"
   }
 
+    measure: unique_day_opens {
+      type: count_distinct
+      sql: hash(${event_time_date}, ${ebook_id});;
+    }
+
+    measure: unique_day_opens_over_2 {
+      type: number
+      sql: CASE WHEN ${unique_day_opens} >= 2 THEN 1 ELSE 0 END ;;
+    }
 
     measure: count {
       type: count
