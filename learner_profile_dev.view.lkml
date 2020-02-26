@@ -1,4 +1,4 @@
-include: "learner_profile.view"
+include: "/views/cu_user_analysis/learner_profile.view"
 include: "//core/common.lkml"
 
 view: learner_profile_dev {
