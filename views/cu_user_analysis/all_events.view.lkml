@@ -43,10 +43,16 @@ view: all_events {
 
   dimension: event_data_course_key {
     type: string
-    sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)  ;;
+    sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)::STRING  ;;
     label: "Course key (event data)"
   }
 
+  dimension: reader_mode {
+    type: string
+    label: "Reader Mode Type (Mindtap only)"
+    required_fields: [product_platform]
+    sql: CASE WHEN ${event_data_course_key} IS NULL THEN 'Unknown' WHEN ${event_data_course_key} = 'reader-mode' THEN 'Reader Mode' ELSE 'Course Mode' END ;;
+  }
 
   dimension: filter {
     type: string
