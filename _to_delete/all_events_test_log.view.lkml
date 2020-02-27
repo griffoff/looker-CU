@@ -1,4 +1,4 @@
-explore: cu_user_analysis_build_log {}
+# explore: cu_user_analysis_build_log {}
 
 view: cu_user_analysis_build_log {
   sql_table_name: ZPG.cu_user_analysis_build_log ;;

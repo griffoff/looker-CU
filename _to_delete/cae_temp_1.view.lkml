@@ -1,4 +1,4 @@
-explore: cae_temp_1 {}
+# explore: cae_temp_1 {}
 view: cae_temp_1 {
   derived_table: {
     sql: WITH

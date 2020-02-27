@@ -1,5 +1,5 @@
-explore: all_weeks_cu_value_sankey {
-}
+# explore: all_weeks_cu_value_sankey {
+# }
 
 view: all_weeks_cu_value_sankey {
     derived_table: {

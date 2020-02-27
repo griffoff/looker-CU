@@ -1,4 +1,4 @@
-explore: all_weeks_cu_value {}
+# explore: all_weeks_cu_value {}
 
 view: all_weeks_cu_value {
   sql_table_name: ZPG.ALL_WEEKS_CU_VALUE ;;
