@@ -1,4 +1,4 @@
-# explore: test_cae {from: client_activity_event_prod}
+explore: test_cae {from: client_activity_event_prod}
 
 view: client_activity_event_prod {
 #   sql_table_name: CAP_EVENTING.PROD.CLIENT_ACTIVITY_EVENT;;

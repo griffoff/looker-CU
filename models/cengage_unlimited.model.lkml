@@ -82,7 +82,7 @@ explore: cu_ebook_usage {}
 ################################################# End of PROD Explores ###########################################
 
 
-
+explore: courseware_usage_tiers_csms {}
 
 
 

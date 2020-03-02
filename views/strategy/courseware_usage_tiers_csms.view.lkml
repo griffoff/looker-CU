@@ -1,4 +1,4 @@
-explore: courseware_usage_tiers_csms {}
+# explore: courseware_usage_tiers_csms {}
 
 view: courseware_usage_tiers_csms {
     derived_table: {
