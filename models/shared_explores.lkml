@@ -237,9 +237,9 @@ explore: learner_profile {
     relationship:  one_to_many
   }
 
-  join: FullAccess_cohort {
+  join: full_access_cohort {
     view_label: "Learner Profile"
-    sql_on: ${learner_profile.user_sso_guid} = ${FullAccess_cohort.user_sso_guid_merged} ;;
+    sql_on: ${learner_profile.user_sso_guid} = ${full_access_cohort.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
 

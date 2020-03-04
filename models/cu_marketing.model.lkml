@@ -121,7 +121,7 @@ explore: marketing_analysis {
     ,subscription_term_cost.marketing_fields*
     ,user_courses.marketing_fields*
 #     ,user_courses_dev.marketing_fields*
-    ,FullAccess_cohort.marketing_fields*
+    ,full_access_cohort.marketing_fields*
     ,subscription_term_careercenter_clicks.marketing_fields*
     ,cohorts_chegg_clicked.marketing_fields*
     ,cohorts_courseware_dashboard.marketing_fields*

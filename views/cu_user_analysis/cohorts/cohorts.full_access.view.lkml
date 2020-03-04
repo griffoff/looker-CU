@@ -1,6 +1,6 @@
 include: "cohorts.base.view"
 
-view: FullAccess_cohort {
+view: full_access_cohort {
   extends: [cohorts_base_binary]
 
   derived_table: {

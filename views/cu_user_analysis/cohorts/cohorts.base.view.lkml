@@ -75,19 +75,19 @@ view: cohorts_base {
   }
 
   dimension: minus_1 {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
+    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_2 {
-    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
+    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_3 {
-    label: "4) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
+    label: "4) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_4 {
-    label: "5) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' 'capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
+    label: "5) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
   }
 
 

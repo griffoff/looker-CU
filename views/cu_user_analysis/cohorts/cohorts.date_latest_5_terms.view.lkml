@@ -2,7 +2,7 @@ view: date_latest_5_terms {
   derived_table: {
     persist_for: "5 hours"
     sql:
-    WITH dates_broken AS
+    WITH latest_five_terms AS
     (
       SELECT
         GOV_AY_TERM_FULL AS governmentdefinedacademicterm
@@ -16,7 +16,7 @@ view: date_latest_5_terms {
       ORDER BY end_date DESC
       LIMIT 5
       )
-      SELECT * FROM dates_broken
+      SELECT * FROM latest_five_terms
       ;;
   }
 
