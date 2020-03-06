@@ -604,7 +604,7 @@ dimension: load_metadata_source {
   group_label: "Load Metadata"
   label: "Load source"
   type: string
-  sql: ${TABLE}."LOAD_METADATA":source ;;
+  sql: ${TABLE}."LOAD_METADATA":source::string ;;
 }
 
 
