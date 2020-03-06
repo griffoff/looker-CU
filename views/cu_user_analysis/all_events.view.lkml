@@ -700,7 +700,7 @@ dimension: load_metadata_source {
     group_label: "# Events"
     label: "# Events per Student"
     type: number
-    sql: ${count} / ${user_count} ;;
+    sql: ${count} /  NULLIF(${user_count}, 0)   ;;
     value_format_name: decimal_1
   }
 
