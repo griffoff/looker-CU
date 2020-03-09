@@ -235,7 +235,7 @@ view: all_sessions {
 
   measure: session_length_mins_avg {
     group_label: "Time in product"
-    label: "Average session length"
+    label: "Average session length in minutes"
     type: average
     sql: ${session_length_mins} ;;
     value_format_name: decimal_1
@@ -243,7 +243,7 @@ view: all_sessions {
 
   measure: session_length_total {
     group_label: "Time in product"
-    description: "Total of all session lengths"
+    description: "Total of all session lengths in minutes"
     label: "Total time in product"
     hidden: no
     type: sum
@@ -253,7 +253,7 @@ view: all_sessions {
 
   measure: session_length_average_per_student_per_week {
     group_label: "Time in product"
-    description: "Average total session time per student per week"
+    description: "Average total session time per student per week in minutes"
     label: "Average time in product per student per week"
     type: number
     sql: ${session_length_total} / ${user_week_count}  ;;
@@ -262,7 +262,7 @@ view: all_sessions {
 
   measure: session_length_average_per_student_per_day {
     group_label: "Time in product"
-    description: "Average total session time per student per active day"
+    description: "Average total session time per student per active day in minutes"
     label: "Average time in product per student per day"
     type: number
     sql: ${session_length_total} / ${user_day_count}  ;;
@@ -271,7 +271,7 @@ view: all_sessions {
 
   measure: session_length_average_per_student {
     group_label: "Time in product"
-    label: "Average time in product per student"
+    label: "Average time in product per student in minutes"
     type: number
     sql: ${session_length_total} / ${user_count}  ;;
     value_format: "[m] \m\i\n\s"
