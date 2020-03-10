@@ -471,4 +471,11 @@ explore: session_analysis {
     relationship: one_to_one
   }
 
+  join: above_the_course_usage_buckets {
+    view_label: "Above the course usage buckets"
+    sql_on:  ${learner_profile.user_sso_guid} = ${above_the_course_usage_buckets.user_sso_guid} ;;
+    relationship:  one_to_many
+
+  }
+
 }
