@@ -61,6 +61,13 @@ view: all_events {
     group_label: "Client Activity Tags"
   }
 
+  dimension: title {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":title::string ;;
+    label: "Title"
+    group_label: "Client Activity Tags"
+  }
+
   dimension: filterGroup {
     type: string
     sql: ${TABLE}."EVENT_DATA":filterGroup::string ;;
