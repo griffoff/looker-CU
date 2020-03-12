@@ -30,6 +30,7 @@ view: strategy_ecom_sales_orders {
   }
 
   dimension_group: invoice_dt {
+  description: "Year for invoice date from strategies upload higher ed sales orders e-comm"
   type:time
   timeframes: [year, raw]
     hidden: no
@@ -57,13 +58,17 @@ view: strategy_ecom_sales_orders {
   }
 
   measure: user_count {
+    description: "Number of users from strategies upload higher ed sales orders e-comm"
     label: "# Users"
     type: count_distinct
     sql: ${user_sso_guid} ;;
     value_format_name: decimal_0
   }
 
+
+
   measure: arpu {
+    description: "Averege Revenue Per User from strategies upload higher ed sales orders e-comm"
     alias: [ARPU]
     type: number
     sql: ${revenue} / ${user_count};;
@@ -71,6 +76,7 @@ view: strategy_ecom_sales_orders {
   }
 
   measure: arpu_yoy {
+    hidden:  yes
     type: number
     sql: ${revenue} / ${user_count};;
     value_format_name: usd_0

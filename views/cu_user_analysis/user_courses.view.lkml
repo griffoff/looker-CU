@@ -189,6 +189,7 @@ derived_table: {
 
   dimension: activated_desc {
     group_label: "Activated?"
+    description: "Activated / Not Activated"
     label: "Activated (Description)"
     type: string
     sql: CASE WHEN ${activated} THEN 'Activated' ELSE 'Not activated' END  ;;
@@ -196,6 +197,7 @@ derived_table: {
   }
 
   dimension: net_price_enrolled {
+    description: "Value of product, only populated if user is enrolled"
     label: "$ value of enrolled courses"
     type: number
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;

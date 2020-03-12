@@ -30,6 +30,7 @@ view: guid_cohort {
 
   dimension: guid {
     label: "Custom Cohort GUID"
+    description: "List of GUIDs uploaded via Fivetran to conduct cohort analysis"
     type: string
     sql: ${TABLE}."GUID" ;;
   }
