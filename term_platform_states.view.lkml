@@ -1,4 +1,4 @@
-explore: term_platform_states {}
+# explore: term_platform_states {}
 
 view: term_platform_states {
   derived_table: {
