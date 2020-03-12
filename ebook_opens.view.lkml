@@ -1,9 +1,8 @@
 explore: ebook_opens {}
 
 view: ebook_opens {
-  derived_table: {
-    sql: SELECT * FROM prod.unlimited.cu_ebook_usage ;;
-  }
+    sql_table_name: prod.unlimited.cu_ebook_usage ;;
+
 
   measure: count {
     type: count

@@ -40,7 +40,7 @@ view: guided_course_setup {
       FROM cdp
     ;;
 
-    sql_trigger_value: SELECT CURRENT_DATE() ;;
+    sql_trigger_value: SELECT DATE_TRUNC('week',current_date()) ;;
   }
 
   measure: count {
