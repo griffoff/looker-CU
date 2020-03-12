@@ -47,6 +47,13 @@ view: all_events {
     label: "Course key (event data)"
   }
 
+  dimension: event_data_reader_type {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":reader_type::STRING  ;;
+    label: "Reader type (event data)"
+    description: "Reader type (Gutenberg, Tribble, etc.)"
+  }
+
   dimension: reader_mode {
     type: string
     label: "Reader Mode Type (Mindtap only)"
