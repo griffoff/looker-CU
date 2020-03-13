@@ -1,10 +1,8 @@
 explore: al_cu_activations {}
 
 view: al_cu_activations {
-  derived_table: {
-    sql: SELECT * FROM uploads.cu.al_cu_activations
+ sql_table_name: uploads.cu.al_cu_activations
       ;;
-  }
 
 
   measure: count {

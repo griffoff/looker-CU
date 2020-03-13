@@ -5,7 +5,7 @@ include: "//core/common.lkml"
 include: "//cube/dims.lkml"
 include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
-
+include: "/views/discounts/*.view"
 include: "/views/strategy/*.view"
 include: "/views/ipm/*.view"
 
