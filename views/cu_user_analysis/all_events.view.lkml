@@ -909,8 +909,21 @@ dimension: load_metadata_source {
         OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL')) ;;
   }
 
+  measure: cu_resource_opens {
+    label: "# of CU resource opens"
+    description: "Number of times a CU resource was used"
+    type: count_distinct
+    sql: CASE WHEN
+          (event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'
+               ,'Study Tools Launched', 'Flashcards Launched',  'Test Prep Launched', 'Pathbrite Launched', 'Clicked on Career Center', 'eBook Launched'
+              ) OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
+              ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
+              ,'LEARN_MORE') OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSELTHEN') ))) THEN event_id END;;
+  }
+
 
   dimension: ATC_usage {
+    description: "Above The Course event Y/N"
     type:  yesno
     sql:
     (event_name IN (
@@ -935,18 +948,32 @@ OR (event_action = 'JUMP' AND event_type IN (
     ))) ;;
   }
 
-
-  measure: cu_resource_opens {
-    label: "# of CU resource opens"
-    description: "Number of times a CU resource was used"
+  measure: above_the_courses{
+    label:"# of ATC usages - no ebook"
+    description: "Number of times an Above The Course event occurred"
     type: count_distinct
-    sql: CASE WHEN
-    (event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'
-         ,'Study Tools Launched', 'Flashcards Launched',  'Test Prep Launched', 'Pathbrite Launched', 'Clicked on Career Center', 'eBook Launched'
-        ) OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
-        ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
-        ,'LEARN_MORE') OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSELTHEN') ))) THEN event_id END;;
+    sql:CASE WHEN((event_name IN (
+        'Study Tools Launched',
+        'Flashcards Launched',
+        'Test Prep Launched')
+      OR  (event_action = 'LAUNCH' AND  event_type IN (
+          'STUDY_TOOLS_PAGE',
+          'CAREER_CENTER',
+          'CAREER_CENTER_MATERIAL',
+          'COLLEGE_SUCCESS_CENTER',
+          'COLLEGE_SUCCESS_MATERIAL',
+          'QUICK_LESSON',
+          'COURSES',
+          'STUDY_PACK_MATERIAL'))
+      OR (event_action='modalContinue') --partner offers by continue for each offer
+      OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
+      OR (event_action = 'JUMP' AND event_type IN (
+          'GAIN_THE_SKILLS',
+          'EXPLORE_CAREERS',
+          'GET_THE_JOB'
+          ))) ) THEN event_id END;;
   }
+
 
   dimension: above_the_course {
     type:  yesno
@@ -972,30 +999,6 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
 
-  measure: above_the_courses {
-    label:"# of Above the course usages - no ebook"
-    description: "Number of times a CU resource was used"
-    type: count_distinct
-    sql: CASE WHEN (
-    (event_name IN ('Rent From Chegg Clicked',
-      'Flashcards Launched',
-      'Test Prep Launched',
-      'Partner Chegg Modal Continue',
-      'Partner Dashlane12 Modal Continue',
-      'Partner Dashlane6 Modal Continue',
-      'Partner Evernote Modal Continue',
-      'Partner Kaplan Modal Continue',
-      'Partner Quizlet Modal Continue',
-      'Launch Career Center Material',
-      'Launch College Success Material',
-      'Launch Quick Lesson'))
-              OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
-              ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
-              ,'LEARN_MORE') )
-              OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL')))
-
-              THEN event_id END;;
-  }
 
 
 
