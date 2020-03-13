@@ -478,4 +478,12 @@ explore: session_analysis {
 
   }
 
+  join: strategy_cui_pricing {
+    view_label: "Institution"
+    sql_on:  ${dim_institution.entity_no} = ${strategy_cui_pricing.entity_id} ;;
+    relationship:  one_to_many
+
+  }
+
+
 }
