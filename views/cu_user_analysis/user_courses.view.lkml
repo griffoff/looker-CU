@@ -182,6 +182,7 @@ derived_table: {
 
   dimension: activated {
     group_label: "Activated?"
+    description: "Course has been activated Y/N"
     type: yesno
     sql: ${TABLE}.activated = 'True'  ;;
     hidden: no

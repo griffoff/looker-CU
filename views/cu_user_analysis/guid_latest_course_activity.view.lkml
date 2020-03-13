@@ -20,16 +20,15 @@ view: guid_latest_course_activity {
 
   dimension: active {
     group_label: "Active"
-    description: "Active users are those who have had some activity on a given course section within the past 7 days"
+    label: "User Active in Course Section Flag"
+     description: "Active users are those who have had some activity on a given course section within the past 7 days"
     type: yesno
     sql: ${date} >= DATEADD(day, -7, CURRENT_DATE()) ;;
-    label: "User Active in Course Section Flag"
   }
   dimension: active_desc {
-
     group_label: "Active"
     label: "User Active in Course Section (Description)"
-    description: "Active users are those who have had some activity on a given course section within the past 7 days"
+     description: "Active / Inactive In Course Section (activity in past 7 days)"
     type: string
     sql: CASE WHEN ${active} THEN 'Active in Course Section' ELSE 'Inactive in Course Section' END ;;
 
