@@ -515,11 +515,13 @@ view: products_v {
   dimension: print_digital_config_cd {
     type: string
     sql: ${TABLE}."PRINT_DIGITAL_CONFIG_CD" ;;
+    description: "Numeric code"
   }
 
   dimension: print_digital_config_de {
     type: string
     sql: ${TABLE}."PRINT_DIGITAL_CONFIG_DE" ;;
+    description: "Text description"
   }
 
   dimension: print_digital_summary {

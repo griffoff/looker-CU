@@ -150,7 +150,7 @@ explore: live_subscription_status {
   }
 
   join: dim_date {
-    view_label: "Learner Profile"
+    view_label: "Subscription Start Date"
     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
     relationship: one_to_one
   }
@@ -221,7 +221,7 @@ explore: learner_profile {
   }
 
   join: dim_date {
-    view_label: "Learner Profile"
+    view_label: "Subscription Start Date"
     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
     relationship: one_to_one
   }

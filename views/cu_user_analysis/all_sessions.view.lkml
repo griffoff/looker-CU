@@ -40,7 +40,7 @@ view: all_sessions {
     type: string
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[0], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 1"
-    description: "IP address from the first event in this session per Google Analytics was internal"
+    description: "IP address from the first event in this session per Google Analytics was internal/external"
     hidden: no
   }
 
@@ -49,7 +49,7 @@ view: all_sessions {
     type: string
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[1], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 2"
-    description: "IP address from the first event in this session per Google Analytics was internal"
+    description: "IP address from the first event in this session per Google Analytics was internal/external"
     hidden: no
   }
 
@@ -58,7 +58,7 @@ view: all_sessions {
     type: string
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[2], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 3"
-    description: "IP address from the first event in this session per Google Analytics was internal"
+    description: "IP address from the first event in this session per Google Analytics was internal/external"
     hidden: no
   }
 
@@ -67,7 +67,7 @@ view: all_sessions {
     type: string
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[3], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 4"
-    description: "IP address from the first event in this session per Google Analytics was internal"
+    description: "IP address from the first event in this session per Google Analytics was internal/external"
     hidden: no
   }
 
@@ -231,6 +231,7 @@ view: all_sessions {
     label: "Average sessions per student per week"
     type: number
     sql: ${count} / ${user_week_count};;
+    description: "Total number of sessions divided by distinct user weekly sessions"
   }
 
   measure: session_length_mins_avg {
@@ -239,6 +240,7 @@ view: all_sessions {
     type: average
     sql: ${session_length_mins} ;;
     value_format_name: decimal_1
+    description: "Average of all session lengths in minutes"
   }
 
   measure: session_length_total {
@@ -275,6 +277,7 @@ view: all_sessions {
     type: number
     sql: ${session_length_total} / ${user_count}  ;;
     value_format: "[m] \m\i\n\s"
+    description: "Total session length in minutes divided by number of distinct students"
   }
 
 
