@@ -236,6 +236,7 @@ derived_table: {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
     sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN ${isbn} END;;
+    description: "Count of distinct products activated by non-CU subscribers"
   }
 
   dimension: cu_subscription_id {
@@ -338,6 +339,7 @@ derived_table: {
     type: count_distinct
     sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN ${olr_course_key} END   ;;
     drill_fields: [marketing_fields*]
+    description: "Distinct count of courses (by course key) that have not yet ended"
   }
 
   measure: current_enrollments {
@@ -346,6 +348,7 @@ derived_table: {
     type: count_distinct
     sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${enrolled} THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
+    description: "Count of distinct course enrollments that have not yet ended"
   }
 
   measure: current_activations {
@@ -354,6 +357,7 @@ derived_table: {
     type: count_distinct
     sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
+    description: "Count of distinct course activations that have not yet ended"
   }
 
   measure: current_activations_non_cu {
@@ -361,6 +365,7 @@ derived_table: {
     label: "# of current Non CU activations"
     type: count_distinct
     sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND NOT ${cu_flag} THEN ${pk} END   ;;
+    description: "Count of distinct course activations that have not yet ended from non-CU users"
     drill_fields: [marketing_fields*]
   }
 
@@ -370,6 +375,7 @@ derived_table: {
     label: "# of current CU activations"
     type: count_distinct
     sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND ${cu_flag} THEN ${pk} END   ;;
+    description: "Count of distinct course activations that have not yet ended from CU users"
     drill_fields: [marketing_fields*]
   }
 
@@ -379,6 +385,7 @@ derived_table: {
     type: number
     sql: ${current_enrollments} - ${current_activations}   ;;
     drill_fields: [marketing_fields*]
+    description: "Count of distinct non-activated course enrollments that have not yet ended"
   }
 
   measure: current_students {
@@ -387,6 +394,7 @@ derived_table: {
     type: count_distinct
     sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN ${user_sso_guid} END   ;;
     drill_fields: [marketing_fields*]
+    description: "Distinct count of students in courses that have not ended"
   }
 
   measure: student_course_list {
@@ -419,6 +427,7 @@ derived_table: {
     #sql: ${user_course_count} / ${learner_profile.count}  ;;
     sql: ${user_course_count} / NULLIF(${user_count}, 0)  ;;
     value_format_name: decimal_1
+    description: "Total unique course enrollments divided by total number of distinct users"
   }
 
 #   measure: courses_used_per_student {
