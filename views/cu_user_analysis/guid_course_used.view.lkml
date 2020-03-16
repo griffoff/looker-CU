@@ -12,6 +12,7 @@ view: guid_course_used{
     }
     dimension: number_course_used_events {
       type: number
+      description: "Total # of course use events"
     }
     dimension: course_key {
       description: "Course online registration key"

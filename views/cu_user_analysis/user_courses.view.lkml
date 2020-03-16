@@ -18,22 +18,23 @@ derived_table: {
 
   dimension: isbn {
     type: string
+    description: "OLR course ISBN"
   }
 
   dimension: grace_period_flag {
     group_label: "Grace Period?"
     type: yesno
     sql: ${TABLE}."GRACE_PERIOD_FLAG" = 'Yes';;
-    description: "User has enrolled on a course but not activated andenrollment date was in the last 14 days"
     label: "In grace period"
+    description: "User has enrolled on a course but not activated and enrollment date was in the last 14 days"
   }
 
   dimension: grace_period_description {
     type: string
     group_label: "Grace Period?"
     sql: CASE WHEN ${activated} THEN 'Paid' WHEN ${grace_period_flag} THEN 'In Grace Period' ELSE 'Unpaid, Grace period expired' END ;;
-    description: "User has enrolled on a course but not activated andenrollment date was in the last 14 days"
     label: "In grace period (Description)"
+    description: "In Grace Period / Paid / Unpaid, Grace period expired"
   }
 
   dimension: amount_to_upgrade_tiers {
@@ -54,11 +55,11 @@ derived_table: {
 
   dimension_group: week_in_course {
     label: "Time in course"
-    description: "The difference in weeks from the course start date to the current date."
     type: duration
     sql_start: ${course_start_date} ;;
     sql_end: CURRENT_DATE() ;;
     intervals: [week]
+    description: "The difference in weeks from the course start date to the current date."
   }
 
   dimension: user_sso_guid {
@@ -70,6 +71,7 @@ derived_table: {
   dimension: instructor_guid {
     type: string
     sql: ${TABLE}."INSTRUCTOR_GUID" ;;
+    description: "Course instructor GUID"
   }
 
   dimension: entity_id {
@@ -135,13 +137,16 @@ derived_table: {
 
   dimension: olr_activation_key {
     type: string
-    sql: ${TABLE}."OLR_ACTIVATION_KEY" ;;
+    sql: ${TABLE}."ACTIVATION_CODE" ;;
+    description: "OLR Activation code"
+
   }
 
   dimension: olr_course_key {
     type: string
     sql: ${TABLE}."OLR_COURSE_KEY" ;;
     alias: [captured_key]
+    description: "OLR user course key"
   }
 
   dimension: course_start_date {
@@ -224,6 +229,7 @@ derived_table: {
         }
         else: "Bought CU"
       }
+      description: "Overpaid = user has enrolled in >$120 in courses and is not CU subscribed"
   }
 
   measure: distinct_ala_cart_purchase {
@@ -256,6 +262,7 @@ derived_table: {
     group_label: "Subscription"
      type: yesno
      label: "CU Flag"
+    description: "Cengage Unlimited subscribed (non-trial) Y/N"
 #     hidden: no
   }
 
@@ -264,6 +271,7 @@ derived_table: {
     type: string
     sql: CASE WHEN ${cu_flag} THEN 'Paid by subscription' WHEN ${activated} THEN 'Paid direct' ELSE 'Not paid' END;;
     label: "CU Flag (Description)"
+    description: "Paid by subscription / Paid direct / Not paid"
 #     hidden: no
   }
 

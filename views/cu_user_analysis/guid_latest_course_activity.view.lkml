@@ -16,6 +16,7 @@ view: guid_latest_course_activity {
   dimension: user_sso_guid {hidden:yes}
   dimension: date {
     label: "Latest Date of Activity"
+    description: "Last day user was active in a course"
   }
 
   dimension: active {
