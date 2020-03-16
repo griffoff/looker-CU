@@ -13,15 +13,20 @@ view: guid_course_used{
     dimension: number_course_used_events {
       type: number
     }
-    dimension: course_key {}
+    dimension: course_key {
+      description: "Course online registration key"
+    }
 
     dimension: course_used {
       type: yesno
+      description: "Course instance has associated GUID"
       sql: ${user_sso_guid} IS NOT NULL ;;
     }
 
     dimension: user_sso_guid {
       label: "Guid Course Date Active User SSO GUID"
+      description: "User SSO GUID from guid_course_date_active view"
+
     }
 
     measure: courses_used {

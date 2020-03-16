@@ -74,6 +74,7 @@ derived_table: {
 
   dimension: entity_id {
     type: string
+    description: "Institution/school ID#"
     sql: ${TABLE}."ENTITY_ID"::string ;;
   }
 
@@ -167,6 +168,7 @@ derived_table: {
 
   dimension: enrolled {
     group_label: "Enrolled?"
+    description: "OLR enrollment has occurred Y/N"
     type: yesno
     sql: ${TABLE}.enrolled = 'True'  ;;
     hidden: no
@@ -175,6 +177,7 @@ derived_table: {
   dimension: enrolled_desc {
     group_label: "Enrolled?"
     label: "Enrolled (Description)"
+    description: "Enrolled / Not Enrolled"
     type: string
     sql: CASE WHEN ${enrolled} THEN 'Enrolled' ELSE 'Not enrolled' END  ;;
     hidden: no
@@ -385,6 +388,7 @@ derived_table: {
 
   dimension: enrollment_date {
     label: "Date on which user enrolled into a course"
+    description: "User online registration enrollment date"
     type: date
   }
 
