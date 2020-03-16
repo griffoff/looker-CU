@@ -50,18 +50,19 @@ view: above_the_course_usage_buckets {
 
   dimension: above_the_courses {
     view_label: "Events"
-    label: "# of Above the course usages - no ebook"
-    description: "Number of times an above the course event occurred"
+    label: "# of ATC usages - no ebook"
+    description: "Number of times an Above The Course event occurred"
     type: number
   }
 
   dimension: above_the_course_tiered {
-    view_label: "Learner Profile"
+    label: "ATC Usage buckets"
+    view_label: "Events"
     type: tier
     style: integer
     tiers: [0,2,6]
     sql: ${above_the_courses};;
-    description: "Buckets of Number of times an above the course event occurred"
+    description: "Buckets of Number of times an Above The Course event occurred"
   }
 
   measure: dist_guids {

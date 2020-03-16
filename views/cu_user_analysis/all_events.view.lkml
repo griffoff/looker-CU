@@ -92,6 +92,7 @@ view: all_events {
   dimension: code_type {
     label: "Activation Code Type"
     sql:  ${event_data}:code_type::string ;;
+    description: "OLR activation/provisioned code type"
   }
 
   dimension: time_to_next_event {
@@ -129,6 +130,7 @@ view: all_events {
           THEN ${event_data}:message_id
           ELSE NULL
           END;;
+          description: "Message ID for IPM events"
   }
 
   dimension: side_bar_coursekey {
@@ -923,6 +925,7 @@ dimension: load_metadata_source {
 
 
   dimension: ATC_usage {
+    label: "ATC Event"
     description: "Above The Course event Y/N"
     type:  yesno
     sql:
@@ -976,6 +979,7 @@ OR (event_action = 'JUMP' AND event_type IN (
 
 
   dimension: above_the_course {
+    hidden:  yes
     type:  yesno
     label:"Above the course usage - no ebook"
     sql:(event_name IN (
@@ -996,6 +1000,7 @@ OR (event_action = 'JUMP' AND event_type IN (
               ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
               ,'LEARN_MORE') )
               OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL') );;
+    description: "Event identified as Above The Course Y/N"
   }
 
 

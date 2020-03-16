@@ -4,7 +4,7 @@ view: all_events_diff {
 
   parameter: event_type {
     label: "Select type of events to view"
-    description: "A paramter for selecting the type of succeding events you want to analyze "
+    description: "A parameter for selecting the type of succeding events you want to analyze "
     type: unquoted
     default_value: ""
     allowed_value: {
@@ -45,11 +45,13 @@ view: all_events_diff {
   dimension: first_event_in_session {
     type: yesno
     sql: ${TABLE}.event_no = 1 ;;
+    description: "First event of session ID Y/N"
   }
   dimension: event_0 {
     type: string
     sql: ${TABLE}."DIFF_EVENT_0" ;;
     label:  "Current event"
+    description: "Event 0 relative to events 1-5"
   }
 
   dimension: event_1 {
