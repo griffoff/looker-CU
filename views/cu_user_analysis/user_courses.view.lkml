@@ -287,6 +287,7 @@ derived_table: {
     label: "# of a la carte activations"
     type: sum
     sql: CASE WHEN NOT ${cu_flag} AND ${activated} THEN 1 END;;
+    description: "Total # of activations from non-CU subscribers (all time)"
   }
 
   measure: cu_purchase {
@@ -294,6 +295,7 @@ derived_table: {
     label: "# of CU activations"
     type: sum
     sql: CASE WHEN ${cu_flag} AND ${activated} THEN 1 END;;
+    description: "Total # of activations from CU subscribers (all time)"
   }
 
   measure: no_enrollments {
@@ -301,6 +303,7 @@ derived_table: {
     label: "# enrollments"
     type: sum
     sql: CASE WHEN ${enrolled} THEN 1 ELSE 0 END  ;;
+    description: "Total # of enrollments (all time)"
   }
 
   measure: no_activated {
@@ -308,6 +311,7 @@ derived_table: {
     label: "# activations"
     type: sum
     sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
+    description: "Total # of activations (all time)"
   }
 
   measure: no_courses_with_activations {
@@ -315,6 +319,7 @@ derived_table: {
     label: "# courses with activations"
     type: count_distinct
     sql: CASE WHEN ${activated} THEN ${olr_course_key} END  ;;
+    description: "Total # of distinct courses (by course key) with activations (all time)"
   }
 
   measure: enrolled_courses {
@@ -331,6 +336,7 @@ derived_table: {
     label: "# of enrollments not activated"
     type: number
     sql: greatest(${no_enrollments} -  ${no_activated}, 0) ;;
+    description: "Total # of non-activated enrollments (all time)"
   }
 
   measure: current_course_sections {
