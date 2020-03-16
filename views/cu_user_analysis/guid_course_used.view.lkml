@@ -34,6 +34,7 @@ view: guid_course_used{
       label: "Total courses used"
       type: count_distinct
       sql: ${course_key} ;;
+      description: "Distinct count of courses used (by course key)"
     }
 
   measure: user_courses_used {

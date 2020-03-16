@@ -406,6 +406,7 @@ derived_table: {
   measure: student_course_list {
     type: string
     sql: LISTAGG(DISTINCT ${dim_course.coursename}, ', ') ;;
+    description: "List of student courses"
   }
 
   dimension: enrollment_date {
