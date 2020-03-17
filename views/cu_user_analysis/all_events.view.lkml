@@ -270,6 +270,7 @@ view: all_events {
     label: "Course key"
     type: string
     sql: ${event_data}:courseKey::string ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -279,6 +280,7 @@ view: all_events {
     label: "Carousel name"
     type: string
     sql: ${event_data}:carouselName::string ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -287,6 +289,7 @@ view: all_events {
     label: "Carousel session Id"
     type: string
     sql: ${event_data}:carouselSessionId::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -296,6 +299,7 @@ view: all_events {
     type: string
     sql: ${event_data}:activityId::string  ;;
     hidden: no
+    description: "Event data"
   }
 
   dimension: tags_checkpointId {
@@ -303,6 +307,7 @@ view: all_events {
     label: "checkpoint Id"
     type: string
     sql: ${event_data}:checkpointId::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -311,6 +316,7 @@ view: all_events {
     label: "Content type"
     type: string
     sql: ${event_data}:contentType::string  ;;
+    description: "Event data - ISBN Module / Quick Lesson / Study Tool"
     hidden: no
   }
 
@@ -319,6 +325,7 @@ view: all_events {
     label: "App Name"
     type: string
     sql: ${event_data}:appName::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -343,6 +350,7 @@ view: all_events {
     label: "Attempt ID"
     type: string
     sql: ${event_data}:attemptId::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -351,6 +359,7 @@ view: all_events {
     label: "Activity URI"
     type: string
     sql: ${event_data}:activityUri::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -375,6 +384,7 @@ view: all_events {
     label: "Course CGI"
     type: string
     sql: ${event_data}:courseCgi::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -448,6 +458,7 @@ view: all_events {
     label: "CLA Page Number"
     type: string
     sql: ${event_data}:claPageNumber::string ;;
+    description: "Event data"
     hidden: no
   }
 
