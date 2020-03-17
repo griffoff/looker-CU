@@ -66,6 +66,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA":filter::string ;;
     label: "Filter"
     group_label: "Client Activity Tags"
+    description: "Event data"
   }
 
   dimension: title {
@@ -73,6 +74,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA":title::string ;;
     label: "Title"
     group_label: "Client Activity Tags"
+    description: "Event data"
   }
 
   dimension: filterGroup {
@@ -80,6 +82,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA":filterGroup::string ;;
     label: "Filter Group"
     group_label: "Client Activity Tags"
+    description: "Event data"
   }
 
   dimension: sortFunction {
@@ -87,6 +90,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA":sortFunction::string ;;
     label: "Sort Function"
     group_label: "Client Activity Tags"
+    description: "Event data"
   }
 
   dimension: code_type {
@@ -99,6 +103,7 @@ view: all_events {
     type:  number
     sql: ${TABLE}."EVENT_DATA":time_to_next_event ;;
     label: "Time to next event"
+    description: "Event data"
   }
 
   dimension: days_in_state {
@@ -107,6 +112,7 @@ view: all_events {
     description: "Number of days user was in a subscription state when they executed this event"
     type: number
     sql: ${event_data}:days_in_current_state ;;
+
 
   }
 
@@ -334,6 +340,7 @@ view: all_events {
     label: "External Take URI"
     type: string
     sql: ${event_data}:externalTakeUri::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -342,6 +349,7 @@ view: all_events {
     label: "Item URI"
     type: string
     sql: ${event_data}:itemUri::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -376,6 +384,7 @@ view: all_events {
     label: "Course URI"
     type: string
     sql: ${event_data}:courseUri::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -393,6 +402,7 @@ view: all_events {
     label: "Core Text ISBN"
     type: string
     sql: ${event_data}:coreTextISBN::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -409,6 +419,7 @@ view: all_events {
     label: "Discipline"
     type: string
     sql: ${event_data}:discipline::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -433,6 +444,7 @@ view: all_events {
     label: "ISBN"
     type: string
     sql: ${event_data}:ISBN::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -441,7 +453,7 @@ view: all_events {
     label: "Institution ID"
     type: string
     sql: ${event_data}:institutionId::string  ;;
-    #
+    description: "Event data"
     hidden: no
   }
 
@@ -483,6 +495,7 @@ view: all_events {
     label: "eISBN"
     type: string
     sql: ${event_data}:eISBN::string ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -492,6 +505,7 @@ view: all_events {
     type: string
     sql: ${event_data}:eventData::string ;;
     hidden: no
+    description: "Event data"
   }
 
 
