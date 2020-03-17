@@ -376,6 +376,7 @@ view: all_events {
     label: "Show Grade Indicators"
     type: string
     sql: ${event_data}:showGradeIndicators::string  ;;
+    description: "Event data - true / null"
     hidden: no
   }
 
@@ -411,6 +412,7 @@ view: all_events {
     label: "Point In Semester"
     type: string
     sql: ${event_data}:pointInSemester::string  ;;
+    description: "Event data - Early Semester, End-of-semester, Mid-semester"
     hidden: no
   }
 
@@ -428,6 +430,7 @@ view: all_events {
     label: "Study Tool Cgi"
     type: string
     sql: ${event_data}:studyToolCgi::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -436,6 +439,7 @@ view: all_events {
     label: "Sequence UUID"
     type: string
     sql: ${event_data}:sequenceUuid::string  ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -462,6 +466,7 @@ view: all_events {
     label: "User Role"
     type: string
     sql: ${event_data}:userRole::string ;;
+    description: "Event data - instructor, primary, student, ta"
     hidden: no
   }
 
@@ -479,6 +484,7 @@ view: all_events {
     label: "Number of Pages"
     type: string
     sql: ${event_data}:numberOfPages::string ;;
+    description: "Event data"
     hidden: no
   }
 
@@ -487,6 +493,7 @@ view: all_events {
     label: "Title ISBN"
     type: string
     sql: ${event_data}:titleIsbn::string ;;
+    description: "Event data"
     hidden: no
   }
 
