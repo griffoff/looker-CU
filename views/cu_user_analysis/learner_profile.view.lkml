@@ -98,7 +98,7 @@ view: learner_profile {
     type: string
     sql: ${TABLE}."COURSES_USED_COUNT" ;;
     label: "# of courses used"
-    description: "The count of courses used by a student over their lifetime. Events that were both enrolled and activated"
+    description: "The count of courses used by a student over their lifetime. User must have enrolled AND activated for course to be counted"
   }
 
 
@@ -260,6 +260,7 @@ view: learner_profile {
     type: average
     sql: ${months_subscription_length} ;;
     value_format: "0.0 \m\o\n\t\h\s"
+    description: "Average subscription length in months"
   }
 
   dimension_group: subscription_start {
@@ -460,7 +461,7 @@ view: learner_profile {
     label: "# Students"
     drill_fields: [details*]
     hidden: no
-    description: "# of users, non-disctinct"
+    description: "# of distinct users by user SSO guid"
   }
 
   measure: count {

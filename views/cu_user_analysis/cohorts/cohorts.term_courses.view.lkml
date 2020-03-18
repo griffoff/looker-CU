@@ -16,7 +16,7 @@ view: cohorts_term_courses {
                  e.user_sso_guid
                 ,terms_chron_order_desc
                 ,governmentdefinedacademicterm
-                ,COUNT(DISTINCT olr_enrollment_key) AS unique_courses
+                ,COUNT(DISTINCT olr_course_key) AS unique_courses
             FROM prod.cu_user_analysis.user_courses e
             LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
                  ON e.course_start_date::DATE >= d.start_date AND e.course_start_date <= d.end_date
@@ -101,7 +101,7 @@ view: cohorts_term_courses_old {
            e.user_sso_guid
           ,terms_chron_order_desc
           ,governmentdefinedacademicterm
-          ,COUNT(DISTINCT olr_enrollment_key) AS unique_courses
+          ,COUNT(DISTINCT olr_course_key) AS unique_courses
       FROM prod.cu_user_analysis.user_courses e
       LEFT JOIN term_dates_five_most_recent d
            ON e.course_start_date::DATE >= d.start_date AND e.course_start_date <= d.end_date

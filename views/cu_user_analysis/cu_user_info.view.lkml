@@ -79,13 +79,14 @@ view: cu_user_info {
     drill_fields: [detail*]
     hidden: no
 #     hidden: yes
+    description: "Count of users, non-distinct"
   }
 
   measure: users {
     type: count_distinct
     sql: ${merged_guid} ;;
     drill_fields: [detail*]
-    description: "Count of distinct users by GUID"
+    description: "Count of distinct users by merged GUID"
 #     hidden: yes
   }
 
@@ -129,6 +130,7 @@ view: cu_user_info {
     type: average
     sql: ${age} ;;
     value_format: "0.0"
+    description: "Average user age (inc. students, instructors, etc.)"
   }
 
   measure: age_min {
@@ -137,6 +139,7 @@ view: cu_user_info {
     type: min
     sql: ${age} ;;
     value_format: "0.0"
+    description: "Youngest user age (inc. students, instructors, etc.)"
   }
 
   measure: age_max {
@@ -145,6 +148,7 @@ view: cu_user_info {
     type: max
     sql: ${age} ;;
     value_format: "0.0"
+    description: "Oldest user age (inc. students, instructors, etc.)"
   }
 
 
