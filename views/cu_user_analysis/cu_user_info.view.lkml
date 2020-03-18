@@ -74,19 +74,19 @@ view: cu_user_info {
 
 
   measure: count {
-    label: "# Users"
+    label: "# User Accounts"
     type: count
     drill_fields: [detail*]
-    hidden: no
-#     hidden: yes
-    description: "Count of users, non-distinct"
+    hidden: yes
+    description: "Count of all user accounts, primary and secondary"
   }
 
   measure: users {
+    label: "# Students"
     type: count_distinct
-    sql: ${merged_guid} ;;
+    sql: case when ${is_instructor}=false then ${merged_guid} end ;;
     drill_fields: [detail*]
-    description: "Count of distinct users by merged GUID"
+    description: "Count of primary student user accounts"
 #     hidden: yes
   }
 
@@ -116,12 +116,14 @@ view: cu_user_info {
     label: "Birth Year"
     type: number
     value_format: "0000"
+    description: "User birth year"
   }
 
   dimension: age {
     group_label: "Age"
     type: number
     sql: YEAR(CURRENT_DATE()) - ${birth_year} ;;
+    description: "User age"
   }
 
   measure: age_average {

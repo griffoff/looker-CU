@@ -71,28 +71,29 @@ view: cohorts_base {
 
 
   dimension: current {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }}"
+    label: "1) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }}"
+
   }
 
   dimension: minus_1 {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
+    label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_2 {
-    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
+    label: "3) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_3 {
-    label: "4) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
+    label: "4) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_4 {
-    label: "5) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
+    label: "5) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
   }
 
 
   dimension: current_tiers {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "1) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${current} = 0 ;;
@@ -111,7 +112,7 @@ view: cohorts_base {
   }
 
   dimension: minus_1_tiers {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_1} = 0 ;;
@@ -130,7 +131,7 @@ view: cohorts_base {
   }
 
   dimension: minus_2_tiers {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_1} = 0 ;;
@@ -149,7 +150,7 @@ view: cohorts_base {
   }
 
   dimension: current_tiers_time {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "1) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${current} = 0 ;;
@@ -168,7 +169,7 @@ view: cohorts_base {
   }
 
   dimension: minus_1_tiers_time {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_1} = 0 ;;
@@ -188,7 +189,7 @@ view: cohorts_base {
 
 
   dimension: minus_2_tiers_time {
-    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "3) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_2} = 0 ;;
@@ -207,7 +208,7 @@ view: cohorts_base {
   }
 
   dimension: current_tiers_times {
-    label: "1) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "1) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${current} = 0 ;;
@@ -226,7 +227,7 @@ view: cohorts_base {
   }
 
   dimension: minus_1_tiers_times {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_1} = 0 ;;
@@ -245,7 +246,7 @@ view: cohorts_base {
   }
 
   dimension: minus_2_tiers_times {
-    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "3) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_2} = 0 ;;

@@ -430,6 +430,7 @@ explore: session_analysis {
   extends: [learner_profile, all_sessions]
   from: learner_profile
   view_name: learner_profile
+  #fields: [-]
 
   join: all_sessions {
     sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;

@@ -71,23 +71,27 @@ view: live_subscription_status {
     type: time
     sql: ${TABLE}."_LDTS" ;;
     description: " Data Load Date Time Stamp"
+    hidden:  yes
   }
 
   dimension: _rsrc {
     type: string
     sql: ${TABLE}."_RSRC" ;;
+    hidden:  yes
   }
 
   dimension: message_format_version {
     type: number
     sql: ${TABLE}."MESSAGE_FORMAT_VERSION" ;;
     description: "= 2"
+    hidden:  yes
   }
 
   dimension: message_type {
     type: string
     sql: ${TABLE}."MESSAGE_TYPE" ;;
     description: "Subscription / SubscriptionTransfer"
+    hidden:  yes
   }
 
   dimension: product_platform {
@@ -100,12 +104,14 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."PLATFORM_ENVIRONMENT" ;;
     description: "production"
+    hidden:  yes
   }
 
   dimension: user_environment {
     type: string
     sql: ${TABLE}."USER_ENVIRONMENT" ;;
     description: "production"
+    hidden:  yes
   }
 
   dimension_group: event_time {
@@ -116,11 +122,13 @@ view: live_subscription_status {
   dimension: current_guid {
     type: string
     sql: ${TABLE}."CURRENT_GUID" ;;
+    description: "Most recent GUID"
   }
 
   dimension: original_guid {
     type: string
     sql: ${TABLE}."ORIGINAL_GUID" ;;
+    description: "GUID at initial user subscription"
   }
 
   dimension_group: initialization_time {
@@ -184,6 +192,7 @@ view: live_subscription_status {
   dimension_group: available_until {
     type: time
     sql: ${TABLE}."AVAILABLE_UNTIL" ;;
+    hidden:  yes
   }
 
   dimension: subscription_status {

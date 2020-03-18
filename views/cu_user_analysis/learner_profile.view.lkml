@@ -114,11 +114,13 @@ view: learner_profile {
 
   dimension: current_date {
     label: "Current Date (Report Generated Date)"
+    description: "Shows the current calander date as this explore is being refreshed"
     sql: TO_DATE(CURRENT_DATE()) ;;
   }
 
   dimension: returning_cu_customer {
     group_label: "Customer Type"
+    description: "New / Puchased CU Before / Tried Before, No CU Purchase"
   }
 
   dimension: purchase_path {
@@ -458,18 +460,20 @@ view: learner_profile {
   measure: user_count {
     type: count_distinct
     sql: ${user_sso_guid} ;;
-    label: "# Students"
+    label: "# Users"
     drill_fields: [details*]
     hidden: no
-    description: "# of distinct users by user SSO guid"
+    description: "Count of primary user accounts"
   }
+
+
 
   measure: count {
     type: count
-    label: "Count"
+    label: "# User Accounts"
     drill_fields: [details*]
     hidden: no
-    description: "# of users, non-disctinct"
+    description: "Count of all user accounts, primary and secondary"
   }
 
   measure: average_lifetime_courses_used {
@@ -517,6 +521,7 @@ view: learner_profile {
   }
 
   dimension: paid_flag {
+#     not sure that paid flag working correctly in learner_profile script, no user show as paid
     group_label: "Paid Flag"
     type: yesno
     sql: paid_flag = 'Y' ;;
@@ -723,6 +728,7 @@ view: learner_profile {
     label: "# of a la carte purchases after subscription start"
     type: number
     sql: ${TABLE}."ACTIVATIONS_AFTER_SUBSCRIPTION_START" ;;
+    description: "# of non-CU activations"
   }
 
   dimension: activations_on_subscription_start {
@@ -730,6 +736,7 @@ view: learner_profile {
     label: "# of a la carte purchases on subscription start"
     type: number
     sql: ${TABLE}."ACTIVATIONS_ON_SUBSCRIPTION_START" ;;
+    description: "# of non-CU activations"
   }
 
   dimension: activations_before_subscription_start {
@@ -737,6 +744,7 @@ view: learner_profile {
     label: "# of a la carte purchases before subscription start"
     type: number
     sql: ${TABLE}."ACTIVATIONS_BEFORE_SUBSCRIPTION_START" ;;
+    description: "# of non-CU activations"
   }
 
   dimension: activations_two_weeks_before_subscription_start {
@@ -744,6 +752,7 @@ view: learner_profile {
     label: "# of a la carte purchases two weeks before subscription start"
     type: number
     sql: ${TABLE}."ACTIVATIONS_TWO_WEEKS_BEFORE_SUBSCRIPTION_START" ;;
+    description: "# of non-CU activations"
   }
 
 

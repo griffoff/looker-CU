@@ -201,11 +201,13 @@ view: eligible_discount_students_details_20190717 {
   dimension: index {
     type: number
     sql: ${TABLE}."INDEX" ;;
+    hidden:  yes
   }
 
   dimension: price_details {
     type: string
     sql: ${TABLE}."PRICE_DETAILS" ;;
+    hidden:  yes
   }
 
   set: detail {

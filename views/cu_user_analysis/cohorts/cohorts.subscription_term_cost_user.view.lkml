@@ -56,14 +56,14 @@ view: cohorts_subscription_term_cost_user {
       ;;
     }
 
-    dimension: current { group_label: "CU Term Cost ($)" value_format_name: "usd" }
+    dimension: current { group_label: "CU Term Cost ($)" value_format_name: "usd" description:"Existing subscription length > 1 year = $40, >120 days = $60, >0 days = $120"}
 
-    dimension: minus_1 { group_label: "CU Term Cost ($)" value_format_name: "usd"}
+    dimension: minus_1 { group_label: "CU Term Cost ($)" value_format_name: "usd" description:"Existing subscription length > 1 year = $40, >120 days = $60, >0 days = $120"}
 
-    dimension: minus_2 { group_label: "CU Term Cost ($)" value_format_name: "usd"}
+    dimension: minus_2 { group_label: "CU Term Cost ($)" value_format_name: "usd" description:"Existing subscription length > 1 year = $40, >120 days = $60, >0 days = $120"}
 
-    dimension: minus_3 { group_label: "CU Term Cost ($)" value_format_name: "usd"}
+    dimension: minus_3 { group_label: "CU Term Cost ($)" value_format_name: "usd" description:"Existing subscription length > 1 year = $40, >120 days = $60, >0 days = $120"}
 
-    dimension: minus_4 { group_label: "CU Term Cost ($)" value_format_name: "usd"}
+    dimension: minus_4 { group_label: "CU Term Cost ($)" value_format_name: "usd" description:"Existing subscription length > 1 year = $40, >120 days = $60, >0 days = $120"}
 
   }
