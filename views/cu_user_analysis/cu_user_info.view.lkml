@@ -239,6 +239,7 @@ view: cu_user_info {
     type: string
     sql: ${TABLE}."EMAIL" ;;
     required_access_grants: [can_view_CU_pii_data]
+    description: "User email address"
   }
 
   dimension: first_name {
@@ -246,6 +247,7 @@ view: cu_user_info {
     type: string
     sql: InitCap(${TABLE}."FIRST_NAME");;
     required_access_grants: [can_view_CU_pii_data]
+    description: "User first name"
   }
 
   dimension: last_name {
@@ -253,6 +255,7 @@ view: cu_user_info {
     type: string
     sql: InitCap(${TABLE}."LAST_NAME") ;;
     required_access_grants: [can_view_CU_pii_data]
+    description: "User last name"
   }
 
   dimension: marketing_opt_out {
@@ -285,6 +288,7 @@ view: cu_user_info {
 
   dimension: region {
     group_label: "User Info - PII"
+    description: "User country / region"
   }
 
   dimension: entity_id {

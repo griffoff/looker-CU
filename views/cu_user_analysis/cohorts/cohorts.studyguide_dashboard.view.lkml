@@ -107,14 +107,14 @@
 #     }
 
 
-    dimension: current {group_label: "Studyguide added to dashboard"}
+    dimension: current {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
 
-    dimension: minus_1 {group_label: "Studyguide added to dashboard"}
+    dimension: minus_1 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
 
-    dimension: minus_2 {group_label: "Studyguide added to dashboard"}
+    dimension: minus_2 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
 
-    dimension: minus_3 {group_label: "Studyguide added to dashboard"}
+    dimension: minus_3 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
 
-    dimension: minus_4 {group_label: "Studyguide added to dashboard"}
+    dimension: minus_4 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
 
   }

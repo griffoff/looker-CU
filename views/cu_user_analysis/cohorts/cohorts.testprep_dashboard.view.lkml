@@ -49,15 +49,15 @@ view: cohorts_testprep_dashboard {
   }
 
 
-  dimension: current {group_label: "Test-prep added to dashboard"}
+  dimension: current {group_label: "Test-prep added to dashboard" description:"Number of test prep items added to dashboard for term"}
 
-  dimension: minus_1 {group_label: "Test-prep added to dashboard"}
+  dimension: minus_1 {group_label: "Test-prep added to dashboard" description:"Number of test prep items added to dashboard for term"}
 
-  dimension: minus_2 {group_label: "Test-prep added to dashboard"}
+  dimension: minus_2 {group_label: "Test-prep added to dashboard" description:"Number of test prep items added to dashboard for term"}
 
-  dimension: minus_3 {group_label: "Test-prep added to dashboard"}
+  dimension: minus_3 {group_label: "Test-prep added to dashboard" description:"Number of test prep items added to dashboard for term"}
 
-  dimension: minus_4 {group_label: "Test-prep added to dashboard"}
+  dimension: minus_4 {group_label: "Test-prep added to dashboard" description:"Number of test prep items added to dashboard for term"}
 
 }
 

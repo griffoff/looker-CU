@@ -504,6 +504,7 @@ view: learner_profile {
                   ELSE 'No enrollments or activations or courseware on dashboard'
                END
       ;;
+      description: "Buckets student that have activated / enrolled in non-CU courseware of value over/under $120"
   }
 
 

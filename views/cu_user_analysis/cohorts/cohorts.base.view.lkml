@@ -188,7 +188,7 @@ view: cohorts_base {
 
 
   dimension: minus_2_tiers_time {
-    label: "2) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "3) {{ _view._name | replace: 'cohorts', '' | replace: 'cohort', '' | replace: '_', ' ' | remove_first: ' ' | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_2} = 0 ;;

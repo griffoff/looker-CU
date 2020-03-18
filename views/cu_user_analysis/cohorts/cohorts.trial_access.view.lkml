@@ -132,14 +132,14 @@ view: TrialAccess_cohorts {
 #        ;;
 #   }
 
-  dimension: current { group_label: "Trial Access" }
+  dimension: current { group_label: "Trial Access" description:"User had trial access during term Y/N"}
 
-  dimension: minus_1 { group_label: "Trial Access" }
+  dimension: minus_1 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
 
-  dimension: minus_2 { group_label: "Trial Access" }
+  dimension: minus_2 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
 
-  dimension: minus_3 { group_label: "Trial Access" }
+  dimension: minus_3 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
 
-  dimension: minus_4 { group_label: "Trial Access" }
+  dimension: minus_4 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
 
 }

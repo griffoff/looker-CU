@@ -10,18 +10,17 @@ view: cohorts_extended {
     hidden: yes
   }
 
-  dimension: current { group_label: "Subscription Extended" }
+  dimension: current { group_label: "Subscription Extended" description:"Subscription extended in term (0 or 1)"}
 
-  dimension: minus_1 { group_label: "Subscription Extended" }
+  dimension: minus_1 { group_label: "Subscription Extended" description:"Subscription extended in term (0 or 1)"}
 
-  dimension: minus_2 { group_label: "Subscription Extended" }
+  dimension: minus_2 { group_label: "Subscription Extended" description:"Subscription extended in term (0 or 1)"}
 
-  dimension: minus_3 { group_label: "Subscription Extended" }
+  dimension: minus_3 { group_label: "Subscription Extended" description:"Subscription extended in term (0 or 1)"}
 
-  dimension: minus_4 { group_label: "Subscription Extended" }
-
-
+  dimension: minus_4 { group_label: "Subscription Extended" description:"Subscription extended in term (0 or 1)"}
 }
+
   view: cohorts_extended_old {
     extends: [cohorts_base_binary]
 
