@@ -424,7 +424,7 @@ view: learner_profile {
     type: number
     label: "# courseware"
     sql: COALESCE(array_size(${TABLE}.all_courseware_added), 0) ;;
-    description: "Number of different courweware iac_isbn provisioned to dashboard"
+    description: "Number of different courseware iac_isbn provisioned to dashboard"
   }
 
 

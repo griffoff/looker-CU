@@ -37,12 +37,14 @@ view: live_subscription_status {
     sql: ${subscription_id} || ${contract_id} ;;
     primary_key: yes
     description: "Subscription ID + Contract ID"
+  hidden:  yes
   }
 
   dimension: merged_guid {
     type: string
     sql: ${TABLE}."MERGED_GUID" ;;
 #     primary_key: merged_guid
+    hidden: yes
   }
 
   dimension: user_sso_guid {
@@ -59,6 +61,7 @@ view: live_subscription_status {
   dimension_group: local_time {
     type: time
     sql: ${TABLE}."LOCAL_TIME" ;;
+    hidden: yes
   }
 
   dimension: subscription_plan {
@@ -98,6 +101,7 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
     description: "SAPSubscription"
+    hidden: yes
   }
 
   dimension: platform_environment {
@@ -117,6 +121,7 @@ view: live_subscription_status {
   dimension_group: event_time {
     type: time
     sql: ${TABLE}."EVENT_TIME" ;;
+    hidden: yes
   }
 
   dimension: current_guid {
@@ -134,17 +139,20 @@ view: live_subscription_status {
   dimension_group: initialization_time {
     type: time
     sql: ${TABLE}."INITIALIZATION_TIME" ;;
+    hidden: yes
   }
 
   dimension: contract_id {
     type: string
     sql: ${TABLE}."CONTRACT_ID" ;;
+    hidden: yes
   }
 
   dimension: contract_status {
     type: string
     sql: ${TABLE}."CONTRACT_STATUS" ;;
     description: "Active / Inactive / Pending"
+    hidden:  yes
   }
 
   dimension: subscription_id {
@@ -229,6 +237,7 @@ view: live_subscription_status {
     type: time
     sql: ${TABLE}."PLACED_TIME" ;;
     description: "Time subscription was placed"
+    hidden:  yes
   }
 
   dimension_group: cancelled_time {
@@ -244,22 +253,26 @@ view: live_subscription_status {
   dimension: payment_source_type {
     type: string
     sql: ${TABLE}."PAYMENT_SOURCE_TYPE" ;;
+    hidden: yes
   }
 
   dimension: payment_source_id {
     type: string
     sql: ${TABLE}."PAYMENT_SOURCE_ID" ;;
+    hidden: yes
   }
 
   dimension: payment_source_guid {
     type: string
     sql: ${TABLE}."PAYMENT_SOURCE_GUID" ;;
+    hidden: yes
   }
 
   dimension: payment_source_line {
     type: string
     sql: ${TABLE}."PAYMENT_SOURCE_LINE" ;;
     description: "= 1"
+    hidden: yes
   }
 
   dimension: prior_status {
@@ -271,6 +284,7 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."ITEM_ID" ;;
     description: "Numeric ID associated with Subscription Plan ID"
+    hidden: yes
   }
 
   dimension_group: time_since_last_subscription {

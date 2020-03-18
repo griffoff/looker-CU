@@ -10,15 +10,15 @@ view: cohorts_extended {
     hidden: yes
   }
 
-  dimension: current { group_label: "Subscription Extended" description:"Subscription extended in term"}
+  dimension: current { group_label: "Subscription Extended" description:"Subscriptions extended in term"}
 
-  dimension: minus_1 { group_label: "Subscription Extended" description:"Subscription extended in term" }
+  dimension: minus_1 { group_label: "Subscription Extended" description:"Subscriptions extended in term" }
 
-  dimension: minus_2 { group_label: "Subscription Extended" description:"Subscription extended in term" }
+  dimension: minus_2 { group_label: "Subscription Extended" description:"Subscriptions extended in term" }
 
-  dimension: minus_3 { group_label: "Subscription Extended" description:"Subscription extended in term" }
+  dimension: minus_3 { group_label: "Subscription Extended" description:"Subscriptions extended in term" }
 
-  dimension: minus_4 { group_label: "Subscription Extended" description:"Subscription extended in term" }
+  dimension: minus_4 { group_label: "Subscription Extended" description:"Subscriptions extended in term" }
 }
 
   view: cohorts_extended_old {
