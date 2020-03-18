@@ -460,6 +460,7 @@ view: learner_profile {
     label: "# Students"
     drill_fields: [details*]
     hidden: no
+    description: "# of users, non-disctinct"
   }
 
   measure: count {
@@ -467,6 +468,7 @@ view: learner_profile {
     label: "Count"
     drill_fields: [details*]
     hidden: no
+    description: "# of users, non-disctinct"
   }
 
   measure: average_lifetime_courses_used {

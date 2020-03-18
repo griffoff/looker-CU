@@ -123,7 +123,7 @@ view: cohorts_full_access_new {
   measure: renewal_rate {
     group_label: "Renewal rates"
     label: "Renewal rate 2"
-    description: "# of users with a subscription in the previous term and a new subscription in the current term / # of users with a subscription in the revious term"
+    description: "# of users with a subscription in the previous term and a new subscription in the current term / # of users with a subscription in the previous term"
     type: number
     value_format_name: "percent_2"
     sql: ${renewals} / ${previous_full_access} ;;
@@ -141,7 +141,7 @@ view: cohorts_full_access_new {
   measure: renewal_rate_3 {
     group_label: "Renewal rates"
     label: "Renewal rate"
-    description: "# of users with a new subscription in the current term / # of users with a subscription in the revious term"
+    description: "# of users with a new subscription in the current term / # of users with a subscription in the previous term"
     type: number
     value_format_name: "percent_2"
     sql: ${new_current} / ${previous_full_access} ;;

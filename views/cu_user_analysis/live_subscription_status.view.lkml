@@ -23,6 +23,7 @@ view: live_subscription_status {
   dimension: subscription_state {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+    description: "Active, Cancelled, Expired, Pending"
   }
 
   dimension: record_rank {
@@ -35,6 +36,7 @@ view: live_subscription_status {
     type: string
     sql: ${subscription_id} || ${contract_id} ;;
     primary_key: yes
+    description: "Subscription ID + Contract ID"
   }
 
   dimension: merged_guid {
@@ -62,11 +64,13 @@ view: live_subscription_status {
   dimension: subscription_plan {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_PLAN" ;;
+    description: "Full Access, Limited Access, Read-Only, Trial Access"
   }
 
   dimension_group: _ldts {
     type: time
     sql: ${TABLE}."_LDTS" ;;
+    description: " Data Load Date Time Stamp"
   }
 
   dimension: _rsrc {
@@ -77,26 +81,31 @@ view: live_subscription_status {
   dimension: message_format_version {
     type: number
     sql: ${TABLE}."MESSAGE_FORMAT_VERSION" ;;
+    description: "= 2"
   }
 
   dimension: message_type {
     type: string
     sql: ${TABLE}."MESSAGE_TYPE" ;;
+    description: "Subscription / SubscriptionTransfer"
   }
 
   dimension: product_platform {
     type: string
     sql: ${TABLE}."PRODUCT_PLATFORM" ;;
+    description: "SAPSubscription"
   }
 
   dimension: platform_environment {
     type: string
     sql: ${TABLE}."PLATFORM_ENVIRONMENT" ;;
+    description: "production"
   }
 
   dimension: user_environment {
     type: string
     sql: ${TABLE}."USER_ENVIRONMENT" ;;
+    description: "production"
   }
 
   dimension_group: event_time {
@@ -127,6 +136,7 @@ view: live_subscription_status {
   dimension: contract_status {
     type: string
     sql: ${TABLE}."CONTRACT_STATUS" ;;
+    description: "Active / Inactive / Pending"
   }
 
   dimension: subscription_id {
@@ -155,7 +165,7 @@ view: live_subscription_status {
   dimension: effective_from {
     type: date
     label: "Subscription effective from date"
-    description: "Start date of this status"
+    description: "Start date of subscription status"
     hidden: no
     sql: ${TABLE}."EFFECTIVE_FROM" ;;
   }
@@ -167,6 +177,7 @@ view: live_subscription_status {
     sql_start: ${subscription_start_date} ;;
     sql_end:  CURRENT_DATE();;
     label: "Time in current status"
+    description: "Time since subscription start date"
   }
 
 
@@ -196,16 +207,19 @@ view: live_subscription_status {
   dimension: subscription_plan_id {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_PLAN_ID" ;;
+    description: "Full-Access-120, 2  Full-Access-365, Full-Access-730, Limited-Access-180,Read-Only, Trial"
   }
 
   dimension: subscription_duration {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_DURATION" ;;
+    description: "14, 120, 122, 180, 365, 730 days"
   }
 
   dimension_group: placed_time {
     type: time
     sql: ${TABLE}."PLACED_TIME" ;;
+    description: "Time subscription was placed"
   }
 
   dimension_group: cancelled_time {
@@ -236,13 +250,18 @@ view: live_subscription_status {
   dimension: payment_source_line {
     type: string
     sql: ${TABLE}."PAYMENT_SOURCE_LINE" ;;
+    description: "= 1"
   }
 
-  dimension: prior_status {}
+  dimension: prior_status {
+    hidden:  yes
+    #this field doesn't exist in the source table
+  }
 
   dimension: item_id {
     type: string
     sql: ${TABLE}."ITEM_ID" ;;
+    description: "Numeric ID associated with Subscription Plan ID"
   }
 
   dimension_group: time_since_last_subscription {
@@ -251,6 +270,7 @@ view: live_subscription_status {
     intervals: [day, week, month]
     sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
     sql_end: current_date() ;;
+    description: "Time since subscription start if active subscription is ongoing, otherwise time since subscription end"
   }
 
   dimension_group: time_left_in_current_status {
@@ -258,7 +278,7 @@ view: live_subscription_status {
     intervals: [day, week, month]
     sql_start: current_timestamp() ;;
     sql_end: ${subscription_end_date} ;;
-
+  description: "Time remaining until subscription end"
   }
 
   dimension: gateway_guid {
@@ -282,6 +302,7 @@ view: live_subscription_status {
     label: "# Subscribers"
     type: number
     sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN ${user_sso_guid} END) ;;
+    description: "Distinct count of full access subscribers"
   }
 
   measure: non_subscriber_count {

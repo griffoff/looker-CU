@@ -85,6 +85,7 @@ view: cu_user_info {
     type: count_distinct
     sql: ${merged_guid} ;;
     drill_fields: [detail*]
+    description: "Count of distinct users by GUID"
 #     hidden: yes
   }
 
