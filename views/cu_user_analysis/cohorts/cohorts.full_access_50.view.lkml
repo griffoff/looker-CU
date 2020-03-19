@@ -48,15 +48,15 @@ view: cohorts_full_access_50 {
     hidden:  yes
   }
 
-  dimension: current { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
+  dimension: current { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Government defined academic calendar)" }
 
-  dimension: minus_1 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
+  dimension: minus_1 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Government defined academic calendar)" }
 
-  dimension: minus_2 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
+  dimension: minus_2 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Government defined academic calendar)" }
 
-  dimension: minus_3 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
+  dimension: minus_3 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Government defined academic calendar)" }
 
-  dimension: minus_4 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Goverment defined academic calendar)" }
+  dimension: minus_4 { group_label: "Full Access 30% active days" description: "Student had a full active subscription for more than of 30% of the semester days (Government defined academic calendar)" }
 
 
 }

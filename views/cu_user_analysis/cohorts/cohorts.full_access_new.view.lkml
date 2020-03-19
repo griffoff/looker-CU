@@ -91,7 +91,7 @@ view: cohorts_full_access_new {
   measure: renewal_rate_ends_1 {
     group_label: "Renewal rates"
     label: "Renewal rate 3"
-    description: "(# of users that have a new subscription in the current term and had a subscription end in the priorterm + # users with current term extensions) / # of users with subscriptions ending in the previous term"
+    description: "(# of users that have a new subscription in the current term and had a subscription end in the prior term + # users with current term extensions) / # of users with subscriptions ending in the previous term"
     type: number
     sql: (${renewals_end_1} + ${current_extensions}) / ${previous_term_fa_ends} ;;
     value_format_name: "percent_2"

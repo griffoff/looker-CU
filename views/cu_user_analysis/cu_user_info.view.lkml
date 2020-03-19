@@ -175,7 +175,7 @@ view: cu_user_info {
     type: yesno
     label: "IPM Blacklist Institution"
     sql: ${TABLE}.entity_flag ILIKE 'Y%' ;;
-    description: "This flag is Yes for users that attend institutions that do NOT allow their student's to recieve IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
+    description: "This flag is Yes for users that attend institutions that do NOT allow their student's to receive IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
     link: {
         label: "IPM suppression list google sheet"
         url: "https://docs.google.com/spreadsheets/d/1GWByyBwWhMX-aXEzYqeHe_p-wCRsiwCMMPn_SyrzpWk/edit#gid=0"
@@ -276,13 +276,11 @@ view: cu_user_info {
 
   dimension: us_hed_marketing_allowed {
     label: "Marketing allowed - US HED"
-    description: "
-    none of the following are found in any matching user records (matched by email address or merged guid if email is missing)
-      - opt out flags
-      - instructor flags
-      - k12 flags
-      - non-USA regions
-    "
+    description: "None of the following are found in any matching user records (matched by email address or merged guid if email is missing)
+    - opt out flags
+    - instructor flags
+    - k12 flags
+    - non-USA regions"
     view_label: "** RECOMMENDED FILTERS **"
     type: yesno
     sql: NOT ${opt_out_by_party} AND NOT ${k12_by_party} AND NOT ${instructor_by_party} AND NOT ${non_usa_by_party};;

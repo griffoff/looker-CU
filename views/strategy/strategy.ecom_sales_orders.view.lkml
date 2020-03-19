@@ -68,7 +68,7 @@ view: strategy_ecom_sales_orders {
 
 
   measure: arpu {
-    description: "Averege Revenue Per User from strategies upload higher ed sales orders e-comm"
+    description: "Average Revenue Per User from strategies upload higher ed sales orders e-comm"
     alias: [ARPU]
     type: number
     sql: ${revenue} / ${user_count};;

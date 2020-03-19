@@ -131,7 +131,7 @@ view: cohorts_base {
   }
 
   dimension: minus_2_tiers {
-    label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
+    label: "3) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }} tiers"
     case: {
       when:
       {sql: ${minus_1} = 0 ;;

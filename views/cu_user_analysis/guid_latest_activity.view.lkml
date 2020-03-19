@@ -24,7 +24,7 @@ view: guid_latest_activity {
   dimension: active_desc {
     group_label: "Active"
     label: "User Active (Description)"
-    description: "Active users are those who have had some activity within the past 7 days"
+    description: "Active users are those who have had some activity within the past 30 days"
     type: string
     sql: CASE WHEN ${active} THEN 'Active' ELSE 'Inactive' END ;;
 

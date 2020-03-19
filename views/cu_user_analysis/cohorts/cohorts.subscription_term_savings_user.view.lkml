@@ -80,7 +80,7 @@ view: cohorts_subscription_term_savings_user {
   }
 
   dimension: current {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"
-    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscription = $240/6 = $40/semesters"
     }
 
   dimension: minus_1 {group_label: "CU Term Savings ($)"  hidden: yes  value_format_name: "usd"}
@@ -92,15 +92,15 @@ view: cohorts_subscription_term_savings_user {
   dimension: minus_4 {group_label: "CU Term Savings ($)"  hidden: yes value_format_name: "usd"}
 
   dimension: current_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
-    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscription = $240/6 = $40/semesters"
     }
 
   dimension: minus_1_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
-    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscription = $240/6 = $40/semesters"
     }
 
   dimension: minus_2_tiers {group_label: "CU Term Savings tiers ($)" hidden: no
-    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscrtiption = $240/6 = $40/semesters"
+    description: "Savings calculated on a semester basis as the sum of the net price of courseware minus the cost of their subscription amortized by semester e.g. 2 year subscription = $240/6 = $40/semesters"
     }
 
 

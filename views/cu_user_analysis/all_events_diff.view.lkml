@@ -58,35 +58,35 @@ view: all_events_diff {
     type: string
     sql: ${TABLE}."DIFF_EVENT_1" ;;
     label: "Event 1"
-    description: "The first succeding event from the current event with a different event name than the current event"
+    description: "The first succeeding event from the current event with a different event name than the current event"
   }
 
   dimension: event_2 {
     type: string
     sql: ${TABLE}."DIFF_EVENT_2" ;;
     label: "Event 2"
-    description: "The second succeding event from the current event with a different event name than event 1"
+    description: "The second succeeding event from the current event with a different event name than event 1"
   }
 
   dimension: event_3 {
     type: string
     sql: ${TABLE}."DIFF_EVENT_3" ;;
     label: "Event 3"
-    description: "The third succeding event from the current event with a different event name than event 2"
+    description: "The third succeeding event from the current event with a different event name than event 2"
   }
 
   dimension: event_4 {
     type: string
     sql: ${TABLE}."DIFF_EVENT_4" ;;
     label: "Event 4"
-    description: "The fourth succeding event from the current event with a different event name than event 3"
+    description: "The fourth succeeding event from the current event with a different event name than event 3"
   }
 
   dimension: event_5 {
     type: string
     sql: ${TABLE}."DIFF_EVENT_5" ;;
     label: "Event 5"
-    description: "The fifth succeding event from the current event with a different event name than event 4"
+    description: "The fifth succeeding event from the current event with a different event name than event 4"
   }
 
 }

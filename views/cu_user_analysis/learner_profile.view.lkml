@@ -114,13 +114,13 @@ view: learner_profile {
 
   dimension: current_date {
     label: "Current Date (Report Generated Date)"
-    description: "Shows the current calander date as this explore is being refreshed"
+    description: "Shows the current calendar date as this explore is being refreshed"
     sql: TO_DATE(CURRENT_DATE()) ;;
   }
 
   dimension: returning_cu_customer {
     group_label: "Customer Type"
-    description: "New / Puchased CU Before / Tried Before, No CU Purchase"
+    description: "New / Purchased CU Before / Tried Before, No CU Purchase"
   }
 
   dimension: purchase_path {
@@ -184,7 +184,7 @@ view: learner_profile {
         type: time
         timeframes: [raw, time, date, day_of_week, month, hour]
         label: "First interaction"
-        description: "The time components of the timestamp when the user first logged in"
+        description: "Components of the timestamp when the user first logged in"
       }
 
   dimension: days_active_tiers  {
@@ -479,7 +479,7 @@ view: learner_profile {
   measure: average_lifetime_courses_used {
     type: average
     sql: ${courses_used_count} ;;
-    label: "average # of courses used"
+    label: "# courses used (avg)"
     description: "average # of courses used over a student's life time"
     drill_fields: [details*]
     hidden: no
@@ -670,7 +670,7 @@ view: learner_profile {
     group_label: "Courses"
     type: number
     label: "# Courses Enrolled"
-    description: "Number of courses the user has enrolled in (course keys found in OlR enrollments)"
+    description: "Number of courses the user has enrolled in (course keys found in OLR enrollments)"
     sql: ${TABLE}.unique_courses_enrolled ;;
     alias: [unique_courses]
   }
@@ -679,7 +679,7 @@ view: learner_profile {
     group_label: "Courses"
     type: number
     label: "# Courses Activated"
-    description: "Number of courses the user has enrolled in (course keys found in OLR activations)"
+    description: "Number of courses the user has activated (course keys found in OLR activations)"
     sql: ${TABLE}.unique_courses_activated ;;
   }
 

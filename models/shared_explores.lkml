@@ -48,7 +48,7 @@ explore: all_sessions {
 
   join: all_events_diff {
     sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
-    view_label: "Event Path (preceeding and following events)"
+    view_label: "Event Path (preceding and following events)"
     sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
     relationship: many_to_one
     type: inner

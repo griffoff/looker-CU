@@ -44,7 +44,8 @@ view: all_events {
   dimension: event_data_course_key {
     type: string
     sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)::STRING  ;;
-    label: "Course key (event data)"
+    label: "Course key"
+    description: "Event data"
   }
 
   dimension: event_data_reader_type {
@@ -184,6 +185,7 @@ view: all_events {
 
   dimension: side_bar_contentType {
     group_label: "Sidebar tag events"
+    description: "ISBN Module / Quick Lesson / Study Tool"
     label: "Content type"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:contentType::string END ;;
@@ -191,6 +193,7 @@ view: all_events {
   }
 
   dimension: side_bar_pointInSemester {
+    description: "Early Semester, End-of-semester, Mid-semester"
     group_label: "Sidebar tag events"
     label: "Point In Semester"
     type: string
@@ -200,6 +203,7 @@ view: all_events {
 
   dimension: side_bar_discipline {
     group_label: "Sidebar tag events"
+    description: "Subject matter: Art, Philosophy, Criminal Justice, etc."
     label: "Discipline"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:discipline::string END ;;
@@ -208,7 +212,8 @@ view: all_events {
 
   dimension: side_bar_studyToolCgi {
     group_label: "Sidebar tag events"
-    label: "Study Tool Cgi"
+    label: "Study Tool CGI"
+    description: "Cengage Global Identifier"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:studyToolCgi::string END ;;
     hidden: no
@@ -244,6 +249,7 @@ view: all_events {
     label: "Industry Link Type"
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkType::string END ;;
+    description: "custom, global"
     hidden: no
   }
 
@@ -252,6 +258,7 @@ view: all_events {
     label: "User Role"
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:userRole::string END ;;
+    description: "instructor, primary, student, ta"
     hidden: no
   }
 
@@ -340,7 +347,7 @@ view: all_events {
     label: "External Take URI"
     type: string
     sql: ${event_data}:externalTakeUri::string  ;;
-    description: "Event data"
+    description: "Event data - Unique Resource Identifier"
     hidden: no
   }
 
@@ -349,7 +356,7 @@ view: all_events {
     label: "Item URI"
     type: string
     sql: ${event_data}:itemUri::string  ;;
-    description: "Event data"
+    description: "Event data - Unique Resource Identifier"
     hidden: no
   }
 
@@ -367,7 +374,7 @@ view: all_events {
     label: "Activity URI"
     type: string
     sql: ${event_data}:activityUri::string  ;;
-    description: "Event data"
+    description: "Event data - Unique Resource Identifier"
     hidden: no
   }
 
@@ -376,8 +383,8 @@ view: all_events {
     label: "Show Grade Indicators"
     type: string
     sql: ${event_data}:showGradeIndicators::string  ;;
-    description: "Event data - true / null"
-    hidden: no
+    description: "Event data - true"
+    hidden: yes
   }
 
   dimension: tags_course_uri {
@@ -385,7 +392,7 @@ view: all_events {
     label: "Course URI"
     type: string
     sql: ${event_data}:courseUri::string  ;;
-    description: "Event data"
+    description: "Event data - Unique Resource Identifier"
     hidden: no
   }
 
@@ -394,7 +401,7 @@ view: all_events {
     label: "Course CGI"
     type: string
     sql: ${event_data}:courseCgi::string  ;;
-    description: "Event data"
+    description: "Event data - Cengage Global Identifier"
     hidden: no
   }
 
@@ -427,10 +434,10 @@ view: all_events {
 
   dimension: tags_studyToolCgi {
     group_label: "Client Activity Tags"
-    label: "Study Tool Cgi"
+    label: "Study Tool CGI"
     type: string
     sql: ${event_data}:studyToolCgi::string  ;;
-    description: "Event data"
+    description: "Event data - Cengage Global Identifier"
     hidden: no
   }
 
@@ -475,7 +482,7 @@ view: all_events {
     label: "CLA Page Number"
     type: string
     sql: ${event_data}:claPageNumber::string ;;
-    description: "Event data"
+    description: "Event data - Compound Learning Activity"
     hidden: no
   }
 
@@ -537,6 +544,7 @@ view: all_events {
   dimension: search_flag {
     label: "Dashboard Search Flags"
     sql: CASE WHEN ${event_name} ilike 'Dashboard Search%' THEN 'Dashboard Search' ELSE 'No Dashboard Search' END ;;
+    description: "Dashboard Search / No Dashboard Search"
   }
 
   dimension:search_outcome{
@@ -558,7 +566,7 @@ view: all_events {
     type: string
     sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."PRODUCT_PLATFORM" ELSE ${TABLE}."SYSTEM_CATEGORY" END ;;
     label: "System category"
-    description: " Categorizes events by system eg: Cengage Unlimited, Registrations"
+    description: "Categorizes events by system eg: Cengage Unlimited, Registrations"
   }
 
   dimension: event_type {
@@ -567,7 +575,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_TYPE" ;;
     label: "Event type"
     description: "Direct from source.
-    The highest level in the hierarchy of event classicfication above event action"
+    The highest level in the hierarchy of event classification above event action"
     hidden: no
   }
 
@@ -578,7 +586,7 @@ view: all_events {
     sql: ${TABLE}."EVENT_ACTION" ;;
     label: "Event action"
     description: "Direct from source.
-    A classification of event within the hierachy of events beneath event type and above event name i.e. 'OLR Enrollment'"
+    A classification of event within the hierarchy of events beneath event type and above event name i.e. 'OLR Enrollment'"
     hidden: no
   }
 
@@ -592,10 +600,9 @@ view: all_events {
           ;;
     label: "Event name"
     description: "The lowest level in hierarchy of event classification below event action.
-    Can be asscoaited with describing a user action in plain english i.e. 'Buy Now Button Click'
+    Can be associated with describing a user action in plain english i.e. 'Buy Now Button Click'
     n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
-    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **
-    "
+    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **"
     link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
   }
@@ -776,7 +783,7 @@ dimension: load_metadata_source {
 
   measure: events_last_1_days {
     group_label: "# Events"
-    label: "Avg # Events per day yesterday"
+    label: "# Events per day yesterday (avg)"
     type: number
     sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
     value_format_name: decimal_1
@@ -784,7 +791,7 @@ dimension: load_metadata_source {
 
   measure: events_last_7_days {
     group_label: "# Events"
-    label: "Avg # Events per day per user in the last 7 days"
+    label: "# Events per day per user in the last 7 days (avg)"
     type: number
     sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 7 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
     value_format_name: decimal_1
@@ -792,7 +799,7 @@ dimension: load_metadata_source {
 
   measure: events_last_30_days {
     group_label: "# Events"
-    label: "Avg # Events per day per user in the last 30 days"
+    label: "# Events per day per user in the last 30 days (avg)"
     type: number
     sql: COUNT(CASE WHEN DATEDIFF(day,${event_date_raw}, CURRENT_DATE()) <= 30 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) <= 30 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
     value_format_name: decimal_1
@@ -800,7 +807,7 @@ dimension: load_metadata_source {
 
   measure: events_last_6_months {
     group_label: "# Events"
-    label: "Avg # Events per day per user in the last 6 months"
+    label: "# Events per day per user in the last 6 months (avg)"
     type: number
     sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
     value_format_name: decimal_1
@@ -808,7 +815,7 @@ dimension: load_metadata_source {
 
   measure: events_last_12_months {
     group_label: "# Events"
-    label: "Avg # Events per day per user in the last 12 months"
+    label: "# Events per day per user in the last 12 months (avg)"
     type: number
     sql: COUNT(CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 12 THEN 1 END) / NULLIF(COUNT(DISTINCT CASE WHEN DATEDIFF(month, ${event_date_raw}, CURRENT_DATE()) <= 6 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
     value_format_name: decimal_1
@@ -847,6 +854,8 @@ dimension: load_metadata_source {
   }
 
   measure: user_week_count {
+    label: "# of User Weeks"
+    description: "Distinct count of all user SSO guid + week where an event occurred combinations"
     type: count_distinct
     sql: HASH(${user_sso_guid}, ${local_week}) ;;
     hidden: no
@@ -912,7 +921,7 @@ dimension: load_metadata_source {
 
   measure: event_duration_per_day {
     group_label: "Time spent"
-    label: "Average Time spent per student per day"
+    label: "Average time spent per student per day"
     type: number
     sql: ${event_duration_total} / ${user_day_count} ;;
     value_format: "[m] \m\i\n\s"
@@ -920,14 +929,14 @@ dimension: load_metadata_source {
 
   measure: days_active_avg {
     group_label: "Activity"
-    label: "Average days with activity per user"
+    label: "# days with activity per user (avg)"
     type: number
     sql: ${user_day_count} / ${user_count};;
   }
 
   measure: days_active_avg_per_month {
     group_label: "Activity"
-    label: "Average days with activity per user per month"
+    label: "# days with activity per user per month (avg)"
     type: number
     sql: ${user_day_count} / ${user_count} / ${month_count};;
   }
@@ -941,11 +950,12 @@ dimension: load_metadata_source {
         ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
         ,'LEARN_MORE') )
         OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL')) ;;
+      description: "Extra-courseware resource event (Clicked on a Quizlet, Kaplan, Career Center, etc."
   }
 
   measure: cu_resource_opens {
     label: "# of CU resource opens"
-    description: "Number of times a CU resource was used"
+    description: "Number of times an Extra-courseware resource was used"
     type: count_distinct
     sql: CASE WHEN
           (event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'

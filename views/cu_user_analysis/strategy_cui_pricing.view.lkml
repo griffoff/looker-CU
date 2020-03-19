@@ -71,6 +71,7 @@ view: strategy_cui_pricing {
   }
 
   dimension: institution_nm {
+    label: "Institution Name"
     type: string
     sql: ${TABLE}."INSTITUTION_NM" ;;
     group_label: "CUI Pricing"

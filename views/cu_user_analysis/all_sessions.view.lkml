@@ -138,7 +138,7 @@ view: all_sessions {
     style: relational
     sql: ${session_length} ;;
     label: "Session length tiers"
-    description: "Tiers for bucketing session lengths (formated as HH:mm:ss)"
+    description: "Tiers for bucketing session lengths (formatted as HH:mm:ss)"
     value_format:  "[m] \m\i\n\s"
   }
 
@@ -147,7 +147,7 @@ view: all_sessions {
     type: number
     sql: ${TABLE}."SESSION_LENGTH_MINS" / 60 / 24 ;;
     label: "Session length"
-    description: "Length of the given session (formated as HH:mm:ss)"
+    description: "Length of the given session (formatted as HH:mm:ss)"
     value_format: "[m] \m\i\n\s"
   }
 
