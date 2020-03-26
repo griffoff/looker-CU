@@ -2,6 +2,12 @@ view: active_users_platforms {
 
   view_label: "User Activity Counts"
 
+  parameter: offset {
+    description: "Offset (days/weeks/months depending on metric) to use when comparing vs prior year, can be positive to move prior year values forwards or negative to shift prior year backwards"
+    type: number
+    default_value: "0"
+  }
+
   derived_table: {
     sql:  SELECT DISTINCT COALESCE(productplatform, 'UNKNOWN') as product_platform
     FROM ${guid_platform_date_active.SQL_TABLE_NAME} ;;

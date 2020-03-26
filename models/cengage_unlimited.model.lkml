@@ -78,7 +78,7 @@ explore: active_users_stats  {
   join: dau_ly {
     view_label: "User Activity Counts - Prior Year"
     from: dau
-    sql_on: ${active_users_stats.datevalue} = DATEADD(year, 1, ${dau_ly.date})
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${dau_ly.date})
       AND ${active_users_platforms.product_platform} = ${dau_ly.product_platform};;
     relationship: one_to_one
     type: left_outer
@@ -94,7 +94,7 @@ explore: active_users_stats  {
   join: wau_ly {
     view_label: "User Activity Counts - Prior Year"
     from: wau
-    sql_on: ${active_users_stats.datevalue} = DATEADD(year, 1, ${wau_ly.date})
+    sql_on: DATEADD(week, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${wau_ly.date})
       AND ${active_users_platforms.product_platform} = ${wau_ly.product_platform};;
     relationship: one_to_one
     type: left_outer
@@ -110,7 +110,7 @@ explore: active_users_stats  {
   join: mau_ly {
     view_label: "User Activity Counts - Prior Year"
     from: mau
-    sql_on: ${active_users_stats.datevalue} = DATEADD(year, 1, ${mau_ly.date})
+    sql_on: DATEADD(month, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${mau_ly.date})
       AND ${active_users_platforms.product_platform} = ${mau_ly.product_platform};;
     relationship: one_to_one
     type: left_outer
