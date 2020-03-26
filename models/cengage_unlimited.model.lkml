@@ -75,6 +75,15 @@ explore: active_users_stats  {
     type: inner
   }
 
+  join: dau_ly {
+    view_label: "User Activity Counts - Prior Year"
+    from: dau
+    sql_on: ${active_users_stats.datevalue} = DATEADD(year, 1, ${dau_ly.date})
+      AND ${active_users_platforms.product_platform} = ${dau_ly.product_platform};;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: wau {
     sql_on: ${active_users_stats.datevalue} = ${wau.date}
         AND ${active_users_platforms.product_platform} = ${wau.product_platform};;
@@ -82,11 +91,29 @@ explore: active_users_stats  {
     type: inner
   }
 
+  join: wau_ly {
+    view_label: "User Activity Counts - Prior Year"
+    from: wau
+    sql_on: ${active_users_stats.datevalue} = DATEADD(year, 1, ${wau_ly.date})
+      AND ${active_users_platforms.product_platform} = ${wau_ly.product_platform};;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: mau {
     sql_on: ${active_users_stats.datevalue} = ${mau.date}
         AND ${active_users_platforms.product_platform} = ${mau.product_platform};;
     relationship: one_to_one
     type: inner
+  }
+
+  join: mau_ly {
+    view_label: "User Activity Counts - Prior Year"
+    from: mau
+    sql_on: ${active_users_stats.datevalue} = DATEADD(year, 1, ${mau_ly.date})
+      AND ${active_users_platforms.product_platform} = ${mau_ly.product_platform};;
+    relationship: one_to_one
+    type: left_outer
   }
 }
 
