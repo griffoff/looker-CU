@@ -20,7 +20,38 @@ connection: "snowflake_prod"
 
 case_sensitive: no
 
-######################### Start of PROD Explores #########################################################################3
+######################### Start of PROD Explores #########################################################################
+
+view: current_date {
+
+  view_label: "** Date Filters **"
+  derived_table: {
+    sql: select date_part(week, current_date()) as current_week_of_year;;
+  }
+
+  dimension: current_week_of_year {type: number hidden:yes}
+}
+
+explore: course_sections {
+  extends: [dim_course]
+  from: dim_course
+  view_name: dim_course
+
+  label: "Course Sections"
+
+  join: user_courses {
+    view_label: "Course Section - Students"
+    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
+    relationship: one_to_many
+  }
+
+  join: current_date {
+    sql_on:  1=1 ;;
+    relationship: one_to_one
+  }
+
+
+}
 
 
 explore: active_users {
