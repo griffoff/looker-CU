@@ -555,8 +555,8 @@ view: raw_subscription_event {
 #   }
 
   measure: count_subscription {
-    description: "A count of the unique user guids which represents the number of unique subscriptions"
-    label: "# New Subscriptions"
+    description: "A count of the unique user guids which represents the number of unique subscribers"
+    label: "# Subscribers"
     type: count_distinct
     sql: ${TABLE}.user_sso_guid ;;
     drill_fields: [detail*]
@@ -564,6 +564,7 @@ view: raw_subscription_event {
 
   measure: count_subscriptions_all {
     label: "# Subscriptions + Resubscriptions"
+    description: "A count of unique user GUID / subscription start /subscription end combinations, representing the number of unique subscriptions and resubscriptions"
     type: count_distinct
     sql: hash(${merged_guid},${subscription_start_date}::date,${subscription_end_date}::date) ;;
   }
