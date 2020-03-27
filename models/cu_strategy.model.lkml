@@ -1,3 +1,5 @@
+
+
 connection: "snowflake_prod"
 
 include: "/models/shared_explores.lkml"
@@ -8,9 +10,14 @@ include: "//core/common.lkml"
 include: "//cube/dims.lkml"
 include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
+include: "/provisioned_products_trials.view"
 
 
 case_sensitive: no
+
+explore: provisioned_products_trials{
+
+}
 
 explore: strategy_analysis {
   label: "CU User Analysis Strategy"

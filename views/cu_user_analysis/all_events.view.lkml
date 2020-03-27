@@ -66,7 +66,7 @@ view: all_events {
     type: string
     sql: ${TABLE}."EVENT_DATA":filter::string ;;
     label: "Filter"
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     description: "Event data"
   }
 
@@ -74,7 +74,7 @@ view: all_events {
     type: string
     sql: ${TABLE}."EVENT_DATA":title::string ;;
     label: "Title"
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     description: "Event data"
   }
 
@@ -82,7 +82,7 @@ view: all_events {
     type: string
     sql: ${TABLE}."EVENT_DATA":filterGroup::string ;;
     label: "Filter Group"
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     description: "Event data"
   }
 
@@ -90,7 +90,7 @@ view: all_events {
     type: string
     sql: ${TABLE}."EVENT_DATA":sortFunction::string ;;
     label: "Sort Function"
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     description: "Event data"
   }
 
@@ -105,16 +105,15 @@ view: all_events {
     sql: ${TABLE}."EVENT_DATA":time_to_next_event ;;
     label: "Time to next event"
     description: "Event data"
+    hidden: yes
   }
 
   dimension: days_in_state {
     group_label: "Subscription State"
     label: "Days in state"
-    description: "Number of days user was in a subscription state when they executed this event"
+    description: "Number of days user had been in a subscription state when they executed this event"
     type: number
     sql: ${event_data}:days_in_current_state ;;
-
-
   }
 
   dimension: role {
@@ -141,7 +140,7 @@ view: all_events {
   }
 
   dimension: side_bar_coursekey {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "Course key"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:courseKey::string END ;;
@@ -150,7 +149,7 @@ view: all_events {
 
 
   dimension: side_bar_carouselName {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "Carousel name"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselName::string END ;;
@@ -158,7 +157,7 @@ view: all_events {
   }
 
   dimension: side_bar_carouselSessionId {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "Carousel session Id"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselSessionId::string END ;;
@@ -167,7 +166,7 @@ view: all_events {
 
 
   dimension: side_bar_activityId {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "Activity Id"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:activityId::string END ;;
@@ -175,7 +174,7 @@ view: all_events {
   }
 
   dimension: side_bar_checkpointId {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "checkpoint Id"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:checkpointId::string END ;;
@@ -184,7 +183,7 @@ view: all_events {
 
 
   dimension: side_bar_contentType {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     description: "ISBN Module / Quick Lesson / Study Tool"
     label: "Content type"
     type: string
@@ -194,7 +193,7 @@ view: all_events {
 
   dimension: side_bar_pointInSemester {
     description: "Early Semester, End-of-semester, Mid-semester"
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "Point In Semester"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:pointInSemester::string END ;;
@@ -202,7 +201,7 @@ view: all_events {
   }
 
   dimension: side_bar_discipline {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     description: "Subject matter: Art, Philosophy, Criminal Justice, etc."
     label: "Discipline"
     type: string
@@ -211,7 +210,7 @@ view: all_events {
   }
 
   dimension: side_bar_studyToolCgi {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "Study Tool CGI"
     description: "Cengage Global Identifier"
     type: string
@@ -220,7 +219,7 @@ view: all_events {
   }
 
   dimension: side_bar_ISBN {
-    group_label: "Sidebar tag events"
+    group_label: "CAFE Tags - Sidebar"
     label: "ISBN"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:ISBN::string END ;;
@@ -279,7 +278,7 @@ view: all_events {
   }
 
   dimension: tags_coursekey {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Course key"
     type: string
     sql: ${event_data}:courseKey::string ;;
@@ -289,7 +288,7 @@ view: all_events {
 
 
   dimension: tags_carouselName {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Carousel name"
     type: string
     sql: ${event_data}:carouselName::string ;;
@@ -298,7 +297,7 @@ view: all_events {
   }
 
   dimension: tags_carouselSessionId {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Carousel session Id"
     type: string
     sql: ${event_data}:carouselSessionId::string  ;;
@@ -307,7 +306,7 @@ view: all_events {
   }
 
   dimension: tags_activityId {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Activity Id"
     type: string
     sql: ${event_data}:activityId::string  ;;
@@ -316,7 +315,7 @@ view: all_events {
   }
 
   dimension: tags_checkpointId {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "checkpoint Id"
     type: string
     sql: ${event_data}:checkpointId::string  ;;
@@ -325,7 +324,7 @@ view: all_events {
   }
 
   dimension: tags_contentType {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Content type"
     type: string
     sql: ${event_data}:contentType::string  ;;
@@ -334,7 +333,7 @@ view: all_events {
   }
 
   dimension: tags_appName {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "App Name"
     type: string
     sql: ${event_data}:appName::string  ;;
@@ -343,7 +342,7 @@ view: all_events {
   }
 
   dimension: tags_external_take_uri {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "External Take URI"
     type: string
     sql: ${event_data}:externalTakeUri::string  ;;
@@ -352,7 +351,7 @@ view: all_events {
   }
 
   dimension: tags_item_uri {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Item URI"
     type: string
     sql: ${event_data}:itemUri::string  ;;
@@ -361,7 +360,7 @@ view: all_events {
   }
 
   dimension: tags_attempt_id {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Attempt ID"
     type: string
     sql: ${event_data}:attemptId::string  ;;
@@ -370,7 +369,7 @@ view: all_events {
   }
 
   dimension: tags_activity_uri {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Activity URI"
     type: string
     sql: ${event_data}:activityUri::string  ;;
@@ -379,7 +378,7 @@ view: all_events {
   }
 
   dimension: tags_show_grade_indicators {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Show Grade Indicators"
     type: string
     sql: ${event_data}:showGradeIndicators::string  ;;
@@ -388,7 +387,7 @@ view: all_events {
   }
 
   dimension: tags_course_uri {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Course URI"
     type: string
     sql: ${event_data}:courseUri::string  ;;
@@ -397,7 +396,7 @@ view: all_events {
   }
 
   dimension: tags_course_cgi {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Course CGI"
     type: string
     sql: ${event_data}:courseCgi::string  ;;
@@ -406,7 +405,7 @@ view: all_events {
   }
 
   dimension: tags_core_text_isbn {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Core Text ISBN"
     type: string
     sql: ${event_data}:coreTextISBN::string  ;;
@@ -415,7 +414,7 @@ view: all_events {
   }
 
   dimension: tags_pointInSemester {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Point In Semester"
     type: string
     sql: ${event_data}:pointInSemester::string  ;;
@@ -424,7 +423,7 @@ view: all_events {
   }
 
   dimension: tags_discipline {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Discipline"
     type: string
     sql: ${event_data}:discipline::string  ;;
@@ -433,7 +432,7 @@ view: all_events {
   }
 
   dimension: tags_studyToolCgi {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Study Tool CGI"
     type: string
     sql: ${event_data}:studyToolCgi::string  ;;
@@ -442,7 +441,7 @@ view: all_events {
   }
 
   dimension: tags_sequence_uuid {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Sequence UUID"
     type: string
     sql: ${event_data}:sequenceUuid::string  ;;
@@ -451,7 +450,7 @@ view: all_events {
   }
 
   dimension: tags_ISBN {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "ISBN"
     type: string
     sql: ${event_data}:ISBN::string  ;;
@@ -460,7 +459,7 @@ view: all_events {
   }
 
   dimension: tags_institutionId {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Institution ID"
     type: string
     sql: ${event_data}:institutionId::string  ;;
@@ -469,7 +468,7 @@ view: all_events {
   }
 
   dimension: tags_userRole {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "User Role"
     type: string
     sql: ${event_data}:userRole::string ;;
@@ -478,7 +477,7 @@ view: all_events {
   }
 
   dimension: tags_cla_page_number {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "CLA Page Number"
     type: string
     sql: ${event_data}:claPageNumber::string ;;
@@ -487,7 +486,7 @@ view: all_events {
   }
 
   dimension: tags_number_of_pages {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Number of Pages"
     type: string
     sql: ${event_data}:numberOfPages::string ;;
@@ -496,7 +495,7 @@ view: all_events {
   }
 
   dimension: tags_titleIsbn {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "Title ISBN"
     type: string
     sql: ${event_data}:titleIsbn::string ;;
@@ -505,7 +504,7 @@ view: all_events {
   }
 
   dimension: tags_eIsbn {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "eISBN"
     type: string
     sql: ${event_data}:eISBN::string ;;
@@ -514,7 +513,7 @@ view: all_events {
   }
 
   dimension: tags_eventData {
-    group_label: "Client Activity Tags"
+    group_label: "CAFE Tags"
     label: "MT Event Data"
     type: string
     sql: ${event_data}:eventData::string ;;
@@ -527,7 +526,7 @@ view: all_events {
     type: string
     group_label: "Event Classification"
     sql: UPPER(${TABLE}."PRODUCT_PLATFORM") ;;
-    label: "Event Source"
+    label: "Product Platform"
     description: "Where did this event come from? e.g. VitalSource, CU DASHBOARD, MT4, MT3, SubscriptionService, cares-dashboard, olr"
     hidden: no
   }
@@ -566,19 +565,18 @@ view: all_events {
     type: string
     sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."PRODUCT_PLATFORM" ELSE ${TABLE}."SYSTEM_CATEGORY" END ;;
     label: "System category"
-    description: "Categorizes events by system eg: Cengage Unlimited, Registrations"
+    description: "Categorizes events by system eg: Cengage Unlimited, Registrations, Product Platforms"
   }
 
   dimension: event_type {
+    label: "Event Category"
     group_label: "Event Classification - Raw"
     type: string
     sql: ${TABLE}."EVENT_TYPE" ;;
-    label: "Event type"
     description: "Direct from source.
     The highest level in the hierarchy of event classification above event action"
     hidden: no
   }
-
 
   dimension: event_action {
     group_label: "Event Classification - Raw"
@@ -619,18 +617,25 @@ view: all_events {
 
   dimension: semester {
     type: string
-    sql: CASE
-          WHEN ${event_date_raw} BETWEEN '2018-08-01' AND '2018-12-31' THEN '1. Fall 2019'
-          WHEN ${event_date_raw} BETWEEN '2019-01-01' AND '2019-06-30' THEN '2. Spring 2019'
-          WHEN ${event_date_raw} BETWEEN '2019-07-01' AND '2019-07-3`' THEN '3. Summer 2019'
-          WHEN ${event_date_raw} BETWEEN '2019-08-01' AND CURRENT_DATE() THEN '4. Fall 2020'
-          ELSE 'Other' END
+    sql:REPLACE(REPLACE(REPLACE(
+            '#s #y/#n'
+            ,'#s'
+            ,CASE
+                WHEN DATE_PART(month, (all_events.event_time::date)) BETWEEN 8 AND 12 THEN 'Fall'
+                WHEN DATE_PART(month, (all_events.event_time::date)) BETWEEN 1 AND 6  THEN 'Spring'
+                ELSE 'Summer'
+              END
+           )
+           ,'#y', DATE_PART(year, (all_events.event_time::date)) - IFF(DATE_PART(month, (all_events.event_time::date)) BETWEEN 8 AND 12, 1, 0)
+           )
+           ,'#n', RIGHT(DATE_PART(year, (all_events.event_time::date)) + IFF(DATE_PART(month, (all_events.event_time::date)) BETWEEN 8 AND 12, 0, 1), 2)
+           )
           ;;
   }
 
   dimension: event_date_raw {
     hidden: yes
-    type: date
+    type: date_raw
     sql: ${TABLE}.event_time::date ;;
   }
 
@@ -656,7 +661,7 @@ view: all_events {
 #   }
 
 dimension: load_metadata_source {
-  group_label: "Load Metadata"
+  group_label: "Event Classification - Raw"
   label: "Load source"
   type: string
   sql: ${TABLE}."LOAD_METADATA":source::string ;;

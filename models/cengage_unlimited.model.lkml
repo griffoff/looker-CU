@@ -20,7 +20,38 @@ connection: "snowflake_prod"
 
 case_sensitive: no
 
-######################### Start of PROD Explores #########################################################################3
+######################### Start of PROD Explores #########################################################################
+
+view: current_date {
+
+  view_label: "** Date Filters **"
+  derived_table: {
+    sql: select date_part(week, current_date()) as current_week_of_year;;
+  }
+
+  dimension: current_week_of_year {type: number hidden:yes}
+}
+
+explore: course_sections {
+  extends: [dim_course]
+  from: dim_course
+  view_name: dim_course
+
+  label: "Course Sections"
+
+  join: user_courses {
+    view_label: "Course Section - Students"
+    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
+    relationship: one_to_many
+  }
+
+  join: current_date {
+    sql_on:  1=1 ;;
+    relationship: one_to_one
+  }
+
+
+}
 
 
 explore: active_users {
@@ -44,6 +75,15 @@ explore: active_users_stats  {
     type: inner
   }
 
+  join: dau_ly {
+    view_label: "User Activity Counts - Prior Year"
+    from: dau
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${dau_ly.date})
+      AND ${active_users_platforms.product_platform} = ${dau_ly.product_platform};;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: wau {
     sql_on: ${active_users_stats.datevalue} = ${wau.date}
         AND ${active_users_platforms.product_platform} = ${wau.product_platform};;
@@ -51,11 +91,29 @@ explore: active_users_stats  {
     type: inner
   }
 
+  join: wau_ly {
+    view_label: "User Activity Counts - Prior Year"
+    from: wau
+    sql_on: DATEADD(week, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${wau_ly.date})
+      AND ${active_users_platforms.product_platform} = ${wau_ly.product_platform};;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: mau {
     sql_on: ${active_users_stats.datevalue} = ${mau.date}
         AND ${active_users_platforms.product_platform} = ${mau.product_platform};;
     relationship: one_to_one
     type: inner
+  }
+
+  join: mau_ly {
+    view_label: "User Activity Counts - Prior Year"
+    from: mau
+    sql_on: DATEADD(month, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${mau_ly.date})
+      AND ${active_users_platforms.product_platform} = ${mau_ly.product_platform};;
+    relationship: one_to_one
+    type: left_outer
   }
 }
 
