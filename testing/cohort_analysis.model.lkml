@@ -22,6 +22,7 @@ view: cohort_selection {
   extends: [all_events]
 
   parameter: cohort_events_filter {
+    view_label: "** COHORT ANALYSIS **"
     label: "Choose cohort behavior"
     description: "Select the things that you want your cohort to have done "
     type: string
@@ -32,6 +33,7 @@ view: cohort_selection {
   }
 
   filter: cohort_date_range_filter {
+    view_label: "** COHORT ANALYSIS **"
     label: "Choose a cohort date range"
     description: "Select a date range for the taret cohort behavior"
     type: date
@@ -39,36 +41,110 @@ view: cohort_selection {
 
   }
 
+  parameter: before_or_after {
+    view_label: "** COHORT ANALYSIS **"
+    label: "Before or after analysis?"
+    description: "Do you want to find behaviors before (leading up to) or after (happened after) the chosen cohort behavior?"
+    type: unquoted
+    default_value: "before"
+    allowed_value: {label: "Before" value: "before"}
+    allowed_value: {label: "After" value: "after"}
+  }
+
   parameter: time_period {
-    label: "Include events (n) minutes after the initial behavior"
+    view_label: "** COHORT ANALYSIS **"
+    label: "Include events (n) minutes before/after the initial behavior"
     description: "How long after the initial behavior (within the same session) do you want to look for subsequent actions"
     type: number
   }
 
   derived_table: {
     sql:
-      SELECT ROW_NUMBER() OVER(PARTITION BY all_events.session_id ORDER BY event_time, event_id) AS event_sequence
-            ,all_events.*
+      SELECT
+          {% if before_or_after._parameter_value == 'before' %}
+          ROW_NUMBER() OVER(PARTITION BY all_events.session_id ORDER BY event_time DESC, event_id DESC) AS event_sequence
+          {% else %}
+          ROW_NUMBER() OVER(PARTITION BY all_events.session_id ORDER BY event_time, event_id) AS event_sequence
+          {% endif %}
+          ,cohort_selection.cohort_events
+          ,all_events.EVENT_ID
+          ,all_events.PLATFORM_ENVIRONMENT
+          ,all_events.PRODUCT_PLATFORM
+          ,all_events.USER_ENVIRONMENT
+          ,all_events.ORIGINAL_USER_SSO_GUID
+          ,COALESCE(all_events.USER_SSO_GUID,cohort_selection.USER_SSO_GUID) AS USER_SSO_GUID
+          ,all_events.LOAD_METADATA
+          ,all_events.EVENT_ACTION
+          ,all_events.EVENT_TIME
+          ,all_events.EVENT_TYPE
+          ,all_events.LOCAL_TIME
+          ,all_events.EVENT_DATA
+          ,all_events.SYSTEM_CATEGORY
+          ,all_events.EVENT_NAME
+          ,all_events.EVENT_NAME_CU
+          ,all_events.EVENT_NAME_COURSEWARE
+          ,all_events.EVENT_0
+          ,all_events.EVENT_1
+          ,all_events.EVENT_2
+          ,all_events.EVENT_3
+          ,all_events.EVENT_4
+          ,all_events.EVENT_5
+          ,all_events.EVENT_1_CU
+          ,all_events.EVENT_1_COURSEWARE
+          ,all_events.EVENT_0P
+          ,all_events.EVENT_1P
+          ,all_events.EVENT_2P
+          ,all_events.EVENT_3P
+          ,all_events.EVENT_4P
+          ,all_events.EVENT_5P
+          ,all_events.EVENT_1_CU_P
+          ,all_events.EVENT_1_COURSEWARE_P
+          ,all_events.SUBSCRIPTION_STATE
+          ,COALESCE(all_events.SESSION_ID,cohort_selection.SESSION_ID) AS SESSION_ID
+          ,all_events.EVENT_NO
+          ,all_events.FIRST_EVENT_IN_SESSION
+          ,all_events.LAST_EVENT_IN_SESSION
+          ,all_events.COLLAPSIBLE
+          ,all_events.DURATION_CODE
+          ,all_events.NEW_EVENTS
+          ,all_events.MOST_RECENT_FIVE_EVENTS
+          ,all_events.REBUILD_SESSION
       FROM (
-        SELECT user_sso_guid, session_id, min(event_time) as start_event_time, min(event_id) as first_event_id
-          ,CASE WHEN {{ time_period._parameter_value }} IS NULL THEN NULL ELSE DATEADD(minute,  {{ time_period._parameter_value }}, start_event_time) END as end_event_time
+        SELECT user_sso_guid, session_id, LISTAGG(event_name) as cohort_events, min(event_time) as start_event_time, min(event_id) as first_event_id
+          ,CASE
+            WHEN {{ time_period._parameter_value }} IS NULL THEN NULL
+            ELSE
+              DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
+            END as boundary_event_time
         FROM ${all_events.SQL_TABLE_NAME}
         WHERE UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
         AND (event_time >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
         AND (event_time < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
         GROUP BY 1, 2
       ) cohort_selection
-      INNER JOIN ${all_events.SQL_TABLE_NAME} all_events ON cohort_selection.session_id = all_events.session_id
-         and all_events.event_id > cohort_selection.first_event_id
-         --and ${cohort_selection.start_event_time} <= ${all_events.event_date_raw}
+      LEFT JOIN ${all_events.SQL_TABLE_NAME} all_events ON cohort_selection.session_id = all_events.session_id
+        {% if before_or_after._parameter_value == 'before' %}
+          --PRECEDING EVENT ANALYSIS
+         and all_events.event_id < cohort_selection.first_event_id
          and (
-            cohort_selection.end_event_time > all_events.event_time
-           or cohort_selection.end_event_time IS NULL
+            cohort_selection.boundary_event_time < all_events.event_time
+           or cohort_selection.boundary_event_time IS NULL
           )
+        {% else %}
+        --SUBSEQUENT EVENT ANALYSIS
+         and all_events.event_id > cohort_selection.first_event_id
+         and (
+            cohort_selection.boundary_event_time > all_events.event_time
+           or cohort_selection.boundary_event_time IS NULL
+          )
+        {% endif %}
       ;;
   }
 
-  dimension: event_sequence {type: number}
+  dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string}
+  dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
+  dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || 'event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
+
 }
 
 
