@@ -110,7 +110,7 @@ view: cohort_selection {
           ,all_events.MOST_RECENT_FIVE_EVENTS
           ,all_events.REBUILD_SESSION
       FROM (
-        SELECT user_sso_guid, session_id, LISTAGG(event_name) as cohort_events, min(event_time) as start_event_time, min(event_id) as first_event_id
+        SELECT user_sso_guid, session_id, LISTAGG(distinct event_name) as cohort_events, min(event_time) as start_event_time, min(event_id) as first_event_id
           ,CASE
             WHEN {{ time_period._parameter_value }} IS NULL THEN NULL
             ELSE
@@ -144,6 +144,11 @@ view: cohort_selection {
   dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string}
   dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
   dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
+  dimension: event_1 {label: "1 event {{ before_or_after._parameter_value }}" view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 1 THEN ${event_name} END;;}
+  dimension: event_2 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 2 THEN ${event_name} END;;}
+  dimension: event_3 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 3 THEN ${event_name} END;;}
+  dimension: event_4 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 4 THEN ${event_name} END;;}
+  dimension: event_5 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 5 THEN ${event_name} END;;}
 
 }
 
