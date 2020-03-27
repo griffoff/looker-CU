@@ -19,7 +19,7 @@ view: next_events {
 }
 
 view: cohort_selection {
-  extends: [all_events]
+  #extends: [all_events]
 
   parameter: cohort_events_filter {
     view_label: "** COHORT ANALYSIS **"
@@ -60,6 +60,15 @@ view: cohort_selection {
 
   derived_table: {
     sql:
+     SELECT
+        user_sso_guid
+        ,cohort_events
+        ,MAX(CASE WHEN event_sequence = 1 THEN event_name END) as event_1
+        ,MAX(CASE WHEN event_sequence = 2 THEN event_name END) as event_2
+        ,MAX(CASE WHEN event_sequence = 3 THEN event_name END) as event_3
+        ,MAX(CASE WHEN event_sequence = 4 THEN event_name END) as event_4
+        ,MAX(CASE WHEN event_sequence = 5 THEN event_name END) as event_5
+     FROM (
       SELECT
           {% if before_or_after._parameter_value == 'before' %}
           ROW_NUMBER() OVER(PARTITION BY all_events.session_id ORDER BY event_time DESC, event_id DESC) AS event_sequence
@@ -67,60 +76,20 @@ view: cohort_selection {
           ROW_NUMBER() OVER(PARTITION BY all_events.session_id ORDER BY event_time, event_id) AS event_sequence
           {% endif %}
           ,cohort_selection.cohort_events
-          ,all_events.EVENT_ID
-          ,all_events.PLATFORM_ENVIRONMENT
-          ,all_events.PRODUCT_PLATFORM
-          ,all_events.USER_ENVIRONMENT
-          ,all_events.ORIGINAL_USER_SSO_GUID
           ,COALESCE(all_events.USER_SSO_GUID,cohort_selection.USER_SSO_GUID) AS USER_SSO_GUID
-          ,all_events.LOAD_METADATA
-          ,all_events.EVENT_ACTION
-          ,all_events.EVENT_TIME
-          ,all_events.EVENT_TYPE
-          ,all_events.LOCAL_TIME
-          ,all_events.EVENT_DATA
-          ,all_events.SYSTEM_CATEGORY
           ,all_events.EVENT_NAME
-          ,all_events.EVENT_NAME_CU
-          ,all_events.EVENT_NAME_COURSEWARE
-          ,all_events.EVENT_0
-          ,all_events.EVENT_1
-          ,all_events.EVENT_2
-          ,all_events.EVENT_3
-          ,all_events.EVENT_4
-          ,all_events.EVENT_5
-          ,all_events.EVENT_1_CU
-          ,all_events.EVENT_1_COURSEWARE
-          ,all_events.EVENT_0P
-          ,all_events.EVENT_1P
-          ,all_events.EVENT_2P
-          ,all_events.EVENT_3P
-          ,all_events.EVENT_4P
-          ,all_events.EVENT_5P
-          ,all_events.EVENT_1_CU_P
-          ,all_events.EVENT_1_COURSEWARE_P
-          ,all_events.SUBSCRIPTION_STATE
-          ,COALESCE(all_events.SESSION_ID,cohort_selection.SESSION_ID) AS SESSION_ID
-          ,all_events.EVENT_NO
-          ,all_events.FIRST_EVENT_IN_SESSION
-          ,all_events.LAST_EVENT_IN_SESSION
-          ,all_events.COLLAPSIBLE
-          ,all_events.DURATION_CODE
-          ,all_events.NEW_EVENTS
-          ,all_events.MOST_RECENT_FIVE_EVENTS
-          ,all_events.REBUILD_SESSION
       FROM (
         SELECT user_sso_guid, session_id, LISTAGG(distinct event_name) as cohort_events, min(event_time) as start_event_time, min(event_id) as first_event_id
-          ,CASE
-            WHEN {{ time_period._parameter_value }} IS NULL THEN NULL
-            ELSE
-              DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
-            END as boundary_event_time
-        FROM ${all_events.SQL_TABLE_NAME}
-        WHERE UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
-        AND (event_time >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-        AND (event_time < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
-        GROUP BY 1, 2
+        ,CASE
+          WHEN {{ time_period._parameter_value }} IS NULL THEN NULL
+          ELSE
+            DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
+          END as boundary_event_time
+      FROM ${all_events.SQL_TABLE_NAME}
+      WHERE UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
+      AND (event_time >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+      AND (event_time < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+      GROUP BY 1, 2
       ) cohort_selection
       LEFT JOIN ${all_events.SQL_TABLE_NAME} all_events ON cohort_selection.session_id = all_events.session_id
         {% if before_or_after._parameter_value == 'before' %}
@@ -138,17 +107,21 @@ view: cohort_selection {
            or cohort_selection.boundary_event_time IS NULL
           )
         {% endif %}
+      )
+    WHERE event_sequence <= 5
+    GROUP BY 1, 2
       ;;
-  }
+   }
 
+  dimension: user_sso_guid {hidden:yes}
   dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string}
   dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
   dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
-  dimension: event_1 {label: "1 event {{ before_or_after._parameter_value }}" view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 1 THEN ${event_name} END;;}
-  dimension: event_2 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 2 THEN ${event_name} END;;}
-  dimension: event_3 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 3 THEN ${event_name} END;;}
-  dimension: event_4 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 4 THEN ${event_name} END;;}
-  dimension: event_5 {view_label: "** COHORT ANALYSIS **" type: string sql: CASE WHEN ${event_sequence} = 5 THEN ${event_name} END;;}
+  dimension: event_1 {view_label: "** COHORT ANALYSIS **" type: string  label: "1 event {{ before_or_after._parameter_value }}"}
+  dimension: event_2 {view_label: "** COHORT ANALYSIS **" type: string  label: "2 events {{ before_or_after._parameter_value }}"}
+  dimension: event_3 {view_label: "** COHORT ANALYSIS **" type: string  label: "3 events {{ before_or_after._parameter_value }}"}
+  dimension: event_4 {view_label: "** COHORT ANALYSIS **" type: string  label: "4 events {{ before_or_after._parameter_value }}"}
+  dimension: event_5 {view_label: "** COHORT ANALYSIS **" type: string  label: "5 events {{ before_or_after._parameter_value }}"}
 
 }
 
