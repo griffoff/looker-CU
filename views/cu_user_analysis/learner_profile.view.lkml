@@ -179,13 +179,21 @@ view: learner_profile {
     description: "Percentage of days since the user first logged in that the user was active"
   }
 
+#   dimension_group: first_interaction {
+#     sql: ${TABLE}.first_event_time ;;
+#     type: time
+#     timeframes: [raw, time, date, day_of_week, month, hour]
+#     label: "First interaction"
+#     description: "Components of the timestamp when the user first logged in"
+#   }
+
   dimension_group: first_interaction {
-    sql: ${TABLE}.first_event_time ;;
-        type: time
-        timeframes: [raw, time, date, day_of_week, month, hour]
-        label: "First interaction"
-        description: "Components of the timestamp when the user first logged in"
-      }
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
+    sql:  ${TABLE}.first_event_time::datetime ;;
+    label: "First interaction"
+    description: "Components of the timestamp when the user first logged in"
+  }
 
   dimension: days_active_tiers  {
     type: tier
@@ -203,7 +211,7 @@ view: learner_profile {
     label: "Subscription status"
     sql: coalesce(${TABLE}.subscription_status, 'Never tried CU');;
     description: "Current CU subscription state"
-    hidden: yes
+    hidden: no
   }
 
   dimension: is_cu_subscriber {
@@ -249,12 +257,11 @@ view: learner_profile {
   dimension_group: subscription_length {
     group_label: "CU Subscription"
     label: "Actual Subscription Length"
-    hidden: yes
+    hidden: no
     type: duration
     sql_start: ${subscription_start_raw};;
     sql_end: ${subscription_end_raw} ;;
     intervals: [week, month]
-    # this logic doesn't work
   }
 
   measure: subscription_length_average {
@@ -294,7 +301,7 @@ view: learner_profile {
     group_label: "Customer Type"
     label: "Is new customer"
     description: "True if the customer has not activated a product prior to the launch of CU on 2018-08-01"
-    hidden: yes
+    hidden: no
     type: yesno
     sql: ${first_activation_raw} > '2018-08-01' or ${first_activation_raw} is null;;
   }
@@ -465,6 +472,7 @@ view: learner_profile {
     hidden: no
     description: "Count of primary user accounts"
   }
+
 
 
 

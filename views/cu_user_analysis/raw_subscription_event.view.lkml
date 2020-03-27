@@ -19,7 +19,7 @@ view: raw_subscription_event {
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
           ,PLATFORM_ENVIRONMENT
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END ELSE greatest(local_time, subscription_start) END AS MOD_SUBSCRIPTION_START
+          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END WHEN PRODUCT_PLATFORM = 'SAPSubscription' THEN subscription_start ELSE greatest(local_time, subscription_start) END AS MOD_SUBSCRIPTION_START
           ,MOD_SUBSCRIPTION_START AS SUBSCRIPTION_START
           ,CASE SUBSCRIPTION_STATE WHEN 'cancelled' THEN CURRENT_DATE() WHEN 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
           ,LEAD(mod_subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
@@ -560,6 +560,12 @@ view: raw_subscription_event {
     type: count_distinct
     sql: ${TABLE}.user_sso_guid ;;
     drill_fields: [detail*]
+  }
+
+  measure: count_subscriptions_all {
+    label: "# Subscriptions + Resubscriptions"
+    type: count_distinct
+    sql: hash(${merged_guid},${subscription_start_date}::date,${subscription_end_date}::date) ;;
   }
 
   # source of raw_subscription_event is SSO - all guids are good
