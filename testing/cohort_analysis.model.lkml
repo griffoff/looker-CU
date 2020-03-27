@@ -143,7 +143,7 @@ view: cohort_selection {
 
   dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string}
   dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
-  dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || 'event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
+  dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
 
 }
 
