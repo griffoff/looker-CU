@@ -473,9 +473,6 @@ view: learner_profile {
     description: "Count of primary user accounts"
   }
 
-
-
-
   measure: count {
     type: count
     label: "# User Accounts"
