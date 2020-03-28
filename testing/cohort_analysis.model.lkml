@@ -85,13 +85,18 @@ view: cohort_selection {
           ELSE
             DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
           END as boundary_event_time
-      FROM ${all_events.SQL_TABLE_NAME}
-      WHERE UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
-      AND (event_time >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-      AND (event_time < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+      FROM ${all_events.SQL_TABLE_NAME} all_events
+      WHERE (DATEADD(day, 1, event_time) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+      AND (DATEADD(day, -1, event_time) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+      AND UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
       GROUP BY 1, 2
       ) cohort_selection
-      LEFT JOIN ${all_events.SQL_TABLE_NAME} all_events ON cohort_selection.session_id = all_events.session_id
+      LEFT JOIN (
+          SELECT *
+          FROM ${all_events.SQL_TABLE_NAME}
+          WHERE (DATEADD(day, 1, event_time) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+          AND (DATEADD(day, -1, event_time) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+      ) all_events ON cohort_selection.session_id = all_events.session_id
         {% if before_or_after._parameter_value == 'before' %}
           --PRECEDING EVENT ANALYSIS
          and all_events.event_id < cohort_selection.first_event_id
@@ -115,13 +120,18 @@ view: cohort_selection {
 
   dimension: user_sso_guid {hidden:yes}
   dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string}
-  dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
-  dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
-  dimension: event_1 {view_label: "** COHORT ANALYSIS **" type: string  label: "1 event {{ before_or_after._parameter_value }}"}
-  dimension: event_2 {view_label: "** COHORT ANALYSIS **" type: string  label: "2 events {{ before_or_after._parameter_value }}"}
-  dimension: event_3 {view_label: "** COHORT ANALYSIS **" type: string  label: "3 events {{ before_or_after._parameter_value }}"}
-  dimension: event_4 {view_label: "** COHORT ANALYSIS **" type: string  label: "4 events {{ before_or_after._parameter_value }}"}
-  dimension: event_5 {view_label: "** COHORT ANALYSIS **" type: string  label: "5 events {{ before_or_after._parameter_value }}"}
+#   dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
+#   dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
+  dimension: event_1 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "1 event after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}
+  dimension: event_2 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "2 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_2 {% else %} NULL {% endif%} ;;}
+  dimension: event_3 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "3 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_3 {% else %} NULL {% endif%} ;;}
+  dimension: event_4 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "4 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
+  dimension: event_5 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "5 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
+  dimension: event_1_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "1 event before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}
+  dimension: event_2_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "2 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_2 {% else %} NULL {% endif%} ;;}
+  dimension: event_3_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "3 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_3 {% else %} NULL {% endif%} ;;}
+  dimension: event_4_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "4 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
+  dimension: event_5_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "5 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
 
 }
 
