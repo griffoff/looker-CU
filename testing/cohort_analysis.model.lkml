@@ -86,16 +86,16 @@ view: cohort_selection {
             DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
           END as boundary_event_time
       FROM ${all_events.SQL_TABLE_NAME} all_events
-      WHERE (DATEADD(day, 1, event_time) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-      AND (DATEADD(day, -1, event_time) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+      WHERE (DATEADD(day, 1, event_time::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+      AND (DATEADD(day, -1, event_time::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
       AND UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
       GROUP BY 1, 2
       ) cohort_selection
       LEFT JOIN (
           SELECT *
           FROM ${all_events.SQL_TABLE_NAME}
-          WHERE (DATEADD(day, 1, event_time) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-          AND (DATEADD(day, -1, event_time) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+          WHERE (DATEADD(day, 1, event_time::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+          AND (DATEADD(day, -1, event_time::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
       ) all_events ON cohort_selection.session_id = all_events.session_id
         {% if before_or_after._parameter_value == 'before' %}
           --PRECEDING EVENT ANALYSIS
