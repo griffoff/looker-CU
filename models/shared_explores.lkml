@@ -66,6 +66,11 @@ explore: all_sessions {
     relationship: one_to_one
   }
 
+  join: course_section_usage_facts {
+    sql_on:  ${dim_course.olr_course_key} = ${course_section_usage_facts.course_key} ;;
+    relationship: one_to_one
+  }
+
   join: user_courses {
     view_label: "Course / Section Details by User"
     sql_on: ${all_sessions.user_sso_guid} = ${user_courses.user_sso_guid}
