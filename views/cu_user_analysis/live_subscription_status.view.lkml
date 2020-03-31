@@ -48,6 +48,9 @@ view: live_subscription_status {
   }
 
   dimension: user_sso_guid {
+    label: "USER SSO GUID - live subscription state"
+    description: "this is the user guid on a real time feed of subscription data
+    ** only use this is you want to filter on current subscription data **"
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
