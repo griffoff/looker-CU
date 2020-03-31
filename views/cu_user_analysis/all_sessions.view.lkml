@@ -153,7 +153,8 @@ view: all_sessions {
 
   dimension_group: session_start {
     label: "Session"
-    description: "Start time of session converted to EST - captured from systems, so does not represent users local time"
+    description: "Start time of session converted to EST - captured from systems, so does not represent users local time
+    ** Filtering on this can speed up queries significantly **"
     type: time
     timeframes: [raw, time, date, week, month, quarter, year]
     sql: CONVERT_TIMEZONE('EST', ${TABLE}."SESSION_START");;
