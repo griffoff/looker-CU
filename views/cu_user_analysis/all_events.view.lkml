@@ -634,10 +634,12 @@ view: all_events {
   }
 
   dimension: event_date_raw {
-    hidden: yes
-    type: date_raw
+    hidden: no
+    type: date
     sql: ${TABLE}.event_time::date ;;
   }
+
+
 
 #   dimension: event_day_of_course {
 #     label: "Day in course"
@@ -999,6 +1001,7 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
   measure: above_the_courses{
+    hidden:  no
     label:"# of ATC usages - no ebook"
     description: "Number of times an Above The Course event occurred"
     type: count_distinct

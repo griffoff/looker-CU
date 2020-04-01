@@ -41,7 +41,7 @@ explore: all_sessions {
   extends: [all_events, dim_course]
 
   join: all_events {
-#      from:  all_events_dev
+#       from:  all_events_dev
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
     type: inner
     relationship: one_to_many
