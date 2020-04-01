@@ -50,7 +50,7 @@ view: above_the_course_usage_buckets {
 
   dimension: above_the_courses {
     view_label: "Events"
-    label: "# of ATC usages - no ebook"
+    label: "User ATC event count"
     description: "Number of times an Above The Course event occurred for a given user"
     type: number
   }
