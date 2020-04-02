@@ -28,7 +28,7 @@ view: above_the_course_usage_buckets {
 
 
   dimension: user_sso_guid {
-    hidden:  no
+    hidden:  yes
     label: "Learner Profile User SSO GUID"
     description: "Primary Guid, after mapping and merging from shadow guids"
   }
