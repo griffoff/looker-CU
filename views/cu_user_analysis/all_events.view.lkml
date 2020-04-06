@@ -747,6 +747,7 @@ dimension: load_metadata_source {
   }
 
   dimension: day_of_grace_period {
+    type: number
     sql: ${event_data}:day_of_grace_period ;;
     description: "Day grace period event occurred relative to course start date."
   }
