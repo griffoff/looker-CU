@@ -74,6 +74,11 @@ explore: active_users_stats  {
     type: cross
   }
 
+  join: daily_coursesection_instructors {
+    sql_on: ${active_users_stats.datevalue} = ${daily_coursesection_instructors.date} ;;
+    relationship: one_to_many
+  }
+
   join: dau {
     sql_on: ${active_users_stats.datevalue} = ${dau.date}
         AND ${active_users_platforms.product_platform} = ${dau.product_platform};;
