@@ -741,6 +741,17 @@ dimension: load_metadata_source {
        end;;
   }
 
+  dimension: grace_period_flag {
+    type: yesno
+    description: "Event occurred before course activation up to midpoint of course or 60 days after start. Even occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
+  }
+
+  dimension: day_of_grace_period {
+    sql: ${event_data}:day_of_grace_period ;;
+    description: "Day grace period event occurred relative to course start date."
+  }
+
+
   measure: user_count {
     label: "# people"
     type: count_distinct
@@ -847,6 +858,7 @@ dimension: load_metadata_source {
     type: count_distinct
     sql: ${local_month} ;;
   }
+
 
   measure: user_month_count {
     hidden: yes
