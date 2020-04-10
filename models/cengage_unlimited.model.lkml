@@ -40,15 +40,20 @@ explore: course_sections {
   label: "Course Sections"
 
   join: user_courses {
-    view_label: "Course Section - Students"
+    view_label: "Course / Section Students"
     sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
     relationship: one_to_many
   }
 
   join: merged_cu_user_info {
-    view_label: "Course Section - Students"
+    view_label: "Course / Section Students"
     sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
+  }
+
+  join: live_subscription_status {
+    sql_on: ${user_courses.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
   }
 
   join: current_date {

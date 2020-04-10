@@ -18,7 +18,9 @@ view: daily_coursesection_instructors {
 
   measure: instructor_count {
     label: "# Instructors on active courses"
-    type: average
+    type: number
+    sql: AVG(${TABLE}.instructor_count) ;;
+    value_format_name: decimal_0
   }
 
 }

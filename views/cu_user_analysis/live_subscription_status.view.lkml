@@ -1,6 +1,9 @@
 # explore: live_subscription_status_sap {}
 
 view: live_subscription_status {
+
+  view_label: "Learner Profile - Live Subscription Status"
+
   derived_table: {
     sql:
         SELECT *
@@ -190,7 +193,6 @@ view: live_subscription_status {
   }
 
   dimension_group: time_in_current_status {
-    view_label: "Learner Profile - Live Subscription Status"
     type: duration
     intervals: [day, week, month]
     sql_start: ${subscription_start_date} ;;
