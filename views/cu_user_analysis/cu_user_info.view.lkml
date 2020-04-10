@@ -93,7 +93,7 @@ view: cu_user_info {
     type: count_distinct
     sql: case when ${instructor_by_party}=true then ${merged_guid} end ;;
     drill_fields: [detail*]
-    description: "Count of primary student user accounts"
+    description: "Count of primary instructor user accounts"
   }
 
   dimension: instructor {
