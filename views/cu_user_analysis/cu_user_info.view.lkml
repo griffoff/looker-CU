@@ -72,7 +72,6 @@ view: cu_user_info {
   sql_trigger_value: select count(*) from prod.datavault.sat_user ;;
   }
 
-
   measure: count {
     label: "# User Accounts"
     type: count
@@ -84,13 +83,18 @@ view: cu_user_info {
   measure: users {
     label: "# Students"
     type: count_distinct
-    sql: case when ${is_instructor}=false then ${merged_guid} end ;;
+    sql: case when ${instructor_by_party}=false then ${merged_guid} end ;;
     drill_fields: [detail*]
     description: "Count of primary student user accounts"
-#     hidden: yes
   }
 
-
+  measure: instructor_count {
+    label: "# Instructors"
+    type: count_distinct
+    sql: case when ${instructor_by_party}=true then ${merged_guid} end ;;
+    drill_fields: [detail*]
+    description: "Count of primary instructor user accounts"
+  }
 
   dimension: instructor {
     type: string
@@ -124,6 +128,16 @@ view: cu_user_info {
     type: number
     sql: YEAR(CURRENT_DATE()) - ${birth_year} ;;
     description: "User age"
+  }
+
+  dimension: age_tiers {
+    group_label: "Age"
+    label: "Age (buckets)"
+    type: tier
+    tiers: [20, 25, 30, 35, 40, 45, 50, 55, 60]
+    style: integer
+    sql: ${age} ;;
+    description: "User age (buckets)"
   }
 
   measure: age_average {

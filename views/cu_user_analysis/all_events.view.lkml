@@ -634,10 +634,12 @@ view: all_events {
   }
 
   dimension: event_date_raw {
-    hidden: yes
-    type: date_raw
+    hidden: no
+    type: date
     sql: ${TABLE}.event_time::date ;;
   }
+
+
 
 #   dimension: event_day_of_course {
 #     label: "Day in course"
@@ -738,6 +740,18 @@ dimension: load_metadata_source {
         else 'Other'
        end;;
   }
+
+  dimension: grace_period_flag {
+    type: yesno
+    description: "Event occurred before course activation up to midpoint of course or 60 days after start. Even occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
+  }
+
+  dimension: day_of_grace_period {
+    type: number
+    sql: ${event_data}:day_of_grace_period ;;
+    description: "Day grace period event occurred relative to course start date."
+  }
+
 
   measure: user_count {
     label: "# people"
@@ -845,6 +859,7 @@ dimension: load_metadata_source {
     type: count_distinct
     sql: ${local_month} ;;
   }
+
 
   measure: user_month_count {
     hidden: yes
@@ -999,6 +1014,7 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
   measure: above_the_courses{
+    hidden:  no
     label:"# of ATC usages - no ebook"
     description: "Number of times an Above The Course event occurred"
     type: count_distinct
@@ -1025,30 +1041,30 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
 
-  dimension: above_the_course {
-    hidden:  yes
-    type:  yesno
-    label:"Above the course usage - no ebook"
-    sql:(event_name IN (
-      'Rent From Chegg Clicked',
-      'Flashcards Launched',
-      'Test Prep Launched',
-      'Partner Chegg Modal Continue',
-      'Partner Dashlane12 Modal Continue',
-      'Partner Dashlane6 Modal Continue',
-      'Partner Evernote Modal Continue',
-      'Partner Kaplan Modal Continue',
-      'Partner Quizlet Modal Continue',
-      'Launch Career Center Material',
-      'Launch College Success Material',
-      'Launch Quick Lesson'
-              ) )
-              OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
-              ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
-              ,'LEARN_MORE') )
-              OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL') );;
-    description: "Event identified as Above The Course Y/N"
-  }
+#   dimension: above_the_course {
+#     hidden:  yes
+#     type:  yesno
+#     label:"Above the course usage - no ebook"
+#     sql:(event_name IN (
+#       'Rent From Chegg Clicked',
+#       'Flashcards Launched',
+#       'Test Prep Launched',
+#       'Partner Chegg Modal Continue',
+#       'Partner Dashlane12 Modal Continue',
+#       'Partner Dashlane6 Modal Continue',
+#       'Partner Evernote Modal Continue',
+#       'Partner Kaplan Modal Continue',
+#       'Partner Quizlet Modal Continue',
+#       'Launch Career Center Material',
+#       'Launch College Success Material',
+#       'Launch Quick Lesson'
+#               ) )
+#               OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
+#               ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
+#               ,'LEARN_MORE') )
+#               OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL') );;
+#     description: "Event identified as Above The Course Y/N"
+#   }
 
 
 

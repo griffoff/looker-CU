@@ -13,6 +13,7 @@ include: "/views/discounts/*.view.lkml"
 include: "/views/spring_review/*.view.lkml"
 include: "/views/sales_order_forecasting/*.view.lkml"
 include: "/views/kpi_dashboards/*.view.lkml"
+include: "/views/uploads/covid19_trial_shutoff_schedule.view"
 
 include: "/models/shared_explores.lkml"
 
@@ -40,14 +41,30 @@ explore: course_sections {
   label: "Course Sections"
 
   join: user_courses {
-    view_label: "Course Section - Students"
+    view_label: "Course / Section Students"
     sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
     relationship: one_to_many
+  }
+
+  join: merged_cu_user_info {
+    view_label: "Course / Section Students"
+    sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
+    relationship: one_to_one
+  }
+
+  join: live_subscription_status {
+    sql_on: ${user_courses.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
   }
 
   join: current_date {
     sql_on:  1=1 ;;
     relationship: one_to_one
+  }
+
+  join: covid19_trial_shutoff_schedule {
+    sql_on: ${user_courses.entity_id} = ${covid19_trial_shutoff_schedule.entity_no} ;;
+    relationship: many_to_one
   }
 
 
@@ -66,6 +83,16 @@ explore: active_users_stats  {
   join: active_users_platforms {
     relationship: many_to_many
     type: cross
+  }
+
+  join: daily_coursesection_instructors {
+    sql_on: ${active_users_stats.datevalue} = ${daily_coursesection_instructors.date} ;;
+    relationship: one_to_many
+  }
+
+  join: daily_paid_active_users {
+    sql_on: ${active_users_stats.datevalue} = ${daily_paid_active_users.date} ;;
+    relationship: one_to_many
   }
 
   join: dau {

@@ -1,6 +1,9 @@
 # explore: live_subscription_status_sap {}
 
 view: live_subscription_status {
+
+  view_label: "Learner Profile - Live Subscription Status"
+
   derived_table: {
     sql:
         SELECT *
@@ -48,6 +51,9 @@ view: live_subscription_status {
   }
 
   dimension: user_sso_guid {
+    label: "USER SSO GUID - live subscription state"
+    description: "this is the user guid on a real time feed of subscription data
+    ** only use this is you want to filter on current subscription data **"
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
   }
@@ -187,7 +193,6 @@ view: live_subscription_status {
   }
 
   dimension_group: time_in_current_status {
-    view_label: "Learner Profile - Live Subscription Status"
     type: duration
     intervals: [day, week, month]
     sql_start: ${subscription_start_date} ;;

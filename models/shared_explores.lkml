@@ -41,6 +41,7 @@ explore: all_sessions {
   extends: [all_events, dim_course]
 
   join: all_events {
+#        from:  all_events_dev
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
     type: inner
     relationship: one_to_many
@@ -55,12 +56,18 @@ explore: all_sessions {
   }
 
   join: dim_course {
-    sql_on: ${all_sessions.course_keys}[0] = ${dim_course.coursekey} ;;
+     sql_on: COALESCE(${all_sessions.course_keys}[0], ${all_events.event_data_course_key}) = ${dim_course.coursekey} ;;
+    #sql_on:  ${all_events.event_data_course_key} = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+    relationship: one_to_one
+  }
+
+  join: course_section_usage_facts {
+    sql_on:  ${dim_course.olr_course_key} = ${course_section_usage_facts.course_key} ;;
     relationship: one_to_one
   }
 
@@ -487,4 +494,13 @@ explore: session_analysis {
   }
 
 
+}
+
+explore: grace_period_test{
+  label: "Grace Period Test Dev"
+  from: all_events_dev
+  join: TrialAccess_cohorts {
+    sql_on: ${grace_period_test.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
+    relationship: many_to_many
+  }
 }

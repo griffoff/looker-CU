@@ -234,6 +234,14 @@ view: all_events_dev {
     hidden: no
   }
 
+  dimension: grace_period_flag {
+    type: yesno
+  }
+
+  dimension: day_of_grace_period {
+    sql: ${event_data}:day_of_grace_period ;;
+  }
+
   measure: user_count {
     label: "# people"
     type: count_distinct

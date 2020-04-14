@@ -4,8 +4,8 @@ view: above_the_course_usage_buckets {
   derived_table: {
     explore_source: session_analysis {
       column: user_sso_guid { field: learner_profile.user_sso_guid }
-      column: event_name { field: all_events.event_name }
-      column: count { field: all_events.count }
+#       column: event_name { field: all_events.event_name }
+#       column: count { field: all_events.count }
       column: above_the_courses { field: all_events.above_the_courses }
       filters: {
         field: merged_cu_user_info.internal_user_flag
@@ -50,8 +50,8 @@ view: above_the_course_usage_buckets {
 
   dimension: above_the_courses {
     view_label: "Events"
-    label: "# of ATC usages - no ebook"
-    description: "Number of times an Above The Course event occurred"
+    label: "User ATC event count"
+    description: "Number of times an Above The Course event occurred for a given user"
     type: number
   }
 
@@ -62,7 +62,7 @@ view: above_the_course_usage_buckets {
     style: integer
     tiers: [0,2,6]
     sql: ${above_the_courses};;
-    description: "Buckets of Number of times an Above The Course event occurred"
+    description: "Buckets of Number of times an Above The Course event occurred for a given user"
   }
 
   measure: dist_guids {
