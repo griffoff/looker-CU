@@ -15,8 +15,8 @@ view: trials {
     sql: ${TABLE}.merged_guid ;;
   }
   #
-  dimension_group: date_added {
-    description: "date trial was added"
+  dimension_group: subscription_start_dt {
+    description: "date trial began"
     type: time
     timeframes: [date, week, month, year]
   }
