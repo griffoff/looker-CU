@@ -14,16 +14,16 @@ view: raw_subscription_event {
           COALESCE(m.primary_guid, r.user_sso_guid) AS merged_guid
           ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
           ,LOCAL_TIME
-          ,USER_SSO_GUID as original_guid
-          ,USER_SSO_GUID
+          ,r.USER_SSO_GUID as original_guid
+          ,r.USER_SSO_GUID
           ,USER_ENVIRONMENT
           ,PRODUCT_PLATFORM
           ,PLATFORM_ENVIRONMENT
-          ,CASE WHEN SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END WHEN PRODUCT_PLATFORM = 'SAPSubscription' THEN subscription_start ELSE greatest(local_time, subscription_start) END AS MOD_SUBSCRIPTION_START
+          ,CASE WHEN r.SUBSCRIPTION_STATE = 'provisional_locker' THEN SUBSCRIPTION_END WHEN PRODUCT_PLATFORM = 'SAPSubscription' THEN subscription_start ELSE greatest(local_time, subscription_start) END AS MOD_SUBSCRIPTION_START
           ,MOD_SUBSCRIPTION_START AS SUBSCRIPTION_START
-          ,CASE SUBSCRIPTION_STATE WHEN 'cancelled' THEN CURRENT_DATE() WHEN 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
+          ,CASE r.SUBSCRIPTION_STATE WHEN 'cancelled' THEN CURRENT_DATE() WHEN 'provisional_locker' THEN DATEADD(YEAR, 1, SUBSCRIPTION_END) ELSE SUBSCRIPTION_END END AS SUBSCRIPTION_END
           ,LEAD(mod_subscription_start) OVER (PARTITION BY merged_guid ORDER BY local_time) as next_subscription_start
-          ,SUBSCRIPTION_STATE
+          ,r.SUBSCRIPTION_STATE
           --,CONTRACT_ID
           --,TRANSFERRED_CONTRACT
           --,ACCESS_CODE
@@ -32,9 +32,16 @@ view: raw_subscription_event {
           ON r.user_sso_guid = m.partner_guid
       LEFT JOIN distinct_primary m2
           ON  r.user_sso_guid = m2.primary_guid
+      LEFT JOIN STRATEGY.spr_review_fy19.offset_transactions offset_transactions
+          ON ( r.contract_ID = offset_transactions.CONTRACT_ID
+          AND (offset_transactions._LDTS >= TO_DATE('16-Dec-2018') AND offset_transactions._LDTS < TO_DATE('01-Jan-2019') )
+          AND offset_transactions.subscription_state in ('full_access')
+          )
       WHERE r.user_environment = 'production'
       AND r.platform_environment = 'production'
       AND r._ldts >= to_date('01-Aug-2018')
+      AND offset_transactions.CONTRACT_ID IS NULL
+      /*
       AND NOT
             (
               EXISTS(SELECT 1 FROM STRATEGY.spr_review_fy19.offset_transactions offset_transactions WHERE offset_transactions.contract_id = r.contract_id)
@@ -42,6 +49,7 @@ view: raw_subscription_event {
               (r._LDTS >= TO_DATE('16-Dec-2018') AND r._LDTS < TO_DATE('01-Jan-2019') )
               AND r.subscription_state in ('full_access')
             )
+      */
        AND NOT
             (
               EXISTS(

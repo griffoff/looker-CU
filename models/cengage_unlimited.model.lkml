@@ -84,6 +84,11 @@ explore: active_users_stats  {
     relationship: one_to_many
   }
 
+  join: daily_paid_active_users {
+    sql_on: ${active_users_stats.datevalue} = ${daily_paid_active_users.date} ;;
+    relationship: one_to_many
+  }
+
   join: dau {
     sql_on: ${active_users_stats.datevalue} = ${dau.date}
         AND ${active_users_platforms.product_platform} = ${dau.product_platform};;
