@@ -11,12 +11,24 @@ include: "//cube/dims.lkml"
 include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
 include: "/provisioned_products_trials.view"
+include: "/trials.view"
+include: "/guid_entity.view"
 
 
 case_sensitive: no
 
 explore: provisioned_products_trials{
+}
 
+explore: trials{
+  label: "CU trials analysis"
+  description: "Strategy explore to allow for trials analysis, especially for C-19 impact"
+
+  join: guid_entity {
+    view_label: "GUID Entity"
+    sql_on: ${trials.merged_guid}::STRING = ${guid_entity.merged_guid}::STRING ;;
+    relationship: one_to_one
+    }
 }
 
 explore: strategy_analysis {
