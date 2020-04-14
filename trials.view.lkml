@@ -12,7 +12,7 @@ view: trials {
   measure: count {
     description: "Count of unique trials"
     type: count_distinct
-    sql: ${TABLE}.merged_guid ${TABLE}.subscription_start_dt ;;
+    sql: ${TABLE}.merged_guid||${TABLE}.subscription_start_dt ;;
   }
   #
   dimension_group: subscription_start_dt {
