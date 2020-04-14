@@ -3,10 +3,10 @@ view: courseware_launches_fa {
   sql_table_name: strategy.covid_support_prod.fa_courseware_launches ;;
   #
   # # Define your dimensions and measures here, like this:
-  dimension: merged_guid {
-    description: "merged guid"
-    type: string
-    sql: ${TABLE}.merged_guid ;;
+  dimension_group: launch_date {
+    description: "launch date"
+    type: time
+    timeframes: [date, week, month, year]
   }
 
   measure: daily_courseware_launches {
