@@ -12,11 +12,11 @@ view: trials {
   measure: count {
     description: "Count of unique trials"
     type: count_distinct
-    sql: ${TABLE}.merged_guid ;;
+    sql: ${TABLE}.merged_guid||${TABLE}.subscription_start_dt ;;
   }
   #
-  dimension_group: date_added {
-    description: "date trial was added"
+  dimension_group: subscription_start_dt {
+    description: "date trial began"
     type: time
     timeframes: [date, week, month, year]
   }
