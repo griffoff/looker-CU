@@ -27,7 +27,7 @@ view: trials {
   }
   dimension: covid_trial_no {
     description: "covid trial renewal number"
-    type: yesno
+    type: number
   }
 
 
