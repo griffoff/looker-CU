@@ -20,6 +20,17 @@ view: trials {
     type: time
     timeframes: [date, week, month, year]
   }
+
+  dimension: covid_trial {
+    description: "trial after 3/1/20"
+    type: yesno
+  }
+  dimension: covid_trial_no {
+    description: "covid trial renewal number"
+    type: yesno
+  }
+
+
   #
   # dimension_group: most_recent_purchase {
   #   description: "The date when each user last ordered"
