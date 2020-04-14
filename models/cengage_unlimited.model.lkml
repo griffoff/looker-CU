@@ -13,6 +13,7 @@ include: "/views/discounts/*.view.lkml"
 include: "/views/spring_review/*.view.lkml"
 include: "/views/sales_order_forecasting/*.view.lkml"
 include: "/views/kpi_dashboards/*.view.lkml"
+include: "/views/uploads/covid19_trial_shutoff_schedule.view"
 
 include: "/models/shared_explores.lkml"
 
@@ -59,6 +60,11 @@ explore: course_sections {
   join: current_date {
     sql_on:  1=1 ;;
     relationship: one_to_one
+  }
+
+  join: covid19_trial_shutoff_schedule {
+    sql_on: ${user_courses.entity_id} = ${covid19_trial_shutoff_schedule.entity_no} ;;
+    relationship: many_to_one
   }
 
 
