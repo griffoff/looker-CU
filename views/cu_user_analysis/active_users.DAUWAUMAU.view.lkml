@@ -75,6 +75,14 @@ view: dau {
     value_format_name: decimal_0
   }
 
+  measure: dau_paid_active_users {
+    label: "DAU Paid"
+    description: "Daily Paid Active Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_paid_active_users}) ;;
+    value_format_name: decimal_0
+  }
+
 }
 
 view: wau {
@@ -106,7 +114,16 @@ view: wau {
     type: number
     sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
-  }
+    }
+
+    measure: wau_paid_active_users {
+      label: "WAU Paid"
+      description: "Weekly Paid Active Users (average if not reported on a single day)"
+      type: number
+      sql: AVG(${au_paid_active_users}) ;;
+      value_format_name: decimal_0
+    }
+
 }
 
 view: mau {
@@ -136,6 +153,14 @@ view: mau {
     description: "Monthly Active Students (average if not reported on a single day)"
     type: number
     sql: AVG(${au_students}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: mau_paid_active_users {
+    label: "MAU Paid"
+    description: "Monthly Paid Active Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_paid_active_users}) ;;
     value_format_name: decimal_0
   }
 
@@ -170,9 +195,13 @@ view: au {
           ,users INT
           ,instructors INT
           ,students INT
+          ,paid_active_users INT
+          ,paid_inactive_users INT
           ,total_users INT
           ,total_instructors INT
           ,total_students INT
+          ,total_paid_active_users INT
+          ,total_paid_inactive_users INT
         )
       ;;
       sql_step:
@@ -185,20 +214,42 @@ view: au {
           AND d.datevalue > (SELECT MIN(date) FROM ${guid_platform_date_active.SQL_TABLE_NAME})
           AND d.datevalue < CURRENT_DATE()
         )
+        ,paid AS (
+        SELECT p.*
+        FROM dates d
+        INNER JOIN ${guid_date_paid.SQL_TABLE_NAME} p ON d.datevalue = p.date
+        )
+        ,active AS (
+        SELECT a.*
+        FROM dates d
+        INNER JOIN ${guid_platform_date_active.SQL_TABLE_NAME} a ON d.datevalue = a.date
+        )
+        ,users AS (
+        SELECT user_sso_guid
+        FROM paid
+        UNION
+        SELECT user_sso_guid
+        FROM active
+        )
         SELECT
             d.datevalue AS date
             ,COALESCE(au.productplatform, 'UNKNOWN') as product_platform
             ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
             ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
             ,COUNT(DISTINCT au.user_sso_guid) AS users
+            ,COUNT(DISTINCT CASE WHEN (paid_flag AND au.user_sso_guid IS NULL) THEN p.user_sso_guid END) AS paid_inactive_users
+            ,COUNT(DISTINCT CASE WHEN paid_flag THEN au.user_sso_guid END) AS paid_active_users
         FROM dates d
-        LEFT JOIN ${guid_platform_date_active.SQL_TABLE_NAME} AS au ON au.date <= d.datevalue
-                                                                    AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
+        CROSS JOIN users u
+        LEFT JOIN active AS au ON u.user_sso_guid = au.user_sso_guid
+          AND au.date <= d.datevalue
+          AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
+        LEFT JOIN paid p on d.datevalue = p.date AND u.user_sso_guid = p.user_sso_guid
         GROUP BY 1, ROLLUP(2)
       ;;
       sql_step:
         INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
-        SELECT date, product_platform, users, instructors, students, NULL, NULL, NULL
+        SELECT date, product_platform, users, instructors, students, paid_active_users, paid_inactive_users, NULL, NULL, NULL, NULL, NULL
         FROM looker_scratch.{{ view_name._parameter_value }}_incremental
         WHERE product_platform != 'UNKNOWN';;
       sql_step:
@@ -208,6 +259,8 @@ view: au {
           SET a.total_users = t.users
             ,a.total_instructors = t.instructors
             ,a.total_students = t.students
+            ,a.total_paid_active_users = t.paid_active_users
+            ,a.total_paid_inactive_users = t.paid_inactive_users
       ;;
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
@@ -269,6 +322,19 @@ view: au {
         {{ _view._name }}.students
       {% else %}
         {{ _view._name }}.total_students
+      {% endif %}
+      ;;
+  }
+
+  dimension: au_paid_active_users {
+    hidden: yes
+    label: "Paid Active Users"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query %}
+        {{ _view._name }}.paid_active_users
+      {% else %}
+        {{ _view._name }}.total_paid_active_users
       {% endif %}
       ;;
   }

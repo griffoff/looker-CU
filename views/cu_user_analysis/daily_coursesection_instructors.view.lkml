@@ -14,7 +14,9 @@ view: daily_coursesection_instructors {
       persist_for: "24 hours"
   }
 
-  dimension: date {primary_key: yes}
+  dimension: date {
+    type: date
+    primary_key: yes}
 
   measure: instructor_count {
     label: "# Instructors on active courses"

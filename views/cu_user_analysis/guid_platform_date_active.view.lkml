@@ -106,4 +106,9 @@ view: guid_platform_date_active {
     sql: ${event_duration_total} ;;
     value_format: "hh:mm:ss"
   }
+  measure: event_count_measure {
+    type:  sum
+    sql:  ${event_count} ;;
+
+  }
 }

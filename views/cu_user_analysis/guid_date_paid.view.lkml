@@ -2,119 +2,48 @@ explore: guid_date_paid {}
 
 view: guid_date_paid {
   derived_table: {
-    sql: WITH
-          tally AS
-          (
-              SELECT
-                  SEQ8() AS i
-              FROM TABLE(GENERATOR(ROWCOUNT=>10000))
-          )
-          ,paid_courses AS
-          (
-              SELECT
-                  user_sso_guid
-                  ,DATEADD(DAY, t.i, u.course_start_date::DATE) AS active_date
-                  ,CASE WHEN activated THEN 1 ELSE 0 END AS paid_status
-                  ,1 AS payment_type
-                  ,HASH(user_sso_guid, active_date) AS pk
-                  ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE WHEN ACTIVATED THEN 0 ELSE 1 END, u.course_start_date DESC, u.course_end_date DESC) AS r
-              FROM prod.cu_user_analysis.user_courses u
-              INNER JOIN tally t ON i <= DATEDIFF(DAY, u.course_start_date::DATE, LEAST(u.course_end_date::DATE, CURRENT_DATE()))
-              WHERE paid_status = 1
-         )
-          ,active_subs AS (
-            SELECT
-              user_sso_guid
-              ,DATEADD(DAY, t.i, effective_from::DATE) AS active_date
-              ,CASE WHEN subscription_state = 'full_access' THEN 1 ELSE 0 END AS paid_status
-              ,2 AS payment_type
-              ,HASH(user_sso_guid, active_date) AS pk
-              ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE subscription_state WHEN 'full_access' THEN 0 ELSE 1 END, effective_from DESC, effective_to DESC) AS r
-            FROM ${raw_subscription_event.SQL_TABLE_NAME} e
-            INNER JOIN tally t ON i <= DATEDIFF(DAY, effective_from::DATE, LEAST(effective_to::DATE, CURRENT_DATE()))
-            -- FILTER FOR ONLY FULL ACCESS
-            WHERE paid_status = 1
-          )
-          -- only union for guids not in first CTE
-          ,combined AS (
-          SELECT
-            user_sso_guid
-            ,active_date
-            ,MAX(paid_status) AS paid_status
-            ,MAX(payment_type) AS payment_type
-          FROM paid_courses
-          WHERE r = 1
-          GROUP BY 1, 2
-          UNION
-          SELECT
-            user_sso_guid
-            ,active_date
-            ,MAX(paid_status) AS paid_status
-            ,MAX(payment_type) AS payment_type
-          FROM active_subs
-          WHERE r = 1
-          GROUP BY 1, 2
-          )
-          SELECT
-            user_sso_guid
-            ,active_date
-            ,MAX(paid_status) AS paid_status
-            ,SUM(payment_type) AS payment_type
-          FROM combined
-          GROUP BY 1, 2
-       ;;
-  }
-
-  measure: count {
-    type: count
-    #drill_fields: [detail*]
-  }
-
-  measure: distinct_users {
-    type: count_distinct
-    sql: ${user_sso_guid} ;;
+    sql:
+    WITH paid_users AS (
+    (SELECT DISTINCT user_sso_guid, activation_date::DATE AS paid_start, course_end_date::DATE AS paid_end
+     FROM prod.cu_user_analysis.user_courses)
+    UNION
+    (SELECT DISTINCT COALESCE(linked_guid, current_guid) AS user_sso_guid,
+                     subscription_start::DATE            AS paid_start,
+                     subscription_end::DATE              AS paid_end
+     FROM prod.datavault.sat_subscription_sap subevent
+              INNER JOIN prod.datavault.hub_user ON subevent.current_guid = hub_user.UID
+              LEFT JOIN prod.datavault.sat_user ON hub_user.UID = sat_user.linked_guid AND sat_user.active
+              LEFT JOIN prod.public.offset_transactions offset_transactions
+                        ON subevent.CONTRACT_ID = offset_transactions.CONTRACT_ID
+                            AND (offset_transactions._LDTS >= TO_DATE('16-Dec-2018') AND
+                                 offset_transactions._LDTS < TO_DATE('01-Jan-2019'))
+                            AND offset_transactions.subscription_state in ('full_access')
+     WHERE _latest
+       AND subscription_plan_id ILIKE 'Full-Access%'
+       AND subevent.SUBSCRIPTION_STATE NOT IN ('Cancelled', 'Pending')
+       AND offset_transactions.contract_id IS NULL)
+)
+SELECT dim_date.datevalue as date, user_sso_guid, TRUE AS paid_flag
+FROM ${dim_date.SQL_TABLE_NAME} dim_date
+         LEFT JOIN paid_users ON dim_date.datevalue BETWEEN paid_start AND paid_end
+WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
+    ;;
+    persist_for: "24 hours"
   }
 
   dimension: user_sso_guid {
     type: string
-    sql: ${TABLE}."USER_SSO_GUID" ;;
+    sql: ${TABLE}.USER_SSO_GUID ;;
   }
 
-  dimension_group: active_date {
-    type: time
-    timeframes: [year, month, date, raw]
-    sql: ${TABLE}."ACTIVE_DATE" ;;
+  dimension: date {
+    type: date
+    sql: ${TABLE}.date ;;
   }
 
-  dimension: payment_type {
-    type: number
-    sql: ${TABLE}."PAYMENT_TYPE" ;;
+  dimension: paid_flag {
+    type: yesno
+    sql: ${TABLE}.paid_flag ;;
   }
 
-  dimension: payment_type_name {
-    case: {
-      when: {
-        sql: ${TABLE}."PAYMENT_TYPE" = 1 ;;
-        label: "Stand-alone purchase"
-      }
-      when: {
-        sql:${TABLE}."PAYMENT_TYPE" = 2;;
-        label: "CU Subscription - no courseware"
-      }
-      when: {
-        sql: ${TABLE}."PAYMENT_TYPE" = 3 ;;
-        label: "Courseware and CU Subscription"
-      }
-    }
-
-  }
-
-  dimension: maxpaid_status {
-    type: number
-    sql: ${TABLE}."PAID_STATUS" ;;
-  }
-
-#   set: detail {
-#     fields: [user_sso_guid, active_date, maxpaid_status]
-#   }
 }
