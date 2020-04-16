@@ -13,6 +13,8 @@ include: "//core/access_grants_file.view"
 include: "/provisioned_products_trials.view"
 include: "/trials.view"
 include: "/guid_entity.view"
+include: "/courseware_launches_trial.view"
+include: "/courseware_launches_fa.view"
 
 
 case_sensitive: no
@@ -29,6 +31,17 @@ explore: trials{
     sql_on: ${trials.merged_guid}::STRING = ${guid_entity.merged_guid}::STRING ;;
     relationship: one_to_one
     }
+}
+
+explore: courseware_launches_trial{
+  label: "courseware launches during trial"
+  description: "Strategy explore to courseware launches during trial analysis"
+
+}
+
+explore: courseware_launches_fa{
+  label: "courseware launches during full access"
+  description: "Strategy explore to courseware launches during trial analysis"
 }
 
 explore: strategy_analysis {

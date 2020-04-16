@@ -1,54 +1,21 @@
-view: trials {
+view: courseware_launches_trial {
   # # You can specify the table name if it's different from the view name:
-  sql_table_name: strategy.covid_support_prod.trials ;;
+  sql_table_name: strategy.covid_support_prod.trial_courseware_launches ;;
   #
-  # # Define your dimensions and measures here, like this:
-  dimension: merged_guid {
-    description: "merged guid"
-    type: string
-    sql: ${TABLE}.merged_guid ;;
-  }
-
-  measure: count {
-    description: "Count of unique trials"
-    type: count_distinct
-    sql: ${TABLE}.merged_guid||${TABLE}.subscription_start_dt ;;
-  }
-  #
-  dimension_group: subscription_start_dt {
-    description: "date trial began"
+  dimension_group: launch_date {
+    description: "launch date"
     type: time
     timeframes: [date, week, month, year]
   }
 
-  dimension: covid_trial {
-    description: "trial after 3/1/20"
-    type: yesno
+  measure: daily_courseware_launches {
+    description: "Daily courseware launches"
+    type: sum
+    sql: ${TABLE}.daily_courseware_launches ;;
   }
-  dimension: covid_trial_no {
-    description: "covid trial renewal number"
-    type: number
-  }
-
-
   #
-  # dimension_group: most_recent_purchase {
-  #   description: "The date when each user last ordered"
-  #   type: time
-  #   timeframes: [date, week, month, year]
-  #   sql: ${TABLE}.most_recent_purchase_at ;;
-  # }
-  #
-  # measure: total_lifetime_orders {
-  #   description: "Use this for counting lifetime orders across many users"
-  #   type: sum
-  #   sql: ${lifetime_orders} ;;
-  # }
 }
-
-
-
-# view: trials {
+# view: courseware_launches_trial {
 #   # Or, you could make this view a derived table, like this:
 #   derived_table: {
 #     sql: SELECT
