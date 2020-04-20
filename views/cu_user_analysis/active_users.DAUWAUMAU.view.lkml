@@ -166,6 +166,38 @@ view: mau {
 
 }
 
+view: yru {
+  extends: [ru]
+
+  parameter: days {default_value: "365"}
+  parameter: view_name {default_value: "yru"}
+
+  measure: yru {
+    label: "YRU"
+    description: "Yearly Registered Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: yru_instructors {
+    label: "YRU Instructors"
+    description: "Yearly Registered Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${yru_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: yru_students {
+    label: "YRU Students"
+    description: "Yearly Registered Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${yru_students}) ;;
+    value_format_name: decimal_0
+  }
+
+}
+
 view: au {
   extension: required
 
@@ -339,3 +371,125 @@ view: au {
       ;;
   }
 }
+
+view: ru {
+  extension: required
+
+  view_label: "Registered Users"
+
+  parameter: days {
+    type: unquoted
+    default_value: "0"
+    hidden: yes
+    # how many days to include in the calculation (weekly users would be 7)
+  }
+
+  parameter: view_name {
+    type: unquoted
+    default_value: ""
+    hidden: yes
+    # name of view, as using _view_name raises an error
+  }
+
+  derived_table: {
+    create_process: {
+      sql_step:
+        CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.{{ view_name._parameter_value }}
+        (
+          date DATE
+          ,users INT
+          ,instructors INT
+          ,students INT
+        )
+      ;;
+      sql_step:
+        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.{{ view_name._parameter_value }}_incremental
+        AS
+        WITH dates AS (
+          SELECT d.datevalue
+          FROM ${dim_date.SQL_TABLE_NAME} d
+          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.{{ view_name._parameter_value }})
+          AND d.datevalue < CURRENT_DATE()
+        )
+        ,distinct_primary AS (
+          SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
+        )
+        ,all_events_merged AS (
+          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, instructor, event_time::date
+          FROM all_events e
+                  LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
+                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
+          GROUP BY COALESCE(m.primary_guid, e.user_sso_guid), instructor
+        )
+        ,first_mutation AS (
+          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, instructor, min(e.event_time::date) AS event_time
+          FROM IAM.PROD.USER_MUTATION e
+                  LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
+                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
+          GROUP BY COALESCE(m.primary_guid, e.user_sso_guid), instructor
+        )
+        ,users AS (
+        SELECT *
+        FROM all_events_merged
+        UNION
+        SELECT *
+        FROM first_mutation
+        )
+        SELECT
+            d.datevalue AS date
+            ,COUNT(DISTINCT CASE WHEN instructor THEN u.merged_guid END) AS instructors
+            ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN u.merged_guid END) AS students
+            ,COUNT(DISTINCT u.merged_guid) AS users
+        FROM dates d
+        INNER JOIN users u ON u.event_time <= d.datevalue
+          AND u.event_time > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
+      ;;
+      sql_step:
+        INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
+        SELECT date, users, instructors, students
+        FROM looker_scratch.{{ view_name._parameter_value }}_incremental
+      sql_step:
+      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+      CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }};;
+
+      }
+      datagroup_trigger: daily_refresh
+    }
+
+
+    dimension: date {
+      hidden: yes
+      type: date
+      primary_key: yes
+    }
+
+
+    dimension: ru {
+      hidden: yes
+      label: "Registered Users"
+      type: number
+      sql:
+        {{ _view._name }}.users
+      ;;
+    }
+
+    dimension: ru_instructors {
+      hidden: yes
+      label: "Registered Instructors"
+      type: number
+      sql:
+        {{ _view._name }}.instructors
+      ;;
+    }
+
+    dimension: ru_students {
+      hidden: yes
+      label: "Registered Students"
+      type: number
+      sql:
+        {{ _view._name }}.students
+      ;;
+    }
+
+
+  }
