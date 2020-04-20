@@ -142,6 +142,12 @@ explore: active_users_stats  {
     relationship: one_to_one
     type: left_outer
   }
+
+  join: yru {
+    sql_on: ${active_users_stats.datevalue} = ${yru.date};;
+    relationship: one_to_one
+    type: inner
+  }
 }
 
 explore: strategy_ecom_sales_orders {

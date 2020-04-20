@@ -184,7 +184,7 @@ view: yru {
     label: "YRU Instructors"
     description: "Yearly Registered Instructors (average if not reported on a single day)"
     type: number
-    sql: AVG(${yru_instructors}) ;;
+    sql: AVG(${ru_instructors}) ;;
     value_format_name: decimal_0
   }
 
@@ -192,7 +192,7 @@ view: yru {
     label: "YRU Students"
     description: "Yearly Registered Students (average if not reported on a single day)"
     type: number
-    sql: AVG(${yru_students}) ;;
+    sql: AVG(${ru_students}) ;;
     value_format_name: decimal_0
   }
 
@@ -278,29 +278,20 @@ view: au {
           AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
         LEFT JOIN paid p on d.datevalue = p.date AND u.user_sso_guid = p.user_sso_guid
         GROUP BY 1, ROLLUP(2)
-      ;;
+        ;;
       sql_step:
-        INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
-        SELECT date, product_platform, users, instructors, students, paid_active_users, paid_inactive_users, NULL, NULL, NULL, NULL, NULL
-        FROM looker_scratch.{{ view_name._parameter_value }}_incremental
-        WHERE product_platform != 'UNKNOWN';;
-      sql_step:
-        MERGE INTO LOOKER_SCRATCH.{{ view_name._parameter_value }} a
-        USING looker_scratch.{{ view_name._parameter_value }}_incremental t ON a.date = t.date AND t.product_platform IS NULL --join to the result of the ROLLUP function i.e. total for all platforms
-        WHEN MATCHED THEN UPDATE
-          SET a.total_users = t.users
-            ,a.total_instructors = t.instructors
-            ,a.total_students = t.students
-            ,a.total_paid_active_users = t.paid_active_users
-            ,a.total_paid_inactive_users = t.paid_inactive_users
+      INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
+      SELECT date, users, instructors, students
+      FROM looker_scratch.{{ view_name._parameter_value }}_incremental
+      WHERE product_platform != 'UNKNOWN'
       ;;
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
       CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }};;
 
+      }
+      datagroup_trigger: daily_refresh
     }
-    datagroup_trigger: daily_refresh
-  }
 
 
   dimension: pk {
@@ -415,18 +406,17 @@ view: ru {
           SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
         )
         ,all_events_merged AS (
-          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, instructor, event_time::date
-          FROM all_events e
+          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, e.date as event_time
+          FROM ${guid_platform_date_active.SQL_TABLE_NAME} e
                   LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
                   LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
-          GROUP BY COALESCE(m.primary_guid, e.user_sso_guid), instructor
         )
         ,first_mutation AS (
-          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, instructor, min(e.event_time::date) AS event_time
+          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, min(e.event_time::date) AS event_time
           FROM IAM.PROD.USER_MUTATION e
                   LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
                   LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
-          GROUP BY COALESCE(m.primary_guid, e.user_sso_guid), instructor
+          GROUP BY COALESCE(m.primary_guid, e.user_sso_guid), u.instructor
         )
         ,users AS (
         SELECT *
@@ -443,15 +433,17 @@ view: ru {
         FROM dates d
         INNER JOIN users u ON u.event_time <= d.datevalue
           AND u.event_time > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
+        GROUP BY 1
       ;;
       sql_step:
         INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
         SELECT date, users, instructors, students
         FROM looker_scratch.{{ view_name._parameter_value }}_incremental
+      ;;
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
-      CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }};;
-
+      CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }}
+      ;;
       }
       datagroup_trigger: daily_refresh
     }
