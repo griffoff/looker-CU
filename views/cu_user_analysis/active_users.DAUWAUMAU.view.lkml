@@ -166,6 +166,102 @@ view: mau {
 
 }
 
+view: dru {
+  extends: [ru]
+
+  parameter: days {default_value: "1"}
+  parameter: view_name {default_value: "dru"}
+
+  measure: dru {
+    label: "DRU"
+    description: "Daily Registered Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: dru_instructors {
+    label: "DRU Instructors"
+    description: "Daily Registered Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: dru_students {
+    label: "DRU Students"
+    description: "Daily Registered Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru_students}) ;;
+    value_format_name: decimal_0
+  }
+
+}
+
+view: wru {
+  extends: [ru]
+
+  parameter: days {default_value: "7"}
+  parameter: view_name {default_value: "wru"}
+
+  measure: wru {
+    label: "WRU"
+    description: "Weekly Registered Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: wru_instructors {
+    label: "WRU Instructors"
+    description: "Weekly Registered Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: wru_students {
+    label: "WRU Students"
+    description: "Weekly Registered Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru_students}) ;;
+    value_format_name: decimal_0
+  }
+
+}
+
+view: mru {
+  extends: [ru]
+
+  parameter: days {default_value: "30"}
+  parameter: view_name {default_value: "mru"}
+
+  measure: mru {
+    label: "MRU"
+    description: "Monthly Registered Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: mru_instructors {
+    label: "MRU Instructors"
+    description: "Monthly Registered Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: mru_students {
+    label: "MRU Students"
+    description: "Monthly Registered Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${ru_students}) ;;
+    value_format_name: decimal_0
+  }
+
+}
+
 view: yru {
   extends: [ru]
 
@@ -281,9 +377,18 @@ view: au {
         ;;
       sql_step:
       INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
-      SELECT date, users, instructors, students
+      SELECT date, product_platform, users, instructors, students, paid_active_users, paid_inactive_users, NULL, NULL, NULL, NULL, NULL
       FROM looker_scratch.{{ view_name._parameter_value }}_incremental
-      WHERE product_platform != 'UNKNOWN'
+      WHERE product_platform != 'UNKNOWN';;
+      sql_step:
+        MERGE INTO LOOKER_SCRATCH.{{ view_name._parameter_value }} a
+        USING looker_scratch.{{ view_name._parameter_value }}_incremental t ON a.date = t.date AND t.product_platform IS NULL --join to the result of the ROLLUP function i.e. total for all platforms
+        WHEN MATCHED THEN UPDATE
+          SET a.total_users = t.users
+            ,a.total_instructors = t.instructors
+            ,a.total_students = t.students
+            ,a.total_paid_active_users = t.paid_active_users
+            ,a.total_paid_inactive_users = t.paid_inactive_users
       ;;
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
@@ -292,6 +397,7 @@ view: au {
       }
       datagroup_trigger: daily_refresh
     }
+
 
 
   dimension: pk {
@@ -436,14 +542,14 @@ view: ru {
         GROUP BY 1
       ;;
       sql_step:
-        INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
-        SELECT date, users, instructors, students
-        FROM looker_scratch.{{ view_name._parameter_value }}_incremental
+      INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
+      SELECT date, users, instructors, students
+      FROM looker_scratch.{{ view_name._parameter_value }}_incremental
       ;;
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
-      CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }}
-      ;;
+      CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }};;
+
       }
       datagroup_trigger: daily_refresh
     }

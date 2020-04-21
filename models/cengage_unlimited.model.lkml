@@ -142,12 +142,27 @@ explore: active_users_stats  {
     relationship: one_to_one
     type: left_outer
   }
-
+  join: dru {
+    sql_on: ${active_users_stats.datevalue} = ${dru.date};;
+    relationship: one_to_one
+    type: inner
+  }
+  join: wru {
+    sql_on: ${active_users_stats.datevalue} = ${wru.date};;
+    relationship: one_to_one
+    type: inner
+  }
+  join: mru {
+    sql_on: ${active_users_stats.datevalue} = ${mru.date};;
+    relationship: one_to_one
+    type: inner
+  }
   join: yru {
     sql_on: ${active_users_stats.datevalue} = ${yru.date};;
     relationship: one_to_one
     type: inner
   }
+
 }
 
 explore: strategy_ecom_sales_orders {
