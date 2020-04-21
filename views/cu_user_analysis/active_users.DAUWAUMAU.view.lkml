@@ -348,9 +348,9 @@ view: au {
         INNER JOIN ${guid_date_paid.SQL_TABLE_NAME} p ON d.datevalue = p.date
         )
         ,active AS (
-        SELECT a.*
-        FROM dates d
-        INNER JOIN ${guid_platform_date_active.SQL_TABLE_NAME} a ON d.datevalue = a.date
+        SELECT *
+        FROM ${guid_platform_date_active.SQL_TABLE_NAME} g
+        WHERE g.date BETWEEN DATEADD(DAY, -{{ days._parameter_value }}, (SELECT MIN(datevalue) FROM dates)) AND (SELECT MAX(datevalue) FROM dates)
         )
         ,users AS (
         SELECT user_sso_guid
@@ -512,17 +512,16 @@ view: ru {
           SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
         )
         ,all_events_merged AS (
-          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, e.date as event_time
+          SELECT DISTINCT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, e.date as event_time
           FROM ${guid_platform_date_active.SQL_TABLE_NAME} e
                   LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
                   LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
         )
         ,first_mutation AS (
-          SELECT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, min(e.event_time::date) AS event_time
+          SELECT DISTINCT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, e.event_time::date AS event_time
           FROM IAM.PROD.USER_MUTATION e
                   LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
                   LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
-          GROUP BY COALESCE(m.primary_guid, e.user_sso_guid), u.instructor
         )
         ,users AS (
         SELECT *
