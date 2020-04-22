@@ -411,6 +411,13 @@ view: au {
     type: date
   }
 
+  dimension: max_date {
+    hidden: yes
+    type: date
+    sql: (SELECT MAX(date) FROM LOOKER_SCRATCH.{{ view_name._parameter_value }});;
+  }
+
+
   dimension: product_platform {
     hidden: yes
     label: "Product Platform"
@@ -560,6 +567,11 @@ view: ru {
       primary_key: yes
     }
 
+  dimension: max_date {
+    hidden: yes
+    type: date
+    sql: (SELECT MAX(date) FROM LOOKER_SCRATCH.{{ view_name._parameter_value }});;
+  }
 
     dimension: ru {
       hidden: yes
