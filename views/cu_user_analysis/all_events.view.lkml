@@ -634,7 +634,7 @@ view: all_events {
   }
 
   dimension: event_date_raw {
-    hidden: no
+    hidden: yes
     type: date
     sql: ${TABLE}.event_time::date ;;
   }

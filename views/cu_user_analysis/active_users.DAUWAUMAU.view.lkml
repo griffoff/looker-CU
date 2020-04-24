@@ -85,6 +85,38 @@ view: dau {
 
 }
 
+view: dau_old {
+  extends: [au_old]
+
+  parameter: days {default_value: "1"}
+  parameter: view_name {default_value: "dau_old"}
+
+
+  measure: dau {
+    label: "DAU_old"
+    description: "Daily Active Users (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: dau_instructor {
+    label: "DAU Instructor_old"
+    description: "Daily Active Instructors (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: dau_students {
+    label: "DAU Students_old"
+    description: "Daily Active Students (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_students}) ;;
+    value_format_name: decimal_0
+  }
+}
+
 view: wau {
   extends: [au]
 
@@ -198,6 +230,7 @@ view: dru {
 
 }
 
+
 view: wru {
   extends: [ru]
 
@@ -262,6 +295,7 @@ view: mru {
 
 }
 
+
 view: yru {
   extends: [ru]
 
@@ -291,8 +325,8 @@ view: yru {
     sql: AVG(${ru_students}) ;;
     value_format_name: decimal_0
   }
-
 }
+
 
 view: au {
   extension: required
@@ -476,6 +510,7 @@ view: au {
   }
 }
 
+
 view: ru {
   extension: required
 
@@ -519,16 +554,16 @@ view: ru {
           SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
         )
         ,all_events_merged AS (
-          SELECT DISTINCT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, e.date as event_time
+          SELECT DISTINCT e.user_sso_guid AS merged_guid, u.instructor, e.date as event_time
           FROM ${guid_platform_date_active.SQL_TABLE_NAME} e
-                  LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
-                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
+                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON e.user_sso_guid = u.user_sso_guid
         )
         ,first_mutation AS (
-          SELECT DISTINCT COALESCE(m.primary_guid, e.user_sso_guid) AS merged_guid, u.instructor, e.event_time::date AS event_time
-          FROM IAM.PROD.USER_MUTATION e
-                  LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.user_sso_guid = m.partner_guid
-                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.user_sso_guid) = u.user_sso_guid
+          SELECT DISTINCT COALESCE(m.primary_guid, e.linked_guid) AS merged_guid, u.instructor, e.rsrc_timestamp::date AS event_time
+          FROM prod.datavault.sat_user e
+                  LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.linked_guid = m.partner_guid
+                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.linked_guid) = u.user_sso_guid
+          WHERE merged_guid IS NOT NULL
         )
         ,users AS (
         SELECT *
@@ -567,11 +602,11 @@ view: ru {
       primary_key: yes
     }
 
-  dimension: max_date {
-    hidden: yes
-    type: date
-    sql: (SELECT MAX(date) FROM LOOKER_SCRATCH.{{ view_name._parameter_value }});;
-  }
+    dimension: max_date {
+      hidden: yes
+      type: date
+      sql: (SELECT MAX(date) FROM LOOKER_SCRATCH.{{ view_name._parameter_value }});;
+    }
 
     dimension: ru {
       hidden: yes
@@ -600,5 +635,125 @@ view: ru {
       ;;
     }
 
-
   }
+
+view: au_old {
+  extension: required
+  view_label: "User Activity Counts"
+  parameter: days {
+    type: unquoted
+    default_value: "0"
+    hidden: yes
+    # how many days to include in the calculation (weekly users would be 7)
+  }
+  parameter: view_name {
+    type: unquoted
+    default_value: ""
+    hidden: yes
+    # name of view, as using _view_name raises an error
+  }
+  derived_table: {
+    create_process: {
+      sql_step:
+        CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.{{ view_name._parameter_value }}
+        (
+          date DATE
+          ,product_platform STRING
+          ,users INT
+          ,instructors INT
+          ,students INT
+          ,total_users INT
+          ,total_instructors INT
+          ,total_students INT
+        )
+      ;;
+      sql_step:
+        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.{{ view_name._parameter_value }}_incremental
+        AS
+        WITH dates AS (
+          SELECT d.datevalue
+          FROM ${dim_date.SQL_TABLE_NAME} d
+          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.{{ view_name._parameter_value }})
+          AND d.datevalue > (SELECT MIN(date) FROM ${guid_platform_date_active.SQL_TABLE_NAME})
+          AND d.datevalue < CURRENT_DATE()
+        )
+        SELECT
+            d.datevalue AS date
+            ,COALESCE(au.productplatform, 'UNKNOWN') as product_platform
+            ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
+            ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
+            ,COUNT(DISTINCT au.user_sso_guid) AS users
+        FROM dates d
+        LEFT JOIN ${guid_platform_date_active.SQL_TABLE_NAME} AS au ON au.date <= d.datevalue
+                                                                    AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
+        GROUP BY 1, ROLLUP(2)
+      ;;
+      sql_step:
+        INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
+        SELECT date, product_platform, users, instructors, students, NULL, NULL, NULL
+        FROM looker_scratch.{{ view_name._parameter_value }}_incremental
+        WHERE product_platform != 'UNKNOWN';;
+      sql_step:
+        MERGE INTO LOOKER_SCRATCH.{{ view_name._parameter_value }} a
+        USING looker_scratch.{{ view_name._parameter_value }}_incremental t ON a.date = t.date AND t.product_platform IS NULL --join to the result of the ROLLUP function i.e. total for all platforms
+        WHEN MATCHED THEN UPDATE
+          SET a.total_users = t.users
+            ,a.total_instructors = t.instructors
+            ,a.total_students = t.students
+      ;;
+      sql_step:
+      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+      CLONE LOOKER_SCRATCH.{{ view_name._parameter_value }};;
+    }
+    datagroup_trigger: daily_refresh
+  }
+  dimension: pk {
+    primary_key: yes
+    sql: hash(date, product_platform) ;;
+    hidden: yes
+  }
+  dimension: date {
+    hidden: yes
+    type: date
+  }
+  dimension: product_platform {
+    hidden: yes
+    label: "Product Platform"
+  }
+  dimension: au {
+    hidden: yes
+    label: "Active Users"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query or active_users_platforms.product_platform_clean._in_query %}
+        {{ _view._name }}.users
+      {% else %}
+        {{ _view._name }}.total_users
+      {% endif %}
+      ;;
+  }
+  dimension: au_instructors {
+    hidden: yes
+    label: "Active Instructors"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query %}
+        {{ _view._name }}.instructors
+      {% else %}
+        {{ _view._name }}.total_instructors
+      {% endif %}
+      ;;
+  }
+  dimension: au_students {
+    hidden: yes
+    label: "Active Students"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query %}
+        {{ _view._name }}.students
+      {% else %}
+        {{ _view._name }}.total_students
+      {% endif %}
+      ;;
+  }
+}
