@@ -12,7 +12,6 @@ view: unused_accounts {
                   LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.linked_guid = m.partner_guid
                   LEFT JOIN all_events_merged a ON a.user_sso_guid = COALESCE(m.primary_guid, e.linked_guid)
           WHERE merged_guid IS NOT NULL
-          AND event_time = '2019-08-22'
           AND a.user_sso_guid IS NULL
 
           ;;
