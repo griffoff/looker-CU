@@ -1,44 +1,115 @@
 explore: daily_digital_users {}
 view: daily_digital_users {
 
-    derived_table: {
-    sql:
-      WITH courseware_users AS (
-        SELECT *
-        FROM ${guid_date_course.SQL_TABLE_NAME}
-      )
-      ,ebook_users AS (
-        SELECT *
-        FROM ${guid_date_ebook.SQL_TABLE_NAME} e
-        LEFT JOIN courseware_users c ON e.date = c.date AND e.user_sso_guid = c.user_sso_guid
-        WHERE c.user_sso_guid IS NULL
-      )
-      ,cu_only_users AS (
-        SELECT *
-        FROM ${guid_date_subscription.SQL_TABLE_NAME} s
-        LEFT JOIN courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
-        LEFT JOIN ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
-        WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
-      )
-      ,all_users AS (
-        SELECT * FROM courseware_users
-        UNION
-        SELECT * FROM ebook_users
-        UNION
-        SELECT * FROM cu_only_users
-      )
 
-      SELECT date
+  derived_table: {
+    create_process: {
+      sql_step:
+        CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.daily_digital_users
+        (
+          date DATE
+          ,courseware_users INT
+          ,ebook_users INT
+          ,cu_only_users INT
+          ,digital_users INT
+        )
+      ;;
+      sql_step:
+        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.daily_digital_users_incremental
+        AS
+        WITH dates AS (
+          SELECT d.datevalue
+          FROM ${dim_date.SQL_TABLE_NAME} d
+          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.daily_digital_users)
+          AND d.datevalue < CURRENT_DATE()
+        )
+        ,courseware_users AS (
+          SELECT c.date, c.user_sso_guid, c.content_type
+          FROM ${guid_date_course.SQL_TABLE_NAME} c
+        )
+        ,ebook_users AS (
+          SELECT e.date, e.user_sso_guid, e.content_type
+          FROM ${guid_date_ebook.SQL_TABLE_NAME} e
+          LEFT JOIN courseware_users c ON e.date = c.date AND e.user_sso_guid = c.user_sso_guid
+          WHERE c.user_sso_guid IS NULL
+        )
+        ,cu_only_users AS (
+          SELECT s.date, s.user_sso_guid, s.content_type
+          FROM ${guid_date_subscription.SQL_TABLE_NAME} s
+          LEFT JOIN courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
+          LEFT JOIN ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
+          WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
+        )
+        ,all_users AS (
+          SELECT date, user_sso_guid, content_type FROM courseware_users
+          UNION
+          SELECT date, user_sso_guid, content_type FROM ebook_users
+          UNION
+          SELECT date, user_sso_guid, content_type FROM cu_only_users
+        )
+      SELECT
+        date
         ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' THEN user_sso_guid END) AS courseware_users
         ,COUNT(DISTINCT CASE WHEN content_type = 'eBook' THEN user_sso_guid END) AS ebook_users
         ,COUNT(DISTINCT CASE WHEN content_type = 'Full Access CU Subscription' THEN user_sso_guid END) AS cu_only_users
         ,COUNT(DISTINCT user_sso_guid) AS digital_users
-      FROM all_users
+      FROM dates d
+      INNER JOIN all_users a ON d.datevalue = a.date
       GROUP BY 1
       ;;
+      sql_step:
+      INSERT INTO LOOKER_SCRATCH.daily_digital_users
+      SELECT date, courseware_users, ebook_users, cu_only_users, digital_users
+      FROM looker_scratch.daily_digital_users_incremental
+      ;;
+      sql_step:
+      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+      CLONE LOOKER_SCRATCH.daily_digital_users ;;
 
-      persist_for: "24 hours"
+      }
+      datagroup_trigger: daily_refresh
     }
+
+
+#     derived_table: {
+#     sql:
+#       WITH courseware_users AS (
+#         SELECT c.date, c.user_sso_guid, c.content_type
+#         FROM ${guid_date_course.SQL_TABLE_NAME} c
+#       )
+#       ,ebook_users AS (
+#         SELECT e.date, e.user_sso_guid, e.content_type
+#         FROM ${guid_date_ebook.SQL_TABLE_NAME} e
+#         LEFT JOIN courseware_users c ON e.date = c.date AND e.user_sso_guid = c.user_sso_guid
+#         WHERE c.user_sso_guid IS NULL
+#       )
+#       ,cu_only_users AS (
+#         SELECT s.date, s.user_sso_guid, s.content_type
+#         FROM ${guid_date_subscription.SQL_TABLE_NAME} s
+#         LEFT JOIN courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
+#         LEFT JOIN ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
+#         WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
+#       )
+#       ,all_users AS (
+#         SELECT date, user_sso_guid, content_type FROM courseware_users
+#         UNION
+#         SELECT date, user_sso_guid, content_type FROM ebook_users
+#         UNION
+#         SELECT date, user_sso_guid, content_type FROM cu_only_users
+#       )
+#
+#       SELECT
+#         date
+#         ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' THEN user_sso_guid END) AS courseware_users
+#         ,COUNT(DISTINCT CASE WHEN content_type = 'eBook' THEN user_sso_guid END) AS ebook_users
+#         ,COUNT(DISTINCT CASE WHEN content_type = 'Full Access CU Subscription' THEN user_sso_guid END) AS cu_only_users
+#         ,COUNT(DISTINCT user_sso_guid) AS digital_users
+#       FROM all_users
+#       GROUP BY 1
+#       ;;
+#
+#       persist_for: "24 hours"
+#     }
 
     dimension: date {
       hidden:  no

@@ -4,7 +4,7 @@ view: guid_date_subscription {
     derived_table: {
       sql:
         WITH sub_users AS (
-        SELECT DISTINCT COALESCE(linked_guid, current_guid) AS user_sso_guid, subscription_start::DATE AS sub_start, subscription_end::DATE AS sub_end
+        SELECT DISTINCT COALESCE(linked_guid, current_guid) AS user_sso_guid, subscription_start::DATE AS sub_start, subscription_end::DATE AS sub_end, instructor
         FROM prod.datavault.sat_subscription_sap subevent
           INNER JOIN prod.datavault.hub_user ON subevent.current_guid = hub_user.UID
           LEFT JOIN prod.datavault.sat_user ON hub_user.UID = sat_user.linked_guid AND sat_user.active
@@ -17,6 +17,7 @@ view: guid_date_subscription {
         AND offset_transactions.contract_id IS NULL
         )
       SELECT dim_date.datevalue as date, user_sso_guid, 'Full Access CU Subscription' AS content_type
+      , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
       FROM ${dim_date.SQL_TABLE_NAME} dim_date
         LEFT JOIN sub_users ON dim_date.datevalue BETWEEN sub_start AND sub_end
       WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
@@ -38,5 +39,10 @@ view: guid_date_subscription {
       type: string
       sql: ${TABLE}.content_type ;;
     }
+
+  dimension: user_type {
+    type: string
+    sql: ${TABLE}.user_type ;;
+  }
 
   }
