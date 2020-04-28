@@ -4,7 +4,7 @@ view: guid_date_course {
   derived_table: {
     sql:
     WITH course_users AS (
-    SELECT DISTINCT user_sso_guid, course_start_date::DATE AS course_start, course_end_date::DATE AS course_end
+    SELECT DISTINCT user_sso_guid, LEAST(course_start_date::DATE, enrollment_date::date, activation_date::date) AS course_start, DATEADD(w,20,course_start) AS course_end
      FROM prod.cu_user_analysis.user_courses)
 
 SELECT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type

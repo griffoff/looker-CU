@@ -42,9 +42,9 @@ view: daily_digital_users {
         )
         ,all_users AS (
           SELECT date, user_sso_guid, content_type FROM courseware_users
-          UNION
+          UNION ALL
           SELECT date, user_sso_guid, content_type FROM ebook_users
-          UNION
+          UNION ALL
           SELECT date, user_sso_guid, content_type FROM cu_only_users
         )
       SELECT
