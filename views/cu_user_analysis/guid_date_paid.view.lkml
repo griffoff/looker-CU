@@ -22,8 +22,13 @@ view: guid_date_paid {
        AND subscription_plan_id ILIKE 'Full-Access%'
        AND subevent.SUBSCRIPTION_STATE NOT IN ('Cancelled', 'Pending')
        AND offset_transactions.contract_id IS NULL)
-)
-SELECT dim_date.datevalue as date, user_sso_guid, TRUE AS paid_flag
+    UNION
+    (SELECT DISTINCT s.user_sso_guid, s.registration_date as paid_start, DATEADD(DAY,s.subscription_length,s.registration_date) AS paid_end
+    FROM olr.prod.product_v4 p
+    INNER JOIN olr.prod.serial_number_v4 s ON p.product_id = s.product_id
+    WHERE product_type IN ('MTR','SMEB') AND s.user_sso_guid IS NOT NULL AND s.user_type = 'student')
+    )
+SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, TRUE AS paid_flag
 FROM ${dim_date.SQL_TABLE_NAME} dim_date
          LEFT JOIN paid_users ON dim_date.datevalue BETWEEN paid_start AND paid_end
 WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()

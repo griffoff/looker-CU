@@ -564,6 +564,7 @@ view: ru {
                   LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.linked_guid = m.partner_guid
                   LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.linked_guid) = u.user_sso_guid
           WHERE merged_guid IS NOT NULL
+          AND event_time NOT IN ('2018-08-03','2019-08-22')
         )
         ,users AS (
         SELECT *

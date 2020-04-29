@@ -9,6 +9,7 @@ view: daily_digital_users {
         (
           date DATE
           ,courseware_users INT
+          ,courseware_instructors INT
           ,ebook_users INT
           ,cu_only_users INT
           ,digital_users INT
@@ -24,7 +25,7 @@ view: daily_digital_users {
           AND d.datevalue < CURRENT_DATE()
         )
         ,courseware_users AS (
-          SELECT c.date, c.user_sso_guid, c.content_type
+          SELECT c.date, c.user_sso_guid, c.content_type, c. user_type
           FROM ${guid_date_course.SQL_TABLE_NAME} c
         )
         ,ebook_users AS (
@@ -41,25 +42,26 @@ view: daily_digital_users {
           WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
         )
         ,all_users AS (
-          SELECT date, user_sso_guid, content_type FROM courseware_users
+          SELECT date, user_sso_guid, content_type, user_type FROM courseware_users
           UNION ALL
-          SELECT date, user_sso_guid, content_type FROM ebook_users
+          SELECT date, user_sso_guid, content_type, NULL as user_type FROM ebook_users
           UNION ALL
-          SELECT date, user_sso_guid, content_type FROM cu_only_users
+          SELECT date, user_sso_guid, content_type, NULL as user_type FROM cu_only_users
         )
       SELECT
         date
-        ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' THEN user_sso_guid END) AS courseware_users
+        ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' AND user_type = 'Student' THEN user_sso_guid END) AS courseware_users
+        ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' AND user_type = 'Instructor' THEN user_sso_guid END) AS courseware_instructors
         ,COUNT(DISTINCT CASE WHEN content_type = 'eBook' THEN user_sso_guid END) AS ebook_users
         ,COUNT(DISTINCT CASE WHEN content_type = 'Full Access CU Subscription' THEN user_sso_guid END) AS cu_only_users
-        ,COUNT(DISTINCT user_sso_guid) AS digital_users
+        ,COUNT(DISTINCT CASE WHEN user_type = 'Student' OR user_type IS NULL THEN user_sso_guid END) AS digital_users
       FROM dates d
       INNER JOIN all_users a ON d.datevalue = a.date
       GROUP BY 1
       ;;
       sql_step:
       INSERT INTO LOOKER_SCRATCH.daily_digital_users
-      SELECT date, courseware_users, ebook_users, cu_only_users, digital_users
+      SELECT date, courseware_users, courseware_instructors, ebook_users, cu_only_users, digital_users
       FROM looker_scratch.daily_digital_users_incremental
       ;;
       sql_step:
@@ -71,45 +73,6 @@ view: daily_digital_users {
     }
 
 
-#     derived_table: {
-#     sql:
-#       WITH courseware_users AS (
-#         SELECT c.date, c.user_sso_guid, c.content_type
-#         FROM ${guid_date_course.SQL_TABLE_NAME} c
-#       )
-#       ,ebook_users AS (
-#         SELECT e.date, e.user_sso_guid, e.content_type
-#         FROM ${guid_date_ebook.SQL_TABLE_NAME} e
-#         LEFT JOIN courseware_users c ON e.date = c.date AND e.user_sso_guid = c.user_sso_guid
-#         WHERE c.user_sso_guid IS NULL
-#       )
-#       ,cu_only_users AS (
-#         SELECT s.date, s.user_sso_guid, s.content_type
-#         FROM ${guid_date_subscription.SQL_TABLE_NAME} s
-#         LEFT JOIN courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
-#         LEFT JOIN ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
-#         WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
-#       )
-#       ,all_users AS (
-#         SELECT date, user_sso_guid, content_type FROM courseware_users
-#         UNION
-#         SELECT date, user_sso_guid, content_type FROM ebook_users
-#         UNION
-#         SELECT date, user_sso_guid, content_type FROM cu_only_users
-#       )
-#
-#       SELECT
-#         date
-#         ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' THEN user_sso_guid END) AS courseware_users
-#         ,COUNT(DISTINCT CASE WHEN content_type = 'eBook' THEN user_sso_guid END) AS ebook_users
-#         ,COUNT(DISTINCT CASE WHEN content_type = 'Full Access CU Subscription' THEN user_sso_guid END) AS cu_only_users
-#         ,COUNT(DISTINCT user_sso_guid) AS digital_users
-#       FROM all_users
-#       GROUP BY 1
-#       ;;
-#
-#       persist_for: "24 hours"
-#     }
 
     dimension: date {
       hidden:  no
@@ -118,14 +81,22 @@ view: daily_digital_users {
 
     measure: courseware_users {
       label: "# Courseware Users"
-      description: "# Users enrolled in an active course (if more than one day is included in filter, this shows the average over the chosen period)"
+      description: "# Students enrolled in an active course (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
       sql: AVG(${TABLE}.courseware_users) ;;
       value_format_name: decimal_0
     }
 
+    measure: courseware_instructors {
+      label: "# Courseware Instructors"
+      description: "# Instructors for active courses (if more than one day is included in filter, this shows the average over the chosen period)"
+      type: number
+      sql: AVG(${TABLE}.courseware_instructors) ;;
+      value_format_name: decimal_0
+    }
+
   measure: ebook_users {
-    label: "# eBook Only Users"
+    label: "# eBook Only Student Users"
     description: "# Users with access to an eBook but not enrolled in a course (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.ebook_users) ;;
@@ -133,7 +104,7 @@ view: daily_digital_users {
   }
 
   measure: cu_only_users {
-    label: "# CU Users, no provisions"
+    label: "# Full Access CU Users, no provisions"
     description: "# Users with a full access CU subscriptions but not enrolled in a course or with access to an eBook (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.cu_only_users) ;;
@@ -141,7 +112,7 @@ view: daily_digital_users {
   }
 
   measure: digital_users {
-    label: "# Digital Users"
+    label: "# Digital Student Users"
     description: "# Users enrolled in an active course, with access to an eBook, or with a full access CU subscription and no provisions (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.digital_users) ;;

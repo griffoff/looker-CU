@@ -18,9 +18,9 @@ view: unused_accounts {
     persist_for: "24 hours"
   }
 
-  dimension: user_sso_guid {
+  dimension: merged_guid {
     type: string
-    sql: ${TABLE}.USER_SSO_GUID ;;
+    sql: ${TABLE}.merged_guid ;;
   }
 
   dimension: event_time {
