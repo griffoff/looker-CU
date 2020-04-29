@@ -74,7 +74,6 @@ explore: course_sections {
 explore: active_users {
   hidden: yes
   from: guid_platform_date_active
-
 }
 
 explore: active_users_stats  {
@@ -92,6 +91,11 @@ explore: active_users_stats  {
 
   join: daily_paid_users {
     sql_on: ${active_users_stats.datevalue} = ${daily_paid_users.date} ;;
+    relationship: one_to_many
+  }
+
+  join: daily_digital_users {
+    sql_on: ${active_users_stats.datevalue} = ${daily_digital_users.date} ;;
     relationship: one_to_many
   }
 

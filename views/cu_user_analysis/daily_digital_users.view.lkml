@@ -75,7 +75,7 @@ view: daily_digital_users {
 
 
     dimension: date {
-      hidden:  no
+      hidden:  yes
       type: date
       primary_key: yes}
 

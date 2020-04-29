@@ -15,8 +15,10 @@ view: daily_coursesection_instructors {
   }
 
   dimension: date {
+    hidden:  yes
     type: date
-    primary_key: yes}
+    primary_key: yes
+    }
 
   measure: instructor_count {
     label: "# Instructors on active courses"
