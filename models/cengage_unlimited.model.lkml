@@ -106,13 +106,6 @@ explore: active_users_stats  {
     type: inner
   }
 
-  join: dau_old {
-    sql_on: ${active_users_stats.datevalue} = ${dau_old.date}
-      AND ${active_users_platforms.product_platform} = ${dau_old.product_platform};;
-    relationship: one_to_one
-    type: inner
-  }
-
   join: dau_ly {
     view_label: "User Activity Counts - Prior Year"
     from: dau

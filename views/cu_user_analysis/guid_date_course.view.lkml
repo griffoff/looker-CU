@@ -4,8 +4,16 @@ view: guid_date_course {
   derived_table: {
     sql:
     WITH course_users AS (
-    SELECT DISTINCT user_sso_guid, course_key, instructor_guid, LEAST(course_start_date::DATE, enrollment_date::date, activation_date::date) AS course_start
-    ,least(course_end_date,DATEADD(w,20,course_start)) AS course_end, 'Student' AS user_type, activation_date
+    SELECT DISTINCT user_sso_guid, course_key, instructor_guid
+
+    ,LEAST(COALESCE(course_start_date, enrollment_date), COALESCE(enrollment_date,activation_date),activation_date)::date AS course_start
+
+    ,LEAST(COALESCE(datediff(w,course_start_date,course_end_date),52),52) AS course_length
+
+    ,LEAST(COALESCE(course_end_date,'2100-12-31'),DATEADD(w,course_length,course_start)) AS course_end
+
+    ,'Student' AS user_type, activation_date
+
      FROM prod.cu_user_analysis.user_courses)
 
     ,course_instructors AS (
@@ -20,7 +28,7 @@ view: guid_date_course {
     SELECT user_sso_guid, course_start, course_end, user_type, activation_date
     FROM course_instructors)
 
-SELECT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, CASE WHEN dim_date.datevalue BETWEEN activation_date AND course_end THEN 'Paid' END AS paid_flag
+SELECT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, CASE WHEN dim_date.datevalue BETWEEN activation_date AND course_end THEN TRUE END AS paid_flag
 FROM ${dim_date.SQL_TABLE_NAME} dim_date
          LEFT JOIN all_users ON dim_date.datevalue BETWEEN course_start AND course_end
 WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
@@ -49,7 +57,7 @@ WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
   }
 
   dimension: paid_flag {
-    type: string
+    type: yesno
     sql: ${TABLE}.paid_flag ;;
   }
 

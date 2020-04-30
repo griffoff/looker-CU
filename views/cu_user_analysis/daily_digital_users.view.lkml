@@ -1,7 +1,6 @@
 explore: daily_digital_users {}
 view: daily_digital_users {
 
-
   derived_table: {
     create_process: {
       sql_step:

@@ -1,24 +1,15 @@
-explore: guid_date_ebook {}
+explore: guid_date_ebook_serial {}
 
-view: guid_date_ebook {
+view: guid_date_ebook_serial {
   derived_table: {
     sql:
     WITH ebook_users AS (
-    (
-    SELECT DISTINCT s.user_sso_guid, s.registration_date as ebook_start, DATEADD(DAY,s.subscription_length,s.registration_date) AS ebook_end
-    FROM olr.prod.product_v4 p
-    INNER JOIN olr.prod.serial_number_v4 s ON p.product_id = s.product_id
-    WHERE product_type IN ('MTR','SMEB') AND s.user_sso_guid IS NOT NULL AND s.user_type = 'student'
-    )
-    UNION
-    (
     SELECT DISTINCT pp.user_sso_guid, pp.date_added AS ebook_start, pp.expiration_date AS ebook_end
     FROM olr.prod.product_v4 p
     INNER JOIN olr.prod.provisioned_product pp ON p.product_id = pp.product_id
     WHERE p.product_type in ('MTR','SMEB')
       AND pp.user_sso_guid IS NOT NULL
       AND pp.user_type= 'student'
-    )
     )
 SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'eBook' AS content_type
 FROM ${dim_date.SQL_TABLE_NAME} dim_date
