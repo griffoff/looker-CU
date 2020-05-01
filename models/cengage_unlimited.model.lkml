@@ -79,6 +79,10 @@ explore: active_users {
 explore: active_users_stats  {
   from: dim_date
 
+  always_filter: {
+    filters: [date: "before today"]
+  }
+
   join: active_users_platforms {
     relationship: many_to_many
     type: cross

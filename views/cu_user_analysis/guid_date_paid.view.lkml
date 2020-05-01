@@ -4,49 +4,20 @@ view: guid_date_paid {
 
   derived_table: {
     sql:
-    /*
-    WITH paid_users AS (
-    (
-    SELECT DISTINCT user_sso_guid, activation_date::DATE AS paid_start, course_end_date::DATE AS paid_end
-    FROM prod.cu_user_analysis.user_courses
-    )
-    UNION
-    (
-    SELECT DISTINCT COALESCE(linked_guid, current_guid) AS user_sso_guid, subscription_start::DATE AS paid_start, subscription_end::DATE AS paid_end
-    FROM prod.datavault.sat_subscription_sap subevent
-    INNER JOIN prod.datavault.hub_user ON subevent.current_guid = hub_user.UID
-    LEFT JOIN prod.datavault.sat_user ON hub_user.UID = sat_user.linked_guid AND sat_user.active
-    LEFT JOIN prod.public.offset_transactions offset_transactions
-      ON subevent.CONTRACT_ID = offset_transactions.CONTRACT_ID
-      AND (offset_transactions._LDTS >= TO_DATE('16-Dec-2018') AND offset_transactions._LDTS < TO_DATE('01-Jan-2019'))
-      AND offset_transactions.subscription_state in ('full_access')
-    WHERE _latest
-      AND subscription_plan_id ILIKE 'Full-Access%'
-      AND subevent.SUBSCRIPTION_STATE NOT IN ('Cancelled', 'Pending')
-      AND offset_transactions.contract_id IS NULL
-    )
-    UNION
-    (
-    SELECT DISTINCT s.user_sso_guid, s.registration_date as paid_start, DATEADD(DAY,s.subscription_length,s.registration_date) AS paid_end
-    FROM olr.prod.product_v4 p
-    INNER JOIN olr.prod.serial_number_v4 s ON p.product_id = s.product_id
-    WHERE product_type IN ('MTR','SMEB') AND s.user_sso_guid IS NOT NULL AND s.user_type = 'student'
-    )
-    )
-    */
     WITH paid_courseware_users AS (
-      SELECT c.date, c.user_sso_guid
+      SELECT DISTINCT c.date, c.user_sso_guid
       FROM ${guid_date_course.SQL_TABLE_NAME} c
       WHERE c.paid_flag = TRUE
       )
       ,paid_ebook_users AS (
-      SELECT e.date, e.user_sso_guid
-      FROM ${guid_date_ebook_serial.SQL_TABLE_NAME} e
+      SELECT DISTINCT e.date, e.user_sso_guid
+      FROM ${guid_date_ebook.SQL_TABLE_NAME} e
       LEFT JOIN paid_courseware_users c ON e.date = c.date AND e.user_sso_guid = c.user_sso_guid
-      WHERE c.user_sso_guid IS NULL
+      WHERE e.paid_flag = TRUE
+      AND c.user_sso_guid IS NULL
       )
       ,paid_cu_only_users AS (
-        SELECT s.date, s.user_sso_guid
+        SELECT DISTINCT s.date, s.user_sso_guid
         FROM ${guid_date_subscription.SQL_TABLE_NAME} s
         LEFT JOIN paid_courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
         LEFT JOIN paid_ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid

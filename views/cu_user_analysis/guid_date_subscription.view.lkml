@@ -4,23 +4,27 @@ view: guid_date_subscription {
     derived_table: {
       sql:
         WITH sub_users AS (
-        SELECT DISTINCT COALESCE(linked_guid, current_guid) AS user_sso_guid, subscription_start::DATE AS sub_start, subscription_end::DATE AS sub_end, instructor
-        FROM prod.datavault.sat_subscription_sap subevent
-        INNER JOIN prod.datavault.hub_user ON subevent.current_guid = hub_user.UID
+        SELECT
+          CASE WHEN ss.subscription_start IS NOT NULL THEN ss.CURRENT_GUID ELSE bp.USER_SSO_GUID END AS user_sso_guid
+          , COALESCE(ss.subscription_start, bp._effective_from) AS subscription_start
+          , COALESCE(COALESCE(ss.cancelled_time, ss.subscription_end), COALESCE(bp._effective_to, CURRENT_DATE())) AS subscription_end
+        FROM prod.datavault.hub_subscription hs
+        LEFT JOIN prod.datavault.sat_subscription_sap ss ON hs.hub_subscription_key = ss.hub_subscription_key
+          AND (ss.SUBSCRIPTION_PLAN_ID ILIKE 'Full%' OR ss.SUBSCRIPTION_PLAN_ID ILIKE 'Limited%')
+          AND ss._LATEST
+        LEFT JOIN prod.datavault.sat_subscription_bp bp ON hs.hub_subscription_key = bp.hub_subscription_key
+         AND bp.SUBSCRIPTION_STATE = 'full_access'
+        WHERE user_sso_guid IS NOT NULL
+          )
+        SELECT DISTINCT dim_date.datevalue as date
+        , COALESCE(linked_guid,sub_users.user_sso_guid) AS user_sso_guid
+        , 'Full Access CU Subscription' AS content_type
+        , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
+        FROM ${dim_date.SQL_TABLE_NAME} dim_date
+        INNER JOIN sub_users ON dim_date.datevalue BETWEEN subscription_start AND subscription_end
+        INNER JOIN prod.datavault.hub_user ON sub_users.user_sso_guid = hub_user.UID
         LEFT JOIN prod.datavault.sat_user ON hub_user.UID = sat_user.linked_guid AND sat_user.active
-        LEFT JOIN prod.public.offset_transactions offset_transactions ON subevent.CONTRACT_ID = offset_transactions.CONTRACT_ID
-          AND (offset_transactions._LDTS >= TO_DATE('16-Dec-2018') AND offset_transactions._LDTS < TO_DATE('01-Jan-2019'))
-          AND offset_transactions.subscription_state in ('full_access')
-        WHERE _latest
-        AND subscription_plan_id ILIKE 'Full-Access%'
-        AND subevent.SUBSCRIPTION_STATE NOT IN ('Cancelled', 'Pending')
-        AND offset_transactions.contract_id IS NULL
-        )
-      SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'Full Access CU Subscription' AS content_type
-      , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
-      FROM ${dim_date.SQL_TABLE_NAME} dim_date
-        LEFT JOIN sub_users ON dim_date.datevalue BETWEEN sub_start AND sub_end
-      WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
+        WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
           ;;
       persist_for: "24 hours"
     }

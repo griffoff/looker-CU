@@ -78,6 +78,12 @@ view: daily_digital_users {
       type: date
       primary_key: yes}
 
+  dimension: max_date {
+    hidden: yes
+    type: date
+    sql: (SELECT MAX(date) FROM LOOKER_SCRATCH.daily_digital_users);;
+  }
+
     measure: courseware_users {
       label: "# Courseware Users"
       description: "# Students enrolled in an active course (if more than one day is included in filter, this shows the average over the chosen period)"
