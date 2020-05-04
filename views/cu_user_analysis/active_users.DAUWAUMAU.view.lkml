@@ -83,6 +83,14 @@ view: dau {
     value_format_name: decimal_0
   }
 
+  measure: dau_active_course_instructors {
+    label: "DAU Instructor (Active Course)"
+    description: "Daily Active Instructors with a current active course) (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_active_course_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
 }
 
 view: wau {
@@ -124,6 +132,14 @@ view: wau {
       value_format_name: decimal_0
     }
 
+  measure: wau_active_course_instructors {
+    label: "WAU Instructor (Active Course)"
+    description: "Weekly Active Instructors with a current active course) (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_active_course_instructors}) ;;
+    value_format_name: decimal_0
+  }
+
 }
 
 view: mau {
@@ -161,6 +177,14 @@ view: mau {
     description: "Monthly Paid Active Users (average if not reported on a single day)"
     type: number
     sql: AVG(${au_paid_active_users}) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: mau_active_course_instructors {
+    label: "MAU Instructor (Active Course)"
+    description: "Monthly Active Instructors with a current active course) (average if not reported on a single day)"
+    type: number
+    sql: AVG(${au_active_course_instructors}) ;;
     value_format_name: decimal_0
   }
 
@@ -325,11 +349,13 @@ view: au {
           ,users INT
           ,instructors INT
           ,students INT
+          ,active_course_instructors INT
           ,paid_active_users INT
           ,paid_inactive_users INT
           ,total_users INT
           ,total_instructors INT
           ,total_students INT
+          ,total_active_course_instructors INT
           ,total_paid_active_users INT
           ,total_paid_inactive_users INT
         )
@@ -349,6 +375,11 @@ view: au {
         FROM dates d
         INNER JOIN ${guid_date_paid.SQL_TABLE_NAME} p ON d.datevalue = p.date
         )
+        ,active_course_instructors AS (
+        SELECT c.date, c.user_sso_guid
+        FROM dates d
+        INNER JOIN ${guid_date_course.SQL_TABLE_NAME} c ON d.datevalue = c.date AND c.user_type = 'Instructor'
+        )
         ,active AS (
         SELECT *
         FROM ${guid_platform_date_active.SQL_TABLE_NAME} g
@@ -367,19 +398,21 @@ view: au {
             ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
             ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
             ,COUNT(DISTINCT au.user_sso_guid) AS users
-            ,COUNT(DISTINCT CASE WHEN (paid_flag AND au.user_sso_guid IS NULL) THEN p.user_sso_guid END) AS paid_inactive_users
+            ,COUNT(DISTINCT CASE WHEN instructor AND c.user_sso_guid IS NOT NULL THEN au.user_sso_guid END) AS active_course_instructors
             ,COUNT(DISTINCT CASE WHEN paid_flag THEN au.user_sso_guid END) AS paid_active_users
+            ,COUNT(DISTINCT CASE WHEN (paid_flag AND au.user_sso_guid IS NULL) THEN p.user_sso_guid END) AS paid_inactive_users
         FROM dates d
         CROSS JOIN users u
         LEFT JOIN active AS au ON u.user_sso_guid = au.user_sso_guid
           AND au.date <= d.datevalue
           AND au.date > DATEADD(DAY, -{{ days._parameter_value }}, d.datevalue)
         LEFT JOIN paid p on d.datevalue = p.date AND u.user_sso_guid = p.user_sso_guid
+        LEFT JOIN active_course_instructors c ON d.datevalue = c.date AND u.user_sso_guid = c.user_sso_guid
         GROUP BY 1, ROLLUP(2)
         ;;
       sql_step:
       INSERT INTO LOOKER_SCRATCH.{{ view_name._parameter_value }}
-      SELECT date, product_platform, users, instructors, students, paid_active_users, paid_inactive_users, NULL, NULL, NULL, NULL, NULL
+      SELECT date, product_platform, users, instructors, students, active_course_instructors, paid_active_users, paid_inactive_users, NULL, NULL, NULL, NULL, NULL, NULL
       FROM looker_scratch.{{ view_name._parameter_value }}_incremental
       WHERE product_platform != 'UNKNOWN';;
       sql_step:
@@ -389,6 +422,7 @@ view: au {
           SET a.total_users = t.users
             ,a.total_instructors = t.instructors
             ,a.total_students = t.students
+            ,a.total_active_course_instructors = t.active_course_instructors
             ,a.total_paid_active_users = t.paid_active_users
             ,a.total_paid_inactive_users = t.paid_inactive_users
       ;;
@@ -477,6 +511,19 @@ view: au {
       {% endif %}
       ;;
   }
+
+  dimension: au_active_course_instructors {
+    hidden: yes
+    label: "Active Instructors (Current Course)"
+    type: number
+    sql:
+      {% if active_users_platforms.product_platform._in_query %}
+        {{ _view._name }}.active_course_instructors
+      {% else %}
+        {{ _view._name }}.total_active_course_instructors
+      {% endif %}
+      ;;
+  }
 }
 
 
@@ -525,13 +572,13 @@ view: ru {
         ,all_events_merged AS (
           SELECT DISTINCT e.user_sso_guid AS merged_guid, u.instructor, e.date as event_time
           FROM ${guid_platform_date_active.SQL_TABLE_NAME} e
-                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON e.user_sso_guid = u.user_sso_guid
+          LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON e.user_sso_guid = u.user_sso_guid
         )
         ,first_mutation AS (
           SELECT DISTINCT COALESCE(m.primary_guid, e.linked_guid) AS merged_guid, u.instructor, e.rsrc_timestamp::date AS event_time
           FROM prod.datavault.sat_user e
-                  LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.linked_guid = m.partner_guid
-                  LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.linked_guid) = u.user_sso_guid
+          LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.linked_guid = m.partner_guid
+          LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.linked_guid) = u.user_sso_guid
           WHERE merged_guid IS NOT NULL
           AND event_time NOT IN ('2018-08-03','2019-08-22')
         )
