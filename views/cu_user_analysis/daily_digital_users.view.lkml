@@ -95,8 +95,8 @@ view: daily_digital_users {
     }
 
     measure: courseware_instructors {
-      label: "# Courseware Instructors"
-      description: "# Instructors for active courses (if more than one day is included in filter, this shows the average over the chosen period)"
+      label: "# Digital Instructors (Active Course)"
+      description: "# Instructors with active courses (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
       sql: AVG(${TABLE}.courseware_instructors) ;;
       value_format_name: decimal_0
