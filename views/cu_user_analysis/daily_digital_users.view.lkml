@@ -1,4 +1,4 @@
-explore: daily_digital_users {}
+explore: daily_digital_users {hidden:yes}
 view: daily_digital_users {
 
   derived_table: {

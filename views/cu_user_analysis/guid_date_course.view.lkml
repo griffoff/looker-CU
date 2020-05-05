@@ -1,4 +1,4 @@
-explore: guid_date_course {}
+explore: guid_date_course {hidden:yes}
 
 view: guid_date_course {
   derived_table: {
@@ -12,12 +12,13 @@ view: guid_date_course {
      FROM prod.cu_user_analysis.user_courses
     )
     ,course_instructors AS (
-    SELECT coalesce(s.linked_guid, course.instructor_guid) as user_sso_guid
+    SELECT coalesce(hu.uid, s.linked_guid, course.instructor_guid) as user_sso_guid
     , course_key, min(course_start) as course_start, max(course_end) as course_end, 'Instructor' AS user_type, NULL as activation_date
     FROM course_users course
     left join prod.datavault.hub_coursesection h on course.context_id = h.context_id
     left join prod.datavault.link_user_coursesection l on h.hub_coursesection_key = l.hub_coursesection_key
     inner join prod.datavault.sat_user s on l.hub_user_key = s.hub_user_key and s.active and s.instructor
+    inner join prod.datavault.hub_user hu on s.HUB_USER_KEY = hu.HUB_USER_KEY
     GROUP BY 1,2
     )
     ,all_users AS (
