@@ -887,12 +887,34 @@ dimension: load_metadata_source {
     hidden: yes
   }
 
+  dimension: event_duration_seconds {
+    type: number
+    #cut off at 30 mins
+    sql: NULLIF(LEAST(${event_data}:event_duration::int, 1800), 0) ;;
+    hidden: yes
+  }
+
+  dimension: time_to_next_event_seconds {
+    type: number
+    #cut off at 30 mins
+    sql: NULLIF(LEAST(${event_data}:time_to_next_event::int, 1800), 0) ;;
+    hidden: yes
+  }
+
   measure: event_duration_total {
     group_label: "Time spent"
     label: "Total Time Active"
     type: sum
-    sql: NULLIF(${event_data}:event_duration::int, 0) / 60 / 60 / 24 ;; #event duration is in seconds
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m] \m\i\n\s"
+  }
+
+  measure: event_duration_average {
+    group_label: "Time spent"
+    label: "Average Time Per Event"
+    type: average
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m] \m\i\n\s s \s\e\c\s"
   }
 
 
@@ -900,9 +922,10 @@ dimension: load_metadata_source {
     group_label: "Time spent"
     label: "Total Time Active (time_to_next_event)"
     type: sum
-    sql: ${event_data}:event_duration / 3600 / 24  ;;
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m] \m\i\n\s"
+    hidden: yes
   }
 
   measure: average_time_to_next_event_spent_per_student {
