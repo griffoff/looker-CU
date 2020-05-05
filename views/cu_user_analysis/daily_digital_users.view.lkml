@@ -26,16 +26,19 @@ view: daily_digital_users {
         ,courseware_users AS (
           SELECT c.date, c.user_sso_guid, c.content_type, c. user_type
           FROM ${guid_date_course.SQL_TABLE_NAME} c
+          INNER JOIN dates d on c.date = d.datevalue
         )
         ,ebook_users AS (
           SELECT e.date, e.user_sso_guid, e.content_type
           FROM ${guid_date_ebook.SQL_TABLE_NAME} e
+          INNER JOIN dates d on e.date = d.datevalue
           LEFT JOIN courseware_users c ON e.date = c.date AND e.user_sso_guid = c.user_sso_guid
           WHERE c.user_sso_guid IS NULL
         )
         ,cu_only_users AS (
           SELECT s.date, s.user_sso_guid, s.content_type
           FROM ${guid_date_subscription.SQL_TABLE_NAME} s
+          INNER JOIN dates d on s.date = d.datevalue
           LEFT JOIN courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
           LEFT JOIN ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
           WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
@@ -66,7 +69,6 @@ view: daily_digital_users {
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
       CLONE LOOKER_SCRATCH.daily_digital_users ;;
-
       }
       datagroup_trigger: daily_refresh
     }
@@ -85,7 +87,7 @@ view: daily_digital_users {
   }
 
     measure: courseware_users {
-      label: "# Courseware Users"
+      label: "# Courseware Student Users"
       description: "# Students enrolled in an active course (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
       sql: AVG(${TABLE}.courseware_users) ;;
@@ -93,8 +95,8 @@ view: daily_digital_users {
     }
 
     measure: courseware_instructors {
-      label: "# Courseware Instructors"
-      description: "# Instructors for active courses (if more than one day is included in filter, this shows the average over the chosen period)"
+      label: "# Digital Instructors (Active Course)"
+      description: "# Instructors with active courses (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
       sql: AVG(${TABLE}.courseware_instructors) ;;
       value_format_name: decimal_0

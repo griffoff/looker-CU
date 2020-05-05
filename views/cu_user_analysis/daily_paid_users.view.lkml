@@ -24,8 +24,14 @@ view: daily_paid_users {
       type: date
       primary_key: yes}
 
+  dimension: max_date {
+    hidden: yes
+    type: date
+    sql: (SELECT MAX(date) FROM ${guid_date_paid.SQL_TABLE_NAME});;
+  }
+
     measure: paid_user_count {
-      label: "# Paid Users"
+      label: "# Paid Student Users"
       description: "# Users with an active paid course, paid ebook access, or a full access CU subscription (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
       sql: AVG(${TABLE}.paid_user_count) ;;
@@ -33,7 +39,7 @@ view: daily_paid_users {
     }
 
   measure: paid_courseware_users {
-    label: "# Paid Coursware Users"
+    label: "# Paid Courseware Student Users"
     description: "# Users with an active paid course (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.paid_courseware_users) ;;
@@ -41,7 +47,7 @@ view: daily_paid_users {
   }
 
   measure: paid_ebook_users {
-    label: "# Paid eBook Only Users"
+    label: "# Paid eBook Only Student Users"
     description: "# Users with paid ebook access but no active paid course (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.paid_ebook_users) ;;
@@ -49,7 +55,7 @@ view: daily_paid_users {
   }
 
   measure: paid_cu_users {
-    label: "# Paid CU Users, no provisions"
+    label: "# Paid CU Student Users, no provisions"
     description: "# Users with full access CU subscription but no active paid course or ebook access (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.paid_cu_users) ;;
