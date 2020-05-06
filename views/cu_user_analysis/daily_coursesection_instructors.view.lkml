@@ -25,6 +25,7 @@ view: daily_coursesection_instructors {
     type: number
     sql: AVG(${TABLE}.instructor_count) ;;
     value_format_name: decimal_0
+    hidden: yes
   }
 
 }
