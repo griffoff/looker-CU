@@ -103,6 +103,11 @@ explore: active_users_stats  {
     relationship: one_to_many
   }
 
+  join: daily_cu_subscribers {
+    sql_on: ${active_users_stats.datevalue} = ${daily_cu_subscribers.date} ;;
+    relationship: one_to_many
+  }
+
   join: dau {
     sql_on: ${active_users_stats.datevalue} = ${dau.date}
         AND ${active_users_platforms.product_platform} = ${dau.product_platform};;

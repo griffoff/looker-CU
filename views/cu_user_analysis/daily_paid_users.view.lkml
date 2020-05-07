@@ -1,4 +1,4 @@
-explore: daily_paid_users {hidden:yes}
+explore: daily_paid_users {hidden:no}
 view: daily_paid_users {
   derived_table: {
 # derived table w/ date, paid user count, paid student count, paid instructor count
@@ -20,7 +20,7 @@ view: daily_paid_users {
     }
 
     dimension: date {
-      hidden:  yes
+      hidden:  no
       type: date
       primary_key: yes}
 

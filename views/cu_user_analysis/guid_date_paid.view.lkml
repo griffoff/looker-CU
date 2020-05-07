@@ -21,7 +21,9 @@ view: guid_date_paid {
         FROM ${guid_date_subscription.SQL_TABLE_NAME} s
         LEFT JOIN paid_courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
         LEFT JOIN paid_ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
-        WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
+        WHERE s.content_type = 'Full Access CU Subscription'
+          AND c.user_sso_guid IS NULL
+          AND e.user_sso_guid IS NULL
       )
 /*
 SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, TRUE AS paid_flag

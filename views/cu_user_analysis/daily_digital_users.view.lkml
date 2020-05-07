@@ -1,4 +1,4 @@
-explore: daily_digital_users {hidden:yes}
+explore: daily_digital_users {hidden:no}
 view: daily_digital_users {
 
   derived_table: {
@@ -11,6 +11,7 @@ view: daily_digital_users {
           ,courseware_instructors INT
           ,ebook_users INT
           ,cu_only_users INT
+          ,trial_cu_only_users INT
           ,digital_users INT
         )
       ;;
@@ -27,6 +28,7 @@ view: daily_digital_users {
           SELECT c.date, c.user_sso_guid, c.content_type, c. user_type
           FROM ${guid_date_course.SQL_TABLE_NAME} c
           INNER JOIN dates d on c.date = d.datevalue
+          WHERE c.expired_access_flag = FALSE
         )
         ,ebook_users AS (
           SELECT e.date, e.user_sso_guid, e.content_type
@@ -56,14 +58,15 @@ view: daily_digital_users {
         ,COUNT(DISTINCT CASE WHEN content_type = 'Courseware' AND user_type = 'Instructor' THEN user_sso_guid END) AS courseware_instructors
         ,COUNT(DISTINCT CASE WHEN content_type = 'eBook' THEN user_sso_guid END) AS ebook_users
         ,COUNT(DISTINCT CASE WHEN content_type = 'Full Access CU Subscription' THEN user_sso_guid END) AS cu_only_users
-        ,COUNT(DISTINCT CASE WHEN user_type = 'Student' OR user_type IS NULL THEN user_sso_guid END) AS digital_users
+        ,COUNT(DISTINCT CASE WHEN content_type = 'Trial CU Subscription' THEN user_sso_guid END) AS trial_cu_only_users
+        ,COUNT(DISTINCT CASE WHEN (user_type = 'Student' OR user_type IS NULL) AND content_type <> 'Trial CU Subscription' THEN user_sso_guid END) AS digital_users
       FROM dates d
       INNER JOIN all_users a ON d.datevalue = a.date
       GROUP BY 1
       ;;
       sql_step:
       INSERT INTO LOOKER_SCRATCH.daily_digital_users
-      SELECT date, courseware_users, courseware_instructors, ebook_users, cu_only_users, digital_users
+      SELECT date, courseware_users, courseware_instructors, ebook_users, cu_only_users, trial_cu_only_users, digital_users
       FROM looker_scratch.daily_digital_users_incremental
       ;;
       sql_step:
@@ -76,7 +79,7 @@ view: daily_digital_users {
 
 
     dimension: date {
-      hidden:  yes
+      hidden:  no
       type: date
       primary_key: yes}
 
@@ -115,6 +118,14 @@ view: daily_digital_users {
     description: "# Users with a full access CU subscriptions but not enrolled in a course or with access to an eBook (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.cu_only_users) ;;
+    value_format_name: decimal_0
+  }
+
+  measure: trial_cu_only_users {
+    label: "# Trial Access CU Users, no provisions"
+    description: "# Users with a trial access CU subscriptions but not enrolled in a course or with access to an eBook (if more than one day is included in filter, this shows the average over the chosen period)"
+    type: number
+    sql: AVG(${TABLE}.trial_cu_only_users) ;;
     value_format_name: decimal_0
   }
 
