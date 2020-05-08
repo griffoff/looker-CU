@@ -7,10 +7,11 @@ view: daily_paid_users {
 # or date between subsc start and subscr end
     sql:
       SELECT date
-      ,count(distinct user_sso_guid) as paid_user_count
+      ,count(distinct case when paid_flag = true then user_sso_guid end) as paid_user_count
       ,count(distinct case when content_type = 'Courseware' then user_sso_guid end) as paid_courseware_users
       ,count(distinct case when content_type = 'eBook' then user_sso_guid end) as paid_ebook_users
       ,count(distinct case when content_type = 'Full Access CU Subscription' then user_sso_guid end) as paid_cu_users
+      ,count(distinct case when content_type = 'Trial CU Subscription' then user_sso_guid end) as trial_cu_users
       FROM ${guid_date_paid.SQL_TABLE_NAME}
       WHERE date BETWEEN '2018-01-01' AND CURRENT_DATE()
       GROUP BY 1
@@ -60,5 +61,14 @@ view: daily_paid_users {
     type: number
     sql: AVG(${TABLE}.paid_cu_users) ;;
     value_format_name: decimal_0
+  }
+
+  measure: trial_cu_users {
+    label: "# Trial CU Student Users, no provisions (unpaid)"
+    description: "# Users with trial access CU subscription but no active paid course or ebook access (if more than one day is included in filter, this shows the average over the chosen period)"
+    type: number
+    sql: AVG(${TABLE}.trial_cu_users) ;;
+    value_format_name: decimal_0
+    hidden: yes
   }
 }

@@ -17,25 +17,20 @@ view: guid_date_paid {
       AND c.user_sso_guid IS NULL
       )
       ,paid_cu_only_users AS (
-        SELECT DISTINCT s.date, s.user_sso_guid
+        SELECT DISTINCT s.date, s.user_sso_guid, s.content_type
         FROM ${guid_date_subscription.SQL_TABLE_NAME} s
         LEFT JOIN paid_courseware_users c ON s.date = c.date AND s.user_sso_guid = c.user_sso_guid
         LEFT JOIN paid_ebook_users e ON e.date = s.date AND e.user_sso_guid = s.user_sso_guid
-        WHERE s.content_type = 'Full Access CU Subscription'
-          AND c.user_sso_guid IS NULL
-          AND e.user_sso_guid IS NULL
+        WHERE c.user_sso_guid IS NULL AND e.user_sso_guid IS NULL
       )
-/*
-SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, TRUE AS paid_flag
-FROM ${dim_date.SQL_TABLE_NAME} dim_date
-LEFT JOIN paid_users ON dim_date.datevalue BETWEEN paid_start AND paid_end
-WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
-*/
     SELECT date, user_sso_guid, TRUE AS paid_flag, 'Courseware' AS content_type FROM paid_courseware_users
     UNION ALL
     SELECT date, user_sso_guid, TRUE AS paid_flag, 'eBook' AS content_type FROM paid_ebook_users
     UNION ALL
-    SELECT date, user_sso_guid, TRUE AS paid_flag, 'Full Access CU Subscription' AS content_type FROM paid_cu_only_users
+    SELECT date, user_sso_guid
+    , CASE WHEN content_type = 'Full Access CU Subscription' THEN TRUE ELSE FALSE END AS paid_flag
+    , content_type
+    FROM paid_cu_only_users
     ;;
     persist_for: "24 hours"
   }
@@ -48,6 +43,11 @@ WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
   dimension: date {
     type: date
     sql: ${TABLE}.date ;;
+  }
+
+  dimension: content_type {
+    type: string
+    sql: ${TABLE}.content_type ;;
   }
 
   dimension: paid_flag {

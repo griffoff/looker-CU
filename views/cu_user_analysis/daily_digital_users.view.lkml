@@ -1,4 +1,4 @@
-explore: daily_digital_users {hidden:no}
+explore: daily_digital_users {hidden:yes}
 view: daily_digital_users {
 
   derived_table: {
@@ -59,7 +59,7 @@ view: daily_digital_users {
         ,COUNT(DISTINCT CASE WHEN content_type = 'eBook' THEN user_sso_guid END) AS ebook_users
         ,COUNT(DISTINCT CASE WHEN content_type = 'Full Access CU Subscription' THEN user_sso_guid END) AS cu_only_users
         ,COUNT(DISTINCT CASE WHEN content_type = 'Trial CU Subscription' THEN user_sso_guid END) AS trial_cu_only_users
-        ,COUNT(DISTINCT CASE WHEN (user_type = 'Student' OR user_type IS NULL) AND content_type <> 'Trial CU Subscription' THEN user_sso_guid END) AS digital_users
+        ,COUNT(DISTINCT CASE WHEN (user_type = 'Student' OR user_type IS NULL) THEN user_sso_guid END) AS digital_users
       FROM dates d
       INNER JOIN all_users a ON d.datevalue = a.date
       GROUP BY 1
@@ -99,8 +99,8 @@ view: daily_digital_users {
     }
 
     measure: courseware_instructors {
-      label: "# Digital Instructors (Active Course)"
-      description: "# Instructors with active courses (if more than one day is included in filter, this shows the average over the chosen period)"
+      label: "# Instructors with Active Digital Course"
+      description: "# Instructors with an active digital course (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
       sql: AVG(${TABLE}.courseware_instructors) ;;
       value_format_name: decimal_0
@@ -134,7 +134,7 @@ view: daily_digital_users {
 
   measure: digital_users {
     label: "# Digital Student Users"
-    description: "# Users enrolled in an active course, with access to an eBook, or with a full access CU subscription and no provisions (if more than one day is included in filter, this shows the average over the chosen period)"
+    description: "# Users enrolled in an active course, with access to an eBook, or with a full access or trial CU subscription and no provisions (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
     sql: AVG(${TABLE}.digital_users) ;;
     value_format_name: decimal_0

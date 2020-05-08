@@ -108,6 +108,11 @@ explore: active_users_stats  {
     relationship: one_to_many
   }
 
+  join: date_user_type_count {
+    sql_on: ${active_users_stats.datevalue} = ${date_user_type_count.date} ;;
+    relationship: one_to_many
+  }
+
   join: dau {
     sql_on: ${active_users_stats.datevalue} = ${dau.date}
         AND ${active_users_platforms.product_platform} = ${dau.product_platform};;
