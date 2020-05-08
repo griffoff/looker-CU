@@ -1,4 +1,4 @@
-explore: daily_cu_subscribers {hidden:no}
+explore: daily_cu_subscribers {hidden:yes}
 view: daily_cu_subscribers {
 
     derived_table: {
@@ -15,7 +15,7 @@ view: daily_cu_subscribers {
     }
 
     dimension: date {
-      hidden:  no
+      hidden: yes
       type: date
       primary_key: yes}
 

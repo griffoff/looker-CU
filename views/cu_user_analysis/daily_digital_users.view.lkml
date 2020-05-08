@@ -79,7 +79,7 @@ view: daily_digital_users {
 
 
     dimension: date {
-      hidden:  no
+      hidden:  yes
       type: date
       primary_key: yes}
 
@@ -95,6 +95,7 @@ view: daily_digital_users {
       type: number
       sql: AVG(${TABLE}.courseware_users) ;;
       value_format_name: decimal_0
+      hidden:  yes
     }
 
     measure: courseware_instructors {
@@ -111,6 +112,7 @@ view: daily_digital_users {
     type: number
     sql: AVG(${TABLE}.ebook_users) ;;
     value_format_name: decimal_0
+    hidden:  yes
   }
 
   measure: cu_only_users {
@@ -119,6 +121,7 @@ view: daily_digital_users {
     type: number
     sql: AVG(${TABLE}.cu_only_users) ;;
     value_format_name: decimal_0
+    hidden:  yes
   }
 
   measure: trial_cu_only_users {

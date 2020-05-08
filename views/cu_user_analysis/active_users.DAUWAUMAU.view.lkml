@@ -53,7 +53,7 @@ view: dau {
 
   measure: dau {
     label: "DAU"
-    description: "Daily Active Users (average if not reported on a single day)"
+    description: "Users with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au}) ;;
     value_format_name: decimal_0
@@ -61,7 +61,7 @@ view: dau {
 
   measure: dau_instructor {
     label: "DAU Instructor"
-    description: "Daily Active Instructors (average if not reported on a single day)"
+    description: "Instructors with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_instructors}) ;;
     value_format_name: decimal_0
@@ -69,7 +69,7 @@ view: dau {
 
   measure: dau_students {
     label: "DAU Students"
-    description: "Daily Active Students (average if not reported on a single day)"
+    description: "Students with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
@@ -77,7 +77,7 @@ view: dau {
 
   measure: dau_paid_active_users {
     label: "DAU Paid"
-    description: "Daily Paid Active Users (average if not reported on a single day)"
+    description: "Paid users with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_paid_active_users}) ;;
     value_format_name: decimal_0
@@ -85,7 +85,7 @@ view: dau {
 
   measure: dau_active_course_instructors {
     label: "DAU Instructor (Active Course)"
-    description: "Daily Active Instructors with a current active course) (average if not reported on a single day)"
+    description: "Instructors (with an active course) with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_active_course_instructors}) ;;
     value_format_name: decimal_0
@@ -102,7 +102,7 @@ view: wau {
 
   measure: wau {
     label: "WAU"
-    description: "Weekly Active Users (average if not reported on a single day)"
+    description: "Users with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au}) ;;
     value_format_name: decimal_0
@@ -110,7 +110,7 @@ view: wau {
 
   measure: wau_instructors {
     label: "WAU Instructors"
-    description: "Weekly Active Instructors (average if not reported on a single day)"
+    description: "Instructors with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_instructors}) ;;
     value_format_name: decimal_0
@@ -118,7 +118,7 @@ view: wau {
 
   measure: wau_students {
     label: "WAU Students"
-    description: "Weekly Active Students (average if not reported on a single day)"
+    description: "Students with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
@@ -126,7 +126,7 @@ view: wau {
 
     measure: wau_paid_active_users {
       label: "WAU Paid"
-      description: "Weekly Paid Active Users (average if not reported on a single day)"
+      description: "Paid Users with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
       type: number
       sql: AVG(${au_paid_active_users}) ;;
       value_format_name: decimal_0
@@ -134,7 +134,7 @@ view: wau {
 
   measure: wau_active_course_instructors {
     label: "WAU Instructor (Active Course)"
-    description: "Weekly Active Instructors with a current active course) (average if not reported on a single day)"
+    description: "Instructors (with an active course) with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_active_course_instructors}) ;;
     value_format_name: decimal_0
@@ -150,7 +150,7 @@ view: mau {
 
   measure: mau {
     label: "MAU"
-    description: "Monthly Active Users (average if not reported on a single day)"
+    description: "Users with an event in the last 30 days, relative to the filtered date  (average if not reported on a single day)"
     type: number
     sql: AVG(${au}) ;;
     value_format_name: decimal_0
@@ -158,7 +158,7 @@ view: mau {
 
   measure: mau_instructors {
     label: "MAU Instructors"
-    description: "Monthly Active Instructors (average if not reported on a single day)"
+    description: "Instructors with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_instructors}) ;;
     value_format_name: decimal_0
@@ -166,7 +166,7 @@ view: mau {
 
   measure: mau_students {
     label: "MAU Students"
-    description: "Monthly Active Students (average if not reported on a single day)"
+    description: "Students with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_students}) ;;
     value_format_name: decimal_0
@@ -174,7 +174,7 @@ view: mau {
 
   measure: mau_paid_active_users {
     label: "MAU Paid"
-    description: "Monthly Paid Active Users (average if not reported on a single day)"
+    description: "Paid Users with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_paid_active_users}) ;;
     value_format_name: decimal_0
@@ -182,7 +182,7 @@ view: mau {
 
   measure: mau_active_course_instructors {
     label: "MAU Instructor (Active Course)"
-    description: "Monthly Active Instructors with a current active course) (average if not reported on a single day)"
+    description: "Instructors (with an active course) with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${au_active_course_instructors}) ;;
     value_format_name: decimal_0
@@ -198,7 +198,7 @@ view: dru {
 
   measure: dru {
     label: "DRU"
-    description: "Daily Registered Users (average if not reported on a single day)"
+    description: "Users with an event or change to their user profile in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru}) ;;
     value_format_name: decimal_0
@@ -206,7 +206,7 @@ view: dru {
 
   measure: dru_instructors {
     label: "DRU Instructors"
-    description: "Daily Registered Instructors (average if not reported on a single day)"
+    description: "Instructors with an event or change to their user profile in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_instructors}) ;;
     value_format_name: decimal_0
@@ -214,7 +214,7 @@ view: dru {
 
   measure: dru_students {
     label: "DRU Students"
-    description: "Daily Registered Students (average if not reported on a single day)"
+    description: "Students with an event or change to their user profile in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_students}) ;;
     value_format_name: decimal_0
@@ -231,7 +231,7 @@ view: wru {
 
   measure: wru {
     label: "WRU"
-    description: "Weekly Registered Users (average if not reported on a single day)"
+    description: "Users with an event or change to their user profile in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru}) ;;
     value_format_name: decimal_0
@@ -239,7 +239,7 @@ view: wru {
 
   measure: wru_instructors {
     label: "WRU Instructors"
-    description: "Weekly Registered Instructors (average if not reported on a single day)"
+    description: "Instructors with an event or change to their user profile in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_instructors}) ;;
     value_format_name: decimal_0
@@ -247,7 +247,7 @@ view: wru {
 
   measure: wru_students {
     label: "WRU Students"
-    description: "Weekly Registered Students (average if not reported on a single day)"
+    description: "Students with an event or change to their user profile in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_students}) ;;
     value_format_name: decimal_0
@@ -263,7 +263,7 @@ view: mru {
 
   measure: mru {
     label: "MRU"
-    description: "Monthly Registered Users (average if not reported on a single day)"
+    description: "Users with an event or change to their user profile in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru}) ;;
     value_format_name: decimal_0
@@ -271,7 +271,7 @@ view: mru {
 
   measure: mru_instructors {
     label: "MRU Instructors"
-    description: "Monthly Registered Instructors (average if not reported on a single day)"
+    description: "Instructors with an event or change to their user profile in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_instructors}) ;;
     value_format_name: decimal_0
@@ -279,7 +279,7 @@ view: mru {
 
   measure: mru_students {
     label: "MRU Students"
-    description: "Monthly Registered Students (average if not reported on a single day)"
+    description: "Students with an event or change to their user profile in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_students}) ;;
     value_format_name: decimal_0
@@ -296,7 +296,7 @@ view: yru {
 
   measure: yru {
     label: "YRU"
-    description: "Yearly Registered Users (average if not reported on a single day)"
+    description: "Users with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru}) ;;
     value_format_name: decimal_0
@@ -304,7 +304,7 @@ view: yru {
 
   measure: yru_instructors {
     label: "YRU Instructors"
-    description: "Yearly Registered Instructors (average if not reported on a single day)"
+    description: "Instructors with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_instructors}) ;;
     value_format_name: decimal_0
@@ -312,7 +312,7 @@ view: yru {
 
   measure: yru_students {
     label: "YRU Students"
-    description: "Yearly Registered Students (average if not reported on a single day)"
+    description: "Students with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${ru_students}) ;;
     value_format_name: decimal_0
