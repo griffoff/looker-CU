@@ -32,6 +32,7 @@ view: daily_paid_users {
   }
 
     measure: paid_user_count {
+      group_label: "Paid Users"
       label: "# Paid Student Users"
       description: "# Users with an active paid course, paid ebook access, or a full access CU subscription (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
@@ -40,6 +41,7 @@ view: daily_paid_users {
     }
 
   measure: paid_courseware_users {
+    group_label: "Paid Users"
     label: "# Paid Courseware Student Users"
     description: "# Users with an active paid course (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
@@ -48,6 +50,7 @@ view: daily_paid_users {
   }
 
   measure: paid_ebook_users {
+    group_label: "Paid Users"
     label: "# Paid eBook Only Student Users"
     description: "# Users with paid ebook access but no active paid course (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
@@ -56,6 +59,7 @@ view: daily_paid_users {
   }
 
   measure: paid_cu_users {
+    group_label: "Paid Users"
     label: "# Paid CU Student Users, no provisions"
     description: "# Users with full access CU subscription but no active paid course or ebook access (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
@@ -64,6 +68,7 @@ view: daily_paid_users {
   }
 
   measure: trial_cu_users {
+    group_label: "Paid Users"
     label: "# Trial CU Student Users, no provisions (unpaid)"
     description: "# Users with trial access CU subscription but no active paid course or ebook access (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number

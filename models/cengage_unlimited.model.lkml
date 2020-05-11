@@ -94,18 +94,45 @@ explore: active_users_stats  {
   }
 
   join: daily_paid_users {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${daily_paid_users.date} ;;
     relationship: one_to_many
   }
 
+  join: daily_paid_users_ly {
+    view_label: "User Counts - Prior Year"
+    from: daily_paid_users
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${daily_paid_users_ly.date}) ;;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: daily_digital_users {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${daily_digital_users.date} ;;
     relationship: one_to_many
   }
 
+  join: daily_digital_users_ly {
+    view_label: "User Counts - Prior Year"
+    from: daily_digital_users
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${daily_digital_users_ly.date}) ;;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: daily_cu_subscribers {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${daily_cu_subscribers.date} ;;
     relationship: one_to_many
+  }
+
+  join: daily_cu_subscribers_ly {
+    view_label: "User Counts - Prior Year"
+    from: daily_cu_subscribers
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${daily_cu_subscribers_ly.date}) ;;
+    relationship: one_to_one
+    type: left_outer
   }
 
   join: date_user_type_count {
@@ -114,6 +141,7 @@ explore: active_users_stats  {
   }
 
   join: dau {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${dau.date}
         AND ${active_users_platforms.product_platform} = ${dau.product_platform};;
     relationship: one_to_one
@@ -121,7 +149,7 @@ explore: active_users_stats  {
   }
 
   join: dau_ly {
-    view_label: "User Activity Counts - Prior Year"
+    view_label: "User Counts - Prior Year"
     from: dau
     sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${dau_ly.date})
       AND ${active_users_platforms.product_platform} = ${dau_ly.product_platform};;
@@ -130,6 +158,7 @@ explore: active_users_stats  {
   }
 
   join: wau {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${wau.date}
         AND ${active_users_platforms.product_platform} = ${wau.product_platform};;
     relationship: one_to_one
@@ -137,7 +166,7 @@ explore: active_users_stats  {
   }
 
   join: wau_ly {
-    view_label: "User Activity Counts - Prior Year"
+    view_label: "User Counts - Prior Year"
     from: wau
     sql_on: DATEADD(week, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${wau_ly.date})
       AND ${active_users_platforms.product_platform} = ${wau_ly.product_platform};;
@@ -146,6 +175,7 @@ explore: active_users_stats  {
   }
 
   join: mau {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${mau.date}
         AND ${active_users_platforms.product_platform} = ${mau.product_platform};;
     relationship: one_to_one
@@ -153,7 +183,7 @@ explore: active_users_stats  {
   }
 
   join: mau_ly {
-    view_label: "User Activity Counts - Prior Year"
+    view_label: "User Counts - Prior Year"
     from: mau
     sql_on: DATEADD(month, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${mau_ly.date})
       AND ${active_users_platforms.product_platform} = ${mau_ly.product_platform};;
@@ -161,21 +191,25 @@ explore: active_users_stats  {
     type: left_outer
   }
   join: dru {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${dru.date};;
     relationship: one_to_one
     type: inner
   }
   join: wru {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${wru.date};;
     relationship: one_to_one
     type: inner
   }
   join: mru {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${mru.date};;
     relationship: one_to_one
     type: inner
   }
   join: yru {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${yru.date};;
     relationship: one_to_one
     type: inner

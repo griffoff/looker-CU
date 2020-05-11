@@ -1,6 +1,6 @@
 view: active_users_platforms {
 
-  view_label: "User Activity Counts"
+  view_label: "User Counts"
 
   parameter: offset {
     description: "Offset (days/weeks/months depending on metric) to use when comparing vs prior year, can be positive to move prior year values forwards or negative to shift prior year backwards"
@@ -38,6 +38,7 @@ view: active_users_platforms {
 
     ;;
     label: "Product Platform"
+    group_label: "Active Users"
   }
 
 }
@@ -52,6 +53,7 @@ view: dau {
 
 
   measure: dau {
+    group_label: "Active Users"
     label: "DAU"
     description: "Users with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -60,6 +62,7 @@ view: dau {
   }
 
   measure: dau_instructor {
+    group_label: "Active Users"
     label: "DAU Instructor"
     description: "Instructors with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -68,6 +71,7 @@ view: dau {
   }
 
   measure: dau_students {
+    group_label: "Active Users"
     label: "DAU Students"
     description: "Students with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -76,6 +80,7 @@ view: dau {
   }
 
   measure: dau_paid_active_users {
+    group_label: "Active Users"
     label: "DAU Paid"
     description: "Paid users with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -84,6 +89,7 @@ view: dau {
   }
 
   measure: dau_active_course_instructors {
+    group_label: "Active Users"
     label: "DAU Instructor (Active Course)"
     description: "Instructors (with an active course) with an event in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -101,6 +107,7 @@ view: wau {
 
 
   measure: wau {
+    group_label: "Active Users"
     label: "WAU"
     description: "Users with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -109,6 +116,7 @@ view: wau {
   }
 
   measure: wau_instructors {
+    group_label: "Active Users"
     label: "WAU Instructors"
     description: "Instructors with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -117,6 +125,7 @@ view: wau {
   }
 
   measure: wau_students {
+    group_label: "Active Users"
     label: "WAU Students"
     description: "Students with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -125,6 +134,7 @@ view: wau {
     }
 
     measure: wau_paid_active_users {
+      group_label: "Active Users"
       label: "WAU Paid"
       description: "Paid Users with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
       type: number
@@ -133,6 +143,7 @@ view: wau {
     }
 
   measure: wau_active_course_instructors {
+    group_label: "Active Users"
     label: "WAU Instructor (Active Course)"
     description: "Instructors (with an active course) with an event in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -149,6 +160,7 @@ view: mau {
   parameter: view_name {default_value: "mau"}
 
   measure: mau {
+    group_label: "Active Users"
     label: "MAU"
     description: "Users with an event in the last 30 days, relative to the filtered date  (average if not reported on a single day)"
     type: number
@@ -157,6 +169,7 @@ view: mau {
   }
 
   measure: mau_instructors {
+    group_label: "Active Users"
     label: "MAU Instructors"
     description: "Instructors with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -165,6 +178,7 @@ view: mau {
   }
 
   measure: mau_students {
+    group_label: "Active Users"
     label: "MAU Students"
     description: "Students with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -173,6 +187,7 @@ view: mau {
   }
 
   measure: mau_paid_active_users {
+    group_label: "Active Users"
     label: "MAU Paid"
     description: "Paid Users with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -181,6 +196,7 @@ view: mau {
   }
 
   measure: mau_active_course_instructors {
+    group_label: "Active Users"
     label: "MAU Instructor (Active Course)"
     description: "Instructors (with an active course) with an event in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -197,6 +213,7 @@ view: dru {
   parameter: view_name {default_value: "dru"}
 
   measure: dru {
+    group_label: "Registered Users"
     label: "DRU"
     description: "Users with an event or change to their user profile in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -205,6 +222,7 @@ view: dru {
   }
 
   measure: dru_instructors {
+    group_label: "Registered Users"
     label: "DRU Instructors"
     description: "Instructors with an event or change to their user profile in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -213,6 +231,7 @@ view: dru {
   }
 
   measure: dru_students {
+    group_label: "Registered Users"
     label: "DRU Students"
     description: "Students with an event or change to their user profile in the last 1 day, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -230,6 +249,7 @@ view: wru {
   parameter: view_name {default_value: "wru"}
 
   measure: wru {
+    group_label: "Registered Users"
     label: "WRU"
     description: "Users with an event or change to their user profile in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -238,6 +258,7 @@ view: wru {
   }
 
   measure: wru_instructors {
+    group_label: "Registered Users"
     label: "WRU Instructors"
     description: "Instructors with an event or change to their user profile in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -246,6 +267,7 @@ view: wru {
   }
 
   measure: wru_students {
+    group_label: "Registered Users"
     label: "WRU Students"
     description: "Students with an event or change to their user profile in the last 7 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -262,6 +284,7 @@ view: mru {
   parameter: view_name {default_value: "mru"}
 
   measure: mru {
+    group_label: "Registered Users"
     label: "MRU"
     description: "Users with an event or change to their user profile in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -270,6 +293,7 @@ view: mru {
   }
 
   measure: mru_instructors {
+    group_label: "Registered Users"
     label: "MRU Instructors"
     description: "Instructors with an event or change to their user profile in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -278,6 +302,7 @@ view: mru {
   }
 
   measure: mru_students {
+    group_label: "Registered Users"
     label: "MRU Students"
     description: "Students with an event or change to their user profile in the last 30 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -295,6 +320,7 @@ view: yru {
   parameter: view_name {default_value: "yru"}
 
   measure: yru {
+    group_label: "Registered Users"
     label: "YRU"
     description: "Users with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -303,6 +329,7 @@ view: yru {
   }
 
   measure: yru_instructors {
+    group_label: "Registered Users"
     label: "YRU Instructors"
     description: "Instructors with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
@@ -311,6 +338,7 @@ view: yru {
   }
 
   measure: yru_students {
+    group_label: "Registered Users"
     label: "YRU Students"
     description: "Students with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number

@@ -27,6 +27,7 @@ view: daily_cu_subscribers {
 
 
     measure: paid_cu_users {
+      group_label: "CU Subscribers"
       label: "# Full Access CU Subscribers"
       description: "# Full Access CU Subscribers (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
@@ -35,6 +36,7 @@ view: daily_cu_subscribers {
     }
 
     measure: trail_cu_user {
+      group_label: "CU Subscribers"
       label: "# Trial Access CU Subscribers"
       description: "# Trial Access CU Subscribers (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number

@@ -90,6 +90,7 @@ view: daily_digital_users {
   }
 
     measure: courseware_users {
+      group_label: "Digital Users"
       label: "# Courseware Student Users"
       description: "# Students enrolled in an active course (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
@@ -99,6 +100,7 @@ view: daily_digital_users {
     }
 
     measure: courseware_instructors {
+      group_label: "Digital Users"
       label: "# Instructors with Active Digital Course"
       description: "# Instructors with an active digital course (if more than one day is included in filter, this shows the average over the chosen period)"
       type: number
@@ -107,6 +109,7 @@ view: daily_digital_users {
     }
 
   measure: ebook_users {
+    group_label: "Digital Users"
     label: "# eBook Only Student Users"
     description: "# Users with access to an eBook but not enrolled in a course (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
@@ -116,6 +119,7 @@ view: daily_digital_users {
   }
 
   measure: cu_only_users {
+    group_label: "Digital Users"
     label: "# Full Access CU Users, no provisions"
     description: "# Users with a full access CU subscriptions but not enrolled in a course or with access to an eBook (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
@@ -125,6 +129,7 @@ view: daily_digital_users {
   }
 
   measure: trial_cu_only_users {
+    group_label: "Digital Users"
     label: "# Trial Access CU Users, no provisions"
     description: "# Users with a trial access CU subscriptions but not enrolled in a course or with access to an eBook (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
@@ -133,6 +138,7 @@ view: daily_digital_users {
   }
 
   measure: digital_users {
+    group_label: "Digital Users"
     label: "# Digital Student Users"
     description: "# Users enrolled in an active course, with access to an eBook, or with a full access or trial CU subscription and no provisions (if more than one day is included in filter, this shows the average over the chosen period)"
     type: number
