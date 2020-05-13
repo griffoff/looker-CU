@@ -24,8 +24,10 @@ view: guid_date_subscription {
         FROM ${dim_date.SQL_TABLE_NAME} dim_date
         INNER JOIN sub_users ON dim_date.datevalue BETWEEN subscription_start AND subscription_end
         INNER JOIN prod.datavault.hub_user ON sub_users.user_guid = hub_user.UID
+        LEFT JOIN prod.datavault.sat_user_internal ui on hub_user.hub_user_key = ui.hub_user_key and ui.active and ui.internal
         LEFT JOIN prod.datavault.sat_user ON hub_user.UID = sat_user.linked_guid AND sat_user.active
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
+        AND ui.hub_user_key IS NULL
           ;;
       persist_for: "24 hours"
     }

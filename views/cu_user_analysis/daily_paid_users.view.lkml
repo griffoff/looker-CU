@@ -1,4 +1,4 @@
-explore: daily_paid_users {hidden:yes}
+explore: daily_paid_users {hidden:no}
 view: daily_paid_users {
   derived_table: {
 # derived table w/ date, paid user count, paid student count, paid instructor count
@@ -8,9 +8,9 @@ view: daily_paid_users {
     sql:
       SELECT date
       ,count(distinct case when paid_flag = true then user_sso_guid end) as paid_user_count
-      ,count(distinct case when content_type = 'Courseware' then user_sso_guid end) as paid_courseware_users
-      ,count(distinct case when content_type = 'eBook' then user_sso_guid end) as paid_ebook_users
-      ,count(distinct case when content_type = 'Full Access CU Subscription' then user_sso_guid end) as paid_cu_users
+      ,count(distinct case when content_type = 'Courseware' and paid_content_rank = 1 then user_sso_guid end) as paid_courseware_users
+      ,count(distinct case when content_type = 'eBook' and paid_content_rank = 1 then user_sso_guid end) as paid_ebook_users
+      ,count(distinct case when content_type = 'Full Access CU Subscription' and paid_content_rank = 1 then user_sso_guid end) as paid_cu_users
       ,count(distinct case when content_type = 'Trial CU Subscription' then user_sso_guid end) as trial_cu_users
       FROM ${guid_date_paid.SQL_TABLE_NAME}
       WHERE date BETWEEN '2018-01-01' AND CURRENT_DATE()

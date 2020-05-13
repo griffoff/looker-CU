@@ -31,7 +31,7 @@ view: date_user_type_count {
     }
 
     dimension: date {
-      hidden:  yes
+      hidden:  no
       type: date}
 
     dimension: max_date {
@@ -44,14 +44,14 @@ view: date_user_type_count {
       group_label: "Visualization Dimensions"
       description: "For visualization only. Use with Date & User Count to show table breakdown for Current Student and Instructor Users"
       type:string
-      hidden: yes
+      hidden: no
       }
 
     dimension: user_count {
       group_label: "Visualization Dimensions"
       description: "For visualization only. Use with Date & User Type to show table breakdown for Current Student and Instructor Users"
       type:number
-      hidden: yes
+      hidden: no
       }
 
  }
