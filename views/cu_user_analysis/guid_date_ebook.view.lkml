@@ -3,24 +3,31 @@ explore: guid_date_ebook {}
 view: guid_date_ebook {
   derived_table: {
     sql:
-    WITH activations AS (
-    SELECT a.*
+    WITH activations_olr AS (
+    SELECT PRODUCT.PRINT_DIGITAL_CONFIG_CD as content_code
+         , product.PRINT_DIGITAL_CONFIG_DE as content_descr
+         , product.DIVISION_CD
          , coalesce(m.PRIMARY_GUID,a.USER_GUID) AS merged_guid
+         , a.*
     FROM prod.STG_CLTS.ACTIVATIONS_OLR a
     LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m on a.USER_GUID = m.PARTNER_GUID
+    LEFT JOIN PROD.STG_CLTS.PRODUCTS PRODUCT ON a.actv_isbn = PRODUCT.isbn13
     )
-    ,activations_no_context_id AS (
+
+    ,activations_olr_no_context_id AS (
     SELECT DISTINCT merged_guid AS user_sso_guid
       , actv_dt AS course_start
       , DATEADD(W,20,actv_dt) AS course_end
       , actv_dt AS activation_date
-    FROM activations
+    FROM activations_olr
     WHERE CONTEXT_ID IS NULL
-    and in_actv_flg = 1
-    and lower(actv_user_type) = 'student'
-    and actv_trial_purchase not in ('Duplicate','Trial')
-    and platform = 'MindTap Reader'
+    AND ACTV_DT > '01-Aug-2018'
+    AND lower(actv_user_type) = 'student'
+    AND (PLATFORM = 'MindTap Reader' OR content_code = '000')
+    AND ACTV_TRIAL_PURCHASE NOT IN ('Trial','Duplicate')
+    AND code_source <> 'Locker'
     )
+
     ,ebook_users AS (
     (
     SELECT user_sso_guid
@@ -29,7 +36,8 @@ view: guid_date_ebook {
     , course_start AS subscription_start
     , course_end AS subscription_end
     , 'Full Access' AS subscription_type
-    FROM activations_no_context_id
+    , 'Activations OLR' AS source
+    FROM activations_olr_no_context_id
     )
     UNION
     (
@@ -37,6 +45,7 @@ view: guid_date_ebook {
     , ebook_start AS subscription_start
     , ebook_end AS subscription_end
     , 'Full Access' AS subscription_type
+    , 'Serial Number Consumed' AS source
     FROM prod.datavault.hub_product hp
     INNER JOIN prod.datavault.sat_serialnumber_consumed ss ON hp.pid = ss.product_id
     INNER JOIN prod.datavault.sat_product_olr sp ON hp.HUB_PRODUCT_KEY = sp.hub_product_key
@@ -52,6 +61,7 @@ view: guid_date_ebook {
       , COALESCE(ss.subscription_start, bp._effective_from) AS subscription_start
       , COALESCE(COALESCE(ss.cancelled_time, ss.subscription_end), COALESCE(bp._effective_to, CURRENT_DATE())) AS subscription_end
       , CASE WHEN ss.subscription_start IS NOT NULL THEN ss.subscription_plan_id WHEN bp.subscription_start IS NOT NULL THEN bp.subscription_state END AS subscription_type
+      , 'Provisioned Product' AS source
     FROM prod.datavault.hub_product hp
     INNER JOIN prod.datavault.sat_provisioned_product_v2 pp ON hp.pid = pp.product_id
       AND pp._latest
@@ -71,7 +81,7 @@ view: guid_date_ebook {
       AND ui.hub_user_key IS NULL
     )
     )
-SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'eBook' AS content_type
+SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'eBook' AS content_type, source
   , CASE WHEN (subscription_type ILIKE 'Full%' OR subscription_type ILIKE 'Limited%') THEN TRUE ELSE FALSE END AS paid_flag
 FROM ${dim_date.SQL_TABLE_NAME} dim_date
 LEFT JOIN ebook_users ON dim_date.datevalue BETWEEN ebook_start AND ebook_end
@@ -99,6 +109,11 @@ WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
   dimension: paid_flag {
     type: string
     sql: ${TABLE}.paid_flag ;;
+  }
+
+  dimension: source {
+    type: string
+    sql: ${TABLE}.source ;;
   }
 
   measure: num_users {

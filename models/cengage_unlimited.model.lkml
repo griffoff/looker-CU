@@ -140,6 +140,13 @@ explore: active_users_stats  {
     relationship: one_to_many
   }
 
+  join: date_user_type_count_ly {
+    from: date_user_type_count
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${date_user_type_count_ly.date}) ;;
+    relationship: one_to_one
+    type: left_outer
+  }
+
   join: dau {
     view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${dau.date}
