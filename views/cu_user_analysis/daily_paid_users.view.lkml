@@ -21,7 +21,7 @@ view: daily_paid_users {
     }
 
     dimension: date {
-      hidden:  yes
+      hidden:  no
       type: date
       primary_key: yes}
 

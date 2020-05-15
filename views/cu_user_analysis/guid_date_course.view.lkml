@@ -58,7 +58,7 @@ view: guid_date_course {
       AND PLATFORM NOT IN ('MindTap Reader','Cengage Unlimited')
       AND ACTV_TRIAL_PURCHASE NOT IN ('Trial','Duplicate')
       AND content_code IN ('020','021','025','023')
-      AND code_source <> 'Locker'
+      AND coalesce(code_source,'') <> 'Locker'
     )
 
     ,course_users AS (
@@ -86,14 +86,14 @@ view: guid_date_course {
     ,all_users AS (
     SELECT user_sso_guid, course_start, course_end, 'Student' AS user_type, activation_date, NULL AS unpaid_access_end, 'Activations Non-OLR' AS source
     FROM activations_non_olr
-    UNION
+    UNION ALL
     SELECT user_sso_guid, course_start, course_end, 'Student' AS user_type, activation_date, NULL AS unpaid_access_end, 'Activations OLR' AS source
     FROM activations_olr_no_context_id
 
-    UNION
+    UNION ALL
     SELECT user_sso_guid, course_start, course_end,'Student' AS user_type, activation_date, unpaid_access_end, 'User Courses' AS source
     FROM course_users
-    UNION
+    UNION ALL
     SELECT user_sso_guid, course_start, course_end, 'Instructor' AS user_type, NULL AS activation_date, NULL AS unpaid_access_end, 'User Courses' AS source
     FROM course_instructors
     )

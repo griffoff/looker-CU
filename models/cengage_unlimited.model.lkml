@@ -136,13 +136,16 @@ explore: active_users_stats  {
   }
 
   join: date_user_type_count {
+    view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${date_user_type_count.date} ;;
     relationship: one_to_many
   }
 
   join: date_user_type_count_ly {
+    view_label: "User Counts - Prior Year"
     from: date_user_type_count
-    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${date_user_type_count_ly.date}) ;;
+    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${date_user_type_count_ly.date})
+      AND ${date_user_type_count.user_type} = ${date_user_type_count_ly.user_type};;
     relationship: one_to_one
     type: left_outer
   }

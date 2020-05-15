@@ -37,7 +37,8 @@ view: date_user_type_count {
     dimension: max_date {
       hidden: yes
       type: date
-      sql: (SELECT MAX(dateadd(d,-1,date)) FROM ${date_user_type_count.SQL_TABLE_NAME});;
+#       sql: (SELECT MAX(dateadd(d,-1,date)) FROM ${date_user_type_count.SQL_TABLE_NAME});;
+      sql: (SELECT MAX(date) FROM ${date_user_type_count.SQL_TABLE_NAME});;
     }
 
     dimension: user_type {
