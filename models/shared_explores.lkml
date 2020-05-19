@@ -428,6 +428,17 @@ explore: learner_profile {
     relationship: one_to_one
   }
 
+  join: cohorts_paid_access_cu {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_paid_access_cu.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: cohorts_paid_access_non_cu {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_paid_access_non_cu.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
 }
 
 
