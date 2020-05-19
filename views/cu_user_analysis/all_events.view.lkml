@@ -583,8 +583,9 @@ view: all_events {
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
     label: "Event action"
-    description: "Direct from source.
-    A classification of event within the hierarchy of events beneath event type and above event name i.e. 'OLR Enrollment'"
+    description:
+    "Action (verb) taken or performed by user or internal system
+    (Action labels are not necessarily consistent from platform to platform)"
     hidden: no
   }
 

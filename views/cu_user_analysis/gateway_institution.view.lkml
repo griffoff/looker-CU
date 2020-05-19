@@ -17,6 +17,7 @@ view: gateway_institution {
   }
 
   dimension: integration_type {
+    hidden: yes
     group_label: "Gateway LMS Details"
     type: string
     sql: ${TABLE}."INTEGRATION_TYPE" ;;

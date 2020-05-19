@@ -21,11 +21,20 @@ view: guid_date_subscription {
         , COALESCE(linked_guid,sub_users.user_guid) AS user_sso_guid
         , CASE WHEN subscription_type ILIKE 'trial%' THEN 'Trial CU Subscription' ELSE 'Full Access CU Subscription' END AS content_type
         , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
+        , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
+        , 'Other' AS platform
+        , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
+          WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
+          ELSE 'Other' END AS organization
         FROM ${dim_date.SQL_TABLE_NAME} dim_date
         INNER JOIN sub_users ON dim_date.datevalue BETWEEN subscription_start AND subscription_end
-        INNER JOIN prod.datavault.hub_user ON sub_users.user_guid = hub_user.UID
-        LEFT JOIN prod.datavault.sat_user_internal ui on hub_user.hub_user_key = ui.hub_user_key and ui.active and ui.internal
-        LEFT JOIN prod.datavault.sat_user ON hub_user.UID = sat_user.linked_guid AND sat_user.active
+        INNER JOIN prod.datavault.hub_user hu ON sub_users.user_guid = hu.UID
+        LEFT JOIN prod.datavault.sat_user_internal ui on hu.hub_user_key = ui.hub_user_key and ui.active and ui.internal
+        LEFT JOIN prod.datavault.sat_user ON hu.UID = sat_user.linked_guid AND sat_user.active
+        INNER JOIN prod.datavault.link_user_institution lui ON hu.hub_user_key = lui.hub_user_key
+        INNER JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key AND sui.active
+        INNER JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
+        LEFT JOIN prod.STG_CLTS.ENTITIES e ON hi.institution_id = e.ENTITY_NO
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
           ;;
@@ -34,22 +43,30 @@ view: guid_date_subscription {
 
     dimension: user_sso_guid {
       type: string
-      sql: ${TABLE}.USER_SSO_GUID ;;
     }
 
     dimension: date {
       type: date
-      sql: ${TABLE}.date ;;
     }
 
     dimension: content_type {
       type: string
-      sql: ${TABLE}.content_type ;;
     }
 
   dimension: user_type {
     type: string
-    sql: ${TABLE}.user_type ;;
+  }
+
+  dimension: region {
+    type: string
+  }
+
+  dimension: platform {
+    type: string
+  }
+
+  dimension: organization {
+    type: string
   }
 
   }
