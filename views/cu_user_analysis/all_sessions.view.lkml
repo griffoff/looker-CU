@@ -232,6 +232,7 @@ view: all_sessions {
     label: "Average sessions per user per week"
     type: number
     sql: ${count} / ${user_week_count};;
+    value_format_name: decimal_1
     description: "Total number of sessions divided by distinct user weekly sessions"
   }
 
