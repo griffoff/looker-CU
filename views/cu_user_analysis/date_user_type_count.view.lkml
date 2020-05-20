@@ -31,7 +31,7 @@ view: date_user_type_count {
     }
 
     dimension: date {
-      hidden:  no
+      hidden:  yes
       type: date}
 
     dimension: max_date {
@@ -43,7 +43,13 @@ view: date_user_type_count {
 
     dimension: user_type {
       group_label: "Visualization Dimensions"
-      description: "For visualization only. Use with Date & User Count to show table breakdown for Current Student and Instructor Users"
+      description: "REGISTERED USERS: Event or account modification in the past year
+       _____ DIGITAL STUDENT USERS: Access to course, ebook, or CU (trial inc.)
+       _____ PAID STUDENT USERS: Access to course, ebook, or CU (no trials)
+       _____ PAID COURSEWARE: Paid access to an active course
+       _____ PAID EBOOK ONLY: Paid access to ebook, but no active courses
+       _____ FULL ACCESS CU USERS, NO PROVISIONS: Full access CU, but no active courses or ebook access
+       _____ INSTRUCTORS WITH ACTIVE DIGITAL COURSE: Course has students enrolled, past start date, and future end date"
       type:string
       hidden: no
       }
@@ -53,6 +59,14 @@ view: date_user_type_count {
       description: "For visualization only. Use with Date & User Type to show table breakdown for Current Student and Instructor Users"
       type:number
       hidden: no
+      }
+
+      measure: average_user_count {
+        group_label: "Visualization Dimensions"
+        type: average
+        sql: ${user_count};;
+        value_format_name: decimal_0
+
       }
 
  }
