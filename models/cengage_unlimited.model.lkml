@@ -200,24 +200,24 @@ explore: active_users_stats  {
     relationship: one_to_one
     type: left_outer
   }
-  join: dru {
-    view_label: "User Counts"
-    sql_on: ${active_users_stats.datevalue} = ${dru.date};;
-    relationship: one_to_one
-    type: inner
-  }
-  join: wru {
-    view_label: "User Counts"
-    sql_on: ${active_users_stats.datevalue} = ${wru.date};;
-    relationship: one_to_one
-    type: inner
-  }
-  join: mru {
-    view_label: "User Counts"
-    sql_on: ${active_users_stats.datevalue} = ${mru.date};;
-    relationship: one_to_one
-    type: inner
-  }
+#   join: dru {
+#     view_label: "User Counts"
+#     sql_on: ${active_users_stats.datevalue} = ${dru.date};;
+#     relationship: one_to_one
+#     type: inner
+#   }
+#   join: wru {
+#     view_label: "User Counts"
+#     sql_on: ${active_users_stats.datevalue} = ${wru.date};;
+#     relationship: one_to_one
+#     type: inner
+#   }
+#   join: mru {
+#     view_label: "User Counts"
+#     sql_on: ${active_users_stats.datevalue} = ${mru.date};;
+#     relationship: one_to_one
+#     type: inner
+#   }
   join: yru {
     view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${yru.date};;
