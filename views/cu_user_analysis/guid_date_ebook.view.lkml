@@ -101,7 +101,7 @@ view: guid_date_ebook {
       AND dim_date.datevalue BETWEEN subscription_start AND subscription_end
     WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
     ;;
-    persist_for: "24 hours"
+    persist_for: "12 hours"
   }
 
   dimension: user_sso_guid {

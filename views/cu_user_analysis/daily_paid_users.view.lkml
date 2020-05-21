@@ -1,4 +1,4 @@
-explore: daily_paid_users {hidden:yes}
+explore: daily_paid_users {hidden:no}
 view: daily_paid_users {
   derived_table: {
 # derived table w/ date, paid user count, paid student count, paid instructor count
@@ -17,7 +17,7 @@ view: daily_paid_users {
       GROUP BY 1
       ;;
 
-      persist_for: "24 hours"
+      persist_for: "12 hours"
     }
 
     dimension: date {

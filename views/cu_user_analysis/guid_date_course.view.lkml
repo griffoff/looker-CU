@@ -67,13 +67,15 @@ view: guid_date_course {
     )
     ,course_users AS (
     SELECT DISTINCT user_sso_guid, course_key, instructor_guid, u.context_id
-    ,LEAST(COALESCE(course_start_date, enrollment_date, actv_dt)
-          ,COALESCE(actv_dt, enrollment_date, course_start_date)
-          ,COALESCE(enrollment_date, course_start_date, actv_dt))::date AS course_start
 
-    ,LEAST(COALESCE(datediff(w,course_start_date,course_end_date),16),16) AS course_length
+    ,LEAST(COALESCE(actv_dt, enrollment_date, course_start_date)
+          ,COALESCE(enrollment_date, actv_dt, course_start_date))::date AS course_start
 
-    ,LEAST(COALESCE(course_end_date,'2100-12-31'),DATEADD(w,course_length,course_start))::date AS course_end
+    ,LEAST(COALESCE(abs(datediff(w,course_start_date,course_end_date)),16),16) AS course_length
+
+    --,LEAST(COALESCE(course_end_date,'2100-12-31'),DATEADD(w,course_length,course_start))::date AS course_end
+    ,DATEADD(w,course_length,course_start)::date AS course_end
+
     , COALESCE(LEAST(actv_dt, DATEADD(D, 1 / 2 * course_length, course_start), DATEADD(D, 60, course_start)),DATEADD(D, 14, course_start)) AS unpaid_access_end
     , actv_dt as activation_date
     , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other' END AS platform
@@ -120,7 +122,7 @@ view: guid_date_course {
     AND ui.hub_user_key IS NULL
     ORDER BY date
     ;;
-    persist_for: "24 hours"
+    persist_for: "12 hours"
   }
 
   dimension: user_sso_guid {
