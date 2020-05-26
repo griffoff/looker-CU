@@ -90,7 +90,8 @@ derived_table: {
 
   dimension: paid_in_full {
     type: yesno
-    sql: ${TABLE}."PAID_IN_FULL" = 'yes' ;;
+    hidden: yes
+    sql: ${TABLE}."PAID_IN_FULL" = 'true' ;;
     group_label: "Payment Information"
     label: "Paid in full"
     description: "paid_in_full flag from OLR enrollments table"
@@ -301,16 +302,16 @@ derived_table: {
   measure: no_enrollments {
     group_label: "Lifetime metrics"
     label: "# enrollments"
-    type: sum
-    sql: CASE WHEN ${enrolled} THEN 1 ELSE 0 END  ;;
+    type: count_distinct
+    sql: CASE WHEN ${enrolled} THEN HASH(${user_sso_guid}, ${olr_course_key}) END  ;;
     description: "Total # of enrollments (all time)"
   }
 
   measure: no_activated {
     group_label: "Lifetime metrics"
     label: "# activations"
-    type: sum
-    sql: CASE WHEN ${activated} THEN 1 ELSE 0 END  ;;
+    type: count_distinct
+    sql: CASE WHEN ${activated} THEN HASH(${user_sso_guid}, ${olr_course_key}) END  ;;
     description: "Total # of activations (all time)"
   }
 
