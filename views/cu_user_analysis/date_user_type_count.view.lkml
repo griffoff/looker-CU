@@ -27,7 +27,7 @@ view: date_user_type_count {
       FROM ${daily_paid_users.SQL_TABLE_NAME}
       ;;
 
-      persist_for: "24 hours"
+      persist_for: "12 hours"
     }
 
     dimension: date {
