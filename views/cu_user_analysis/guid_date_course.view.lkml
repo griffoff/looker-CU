@@ -68,13 +68,25 @@ view: guid_date_course {
     ,course_users AS (
     SELECT DISTINCT user_sso_guid, course_key, instructor_guid, u.context_id
 
+    ,COURSE_START_DATE as csd
     ,LEAST(COALESCE(actv_dt, enrollment_date, course_start_date)
-          ,COALESCE(enrollment_date, actv_dt, course_start_date))::date AS course_start
-
-    ,LEAST(COALESCE(abs(datediff(w,course_start_date,course_end_date)),16),16) AS course_length
-
-    --,LEAST(COALESCE(course_end_date,'2100-12-31'),DATEADD(w,course_length,course_start))::date AS course_end
+          ,COALESCE(enrollment_date, actv_dt, course_start_date))::date AS csm
+    ,COURSE_END_DATE as ced
+    ,datediff(w,csd,ced) + 1 as cl
+    ,datediff(w,csm,ced) + 1 as clm
+    ,case
+        when ced is null then 16
+        when csd is null then iff(csm > csd,clm,16)
+        when ced <= csd and ced <= csm then 16
+        when ced > csm then iff(csd <= csm or csd >= ced,clm,cl)
+        when ced > csd then iff(csm <= csd or csm >= ced,cl,clm)
+        else 16
+    end as course_length_mod
+    ,iff(course_length_mod > 32,16,course_length_mod) as course_length
+    ,csm as course_start
     ,DATEADD(w,course_length,course_start)::date AS course_end
+
+   --,LEAST(COALESCE(abs(datediff(w,course_start_date,course_end_date)),16),16) AS course_length
 
     , COALESCE(LEAST(actv_dt, DATEADD(D, 1 / 2 * course_length, course_start), DATEADD(D, 60, course_start)),DATEADD(D, 14, course_start)) AS unpaid_access_end
     , actv_dt as activation_date
