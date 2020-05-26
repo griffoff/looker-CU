@@ -38,7 +38,7 @@ view: guid_date_subscription {
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
           ;;
-      persist_for: "24 hours"
+      persist_for: "12 hours"
     }
 
     dimension: user_sso_guid {

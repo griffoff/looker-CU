@@ -67,13 +67,23 @@ view: guid_date_course {
     )
     ,course_users AS (
     SELECT DISTINCT user_sso_guid, course_key, instructor_guid, u.context_id
-    ,LEAST(COALESCE(course_start_date, enrollment_date, actv_dt)
-          ,COALESCE(actv_dt, enrollment_date, course_start_date)
-          ,COALESCE(enrollment_date, course_start_date, actv_dt))::date AS course_start
-
-    ,LEAST(COALESCE(datediff(w,course_start_date,course_end_date),16),16) AS course_length
-
-    ,LEAST(COALESCE(course_end_date,'2100-12-31'),DATEADD(w,course_length,course_start))::date AS course_end
+    ,COURSE_START_DATE as csd
+    ,LEAST(COALESCE(actv_dt, enrollment_date, course_start_date)
+          ,COALESCE(enrollment_date, actv_dt, course_start_date))::date AS csm
+    ,COURSE_END_DATE as ced
+    ,datediff(w,csd,ced) + 1 as cl
+    ,datediff(w,csm,ced) + 1 as clm
+    ,case
+        when ced is null then 16
+        when csd is null then iff(csm < ced,clm,16)
+        when ced <= csd and ced <= csm then 16
+        when ced > csm then iff(csd <= csm or csd >= ced,clm,cl)
+        when ced > csd then iff(csm >= ced,cl,clm)
+        else 16
+    end as course_length_mod
+    ,iff(course_length_mod > 80,16,course_length_mod) as course_length
+    ,iff(csm is null,DATEADD(w,-course_length_mod,ced),csm) as course_start
+    ,DATEADD(w,course_length,course_start)::date AS course_end
     , COALESCE(LEAST(actv_dt, DATEADD(D, 1 / 2 * course_length, course_start), DATEADD(D, 60, course_start)),DATEADD(D, 14, course_start)) AS unpaid_access_end
     , actv_dt as activation_date
     , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other' END AS platform
@@ -120,7 +130,7 @@ view: guid_date_course {
     AND ui.hub_user_key IS NULL
     ORDER BY date
     ;;
-    persist_for: "24 hours"
+    persist_for: "12 hours"
   }
 
   dimension: user_sso_guid {
