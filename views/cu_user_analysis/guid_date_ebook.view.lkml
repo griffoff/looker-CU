@@ -51,7 +51,7 @@ view: guid_date_ebook {
       , 'Full Access' AS subscription_type
       , 'Serial Number Consumed' AS source
       , CASE WHEN ss.region = 'UNITED STATES' THEN 'USA' ELSE ss.region END AS region
-      , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other' END AS platform
+      , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other eBook' END AS platform
       , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
         WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
         ELSE 'Other' END AS organization
@@ -74,7 +74,7 @@ view: guid_date_ebook {
       , CASE WHEN ss.subscription_start IS NOT NULL THEN ss.subscription_plan_id WHEN bp.subscription_start IS NOT NULL THEN bp.subscription_state END AS subscription_type
       , 'Provisioned Product' AS source
       , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
-      , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other' END AS platform
+      , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other eBook' END AS platform
       , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
         WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
         ELSE 'Other' END AS organization
@@ -101,7 +101,7 @@ view: guid_date_ebook {
       AND dim_date.datevalue BETWEEN subscription_start AND subscription_end
     WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
     ;;
-    persist_for: "12 hours"
+    datagroup_trigger: daily_refresh
   }
 
   dimension: user_sso_guid {

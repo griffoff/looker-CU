@@ -37,8 +37,12 @@ view: active_users_platforms {
         ELSE ${product_platform} END
 
     ;;
+    description: "Works with DAU/WAU/MAU measures"
+
     label: "Product Platform"
-    group_label: "Active Users"
+
+#     group_label: "Active Users"
+
   }
 
 }

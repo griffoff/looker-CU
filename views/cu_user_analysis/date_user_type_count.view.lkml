@@ -27,7 +27,7 @@ view: date_user_type_count {
       FROM ${daily_paid_users.SQL_TABLE_NAME}
       ;;
 
-      persist_for: "12 hours"
+     datagroup_trigger: daily_refresh
     }
 
     dimension: date {
@@ -43,13 +43,15 @@ view: date_user_type_count {
 
     dimension: user_type {
       group_label: "Visualization Dimensions"
-      description: "REGISTERED USERS: Event or account modification in the past year
-       _____ DIGITAL STUDENT USERS: Access to course, ebook, or CU (trial inc.)
-       _____ PAID STUDENT USERS: Access to course, ebook, or CU (no trials)
-       _____ PAID COURSEWARE: Paid access to an active course
-       _____ PAID EBOOK ONLY: Paid access to ebook, but no active courses
-       _____ FULL ACCESS CU USERS, NO PROVISIONS: Full access CU, but no active courses or ebook access
-       _____ INSTRUCTORS WITH ACTIVE DIGITAL COURSE: Course has students enrolled, past start date, and future end date"
+      description: "For visualization only. Use with Date & User Count to show table breakdown for Current Student and Instructor Users"
+
+#       "REGISTERED USERS: Event or account modification in the past year
+#        _____ DIGITAL STUDENT USERS: Access to course, ebook, or CU (trial inc.)
+#        _____ PAID STUDENT USERS: Access to course, ebook, or CU (no trials)
+#        _____ PAID COURSEWARE: Paid access to an active course
+#        _____ PAID EBOOK ONLY: Paid access to ebook, but no active courses
+#        _____ FULL ACCESS CU USERS, NO PROVISIONS: Full access CU, but no active courses or ebook access
+#        _____ INSTRUCTORS WITH ACTIVE DIGITAL COURSE: Course has students enrolled, past start date, and future end date"
       type:string
       hidden: no
       }

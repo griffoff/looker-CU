@@ -17,7 +17,7 @@ view: daily_paid_users {
       GROUP BY 1
       ;;
 
-      persist_for: "12 hours"
+      datagroup_trigger: daily_refresh
     }
 
     dimension: date {

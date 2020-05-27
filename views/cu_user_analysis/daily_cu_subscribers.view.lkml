@@ -11,7 +11,7 @@ view: daily_cu_subscribers {
       GROUP BY 1
       ;;
 
-      persist_for: "24 hours"
+      datagroup_trigger: daily_refresh
     }
 
     dimension: date {
@@ -33,6 +33,7 @@ view: daily_cu_subscribers {
       type: number
       sql: AVG(${TABLE}.cu_subscriber_count) ;;
       value_format_name: decimal_0
+      hidden:  yes
     }
 
     measure: trail_cu_user {
@@ -42,5 +43,6 @@ view: daily_cu_subscribers {
       type: number
       sql: AVG(${TABLE}.trial_count) ;;
       value_format_name: decimal_0
+      hidden: yes
     }
   }

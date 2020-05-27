@@ -135,6 +135,24 @@ explore: active_users_stats  {
     type: left_outer
   }
 
+
+
+#   join: guid_date_subscription {
+#     view_label: "User Counts"
+#     sql_on: ${active_users_stats.datevalue} = ${guid_date_subscription.date} ;;
+#     relationship: one_to_many
+#   }
+#
+#   join: guid_date_subscription_ly {
+#     view_label: "User Counts - Prior Year"
+#     from: daily_cu_subscribers
+#     sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${guid_date_subscription_ly.date}) ;;
+#     relationship: one_to_one
+#     type: left_outer
+#   }
+
+
+
   join: date_user_type_count {
     view_label: "User Counts"
     sql_on: ${active_users_stats.datevalue} = ${date_user_type_count.date} ;;

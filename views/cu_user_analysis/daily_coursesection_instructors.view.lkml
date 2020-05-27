@@ -1,3 +1,4 @@
+explore: daily_coursesection_instructors  {hidden:yes}
 view: daily_coursesection_instructors {
   derived_table: {
     sql:

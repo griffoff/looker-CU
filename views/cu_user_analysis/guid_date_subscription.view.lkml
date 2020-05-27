@@ -22,7 +22,7 @@ view: guid_date_subscription {
         , CASE WHEN subscription_type ILIKE 'trial%' THEN 'Trial CU Subscription' ELSE 'Full Access CU Subscription' END AS content_type
         , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
         , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
-        , 'Other' AS platform
+        , 'CU Subscription' AS platform
         , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
           WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
           ELSE 'Other' END AS organization
@@ -37,36 +37,62 @@ view: guid_date_subscription {
         LEFT JOIN prod.STG_CLTS.ENTITIES e ON hi.institution_id = e.ENTITY_NO
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
+        ORDER BY date
           ;;
-      persist_for: "12 hours"
+      datagroup_trigger: daily_refresh
     }
 
     dimension: user_sso_guid {
+      hidden: yes
       type: string
     }
 
     dimension: date {
+      hidden: no
       type: date
     }
 
     dimension: content_type {
+      view_label: "Filters"
       type: string
     }
 
   dimension: user_type {
+    hidden: yes
     type: string
   }
 
   dimension: region {
+    view_label: "Filters"
     type: string
   }
 
   dimension: platform {
+    view_label: "Filters"
     type: string
   }
 
   dimension: organization {
+    view_label: "Filters"
     type: string
+  }
+
+  measure: full_access_user_count {
+    group_label: "CU Subscribers"
+    label: "# Full Access CU Subscribers"
+    description: "# Full Access CU Subscribers"
+
+    type: count_distinct
+    sql:  CASE WHEN ${content_type} = 'Full Access CU Subscription' THEN ${user_sso_guid} END;;
+  }
+
+  measure: trial_access_user_count {
+    group_label: "CU Subscribers"
+    label: "# Trial Access CU Subscribers"
+    description: "# Trial Access CU Subscribers"
+
+    type: count_distinct
+    sql:  CASE WHEN ${content_type} = 'Trial CU Subscription' THEN ${user_sso_guid} END;;
   }
 
   }

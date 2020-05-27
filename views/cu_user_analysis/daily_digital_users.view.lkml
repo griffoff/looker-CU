@@ -135,6 +135,7 @@ view: daily_digital_users {
     type: number
     sql: AVG(${TABLE}.trial_cu_only_users) ;;
     value_format_name: decimal_0
+    hidden: yes
   }
 
   measure: digital_users {

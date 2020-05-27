@@ -50,7 +50,7 @@ view: guid_date_paid {
           SELECT date, user_sso_guid, region, platform, organization
           , CASE WHEN content_type = 'Full Access CU Subscription' THEN TRUE ELSE FALSE END AS paid_flag
           , content_type
-          , 3 AS content_order
+          , CASE WHEN content_type = 'Full Access CU Subscription' THEN 3 ELSE 4 END AS content_order
           FROM paid_cu_only_users
         )
         select date, user_sso_guid, region, platform, organization, paid_flag, content_type
@@ -110,5 +110,4 @@ view: guid_date_paid {
     type: count_distinct
     sql: ${TABLE}.USER_SSO_GUID ;;
   }
-
 }

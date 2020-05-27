@@ -119,7 +119,7 @@ view: guid_date_course {
     SELECT user_sso_guid, course_start, course_end, 'Instructor' AS user_type, NULL AS activation_date, NULL AS unpaid_access_end, 'User Courses' AS source, platform, region, organization
     FROM course_instructors
     )
-    SELECT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, source, platform, region, organization
+    SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, platform, region, organization
       , CASE WHEN dim_date.datevalue >= activation_date THEN TRUE ELSE FALSE END AS paid_flag
       , CASE WHEN activation_date IS NULL AND dim_date.datevalue > unpaid_access_end THEN TRUE ELSE FALSE END AS expired_access_flag
     FROM ${dim_date.SQL_TABLE_NAME} dim_date
@@ -130,7 +130,7 @@ view: guid_date_course {
     AND ui.hub_user_key IS NULL
     ORDER BY date
     ;;
-    persist_for: "12 hours"
+    datagroup_trigger: daily_refresh
   }
 
   dimension: user_sso_guid {
@@ -157,9 +157,9 @@ view: guid_date_course {
     type: yesno
   }
 
-  dimension: source {
-    type: string
-  }
+#   dimension: source {
+#     type: string
+#   }
 
   dimension: platform {
     type: string
