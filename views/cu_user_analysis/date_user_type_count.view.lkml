@@ -14,7 +14,7 @@ view: date_user_type_count {
       SELECT date, 'Instructors with Active Digital Course' AS user_type, courseware_instructors AS user_count
       FROM ${daily_digital_users.SQL_TABLE_NAME}
       UNION ALL
-      SELECT date, 'Paid Student Users' AS user_type, paid_user_count AS user_count
+      SELECT date, 'Paid Digital Student Users' AS user_type, paid_user_count AS user_count
       FROM ${daily_paid_users.SQL_TABLE_NAME}
       UNION ALL
       SELECT date, 'Paid Courseware Student Users' AS user_type, paid_courseware_users AS user_count
@@ -44,14 +44,6 @@ view: date_user_type_count {
     dimension: user_type {
       group_label: "Visualization Dimensions"
       description: "For visualization only. Use with Date & User Count to show table breakdown for Current Student and Instructor Users"
-
-#       "REGISTERED USERS: Event or account modification in the past year
-#        _____ DIGITAL STUDENT USERS: Access to course, ebook, or CU (trial inc.)
-#        _____ PAID STUDENT USERS: Access to course, ebook, or CU (no trials)
-#        _____ PAID COURSEWARE: Paid access to an active course
-#        _____ PAID EBOOK ONLY: Paid access to ebook, but no active courses
-#        _____ FULL ACCESS CU USERS, NO PROVISIONS: Full access CU, but no active courses or ebook access
-#        _____ INSTRUCTORS WITH ACTIVE DIGITAL COURSE: Course has students enrolled, past start date, and future end date"
       type:string
       hidden: no
       }

@@ -27,6 +27,15 @@ view: kpi_user_counts {
         ,all_full_access_cu_guid STRING comment ''
         ,all_trial_access_cu_guid STRING comment ''
 
+        /*
+        ,active_users_dau_guid STRING comment ''
+        ,active_users_dau_paid_guid STRING comment ''
+        ,active_users_wau_guid STRING comment ''
+        ,active_users_wau_paid_guid STRING comment ''
+        ,active_users_mau_guid STRING comment ''
+        ,active_users_mau_paid_guid STRING comment ''
+        */
+
         ,payment_cui_guid STRING comment ''
         ,payment_ia_guid STRING comment ''
         ,payment_direct_purchase_guid STRING comment ''
@@ -181,6 +190,62 @@ view: kpi_user_counts {
         )
         ;;
 
+#         merge for wau USING
+
+#         WITH dates AS (
+#           SELECT d.datevalue
+#           FROM ${dim_date.SQL_TABLE_NAME} d
+#           WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.wau)
+#           AND d.datevalue > (SELECT MIN(date) FROM ${guid_platform_date_active.SQL_TABLE_NAME})
+#           AND d.datevalue < CURRENT_DATE()
+#         )
+#         ,paid AS (
+#         SELECT p.*
+#         FROM dates d
+#         INNER JOIN ${guid_date_paid.SQL_TABLE_NAME} p ON d.datevalue = p.date AND p.paid_content_rank = 1
+#         )
+#         ,active_course_instructors AS (
+#         SELECT c.date, c.user_sso_guid
+#         FROM dates d
+#         INNER JOIN ${guid_date_course.SQL_TABLE_NAME} c ON d.datevalue = c.date AND c.user_type = 'Instructor'
+#         )
+#         ,active AS (
+#         SELECT *
+#         FROM ${guid_platform_date_active.SQL_TABLE_NAME} g
+#         WHERE g.date BETWEEN DATEADD(DAY, -7, (SELECT MIN(datevalue) FROM dates)) AND (SELECT MAX(datevalue) FROM dates)
+#         )
+#         ,users AS (
+#         SELECT user_sso_guid
+#         FROM paid
+#         UNION
+#         SELECT user_sso_guid
+#         FROM active
+#         )
+#         SELECT
+#             d.datevalue AS date
+#             ,COALESCE(au.productplatform, 'UNKNOWN') as product_platform
+#
+#             ,COUNT(DISTINCT CASE WHEN instructor THEN au.user_sso_guid END) AS instructors
+#             ,COUNT(DISTINCT CASE WHEN NOT instructor OR instructor IS NULL THEN au.user_sso_guid END) AS students
+#             ,COUNT(DISTINCT au.user_sso_guid) AS users
+#             ,COUNT(DISTINCT CASE WHEN instructor AND c.user_sso_guid IS NOT NULL THEN au.user_sso_guid END) AS active_course_instructors
+#             ,COUNT(DISTINCT CASE WHEN paid_flag THEN au.user_sso_guid END) AS paid_active_users
+#             ,COUNT(DISTINCT CASE WHEN (paid_flag AND au.user_sso_guid IS NULL) THEN p.user_sso_guid END) AS paid_inactive_users
+
+#         FROM dates d
+#         CROSS JOIN users u
+#         LEFT JOIN active AS au ON u.user_sso_guid = au.user_sso_guid
+#           AND au.date <= d.datevalue
+#           AND au.date > DATEADD(DAY, -7, d.datevalue)
+
+#         --LEFT JOIN paid p on d.datevalue = p.date AND u.user_sso_guid = p.user_sso_guid
+
+#         LEFT JOIN active_course_instructors c ON d.datevalue = c.date AND u.user_sso_guid = c.user_sso_guid
+
+#         GROUP BY 1, ROLLUP(2)
+
+
+
         sql_step:
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
         CLONE LOOKER_SCRATCH.kpi_user_counts
@@ -197,8 +262,11 @@ dimension_group: date {
 }
 
 dimension: region {}
+
 dimension: organization {}
+
 dimension: platform {}
+
 dimension: user_type {}
 
 measure: userbase_digital_user_guid  {type:count_distinct label: "# Digital Student Users"}
