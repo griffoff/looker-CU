@@ -47,10 +47,11 @@ view: guid_date_subscription {
       type: string
     }
 
-    dimension: date {
-      hidden: no
-      type: date
-    }
+  dimension_group: date {
+    hidden: no
+    type:time
+    timeframes: [raw,date,week,month,year]
+  }
 
     dimension: content_type {
       view_label: "Filters"
