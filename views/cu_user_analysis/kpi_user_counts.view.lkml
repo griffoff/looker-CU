@@ -288,6 +288,8 @@ view: kpi_user_counts {
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
         CLONE LOOKER_SCRATCH.kpi_user_counts
         ;;
+
+
       }
 
       datagroup_trigger: daily_refresh
@@ -307,8 +309,10 @@ dimension: platform {}
 
 dimension: user_type {}
 
+dimension: user_sso_guid {hidden: yes}
+
 measure: userbase_digital_user_guid  {type:count_distinct label: "# Digital Student Users"}
-measure: userbase_paid_user_guid  {type:count_distinct label: "# Paid Student Users"}
+measure: userbase_paid_user_guid  {type:count_distinct label: "# Paid Digital Student Users"}
 measure: userbase_paid_courseware_guid  {type:count_distinct label: "# Paid Courseware Student Users"}
 measure: userbase_paid_ebook_only_guid  {type:count_distinct label: "# Paid eBook ONLY Student Users"}
 measure: userbase_full_access_cu_only_guid  {type:count_distinct label: "# Paid CU ONLY Student Users (no provisions)"}
@@ -329,6 +333,3 @@ measure: all_paid_active_user_guid {
 }
 
 }
-
-
-

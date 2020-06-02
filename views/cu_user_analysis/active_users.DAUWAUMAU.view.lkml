@@ -823,6 +823,13 @@ view: yru {
       primary_key: yes
     }
 
+  dimension_group: date {
+    hidden: yes
+    label: "Calendar"
+    type:time
+    timeframes: [raw,date,month,year]
+  }
+
   dimension: max_date {
     hidden: yes
     type: date

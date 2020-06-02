@@ -25,6 +25,9 @@ view: date_user_type_count {
       UNION ALL
       SELECT date, 'Full Access CU Users, no provisions' AS user_type, paid_cu_users AS user_count
       FROM ${daily_paid_users.SQL_TABLE_NAME}
+
+      --SELECT date,
+      --FROM ${kpi_user_counts.SQL_TABLE_NAME}
       ;;
 
      datagroup_trigger: daily_refresh
