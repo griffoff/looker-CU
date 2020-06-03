@@ -199,7 +199,30 @@ view: kpi_user_counts {
         ;;
 
 # guid date active
-        sql_step:
+
+# update everything with a match
+# then insert 'other' records where there wasnt a match
+      sql_step:
+      SET max_date = (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_active_user_guid IS NOT NULL)
+      ;;
+
+# update
+      sql_step:
+      UPDATE LOOKER_SCRATCH.kpi_user_counts k
+          SET
+              k.all_active_user_guid = c.user_sso_guid
+              ,k.all_paid_active_user_guid = CASE WHEN k.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
+          FROM (
+              SELECT *
+              FROM LOOKER_SCRATCH.GUID_DATE_ACTIVE g
+              WHERE g.date < current_date() and g.date > $max_date
+              ) c
+          WHERE k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
+        ;;
+
+#         insert
+#         must still be a merge because platform may be 'other' in kpi_user_counts but not in guid_date_active until after the aggregation in kpi cte
+         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING (
           WITH kpi AS (
             SELECT
@@ -216,30 +239,42 @@ view: kpi_user_counts {
               ,MAX(all_full_access_cu_guid) as all_full_access_cu_guid
               ,MAX(all_trial_access_cu_guid) as all_trial_access_cu_guid
             FROM LOOKER_SCRATCH.kpi_user_counts
-            WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_active_user_guid IS NOT NULL)
+            WHERE date < current_date() and date > $max_date
+              AND all_active_user_guid iS NULL
             GROUP BY
-            date
-            ,user_sso_guid
-            ,region
-            ,organization
-            ,user_type
+              date
+              ,user_sso_guid
+              ,region
+              ,organization
+              ,user_type
           )
-          SELECT g.*
-            ,userbase_digital_user_guid
-            ,userbase_paid_user_guid
-            ,userbase_full_access_cu_only_guid
-            ,userbase_trial_access_cu_only_guid
-            ,all_instructors_active_course_guid
-            ,all_full_access_cu_guid
-            ,all_trial_access_cu_guid
-          FROM prod.LOOKER_SCRATCH.guid_date_active g
+          SELECT DISTINCT g.date
+            , g.user_sso_guid
+            , g.region
+            , g.ORGANIZATION
+            , 'Other' as platform
+            , g.user_type
+            , kpi.userbase_digital_user_guid
+            , kpi.userbase_paid_user_guid
+            , kpi.userbase_full_access_cu_only_guid
+            , kpi.userbase_trial_access_cu_only_guid
+            , kpi.all_instructors_active_course_guid
+            , kpi.all_full_access_cu_guid
+            , kpi.all_trial_access_cu_guid
+          FROM LOOKER_SCRATCH.GUID_DATE_ACTIVE g
+          LEFT JOIN LOOKER_SCRATCH.kpi_user_counts k ON g.date = k.date
+            AND g.USER_SSO_GUID = k.USER_SSO_GUID
+            AND g.region = k.region
+            AND g.ORGANIZATION = k.ORGANIZATION
+            AND g.user_type = k.user_type
           LEFT JOIN kpi ON g.date = kpi.date
-            AND g.USER_SSO_GUID = kpi.USER_SSO_GUID
-            AND g.region =  kpi.region
+          AND g.USER_SSO_GUID = kpi.USER_SSO_GUID
+            AND g.region = kpi.region
             AND g.ORGANIZATION = kpi.ORGANIZATION
             AND g.user_type = kpi.user_type
-          WHERE g.date < current_date() and g.date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_active_user_guid IS NOT NULL)
-
+            WHERE g.date < current_date()
+            AND g.date > $max_date
+            AND k.ALL_ACTIVE_USER_GUID IS NULL
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
@@ -247,8 +282,8 @@ view: kpi_user_counts {
             k.all_active_user_guid = c.user_sso_guid
             ,k.all_paid_active_user_guid = CASE WHEN c.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
-          (
-           date
+        (
+          date
           ,user_sso_guid
           ,region
           ,organization
@@ -263,14 +298,14 @@ view: kpi_user_counts {
           ,all_trial_access_cu_guid
           ,all_active_user_guid
           ,all_paid_active_user_guid
-          )
-          VALUES
-          (
+        )
+        VALUES
+        (
           c.date
           ,c.user_sso_guid
           ,c.region
           ,c.organization
-          ,'Other'
+          ,c.platform
           ,c.user_type
           ,c.userbase_digital_user_guid
           ,c.userbase_paid_user_guid
@@ -281,8 +316,8 @@ view: kpi_user_counts {
           ,c.all_trial_access_cu_guid
           ,c.user_sso_guid
           ,CASE WHEN c.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
-          )
-        ;;
+        )
+         ;;
 
         sql_step:
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}

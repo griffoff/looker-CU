@@ -682,7 +682,8 @@ explore: adoption_usage_analysis {
 
      join: kpi_user_counts {
       view_label: "User Counts"
-      sql_on: ${kpi_user_stats.date_raw} = ${kpi_user_counts.date_raw}
+      sql_on:  ${kpi_user_stats.date_raw} = ${kpi_user_counts.date_raw}
+          AND ${kpi_user_stats.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
           AND ${kpi_user_stats.platform} = ${kpi_user_counts.platform}
           AND ${kpi_user_stats.organization} = ${kpi_user_counts.organization}
           AND ${kpi_user_stats.region} = ${kpi_user_counts.region}
@@ -698,15 +699,15 @@ explore: adoption_usage_analysis {
       from: kpi_user_counts
       view_label: "User Counts - Prior Year"
       sql_on: DATEADD(year, -1, ${kpi_user_stats.date_raw}) = ${kpi_user_counts_ly.date_raw}
+          AND ${kpi_user_stats.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
           AND ${kpi_user_stats.platform} = ${kpi_user_counts_ly.platform}
           AND ${kpi_user_stats.organization} = ${kpi_user_counts_ly.organization}
           AND ${kpi_user_stats.region} = ${kpi_user_counts_ly.region}
           AND ${kpi_user_stats.user_type} = ${kpi_user_counts_ly.user_type}
-          AND ${kpi_user_counts.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
       ;;
-      sql_where: DATEADD(year, -1, ${kpi_user_stats.date_raw}) = ${kpi_user_counts_ly.date_raw} ;;
+#       sql_where: (DATEADD(year, -1, ${kpi_user_stats.date_raw}) = ${kpi_user_counts_ly.date_raw} OR ${kpi_user_counts_ly.date_raw} IS NULL);;
       relationship: one_to_many
-      type: full_outer
+      type: left_outer
 
     }
 
