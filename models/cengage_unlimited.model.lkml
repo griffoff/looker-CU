@@ -678,42 +678,48 @@ explore: adoption_usage_analysis {
 
 
   explore: kpi_user_stats {
-    from: kpi_user_counts_filter_combinations
+    from: dim_date
+    view_label: "Date"
+    fields: [ALL_FIELDS*
+      ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
+      ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
+
+    join: combinations {
+      view_label: "User Counts"
+      from: kpi_user_counts_filter_combinations
+      type: cross
+      relationship: many_to_one
+    }
 
      join: kpi_user_counts {
       view_label: "User Counts"
-      sql_on:  ${kpi_user_stats.date_raw} = ${kpi_user_counts.date_raw}
-          AND ${kpi_user_stats.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
-          AND ${kpi_user_stats.platform} = ${kpi_user_counts.platform}
-          AND ${kpi_user_stats.organization} = ${kpi_user_counts.organization}
-          AND ${kpi_user_stats.region} = ${kpi_user_counts.region}
-          AND ${kpi_user_stats.user_type} = ${kpi_user_counts.user_type}
+      sql_on: ${kpi_user_stats.datevalue_raw} = ${kpi_user_counts.date_raw}
+          AND ${kpi_user_counts.user_sso_guid} = ${combinations.user_sso_guid}
+          AND ${kpi_user_counts.platform} = ${combinations.platform}
+          AND ${kpi_user_counts.organization} = ${combinations.organization}
+          AND ${kpi_user_counts.region} = ${combinations.region}
+          AND ${kpi_user_counts.user_type} = ${combinations.user_type}
       ;;
-      relationship: one_to_many
-      type: left_outer
-
+      relationship: one_to_one
      }
 
     join: kpi_user_counts_ly {
-#       sql_table_name: (SELECT * FROM ${kpi_user_counts.SQL_TABLE_NAME} WHERE ;;
       from: kpi_user_counts
       view_label: "User Counts - Prior Year"
-      sql_on: DATEADD(year, -1, ${kpi_user_stats.date_raw}) = ${kpi_user_counts_ly.date_raw}
-          AND ${kpi_user_stats.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
-          AND ${kpi_user_stats.platform} = ${kpi_user_counts_ly.platform}
-          AND ${kpi_user_stats.organization} = ${kpi_user_counts_ly.organization}
-          AND ${kpi_user_stats.region} = ${kpi_user_counts_ly.region}
-          AND ${kpi_user_stats.user_type} = ${kpi_user_counts_ly.user_type}
+      sql_on: DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${kpi_user_counts_ly.date_raw}
+          AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
+          AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
+          AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
+          AND ${combinations.region} = ${kpi_user_counts_ly.region}
+          AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
       ;;
-#       sql_where: (DATEADD(year, -1, ${kpi_user_stats.date_raw}) = ${kpi_user_counts_ly.date_raw} OR ${kpi_user_counts_ly.date_raw} IS NULL);;
-      relationship: one_to_many
-      type: left_outer
+      relationship: one_to_one
 
     }
 
     join: yru {
       view_label: "User Counts"
-      sql_on: ${kpi_user_stats.date_raw} = ${yru.date_raw};;
+      sql_on: ${kpi_user_stats.datevalue_raw} = ${yru.date_raw};;
       relationship: many_to_one
       type: left_outer
     }
@@ -721,7 +727,7 @@ explore: adoption_usage_analysis {
     join: yru_ly {
       from: yru
       view_label: "User Counts - Prior Year"
-      sql_on: ${kpi_user_stats.date_raw} = ${yru_ly.date_raw};;
+      sql_on: ${kpi_user_stats.datevalue_raw} = ${yru_ly.date_raw};;
       relationship: many_to_one
       type: left_outer
     }
