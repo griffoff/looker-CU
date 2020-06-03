@@ -20,12 +20,24 @@ view: raw_subscription_event_sap {
             ,current_guid AS user_sso_guid
             ,r.event_time AS local_time
             ,CASE
-                WHEN subscription_plan_id ILIKE '%full%' THEN 'Full Access'
-                WHEN subscription_plan_id ILIKE '%trial%' THEN 'Trial Access'
-                WHEN subscription_plan_id ILIKE '%read%' THEN subscription_plan_id
-                WHEN subscription_plan_id ILIKE '%limited%' THEN 'Limited Access'
-                ELSE subscription_plan_id
+                WHEN subscription_plan_id = 'Trial' THEN 'Trial Access'
+                WHEN subscription_plan_id ILIKE 'cu-trial%' THEN 'CU Trial Access'
+                WHEN subscription_plan_id ILIKE 'cu-etextBook-restricted%' THEN 'CU eTextbook Restricted Access'
+                WHEN subscription_plan_id ILIKE 'cu-etextbook-trial%' THEN 'CU eTextbook Trial Access'
+                WHEN subscription_plan_id ILIKE 'cu-etextbook-%' THEN 'CU eTextbook Access'
+                WHEN subscription_plan_id ILIKE 'read-only%' THEN subscription_plan_id
+                WHEN subscription_plan_id ILIKE 'cu%-restricted%' THEN 'CU Restricted Access'
+                WHEN subscription_plan_id ILIKE 'full-access%' THEN 'Full Access'
+                WHEN subscription_plan_id ILIKE 'limited-access%' THEN 'Limited Access'
+                ELSE 'Other'
              END AS subscription_plan
+            --,CASE
+            --    WHEN subscription_plan_id ILIKE '%full%' THEN 'Full Access'
+            --    WHEN subscription_plan_id ILIKE '%trial%' THEN 'Trial Access'
+            --    WHEN subscription_plan_id ILIKE '%read%' THEN subscription_plan_id
+            --    WHEN subscription_plan_id ILIKE '%limited%' THEN 'Limited Access'
+            --    ELSE subscription_plan_id
+            -- END AS subscription_plan
              ,r.*
           FROM subscription.prod.sap_subscription_event r
           LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
