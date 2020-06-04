@@ -679,6 +679,7 @@ explore: adoption_usage_analysis {
 
   explore: kpi_user_stats {
     from: dim_date
+
     view_label: "Date"
     fields: [ALL_FIELDS*
       ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
@@ -694,11 +695,11 @@ explore: adoption_usage_analysis {
      join: kpi_user_counts {
       view_label: "User Counts"
       sql_on: ${kpi_user_stats.datevalue_raw} = ${kpi_user_counts.date_raw}
-          AND ${kpi_user_counts.user_sso_guid} = ${combinations.user_sso_guid}
-          AND ${kpi_user_counts.platform} = ${combinations.platform}
-          AND ${kpi_user_counts.organization} = ${combinations.organization}
-          AND ${kpi_user_counts.region} = ${combinations.region}
-          AND ${kpi_user_counts.user_type} = ${combinations.user_type}
+          AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
+          AND ${combinations.platform} = ${kpi_user_counts.platform}
+          AND ${combinations.organization} = ${kpi_user_counts.organization}
+          AND ${combinations.region} = ${kpi_user_counts.region}
+          AND ${combinations.user_type} = ${kpi_user_counts.user_type}
       ;;
       relationship: one_to_one
      }
