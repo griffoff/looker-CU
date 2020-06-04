@@ -19,10 +19,10 @@ view: above_the_course_usage_buckets {
         field: all_events.event_subscription_state
         value: "Full Access"
       }
-      filters: {
-        field: dim_institution.HED_filter
-        value: "Yes"
-      }
+      # filters: {
+      #   field: dim_institution.HED_filter
+      #   value: "Yes"
+      # }
     }
   }
 
