@@ -685,7 +685,7 @@ explore: adoption_usage_analysis {
       ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
 
     join: combinations {
-      view_label: "User Counts"
+      view_label: "Filters"
       from: kpi_user_counts_filter_combinations
       type: cross
       relationship: many_to_one

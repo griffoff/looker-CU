@@ -1,4 +1,4 @@
-explore: kpi_user_counts {}
+explore: kpi_user_counts {hidden:yes}
 view: kpi_user_counts {
 
   derived_table: {
@@ -319,6 +319,15 @@ view: kpi_user_counts {
         )
          ;;
 
+      sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts CLUSTER BY (date);;
+
+      sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts RECLUSTER;;
+
+      sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts RECLUSTER;;
+
         sql_step:
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
         CLONE LOOKER_SCRATCH.kpi_user_counts
@@ -334,6 +343,7 @@ dimension_group: date {
   label: "Calendar"
   type:time
   timeframes: [raw,date,week,month,year]
+  hidden: yes
 }
 
 dimension: region {}
@@ -366,5 +376,11 @@ measure: all_paid_active_user_guid {
 #   sql: CASE WHEN ${TABLE}.userbase_paid_user_guid IS NOT NULL AND ${TABLE}.all_active_user_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
   label: "# Total Paid Active Users"
 }
+
+  measure: all_active_instructor_with_active_course_guid {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.all_instructors_active_course_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
+    label: "# Total Active Instructors (Active Course)"
+  }
 
 }

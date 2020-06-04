@@ -1,4 +1,4 @@
-explore: kpi_user_counts_filter_combinations {hidden:no}
+explore: kpi_user_counts_filter_combinations {hidden:yes}
 view: kpi_user_counts_filter_combinations {
   view_label: "Filters"
 
@@ -42,8 +42,12 @@ view: kpi_user_counts_filter_combinations {
 
   }
 
-  dimension: user_sso_guid {}
-  dimension: region {}
+  dimension: user_sso_guid {hidden:yes}
+  dimension: region {hidden:yes}
+  dimension: region_clean {
+    label: "Region"
+    sql: CASE WHEN ${region} = 'USA' THEN 'US' ELSE 'Non-US' END ;;
+  }
   dimension: organization {}
   dimension: platform {}
   dimension: user_type {}
