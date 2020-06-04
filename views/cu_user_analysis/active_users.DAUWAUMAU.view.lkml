@@ -838,7 +838,7 @@ view: yru {
 
   measure: yru {
     group_label: "Registered Users"
-    label: "YRU"
+    label: "# Total YRU"
     description: "Users with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${TABLE}.users) ;;
@@ -847,7 +847,7 @@ view: yru {
 
   measure: yru_instructors {
     group_label: "Registered Users"
-    label: "YRU Instructors"
+    label: "# YRU Instructors"
     description: "Instructors with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${TABLE}.instructors) ;;
@@ -856,7 +856,7 @@ view: yru {
 
   measure: yru_students {
     group_label: "Registered Users"
-    label: "YRU Students"
+    label: "# YRU Students"
     description: "Students with an event or change to their user profile in the last 365 days, relative to the filtered date (average if not reported on a single day)"
     type: number
     sql: AVG(${TABLE}.students) ;;

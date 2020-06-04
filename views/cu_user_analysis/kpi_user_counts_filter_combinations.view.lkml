@@ -44,13 +44,32 @@ view: kpi_user_counts_filter_combinations {
 
   dimension: user_sso_guid {hidden:yes}
   dimension: region {hidden:yes}
+  dimension: organization {}
+  dimension: platform {hidden: yes}
+  dimension: user_type {}
+
   dimension: region_clean {
     label: "Region"
     sql: CASE WHEN ${region} = 'USA' THEN 'US' ELSE 'Non-US' END ;;
   }
-  dimension: organization {}
-  dimension: platform {}
-  dimension: user_type {}
+  dimension: platform_clean {
+    label: "Platform"
+    sql: CASE WHEN ${platform} IN ('CU Subscription','Cengage Unlimited') THEN 'Cengage Unlimited'
+              WHEN ${platform} = 'MindTap Reader' THEN 'MindTap Reader'
+              WHEN ${platform} ILIKE '%MindTap%' THEN 'MindTap'
+              WHEN ${platform} ILIKE '%webassign%' THEN 'WebAssign'
+              WHEN ${platform} ILIKE '%ebook%' THEN 'Other eBook'
+              WHEN ${platform} ILIKE '%cnow%' THEN 'CNOW'
+              WHEN ${platform} ILIKE '%aplia%' THEN 'Aplia'
+              WHEN ${platform} ILIKE '%owl%' THEN 'OWL'
+              WHEN ${platform} ILIKE 'sam' THEN 'SAM'
+              WHEN ${platform} ILIKE '%coursemate%' THEN 'CourseMate'
+              WHEN ${platform} ILIKE '%4ltr%' THEN '4LTR'
+              WHEN ${platform} ILIKE '%national geographic%' THEN 'National Geographic'
+              ELSE 'Other'
+          END
+    ;;
+  }
 
 
 
