@@ -584,9 +584,13 @@ view: all_events {
     sql: ${TABLE}."EVENT_ACTION" ;;
     label: "Event action"
     description:
-    "Action (verb) taken or performed by user or internal system
-    (Action labels are not necessarily consistent from platform to platform)"
+    "DEFINITION: Action (verb) taken or performed by user or internal system.
+    CAVEAT(S): Action labels are not necessarily consistent from platform to platform.
+    SOURCE: CAFe, GTM, OLR, etc. See 'product platform' dimension for details.
+    RAW/DERIVED: Raw
+    "
     hidden: no
+
   }
 
   dimension: event_name {
@@ -953,6 +957,14 @@ dimension: load_metadata_source {
     type: number
     sql: ${event_duration_total} / ${user_week_count};;
     value_format: "[m] \m\i\n\s"
+
+    description:
+    "DEFINITION: The average amount of time a student is active per week.
+    CAVEAT(S): Some events are excluded, e.g. event_action = 'STOP'. Event durations are approximate.
+    SOURCE: Looker calculation
+    RAW/DERIVED: Derived
+    "
+
   }
 
   measure: average_time_spent_per_student_per_month {
