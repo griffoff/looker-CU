@@ -1,3 +1,4 @@
+#fields hidden 2020-06-08
 view: strategy_ecom_sales_orders {
   view_label: "User Revenue"
   derived_table: {
@@ -33,7 +34,7 @@ view: strategy_ecom_sales_orders {
   description: "Year for invoice date from strategies upload higher ed sales orders e-comm"
   type:time
   timeframes: [year, raw]
-    hidden: no
+    hidden: yes
   }
 
   dimension: isbn_13 {
@@ -41,6 +42,7 @@ view: strategy_ecom_sales_orders {
   }
 
   measure:  revenue {
+    hidden: yes
     label: "Total Revenue"
     description: "EXTENDED_AMT_USD"
     type: sum
@@ -49,6 +51,7 @@ view: strategy_ecom_sales_orders {
   }
 
   measure:  revenue_td {
+    hidden: yes
     label: "Total Revenue (To date by year)"
     required_fields: [invoice_dt_year]
     description: "EXTENDED_AMT_USD"
@@ -58,6 +61,7 @@ view: strategy_ecom_sales_orders {
   }
 
   measure: user_count {
+    hidden: yes
     description: "Number of users from strategies upload higher ed sales orders e-comm"
     label: "# Users"
     type: count_distinct
@@ -68,6 +72,7 @@ view: strategy_ecom_sales_orders {
 
 
   measure: arpu {
+    hidden: yes
     description: "Average Revenue Per User from strategies upload higher ed sales orders e-comm"
     alias: [ARPU]
     type: number

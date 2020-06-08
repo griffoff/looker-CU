@@ -3,6 +3,7 @@ view: all_sessions {
   view_label: "Sessions"
 
   dimension: session_id {
+    hidden:  yes
     type: number
     sql: ${TABLE}."SESSION_ID" ;;
     primary_key: yes
@@ -11,10 +12,11 @@ view: all_sessions {
   }
 
   dimension: age_in_days {
+    hidden: yes
     type: number
     sql: ${TABLE}."AGE_IN_DAYS" ;;
     label: "Session age in days"
-    description: "Number of days since the first login and this session occurred"
+    description: "Number of days since the first login in this session occurred"
   }
 
 
@@ -41,7 +43,7 @@ view: all_sessions {
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[0], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 1"
     description: "IP address from the first event in this session per Google Analytics was internal/external"
-    hidden: no
+    hidden: yes
   }
 
   dimension: ip2 {
@@ -50,7 +52,7 @@ view: all_sessions {
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[1], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 2"
     description: "IP address from the first event in this session per Google Analytics was internal/external"
-    hidden: no
+    hidden: yes
   }
 
   dimension: ip3 {
@@ -59,7 +61,7 @@ view: all_sessions {
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[2], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 3"
     description: "IP address from the first event in this session per Google Analytics was internal/external"
-    hidden: no
+    hidden: yes
   }
 
   dimension: ip4 {
@@ -68,10 +70,11 @@ view: all_sessions {
     sql: CASE WHEN SPLIT_PART(${TABLE}."IPS"[3], '.', 1) IN ('10', '172', '192', '127') THEN 'internal' ELSE 'external' END  ;;
     label: "IP address internal 4"
     description: "IP address from the first event in this session per Google Analytics was internal/external"
-    hidden: no
+    hidden: yes
   }
 
   dimension: number_of_courseware_events {
+    #potential hide for clean up
     type: number
     group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_COURSEWARE_EVENTS" ;;
@@ -80,6 +83,7 @@ view: all_sessions {
   }
 
   dimension: number_of_dashboard_clicks {
+    #potential hide for clean up
     type: number
     group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_DASHBOARD_CLICKS" ;;
@@ -88,6 +92,7 @@ view: all_sessions {
   }
 
   dimension: number_of_ebook_events {
+    #potential hide for clean up
     type: number
     group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_EBOOK_EVENTS" ;;
@@ -96,6 +101,7 @@ view: all_sessions {
   }
 
   dimension: number_of_partner_clicks {
+    #potential hide for clean up
     type: number
     group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_PARTNER_CLICKS" ;;
@@ -104,6 +110,7 @@ view: all_sessions {
   }
 
   dimension: number_of_searches {
+    #potential hide for clean up
     type: number
     group_label: "Event Counts"
     sql: ${TABLE}."NUMBER_OF_SEARCHES" ;;
@@ -112,7 +119,7 @@ view: all_sessions {
   }
 
   dimension: session_length_mins {
-    group_label: "Session Info"
+    group_label: "Session Length"
     type: number
     sql: ${TABLE}."SESSION_LENGTH_MINS" ;;
     label: "Session length (minutes)"
@@ -121,7 +128,7 @@ view: all_sessions {
   }
 
   dimension: session_length_mins_tier {
-    group_label: "Session Info"
+    group_label: "Session Length"
     type: tier
     tiers: [ 30, 60, 120, 180, 240]
     style: integer
@@ -132,7 +139,7 @@ view: all_sessions {
   }
 
   dimension: session_length_tier {
-    group_label: "Session Info"
+    group_label: "Session Length"
     type: tier
     tiers: [ 0.0208333333, 0.04166666666, 0.08333333333, 0.125, 0.16666666666, 0.20833333333, 0.25]
     style: relational
@@ -143,7 +150,7 @@ view: all_sessions {
   }
 
   dimension: session_length {
-    group_label: "Session Info"
+    group_label: "Session Length"
     type: number
     sql: ${TABLE}."SESSION_LENGTH_MINS" / 60 / 24 ;;
     label: "Session length"
@@ -169,6 +176,7 @@ view: all_sessions {
   }
 
   measure:  average_courseware_events{
+    #potential hide for clean up
     group_label: "Event Counts"
     type: average
     sql:  ${number_of_courseware_events};;
@@ -177,6 +185,7 @@ view: all_sessions {
   }
 
   measure:  average_dashboard_clicks {
+    #potential hide for clean up
     group_label: "Event Counts"
     type: average
     sql:  ${number_of_dashboard_clicks};;
@@ -185,6 +194,7 @@ view: all_sessions {
   }
 
   measure:  average_ebook_events{
+    #potential hide for clean up
     group_label: "Event Counts"
     type: average
     sql:  ${number_of_ebook_events};;
@@ -193,6 +203,7 @@ view: all_sessions {
   }
 
   measure:  average_partner_clicks{
+    #potential hide for clean up
     group_label: "Event Counts"
     type: average
     sql:  ${number_of_partner_clicks};;
@@ -201,6 +212,7 @@ view: all_sessions {
   }
 
   measure:  average_searches{
+    #potential hide for clean up
     group_label: "Event Counts"
     type: average
     sql:  ${number_of_searches};;

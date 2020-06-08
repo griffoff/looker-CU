@@ -44,7 +44,7 @@ view: kpi_user_counts_filter_combinations {
 
   dimension: user_sso_guid {hidden:yes}
   dimension: region {hidden:yes}
-  dimension: organization {}
+  dimension: organization {label:"Market Segment"}
   dimension: platform {hidden: yes}
   dimension: user_type {}
 
