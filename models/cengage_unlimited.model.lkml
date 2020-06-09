@@ -674,66 +674,66 @@ explore: adoption_usage_analysis {
     ;;
     relationship: one_to_many
   }
+}
+
+explore: kpi_user_stats {
+  from: dim_date
+
+  view_label: "Date"
+  fields: [ALL_FIELDS*
+    ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
+    ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
+
+  join: combinations {
+    view_label: "Filters"
+    from: kpi_user_counts_filter_combinations_agg
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${combinations.date}
+        OR DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${combinations.date}
+        ;;
+    type: inner
+    relationship: one_to_many
   }
 
+   join: kpi_user_counts {
+    from: kpi_user_counts_agg
+    view_label: "User Counts"
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${kpi_user_counts.date_raw}
+        AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
+        AND ${combinations.platform} = ${kpi_user_counts.platform}
+        AND ${combinations.organization} = ${kpi_user_counts.organization}
+        AND ${combinations.region} = ${kpi_user_counts.region}
+        AND ${combinations.user_type} = ${kpi_user_counts.user_type}
+    ;;
+    relationship: one_to_many
+   }
 
-  explore: kpi_user_stats {
-    from: dim_date
-
-    view_label: "Date"
-    fields: [ALL_FIELDS*
-      ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
-      ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
-
-    join: combinations {
-      view_label: "Filters"
-      from: kpi_user_counts_filter_combinations
-      type: cross
-      relationship: many_to_one
-    }
-
-     join: kpi_user_counts {
-      view_label: "User Counts"
-      sql_on: ${kpi_user_stats.datevalue_raw} = ${kpi_user_counts.date_raw}
-          AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
-          AND ${combinations.platform} = ${kpi_user_counts.platform}
-          AND ${combinations.organization} = ${kpi_user_counts.organization}
-          AND ${combinations.region} = ${kpi_user_counts.region}
-          AND ${combinations.user_type} = ${kpi_user_counts.user_type}
-      ;;
-      relationship: one_to_one
-     }
-
-    join: kpi_user_counts_ly {
-      from: kpi_user_counts
-      view_label: "User Counts - Prior Year"
-      sql_on: DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${kpi_user_counts_ly.date_raw}
-          AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
-          AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
-          AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
-          AND ${combinations.region} = ${kpi_user_counts_ly.region}
-          AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
-      ;;
-      relationship: one_to_one
-
-    }
-
-    join: yru {
-      view_label: "User Counts"
-      sql_on: ${kpi_user_stats.datevalue_raw} = ${yru.date_raw};;
-      relationship: many_to_one
-      type: left_outer
-    }
-
-    join: yru_ly {
-      from: yru
-      view_label: "User Counts - Prior Year"
-      sql_on: ${kpi_user_stats.datevalue_raw} = ${yru_ly.date_raw};;
-      relationship: many_to_one
-      type: left_outer
-    }
-
-
-
+  join: kpi_user_counts_ly {
+    from: kpi_user_counts_agg
+    view_label: "User Counts - Prior Year"
+    sql_on: DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${kpi_user_counts_ly.date_raw}
+        AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
+        AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
+        AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
+        AND ${combinations.region} = ${kpi_user_counts_ly.region}
+        AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
+    ;;
+    relationship: one_to_many
 
   }
+
+  join: yru {
+    view_label: "User Counts"
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${yru.date_raw};;
+    relationship: many_to_one
+    type: left_outer
+  }
+
+  join: yru_ly {
+    from: yru
+    view_label: "User Counts - Prior Year"
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${yru_ly.date_raw};;
+    relationship: many_to_one
+    type: left_outer
+  }
+
+}

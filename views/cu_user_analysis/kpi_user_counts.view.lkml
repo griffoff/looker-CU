@@ -1,4 +1,17 @@
-explore: kpi_user_counts {hidden:yes}
+view: kpi_user_counts_agg {
+  extends: [kpi_user_counts]
+  #hidden:yes
+  sql_table_name:
+    {% if kpi_user_stats.datevalue_week._in_query %}
+    LOOKER_SCRATCH.kpi_user_counts_weekly
+    {% elsif kpi_user_stats.datevalue_month._in_query %}
+    LOOKER_SCRATCH.kpi_user_counts_monthly
+    {% else %}
+    ${kpi_user_counts.SQL_TABLE_NAME}
+    {% endif %}
+    ;;
+}
+
 view: kpi_user_counts {
 
   derived_table: {
@@ -326,13 +339,81 @@ view: kpi_user_counts {
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts RECLUSTER;;
 
       sql_step:
-        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts RECLUSTER;;
-
-        sql_step:
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
         CLONE LOOKER_SCRATCH.kpi_user_counts
         ;;
 
+      sql_step:
+        CREATE OR REPLACE TABLE looker_scratch.kpi_user_counts_monthly
+        AS
+        SELECT
+          DATE_TRUNC(MONTH, DATE) AS DATE
+          ,USER_SSO_GUID
+          ,REGION
+          ,ORGANIZATION
+          ,PLATFORM
+          ,USER_TYPE
+          ,MAX(USERBASE_DIGITAL_USER_GUID) AS USERBASE_DIGITAL_USER_GUID
+          ,MAX(USERBASE_PAID_USER_GUID) AS USERBASE_PAID_USER_GUID
+          ,MAX(USERBASE_PAID_COURSEWARE_GUID) AS USERBASE_PAID_COURSEWARE_GUID
+          ,MAX(USERBASE_PAID_EBOOK_ONLY_GUID) AS USERBASE_PAID_EBOOK_ONLY_GUID
+          ,MAX(USERBASE_FULL_ACCESS_CU_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ONLY_GUID
+          ,MAX(USERBASE_TRIAL_ACCESS_CU_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ONLY_GUID
+          ,MAX(ALL_INSTRUCTORS_ACTIVE_COURSE_GUID) AS ALL_INSTRUCTORS_ACTIVE_COURSE_GUID
+          ,MAX(ALL_COURSEWARE_GUID) AS ALL_COURSEWARE_GUID
+          ,MAX(ALL_EBOOK_GUID) AS ALL_EBOOK_GUID
+          ,MAX(ALL_PAID_EBOOK_GUID) AS ALL_PAID_EBOOK_GUID
+          ,MAX(ALL_FULL_ACCESS_CU_GUID) AS ALL_FULL_ACCESS_CU_GUID
+          ,MAX(ALL_TRIAL_ACCESS_CU_GUID) AS ALL_TRIAL_ACCESS_CU_GUID
+          ,MAX(ALL_ACTIVE_USER_GUID) AS ALL_ACTIVE_USER_GUID
+          ,MAX(ALL_PAID_ACTIVE_USER_GUID) AS ALL_PAID_ACTIVE_USER_GUID
+          ,MAX(PAYMENT_CUI_GUID) AS PAYMENT_CUI_GUID
+          ,MAX(PAYMENT_IA_GUID) AS PAYMENT_IA_GUID
+          ,MAX(PAYMENT_DIRECT_PURCHASE_GUID) AS PAYMENT_DIRECT_PURCHASE_GUID
+        FROM looker_scratch.kpi_user_counts
+        GROUP BY 1, 2, 3, 4, 5, 6
+        ORDER BY 1
+        ;;
+
+      sql_step:
+        ALTER TABLE looker_scratch.kpi_user_counts_monthly CLUSTER BY (date)
+        ;;
+
+      sql_step:
+        CREATE OR REPLACE TABLE looker_scratch.kpi_user_counts_weekly
+        AS
+        SELECT
+          DATE_TRUNC(WEEK, DATE) AS DATE
+          ,USER_SSO_GUID
+          ,REGION
+          ,ORGANIZATION
+          ,PLATFORM
+          ,USER_TYPE
+          ,MAX(USERBASE_DIGITAL_USER_GUID) AS USERBASE_DIGITAL_USER_GUID
+          ,MAX(USERBASE_PAID_USER_GUID) AS USERBASE_PAID_USER_GUID
+          ,MAX(USERBASE_PAID_COURSEWARE_GUID) AS USERBASE_PAID_COURSEWARE_GUID
+          ,MAX(USERBASE_PAID_EBOOK_ONLY_GUID) AS USERBASE_PAID_EBOOK_ONLY_GUID
+          ,MAX(USERBASE_FULL_ACCESS_CU_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ONLY_GUID
+          ,MAX(USERBASE_TRIAL_ACCESS_CU_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ONLY_GUID
+          ,MAX(ALL_INSTRUCTORS_ACTIVE_COURSE_GUID) AS ALL_INSTRUCTORS_ACTIVE_COURSE_GUID
+          ,MAX(ALL_COURSEWARE_GUID) AS ALL_COURSEWARE_GUID
+          ,MAX(ALL_EBOOK_GUID) AS ALL_EBOOK_GUID
+          ,MAX(ALL_PAID_EBOOK_GUID) AS ALL_PAID_EBOOK_GUID
+          ,MAX(ALL_FULL_ACCESS_CU_GUID) AS ALL_FULL_ACCESS_CU_GUID
+          ,MAX(ALL_TRIAL_ACCESS_CU_GUID) AS ALL_TRIAL_ACCESS_CU_GUID
+          ,MAX(ALL_ACTIVE_USER_GUID) AS ALL_ACTIVE_USER_GUID
+          ,MAX(ALL_PAID_ACTIVE_USER_GUID) AS ALL_PAID_ACTIVE_USER_GUID
+          ,MAX(PAYMENT_CUI_GUID) AS PAYMENT_CUI_GUID
+          ,MAX(PAYMENT_IA_GUID) AS PAYMENT_IA_GUID
+          ,MAX(PAYMENT_DIRECT_PURCHASE_GUID) AS PAYMENT_DIRECT_PURCHASE_GUID
+        FROM looker_scratch.kpi_user_counts
+        GROUP BY 1, 2, 3, 4, 5, 6
+        ORDER BY 1
+        ;;
+
+      sql_step:
+        ALTER TABLE looker_scratch.kpi_user_counts_weekly CLUSTER BY (date)
+        ;;
 
       }
 

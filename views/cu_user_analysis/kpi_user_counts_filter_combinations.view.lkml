@@ -1,4 +1,19 @@
 explore: kpi_user_counts_filter_combinations {hidden:yes}
+
+view: kpi_user_counts_filter_combinations_agg {
+  extends: [kpi_user_counts_filter_combinations]
+  sql_table_name:
+  {% if kpi_user_stats.datevalue_week._in_query %}
+  LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly
+  {% elsif kpi_user_stats.datevalue_month._in_query %}
+  LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly
+  {% else %}
+  ${kpi_user_counts_filter_combinations.SQL_TABLE_NAME}
+  {% endif %}
+  ;;
+
+}
+
 view: kpi_user_counts_filter_combinations {
   view_label: "Filters"
 
@@ -7,7 +22,8 @@ view: kpi_user_counts_filter_combinations {
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.kpi_user_counts_filter_combinations
         (
-          user_sso_guid STRING NOT NULL
+          date DATE NOT NULL
+          ,user_sso_guid STRING NOT NULL
           ,region STRING NOT NULL
           ,organization STRING NOT NULL
           ,platform STRING NOT NULL
@@ -17,18 +33,18 @@ view: kpi_user_counts_filter_combinations {
 
       sql_step:
         INSERT INTO LOOKER_SCRATCH.kpi_user_counts_filter_combinations
-        SELECT DISTINCT user_sso_guid, region, organization, platform, user_type
+        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
         FROM looker_scratch.kpi_user_counts
         EXCEPT
         (
-        SELECT user_sso_guid, region, organization, platform, user_type
+        SELECT date, user_sso_guid, region, organization, platform, user_type
         FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations
         )
         ORDER BY user_sso_guid
         ;;
 
       sql_step:
-        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations CLUSTER BY (user_sso_guid);;
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations CLUSTER BY (date);;
 
       sql_step:
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations RECLUSTER;;
@@ -37,16 +53,39 @@ view: kpi_user_counts_filter_combinations {
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
       CLONE LOOKER_SCRATCH.kpi_user_counts_filter_combinations
       ;;
+
+      sql_step:
+        CREATE OR REPLACE TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly
+        AS
+        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
+        FROM LOOKER_SCRATCH.kpi_user_counts_weekly
+        ORDER BY 1;;
+
+      sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly CLUSTER BY(date) ;;
+
+      sql_step:
+        CREATE OR REPLACE TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly
+        AS
+        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
+        FROM LOOKER_SCRATCH.kpi_user_counts_monthly
+        ORDER BY 1;;
+
+      sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly CLUSTER BY(date) ;;
+
+
     }
     datagroup_trigger: daily_refresh
 
   }
 
+  dimension: date {type:date_raw hidden:yes}
   dimension: user_sso_guid {hidden:yes}
-  dimension: region {hidden:yes}
+  dimension: region {hidden:no}
   dimension: organization {}
-  dimension: platform {hidden: yes}
-  dimension: user_type {}
+  dimension: platform {hidden: no}
+  dimension: user_type {hidden: yes}
 
   dimension: region_clean {
     label: "Region"
