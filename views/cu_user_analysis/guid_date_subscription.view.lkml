@@ -19,6 +19,7 @@ view: guid_date_subscription {
         )
         SELECT DISTINCT dim_date.datevalue as date
         , COALESCE(linked_guid,sub_users.user_guid) AS user_sso_guid
+        , subscription_type
         , CASE WHEN subscription_type ILIKE 'trial%' THEN 'Trial CU Subscription' ELSE 'Full Access CU Subscription' END AS content_type
         , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
         , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
@@ -57,6 +58,17 @@ view: guid_date_subscription {
       view_label: "Filters"
       type: string
     }
+
+  dimension: subscription_length {
+    sql: CASE WHEN ${TABLE}.subscription_type ILIKE '%365%' THEN '12 Months'
+              WHEN ${TABLE}.subscription_type ILIKE '%730%' THEN '24 Months'
+              WHEN ${TABLE}.subscription_type ILIKE '%180%' THEN '6 Months'
+              WHEN ${TABLE}.subscription_type ILIKE '%120%' THEN '4 Months'
+              WHEN ${TABLE}.subscription_type ILIKE '%trial%' THEN 'Trial'
+              ELSE 'Other'
+          END
+              ;;
+  }
 
   dimension: user_type {
     hidden: yes

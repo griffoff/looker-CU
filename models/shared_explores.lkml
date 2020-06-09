@@ -227,11 +227,11 @@ explore: learner_profile {
     relationship: one_to_one
   }
 
-  join: dim_date {
-    view_label: "Subscription Start Date"
-    sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
-    relationship: one_to_one
-  }
+#   join: dim_date {
+#     view_label: "Subscription Start Date"
+#     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
+#     relationship: one_to_one
+#   }
 
   join: strategy_ecom_sales_orders {
     sql_on: ${learner_profile.user_sso_guid} = ${strategy_ecom_sales_orders.user_sso_guid} ;;

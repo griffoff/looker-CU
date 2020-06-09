@@ -82,9 +82,9 @@ view: kpi_user_counts_filter_combinations {
 
   dimension: date {type:date_raw hidden:yes}
   dimension: user_sso_guid {hidden:yes}
-  dimension: region {hidden:no}
-  dimension: organization {}
-  dimension: platform {hidden: no}
+  dimension: region {hidden:yes}
+  dimension: organization {label:"Market Segment"}
+  dimension: platform {hidden: yes}
   dimension: user_type {hidden: yes}
 
   dimension: region_clean {
