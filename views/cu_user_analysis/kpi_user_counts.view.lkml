@@ -278,7 +278,7 @@ view: kpi_user_counts {
             , kpi.all_instructors_active_course_guid
             , kpi.all_full_access_cu_guid
             , kpi.all_trial_access_cu_guid
-          FROM LOOKER_SCRATCH.GUID_DATE_ACTIVE g
+          FROM ${guid_date_active.SQL_TABLE_NAME} g
           LEFT JOIN LOOKER_SCRATCH.kpi_user_counts k ON g.date = k.date
             AND g.USER_SSO_GUID = k.USER_SSO_GUID
             AND g.region = k.region
