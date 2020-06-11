@@ -115,14 +115,15 @@ explore: live_subscription_status {
     relationship: one_to_one
   }
 
-  join: user_institution_map {
-    fields: []
-    sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
-    relationship: many_to_one
-  }
+#   join: user_institution_map {
+#     fields: []
+#     sql_on: ${live_subscription_status.user_sso_guid} = ${user_institution_map.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+
   join: gateway_institution {
-    view_label: "Learner Profile"
-    sql_on: coalesce(${merged_cu_user_info.entity_id}::string, ${user_institution_map.entity_no}) = ${gateway_institution.entity_no};;
+    view_label: "Institution"
+    sql_on: ${dim_institution.entity_no}::STRING = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
 

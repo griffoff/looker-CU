@@ -57,6 +57,12 @@ explore: course_sections {
     relationship: many_to_one
   }
 
+  join: gateway_institution {
+    view_label: "Institution"
+    sql_on: ${dim_institution.entity_no}::string = ${gateway_institution.entity_no};;
+    relationship: many_to_one
+  }
+
   join: current_date {
     sql_on:  1=1 ;;
     relationship: one_to_one
