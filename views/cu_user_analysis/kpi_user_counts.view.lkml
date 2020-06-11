@@ -49,6 +49,10 @@ view: kpi_user_counts {
         )
       ;;
 
+      sql_step:
+      DELETE FROM LOOKER_SCRATCH.kpi_user_counts WHERE date > dateadd(d,-3, current_date())
+      ;;
+
 # guid date course
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
@@ -227,7 +231,7 @@ view: kpi_user_counts {
               ,k.all_paid_active_user_guid = CASE WHEN k.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
           FROM (
               SELECT *
-              FROM LOOKER_SCRATCH.GUID_DATE_ACTIVE g
+              FROM ${guid_date_active.SQL_TABLE_NAME} g
               WHERE g.date < current_date() and g.date > $max_date
               ) c
           WHERE k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform

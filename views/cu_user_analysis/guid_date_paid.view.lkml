@@ -16,6 +16,11 @@ view: guid_date_paid {
           ,paid_content_rank INT
         )
       ;;
+
+      sql_step:
+      DELETE FROM LOOKER_SCRATCH.guid_date_paid WHERE date > dateadd(d,-3, current_date())
+      ;;
+
         sql_step:
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.guid_date_paid_incremental
         AS

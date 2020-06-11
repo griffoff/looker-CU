@@ -312,6 +312,7 @@ view: all_events {
     sql: ${event_data}:activityId::string  ;;
     hidden: no
     description: "Event data"
+#     CGI need to map to source to get metadata such as activity title
   }
 
   dimension: tags_checkpointId {

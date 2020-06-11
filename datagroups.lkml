@@ -12,6 +12,7 @@ datagroup: subscription_event_merged {
 
 datagroup: daily_refresh {
   sql_trigger: SELECT CURRENT_DATE() ;;
+  max_cache_age: "16 hours"
 }
 
 datagroup: do_not_update {

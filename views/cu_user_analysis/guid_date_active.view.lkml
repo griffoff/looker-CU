@@ -16,6 +16,10 @@ view: guid_date_active {
       ;;
 
       sql_step:
+      DELETE FROM LOOKER_SCRATCH.guid_date_active WHERE date > dateadd(d,-3, current_date())
+      ;;
+
+      sql_step:
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.guid_date_active_incremental
         AS
         WITH dates AS (
