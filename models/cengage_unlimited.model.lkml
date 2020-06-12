@@ -683,6 +683,7 @@ explore: adoption_usage_analysis {
 }
 
 explore: kpi_user_stats {
+  persist_with: daily_refresh
   from: dim_date
 
   view_label: "Date"
