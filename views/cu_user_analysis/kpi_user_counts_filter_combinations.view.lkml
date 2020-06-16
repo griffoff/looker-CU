@@ -34,7 +34,7 @@ view: kpi_user_counts_filter_combinations {
       sql_step:
         INSERT INTO LOOKER_SCRATCH.kpi_user_counts_filter_combinations
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
-        FROM looker_scratch.kpi_user_counts
+        FROM ${kpi_user_counts.SQL_TABLE_NAME}
         EXCEPT
         (
         SELECT date, user_sso_guid, region, organization, platform, user_type

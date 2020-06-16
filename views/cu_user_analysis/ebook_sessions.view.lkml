@@ -5,15 +5,26 @@ view: ebook_sessions {
   dimension: ebook_session_id {}
   dimension: merged_guid {}
 
+  dimension: session_no {type:number}
+  dimension: session_no_reverse {type:number}
+  dimension: week_session_no {type:number}
+  dimension: week_session_no_reverse {type:number}
+
+
   dimension_group: session_start_time {
     label: "Session Start Time"
     type:time
     timeframes: [raw,date,week,month,year]
   }
 
-  dimension: session_end_time {}
+  dimension: session_end_time {type:date_time}
 
-  dimension: page_read_event_count  {}
+  dimension: page_read_count  {type:number}
+
+  dimension: page_read_count_mt  {type:number}
+  dimension: page_read_count_gt  {type:number}
+  dimension: page_read_count_vs  {type:number}
+
   dimension: session_duration_seconds {}
 
   dimension:  session_length_bucket_30 {
