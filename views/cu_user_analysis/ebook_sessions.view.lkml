@@ -12,12 +12,19 @@ view: ebook_sessions {
 
 
   dimension_group: session_start_time {
-    label: "Session Start Time"
+    group_label: "Session Start Date"
+    label: "Session Start"
     type:time
     timeframes: [raw,date,week,month,year]
   }
 
-  dimension: session_end_time {type:date_time}
+  dimension_group: session_end_time {
+    hidden:  yes
+    label: "Session End Time"
+    type:time
+    timeframes: [raw]
+  }
+
 
   dimension: page_read_count  {type:number}
 
@@ -27,6 +34,16 @@ view: ebook_sessions {
 
   dimension: session_duration_seconds {}
 
+  dimension_group: session_duration {
+    group_label: "Session Length"
+    label: "in Session"
+    type: duration
+    sql_start: ${session_start_time_raw};;
+    sql_end: ${session_end_time_raw};;
+    intervals: [second, minute, hour]
+  }
+
+
   dimension:  session_length_bucket_30 {
     sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
               WHEN session_duration_seconds < 600 THEN '(2) 5-10 min'
@@ -35,6 +52,8 @@ view: ebook_sessions {
               ELSE '(5) >30 min'
           END ;;
   }
+
+
 
   dimension:  session_length_bucket_75 {
     sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
@@ -58,6 +77,7 @@ view: ebook_sessions {
     label: "# Sessions"
     sql: ${ebook_session_id} ;;
     type:  count_distinct
+    value_format_name: decimal_0
   }
 
   }
