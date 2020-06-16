@@ -16,14 +16,25 @@ view: ebook_sessions {
   dimension: page_read_event_count  {}
   dimension: session_duration_seconds {}
 
-  dimension:  session_length_bucket {
+  dimension:  session_length_bucket_30 {
     sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
               WHEN session_duration_seconds < 600 THEN '(2) 5-10 min'
               WHEN session_duration_seconds < 1200 THEN '(3) 10-20 min'
               WHEN session_duration_seconds < 1800 THEN '(4) 20-30 min'
               ELSE '(5) >30 min'
           END ;;
+  }
 
+  dimension:  session_length_bucket_75 {
+    sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
+              WHEN session_duration_seconds < 600 THEN '(2) 5-10 min'
+              WHEN session_duration_seconds < 900 THEN '(3) 10-15 min'
+              WHEN session_duration_seconds < 1800 THEN '(4) 15-30 min'
+              WHEN session_duration_seconds < 2700 THEN '(5) 30-45 min'
+              WHEN session_duration_seconds < 3600 THEN '(6) 45-60 min'
+              WHEN session_duration_seconds < 4500 THEN '(7) 60-75 min'
+              ELSE '(8) >75 min'
+          END ;;
   }
 
   measure: merged_guid_count {
