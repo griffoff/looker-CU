@@ -9,6 +9,7 @@ explore: ebook_sessions {
 
 explore: ebook_sessions_only {
   from: ebook_sessions
+  hidden: yes
 }
 
 view: ebook_sessions_weekly {
@@ -150,15 +151,18 @@ view: ebook_sessions {
     type: sum
     sql: ${seconds_session_duration} / (60 * 60 * 24) ;;
     value_format: "[m] \m\i\n\s"
+    description: "Total of all session durations (Sessions defined as contiguous page read events for the same user where the time until the next event is less than 30 minutes)"
   }
 
   measure: total_pages_read {
+    label: "# Pages in session"
     type: sum
     sql: ${page_read_count} ;;
     value_format_name: decimal_0
   }
 
   measure: avg_page_read_time {
+    label: "Avg. time between pages in session"
     type: number
     sql: ${total_session_length} / ${total_pages_read} ;;
     value_format: "[m]:ss \m\i\n\s"
@@ -177,4 +181,4 @@ view: ebook_sessions {
     value_format_name: decimal_0
   }
 
-  }
+}
