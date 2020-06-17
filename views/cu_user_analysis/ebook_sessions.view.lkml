@@ -151,7 +151,15 @@ view: ebook_sessions {
     type: sum
     sql: ${seconds_session_duration} / (60 * 60 * 24) ;;
     value_format: "[m] \m\i\n\s"
-    description: "Total of all session durations (Sessions defined as contiguous page read events for the same user where the time until the next event is less than 30 minutes)"
+    description: "Total of all session durations"
+  }
+
+  measure: average_session_length {
+    label: "Average Session Length"
+    type: average
+    sql: ${seconds_session_duration} / (60 * 60 * 24) ;;
+    value_format: "[m] \m\i\n\s"
+    description: "Average session duration"
   }
 
   measure: total_pages_read {
