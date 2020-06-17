@@ -1,5 +1,96 @@
-explore: ebook_sessions {}
+explore: ebook_sessions {
+  join: ebook_sessions_weekly {
+    sql_on: ${ebook_sessions.merged_guid} = ${ebook_sessions_weekly.merged_guid}
+    and ${ebook_sessions.session_start_time_week} = ${ebook_sessions_weekly.session_start_time_week} ;;
+    type: inner
+    relationship: many_to_one
+  }
+}
+
+explore: ebook_sessions_only {
+  from: ebook_sessions
+}
+
+view: ebook_sessions_weekly {
+  label: "E-Book Sessions (Weekly)"
+  derived_table: {
+    explore_source: ebook_sessions_only {
+      column: total_session_length {}
+      column: session_duration_seconds{}
+      column: session_start_time_week {}
+      column: merged_guid {}
+      column: total_pages_read {}
+      column: avg_page_read_time {}
+      column: session_count {}
+    }
+
+    persist_for: "24 hours"
+  }
+
+  dimension: total_session_time {
+    value_format: "[m] \m\i\n\s"
+    type: number
+  }
+
+  dimension: session_duration_seconds {type:number hidden:yes}
+
+  dimension:  session_length_bucket_75 {
+    label: "Weekly Total Session Time (up to 75 minutes)"
+    sql: CASE WHEN ${session_duration_seconds} < 300 THEN '(1) 0-5 min'
+              WHEN ${session_duration_seconds} < 600 THEN '(2) 5-10 min'
+              WHEN ${session_duration_seconds} < 900 THEN '(3) 10-15 min'
+              WHEN ${session_duration_seconds} < 1800 THEN '(4) 15-30 min'
+              WHEN ${session_duration_seconds} < 2700 THEN '(5) 30-45 min'
+              WHEN ${session_duration_seconds} < 3600 THEN '(6) 45-60 min'
+              WHEN ${session_duration_seconds} < 4500 THEN '(7) 60-75 min'
+              ELSE '(8) >75 min'
+          END ;;
+    description: "Sum Total of Session Lengths in a given week per individual student, bucketed into groups"
+  }
+
+  dimension:  total_sessions_in_week_bucket_tiers {
+    label: "Total Sessions in Week (buckets)"
+    type: tier
+    style: integer
+    tiers: [2, 3]
+    value_format: "0 \s\e\s\s\i\o\n\s"
+    sql: ${total_sessions_count} ;;
+  }
+
+  dimension_group: session_start_time {
+    label: "Ebook Sessions Session Start"
+    type: time
+    timeframes: [raw, week, month, year]
+    sql: ${TABLE}.session_start_time_week ;;
+    hidden: yes
+  }
+
+  dimension: merged_guid {hidden: yes}
+
+  dimension: total_sessions_count {
+    label: "Total Sessions in Week"
+    value_format_name: decimal_0
+    sql: ${TABLE}.session_count ;;
+  }
+
+  dimension: total_pages_read {
+    label: "Total Pages Read Per Week"
+    hidden: yes
+    value_format: "#,##0"
+    type: number
+  }
+  dimension: avg_page_read_time {
+    hidden: yes
+    label: "Average Weekly Page Read Time"
+    value_format: "[m]:ss \m\i\n\s"
+    type: number
+  }
+}
+
+
+
 view: ebook_sessions {
+  label: "E-Book Sessions"
   sql_table_name: ZANDBOX.PGRIFFITHS.EBOOK_SESSIONS;;
 
   dimension: ebook_session_id {}
@@ -43,7 +134,6 @@ view: ebook_sessions {
     intervals: [second, minute, hour]
   }
 
-
   dimension:  session_length_bucket_30 {
     sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
               WHEN session_duration_seconds < 600 THEN '(2) 5-10 min'
@@ -51,24 +141,31 @@ view: ebook_sessions {
               WHEN session_duration_seconds < 1800 THEN '(4) 20-30 min'
               ELSE '(5) >30 min'
           END ;;
+    label: "Session Length Buckets (up to 30 minutes)"
+    description: "Length of each individual session, bucketed into groups"
   }
 
+  measure: total_session_length {
+    label: "Total Session Time"
+    type: sum
+    sql: ${seconds_session_duration} / (60 * 60 * 24) ;;
+    value_format: "[m] \m\i\n\s"
+  }
 
+  measure: total_pages_read {
+    type: sum
+    sql: ${page_read_count} ;;
+    value_format_name: decimal_0
+  }
 
-  dimension:  session_length_bucket_75 {
-    sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
-              WHEN session_duration_seconds < 600 THEN '(2) 5-10 min'
-              WHEN session_duration_seconds < 900 THEN '(3) 10-15 min'
-              WHEN session_duration_seconds < 1800 THEN '(4) 15-30 min'
-              WHEN session_duration_seconds < 2700 THEN '(5) 30-45 min'
-              WHEN session_duration_seconds < 3600 THEN '(6) 45-60 min'
-              WHEN session_duration_seconds < 4500 THEN '(7) 60-75 min'
-              ELSE '(8) >75 min'
-          END ;;
+  measure: avg_page_read_time {
+    type: number
+    sql: ${total_session_length} / ${total_pages_read} ;;
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: merged_guid_count {
-    label: "# Users"
+    label: "# Students"
     sql: ${merged_guid} ;;
     type:  count_distinct
   }
