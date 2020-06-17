@@ -155,8 +155,15 @@ view: ebook_sessions {
   }
 
   measure: total_pages_read {
-    label: "# Pages in session"
+    label: "Total Pages Viewed"
     type: sum
+    sql: ${page_read_count} ;;
+    value_format_name: decimal_0
+  }
+
+  measure: avg_pages_read {
+    label: "Average Pages per session"
+    type: average
     sql: ${page_read_count} ;;
     value_format_name: decimal_0
   }
