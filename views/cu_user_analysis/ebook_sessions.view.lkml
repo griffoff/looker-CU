@@ -119,11 +119,15 @@ view: ebook_sessions {
   }
 
 
-  dimension: page_read_count  {type:number}
+  dimension: page_read_count  {
+    type:number
+    label: "Pages viewed in Session"
+    }
 
   dimension: page_read_count_mt  {type:number}
   dimension: page_read_count_gt  {type:number}
   dimension: page_read_count_vs  {type:number}
+  dimension: page_read_count_mobile  {type:number}
 
   dimension: session_duration_seconds {}
 
@@ -146,6 +150,63 @@ view: ebook_sessions {
     }
     label: "Session Length Buckets (up to 30 minutes)"
     description: "Length of each individual session, bucketed into groups"
+  }
+
+  dimension: time_between_pages {
+    type: number
+    sql: (${seconds_session_duration} / ${page_read_count}) / (60 * 60 * 24) ;;
+    hidden: yes
+  }
+
+  measure: time_between_pages_avg {
+    label: "Time between pages per session Average"
+    group_label: "Time between pages"
+    type: average
+    sql: ${time_between_pages} ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: time_between_pages_min {
+    label: "Time between pages Minimum"
+    group_label: "Time between pages"
+    type: min
+    sql: ${time_between_pages} ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: time_between_pages_1q {
+    label: "Time between pages 1st quartile"
+    group_label: "Time between pages"
+    type: percentile
+    percentile: 25
+    sql: ${time_between_pages} ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: time_between_pages_median {
+    label: "Time between pages Median"
+    group_label: "Time between pages"
+    type: median
+    sql: ${time_between_pages} ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+
+  measure: time_between_pages_3q {
+    label: "Time between pages 3rd quartile"
+    group_label: "Time between pages"
+    type: percentile
+    percentile: 75
+    sql: ${time_between_pages} ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: time_between_pages_max {
+    label: "Time between pages Maximum"
+    group_label: "Time between pages"
+    type: max
+    sql: ${time_between_pages} ;;
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: total_session_length {
