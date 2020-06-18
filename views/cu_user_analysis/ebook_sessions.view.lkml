@@ -37,15 +37,16 @@ view: ebook_sessions_weekly {
 
   dimension:  session_length_bucket_75 {
     label: "Weekly Total Session Time (up to 75 minutes)"
-    sql: CASE WHEN ${session_duration_seconds} < 300 THEN '(1) 0-5 min'
-              WHEN ${session_duration_seconds} < 600 THEN '(2) 5-10 min'
-              WHEN ${session_duration_seconds} < 900 THEN '(3) 10-15 min'
-              WHEN ${session_duration_seconds} < 1800 THEN '(4) 15-30 min'
-              WHEN ${session_duration_seconds} < 2700 THEN '(5) 30-45 min'
-              WHEN ${session_duration_seconds} < 3600 THEN '(6) 45-60 min'
-              WHEN ${session_duration_seconds} < 4500 THEN '(7) 60-75 min'
-              ELSE '(8) >75 min'
-          END ;;
+    case: {
+      when: {label:"0-5 min" sql: ${session_duration_seconds} < 300 ;;}
+      when: {label:"5-10 min" sql: ${session_duration_seconds} < 600 ;;}
+      when: {label:"10-15 min" sql: ${session_duration_seconds} < 900 ;;}
+      when: {label:"15-30 min" sql: ${session_duration_seconds} < 1800 ;;}
+      when: {label:"30-45 min" sql: ${session_duration_seconds} < 2700 ;;}
+      when: {label:"45-60 min" sql: ${session_duration_seconds} < 3600 ;;}
+      when: {label:"60-75 min" sql: ${session_duration_seconds} < 4500 ;;}
+      else: ">75 min"
+    }
     description: "Sum Total of Session Lengths in a given week per individual student, bucketed into groups"
   }
 
@@ -135,13 +136,14 @@ view: ebook_sessions {
     intervals: [second, minute, hour]
   }
 
-  dimension:  session_length_bucket_30 {
-    sql: CASE WHEN session_duration_seconds < 300 THEN '(1) 0-5 min'
-              WHEN session_duration_seconds < 600 THEN '(2) 5-10 min'
-              WHEN session_duration_seconds < 1200 THEN '(3) 10-20 min'
-              WHEN session_duration_seconds < 1800 THEN '(4) 20-30 min'
-              ELSE '(5) >30 min'
-          END ;;
+   dimension:  session_length_bucket_30 {
+    case: {
+      when: {label:"0-5 min" sql: ${session_duration_seconds} < 300 ;;}
+      when: {label:"5-10 min" sql: ${session_duration_seconds} < 600 ;;}
+      when: {label:"10-20 min" sql: ${session_duration_seconds} < 1200 ;;}
+      when: {label:"20-30 min" sql: ${session_duration_seconds} < 1800 ;;}
+      else: ">30 min"
+    }
     label: "Session Length Buckets (up to 30 minutes)"
     description: "Length of each individual session, bucketed into groups"
   }
