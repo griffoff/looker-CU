@@ -8,20 +8,10 @@ view: guid_date_renewal {
     inner join ZANDBOX.delderfield.terms t on datevalue between t.term_start and t.term_end and DATEVALUE between '2018-08-01' and current_date()
     )
 
-    ,starts as (
-        select distinct USER_guid, subscription_start, subscription_end
-        from ZANDBOX.delderfield.subs
-    )
-
-    ,ends as (
-        select s.*, a.subscription_end as previous_end
-        from starts s
-        left join ZANDBOX.delderfield.subs a on s.USER_guid = a.user_guid and a.subscription_end < s.subscription_start
-    )
-
     ,sub_dates as (
-    select USER_guid, subscription_end, subscription_start, max(previous_end) as last_end
-    from ends
+    select s.USER_guid, s.subscription_end, s.subscription_start, max(a.subscription_end) as last_end
+    from ZANDBOX.delderfield.subs s
+    left join ZANDBOX.delderfield.subs a on s.USER_guid = a.user_guid and a.subscription_end < s.subscription_start
     group by 1,2,3
     )
 
