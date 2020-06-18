@@ -16,10 +16,10 @@ view: ebook_sessions_weekly {
   label: "E-Book Sessions (Weekly)"
   derived_table: {
     explore_source: ebook_sessions_only {
-      column: total_session_length {}
-      column: session_duration_seconds{}
       column: session_start_time_week {}
       column: merged_guid {}
+      column: total_session_length {}
+      derived_column: session_duration_seconds {sql: total_session_length  * (60 * 60 * 24);;}
       column: total_pages_read {}
       column: avg_page_read_time {}
       column: session_count {}
@@ -33,7 +33,10 @@ view: ebook_sessions_weekly {
     type: number
   }
 
-  dimension: session_duration_seconds {type:number hidden:yes}
+  dimension: session_duration_seconds {
+    type:number
+    hidden:yes
+  }
 
   dimension:  session_length_bucket_75 {
     label: "Weekly Total Session Time (up to 75 minutes)"
@@ -52,11 +55,13 @@ view: ebook_sessions_weekly {
 
   dimension:  total_sessions_in_week_bucket_tiers {
     label: "Total Sessions in Week (buckets)"
-    type: tier
-    style: integer
-    tiers: [2, 3]
-    value_format: "0 \s\e\s\s\i\o\n\s"
-    sql: ${total_sessions_count} ;;
+    case: {
+      when: {label: "1 session" sql: ${total_sessions_count} = 1;;}
+      when: {label: "2 sessions" sql: ${total_sessions_count} = 2;;}
+      when: {label: "3-4 sessions" sql: ${total_sessions_count} < 5;;}
+      when: {label: "5 or more sessions" sql: ${total_sessions_count} >= 5;;}
+      else: "no sessions?"
+    }
   }
 
   dimension_group: session_start_time {
