@@ -1,44 +1,78 @@
-explore:  guid_date_renewal {}
+explore: guid_date_renewal {}
 view: guid_date_renewal {
   derived_table: {
     sql:
-    with dates as (
-    select DATEVALUE as date, t.*
-    from prod.dm_common.dim_date_legacy_cube
-    inner join ZANDBOX.delderfield.terms t on datevalue between t.term_start and t.term_end and DATEVALUE between '2018-08-01' and current_date()
+    WITH dates AS (
+      SELECT DATEVALUE as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
+      FROM ${dim_date.SQL_TABLE_NAME}
     )
 
-    ,sub_dates as (
-    select s.USER_guid, s.subscription_end, s.subscription_start, max(a.subscription_end) as last_end
-    from ZANDBOX.delderfield.subs s
-    left join ZANDBOX.delderfield.subs a on s.USER_guid = a.user_guid and a.subscription_end < s.subscription_start
-    group by 1,2,3
+    ,subs as (
+      SELECT
+        CASE WHEN bp._effective_from IS NOT NULL THEN bp.USER_SSO_GUID ELSE ss.CURRENT_GUID END AS user_guid
+        , COALESCE(bp._effective_from, ss.subscription_start)::date AS subscription_start
+        , COALESCE(COALESCE(bp._effective_to, bp.subscription_end),
+                    COALESCE(ss.cancelled_time, ss.subscription_end))::date AS subscription_end
+        , CASE WHEN bp.SUBSCRIPTION_STATE IS NOT NULL THEN bp.SUBSCRIPTION_STATE
+          ELSE ss.SUBSCRIPTION_PLAN_ID END AS subscription_type
+        , hs.SUBSCRIPTION_ID
+        FROM prod.datavault.hub_subscription hs
+        LEFT JOIN prod.datavault.sat_subscription_sap ss ON hs.hub_subscription_key = ss.hub_subscription_key
+          AND (ss.SUBSCRIPTION_PLAN_ID ILIKE 'Full%' OR ss.SUBSCRIPTION_PLAN_ID ILIKE 'Limited%')
+          AND ss.SUBSCRIPTION_STATE <> 'Pending'
+          AND ss.CANCELLED_TIME IS NULL
+          AND ss._LATEST
+        LEFT JOIN prod.datavault.sat_subscription_bp bp ON hs.hub_subscription_key = bp.hub_subscription_key
+          AND bp.SUBSCRIPTION_STATE IN ('full_access')
+        WHERE user_guid IS NOT NULL
+          AND COALESCE(bp._effective_from, ss.subscription_start)::date >= '2018-08-01'
+        )
+    ,subs_clean as (
+      select
+        subs.user_guid
+        , subscription_start
+        , max(subscription_end) as subscription_end
+      from subs
+      group by subs.user_guid, subscription_start
+    )
+    ,subs_len as (
+      select
+        user_guid
+        , subscription_start
+        , subscription_end
+        , datediff(d,subscription_start,subscription_end) AS sub_length
+        , case when sub_length < 150 then '4 Month'
+                when sub_length < 210 then '6 Month'
+                when sub_length < 390 then '12 Month'
+                else '24 Month'
+          end as sub_length_bucket
+      from subs_clean
+      where sub_length > 90
+      )
+
+    ,sub_dates AS (
+      SELECT s.USER_guid
+        , s.subscription_end
+        , s.subscription_start
+        , s.sub_length_bucket
+        , MIN(a.subscription_start) AS next_start
+        , COALESCE(MIN(a.subscription_start),DATEADD(d,49,s.subscription_end)) AS renewal_date
+      FROM subs_len s
+      LEFT JOIN subs_len a ON s.USER_guid = a.user_guid AND a.subscription_start > s.subscription_end AND DATEDIFF(d,s.subscription_end,a.subscription_start) <= 49
+      GROUP BY 1,2,3,4
     )
 
-    ,renewals as (
-    select *
-         , datediff(d,last_end,subscription_start) as time_from_prev
-        , case when time_from_prev is null then 'New'
-                when time_from_prev < 120 then 'Renewed'
-                else 'Returning'
-            end as sub_type
-    from sub_dates
+    ,renewals AS (
+      SELECT *
+        , DATEDIFF(d,subscription_end,next_start) AS time_to_next
+        , CASE WHEN time_to_next < 49 THEN 'Renewed'
+                WHEN time_to_next IS NULL THEN 'Did not renew'
+          END AS sub_type
+      FROM sub_dates
     )
-
-
-    (
-        select d.*, r.*, subscription_start as date_key, 'Starting' as sub_status
-        from dates d
-        inner join renewals r on subscription_start between dateadd(d,-120,date) and date
-    )
-    union
-    (
-        select d.*, r.*, subscription_end as date_key, 'Ending' as sub_status
-        from dates d
-        inner join renewals r on subscription_end between dateadd(d,-120,date) and date
-    )
-
-
+    SELECT d.*, r.*
+    FROM dates d
+    INNER JOIN renewals r ON renewal_date = date
     ;;
     datagroup_trigger: daily_refresh
   }
@@ -51,33 +85,25 @@ view: guid_date_renewal {
 
   dimension: term_year {}
   dimension: season {}
-  dimension: season_no {type:number}
+   dimension: season_no {}
 
-  measure: starting {
-    type: count_distinct
-    sql: case when ${TABLE}.sub_status = 'Starting' then ${TABLE}.user_guid end ;;
-  }
+  dimension: sub_length_bucket {}
+
+
 
   measure: renewed {
     type: count_distinct
-    sql: case when ${TABLE}.sub_status = 'Starting' and ${TABLE}.sub_type = 'Renewed' then ${TABLE}.user_guid end ;;
+    sql: case when ${TABLE}.sub_type = 'Renewed' then ${TABLE}.user_guid end ;;
   }
 
-  measure: returning {
+
+
+  measure: did_not_renew {
     type: count_distinct
-    sql: case when ${TABLE}.sub_status = 'Starting' and ${TABLE}.sub_type = 'Returning' then ${TABLE}.user_guid end ;;
-  }
-
-  measure: new {
-    type: count_distinct
-    sql: case when ${TABLE}.sub_status = 'Starting' and ${TABLE}.sub_type = 'New' then ${TABLE}.user_guid end ;;
-  }
-
-  measure: ending {
-    type: count_distinct
-    sql: case when ${TABLE}.sub_status = 'Ending' then ${TABLE}.user_guid end ;;
+    sql: case when ${TABLE}.sub_type = 'Did not renew' then ${TABLE}.user_guid end ;;
   }
 
 
 
-  }
+
+}
