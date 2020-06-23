@@ -60,14 +60,15 @@ view: guid_date_subscription {
     }
 
   dimension: subscription_length {
-    sql: CASE WHEN ${TABLE}.subscription_type ILIKE '%365%' THEN '12 Months'
-              WHEN ${TABLE}.subscription_type ILIKE '%730%' THEN '24 Months'
-              WHEN ${TABLE}.subscription_type ILIKE '%180%' THEN '6 Months'
-              WHEN ${TABLE}.subscription_type ILIKE '%120%' THEN '4 Months'
-              WHEN ${TABLE}.subscription_type ILIKE '%trial%' THEN 'Trial'
-              ELSE 'Other'
-          END
-              ;;
+    case: {
+      when: {label:"4 Month" sql: ${TABLE}.subscription_type ILIKE '%120%';;}
+      when: {label:"6 Month" sql: ${TABLE}.subscription_type ILIKE '%180%';;}
+      when: {label:"12 Month" sql: ${TABLE}.subscription_type ILIKE '%365%';;}
+      when: {label:"24 Month" sql: ${TABLE}.subscription_type ILIKE '%730%';;}
+      when: {label:"Trial" sql: ${TABLE}.subscription_type ILIKE '%trial%';;}
+      else: "Other"
+
+    }
   }
 
   dimension: user_type {

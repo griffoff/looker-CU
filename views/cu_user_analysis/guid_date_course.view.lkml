@@ -16,6 +16,7 @@ view: guid_date_course {
         , coalesce(primary_guid, non_olr_guid) as merged_guid
         , non_olr.actv_dt
         , non_olr.platform
+        , cu_flg
       FROM prod.stg_clts.activations_non_olr non_olr
       left join wa_match on non_olr.unique_user_id = cast(wa_match.id as STRING)
       left join prod.unlimited.vw_partner_to_primary_user_guid guids
@@ -31,6 +32,7 @@ view: guid_date_course {
         , actv_dt AS course_start
         , DATEADD(W,16,actv_dt) AS course_end
         , actv_dt AS activation_date
+        , cu_flg
         , platform
         , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
         , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
@@ -53,6 +55,7 @@ view: guid_date_course {
         , a.actv_user_type
         , a.actv_trial_purchase
         , a.code_source
+        , a.cu_flg
         , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
         , CASE WHEN e.mkt_seg_maj_cd = 'PSE' AND e.mkt_seg_min_cd in ('056','060') THEN 'Career'
                 WHEN e.mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
@@ -72,6 +75,7 @@ view: guid_date_course {
         , actv_dt AS course_start
         , DATEADD(W,16,actv_dt) AS course_end
         , actv_dt AS activation_date
+        , cu_flg
         , platform
         , region
         , organization
@@ -86,6 +90,7 @@ view: guid_date_course {
       )
       ,course_users AS (
       SELECT DISTINCT user_sso_guid, course_key, instructor_guid, u.context_id
+        , CASE WHEN cu_subscription_id IS NOT NULL THEN 'Y' ELSE 'N' END AS cu_flg
         , COURSE_START_DATE as csd
         , LEAST(COALESCE(actv_dt, enrollment_date, course_start_date)
         , COALESCE(enrollment_date, actv_dt, course_start_date))::date AS csm
@@ -131,19 +136,19 @@ view: guid_date_course {
       GROUP BY 1,2,3,4,5
       )
       ,all_users AS (
-      SELECT user_sso_guid, course_start, course_end, 'Student' AS user_type, activation_date, NULL AS unpaid_access_end, 'Activations Non-OLR' AS source, platform, region, organization
+      SELECT user_sso_guid, course_start, course_end, 'Student' AS user_type, activation_date, NULL AS unpaid_access_end, 'Activations Non-OLR' AS source, platform, region, organization, cu_flg
       FROM activations_non_olr
       UNION ALL
-      SELECT user_sso_guid, course_start, course_end, 'Student' AS user_type, activation_date, NULL AS unpaid_access_end, 'Activations OLR' AS source, platform, region, organization
+      SELECT user_sso_guid, course_start, course_end, 'Student' AS user_type, activation_date, NULL AS unpaid_access_end, 'Activations OLR' AS source, platform, region, organization, cu_flg
       FROM activations_olr_no_context_id
       UNION ALL
-      SELECT user_sso_guid, course_start, course_end,'Student' AS user_type, activation_date, unpaid_access_end, 'User Courses' AS source, platform, region, organization
+      SELECT user_sso_guid, course_start, course_end,'Student' AS user_type, activation_date, unpaid_access_end, 'User Courses' AS source, platform, region, organization, cu_flg
       FROM course_users
       UNION ALL
-      SELECT user_sso_guid, course_start, course_end, 'Instructor' AS user_type, NULL AS activation_date, NULL AS unpaid_access_end, 'User Courses' AS source, platform, region, organization
+      SELECT user_sso_guid, course_start, course_end, 'Instructor' AS user_type, NULL AS activation_date, NULL AS unpaid_access_end, 'User Courses' AS source, platform, region, organization, 'N' AS cu_flg
       FROM course_instructors
       )
-      SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, platform, region, organization
+      SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, platform, region, organization, cu_flg
         , CASE WHEN dim_date.datevalue >= activation_date THEN TRUE ELSE FALSE END AS paid_flag
         , CASE WHEN activation_date IS NULL AND dim_date.datevalue > unpaid_access_end THEN TRUE ELSE FALSE END AS expired_access_flag
       FROM ${dim_date.SQL_TABLE_NAME} dim_date
@@ -181,9 +186,7 @@ view: guid_date_course {
     type: yesno
   }
 
-#   dimension: source {
-#     type: string
-#   }
+  dimension: cu_flg {}
 
   dimension: platform {
     type: string
