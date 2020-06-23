@@ -1,10 +1,30 @@
-explore: user_courses_activations {}
-view: user_courses_activations {
+include: "//cube/dim_date.view"
 
+explore: user_courses_activations {
+#   from:  dim_date
+#
+#   join: user_courses_activations_ty {
+#     from: user_courses_activations
+#     sql_on: ${user_courses_activations.datevalue} = ${user_courses_activations_ty.date_raw} ;;
+#     relationship: one_to_many
+#     type: inner
+#     view_label: "User Courses Activations"
+#   }
+
+#   join: user_courses_activations_ly {
+#     from: user_courses_activations
+#     sql_on: ${user_courses_activations.datevalue} = DATEADD(year, 1, ${user_courses_activations_ly.date_raw}) ;;
+#     relationship: one_to_many
+#     type: left_outer
+#     view_label: "User Courses Activations - Prior Year"
+#   }
+}
+
+view: user_courses_activations {
   derived_table: {
     sql:
     WITH dates AS (
-    SELECT DATEVALUE as date
+    SELECT DATEVALUE as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
     FROM ${dim_date.SQL_TABLE_NAME}
     WHERE datevalue between '2018-08-01' and current_date()
     )
@@ -24,6 +44,9 @@ view: user_courses_activations {
 
     select distinct
       d.date
+      , d.season
+      , d.term_year
+      , d.season_no
       , c.user_sso_guid
       , concat(c.user_sso_guid,course_key) as activation_key
       , cu_flag
@@ -37,36 +60,39 @@ view: user_courses_activations {
   }
 
   dimension_group: date {
+    view_label: "Date"
+    label: "Calendar"
     hidden: no
     type:time
     timeframes: [raw,date,week,month,year]
   }
 
+  dimension: season {hidden:no}
+  dimension: term_year {hidden:no}
+  dimension: season_no {hidden:no}
+
   measure: cu_activations {
     type: count_distinct
-    sql: case when cu_flag = true then activation_key end ;;
+    sql: case when ${TABLE}.cu_flag = true then ${TABLE}.activation_key end ;;
     value_format_name: decimal_0
   }
 
   measure: non_cu_activations {
     type: count_distinct
-    sql: case when cu_flag = false then activation_key end ;;
+    sql: case when ${TABLE}.cu_flag = false then ${TABLE}.activation_key end ;;
     value_format_name: decimal_0
     }
 
-    measure: current_cu_users_average_activations {
+    measure: cu_users_average_activations {
       type: number
-      sql: count(distinct case when current_cu_status = true then activation_key end) / count(distinct case when current_cu_status = true then user_sso_guid end) ;;
+      sql: count(distinct case when ${TABLE}.cu_flag = true then ${TABLE}.activation_key end) / count(distinct case when ${TABLE}.cu_flag = true then ${TABLE}.user_sso_guid end) ;;
       value_format_name: decimal_2
     }
 
-  measure: current_non_cu_users_average_activations {
+  measure: non_cu_users_average_activations {
     type: number
-    sql: count(distinct case when current_cu_status = false then activation_key end) / count(distinct case when current_cu_status = false then user_sso_guid end) ;;
+    sql: count(distinct case when ${TABLE}.cu_flag = false then ${TABLE}.activation_key end) / count(distinct case when ${TABLE}.cu_flag = false then ${TABLE}.user_sso_guid end) ;;
     value_format_name: decimal_2
   }
-
-
-
 
   }

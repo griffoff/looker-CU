@@ -74,64 +74,10 @@ view: date_user_type_count {
 }
 
 
-#
-#
-#   derived_table: {
-#     sql:
-#       SELECT date, 'Registered Student Users' AS user_type, students AS user_count
-#       FROM PROD.LOOKER_SCRATCH.yru
-#       UNION ALL
-#       SELECT date, 'Registered Instructor Users' AS user_type, instructors AS user_count
-#       FROM PROD.LOOKER_SCRATCH.yru
-#       UNION ALL
-#       SELECT date, 'Digital Student Users' AS user_type, COUNT(DISTINCT userbase_digital_user_guid) AS user_count
-#       FROM ${kpi_user_counts.SQL_TABLE_NAME}
-#       GROUP BY date, user_type
-#       UNION ALL
-#       SELECT date, 'Instructors with Active Digital Course' AS user_type, COUNT(DISTINCT all_instructors_active_course_guid) AS user_count
-#       FROM ${kpi_user_counts.SQL_TABLE_NAME}
-#       GROUP BY date, user_type
-#       UNION ALL
-#       SELECT date, 'Paid Digital Student Users' AS user_type, COUNT(DISTINCT userbase_paid_user_guid) AS user_count
-#       FROM ${kpi_user_counts.SQL_TABLE_NAME}
-#       GROUP BY date, user_type
-#       UNION ALL
-#       SELECT date, 'Paid Courseware Student Users' AS user_type, COUNT(DISTINCT userbase_paid_courseware_guid) AS user_count
-#       FROM ${kpi_user_counts.SQL_TABLE_NAME}
-#       GROUP BY date, user_type
-#       UNION ALL
-#       SELECT date, 'Paid eBook Only Student Users' AS user_type, COUNT(DISTINCT userbase_paid_ebook_only_guid) AS user_count
-#       FROM ${kpi_user_counts.SQL_TABLE_NAME}
-#       GROUP BY date, user_type
-#       UNION ALL
-#       SELECT date, 'Full Access CU Users, no provisions' AS user_type, COUNT(DISTINCT userbase_full_access_cu_only_guid) AS user_count
-#       FROM ${kpi_user_counts.SQL_TABLE_NAME}
-#       GROUP BY date, user_type
-#
-#       ;;
-
-#       SELECT date, 'Digital Student Users' AS user_type, digital_users AS user_count
-#       FROM ${daily_digital_users.SQL_TABLE_NAME}
-#       UNION ALL
-#       SELECT date, 'Instructors with Active Digital Course' AS user_type, courseware_instructors AS user_count
-#       FROM ${daily_digital_users.SQL_TABLE_NAME}
-#       UNION ALL
-#       SELECT date, 'Paid Digital Student Users' AS user_type, paid_user_count AS user_count
-#       FROM ${daily_paid_users.SQL_TABLE_NAME}
-#       UNION ALL
-#       SELECT date, 'Paid Courseware Student Users' AS user_type, paid_courseware_users AS user_count
-#       FROM ${daily_paid_users.SQL_TABLE_NAME}
-#       UNION ALL
-#       SELECT date, 'Paid eBook Only Student Users' AS user_type, paid_ebook_users AS user_count
-#       FROM ${daily_paid_users.SQL_TABLE_NAME}
-#       UNION ALL
-#       SELECT date, 'Full Access CU Users, no provisions' AS user_type, paid_cu_users AS user_count
-#       FROM ${daily_paid_users.SQL_TABLE_NAME}
-
 
 
     dimension: date {
-      hidden:  no
+      hidden:  yes
       type: date}
 
     dimension: max_date {

@@ -49,7 +49,7 @@ view: guid_date_subscription {
     }
 
   dimension_group: date {
-    hidden: no
+    hidden: yes
     type:time
     timeframes: [raw,date,week,month,year]
   }

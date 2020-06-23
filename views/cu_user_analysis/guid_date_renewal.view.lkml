@@ -85,9 +85,18 @@ view: guid_date_renewal {
 
   dimension: term_year {}
   dimension: season {}
-   dimension: season_no {}
+  dimension: season_no {type:number}
+
+  dimension: current_season_no {
+    sql:(select max(season_no) from ${guid_date_renewal.SQL_TABLE_NAME} where sub_type = 'Renewed') ;;
+    type: number
+  }
+
+
 
   dimension: sub_length_bucket {}
+
+
 
 
 
