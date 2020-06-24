@@ -51,6 +51,11 @@ view: user_courses_activations {
       , concat(c.user_sso_guid,course_key) as activation_key
       , cu_flag
       , current_cu_status
+      , case when cu_flag = true then activation_key end as cu_activation_key
+      , case when cu_flag = false then activation_key end as non_cu_activation_key
+      , case when cu_flag = true then c.user_sso_guid end as cu_user_sso_guid
+      , case when cu_flag = false then c.user_sso_guid end as non_cu_user_sso_guid
+
 
     from dates d
     inner join courses c on d.date between c.activation_date and case when c.course_end_date <= c.activation_date then dateadd(w,16,c.activation_date) else c.course_end_date end
@@ -67,31 +72,35 @@ view: user_courses_activations {
     timeframes: [raw,date,week,month,year]
   }
 
-  dimension: season {hidden:no}
+  dimension: season {
+    order_by_field: season_no
+    hidden:no
+    }
+
   dimension: term_year {hidden:no}
   dimension: season_no {hidden:no}
 
-  measure: cu_activations {
+  measure: cu_activation_key {
     type: count_distinct
-    sql: case when ${TABLE}.cu_flag = true then ${TABLE}.activation_key end ;;
     value_format_name: decimal_0
+    label: "CU Activations"
   }
 
-  measure: non_cu_activations {
+  measure: non_cu_activation_key {
     type: count_distinct
-    sql: case when ${TABLE}.cu_flag = false then ${TABLE}.activation_key end ;;
     value_format_name: decimal_0
+    label: "Non-CU Activations"
     }
 
     measure: cu_users_average_activations {
       type: number
-      sql: count(distinct case when ${TABLE}.cu_flag = true then ${TABLE}.activation_key end) / count(distinct case when ${TABLE}.cu_flag = true then ${TABLE}.user_sso_guid end) ;;
+      sql: count(distinct ${TABLE}.cu_activation_key) / count(distinct ${TABLE}.cu_user_sso_guid) ;;
       value_format_name: decimal_2
     }
 
   measure: non_cu_users_average_activations {
     type: number
-    sql: count(distinct case when ${TABLE}.cu_flag = false then ${TABLE}.activation_key end) / count(distinct case when ${TABLE}.cu_flag = false then ${TABLE}.user_sso_guid end) ;;
+    sql: count(distinct ${TABLE}.non_cu_activation_key) / count(distinct ${TABLE}.non_cu_user_sso_guid) ;;
     value_format_name: decimal_2
   }
 
