@@ -74,6 +74,13 @@ view: date_user_type_count {
 }
 
 
+    dimension: pk {
+      primary_key: yes
+      sql: concat(${TABLE}.date,${TABLE}.user_type) ;;
+      hidden:  yes
+    }
+
+
 
 
     dimension: date {
