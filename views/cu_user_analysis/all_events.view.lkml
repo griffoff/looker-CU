@@ -32,6 +32,8 @@ view: all_events {
     type: string
     sql: COALESCE(${TABLE}.subscription_state, INITCAP(REPLACE(${TABLE}.event_data:subscription_state, '_', ' ')));;
     description: "Subscription state at the time of the event"
+    suggest_explore: filter_cache_all_events_subscription_state
+    suggest_dimension: filter_cache_all_events_subscription_state.event_subscription_state
   }
 
   dimension: event_data {
@@ -609,6 +611,8 @@ view: all_events {
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **"
     link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
+  suggest_explore: filter_cache_all_events_event_name
+  suggest_dimension: filter_cache_all_events_event_name.event_name
   }
 
 
