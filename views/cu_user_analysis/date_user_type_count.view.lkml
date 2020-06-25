@@ -12,12 +12,17 @@ view: date_user_type_count {
       ;;
 
       sql_step:
+      DELETE FROM LOOKER_SCRATCH.date_user_type_count WHERE date = date_trunc(week,CURRENT_DATE())
+      ;;
+
+
+      sql_step:
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.date_user_type_count_incremental
         AS
           WITH dates AS (
             SELECT d.datevalue
             FROM ${dim_date.SQL_TABLE_NAME} d
-            WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.date_user_type_count)
+            WHERE date_trunc(week,d.datevalue) > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.date_user_type_count)
             AND d.datevalue < CURRENT_DATE()
           )
           SELECT DISTINCT date_trunc(week,d.DATEVALUE) AS date, 'Registered Student Users' AS user_type, students AS user_count

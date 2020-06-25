@@ -4,6 +4,25 @@ view: cohorts_user_term_subscriptions {
     persist_for: "60 minutes"
 
     sql:
+      WITH cancelled AS (
+        SELECT
+          user_sso_guid_merged
+          , contract_id
+          , local_time
+          , subscription_state
+        FROM prod.cu_user_analysis.subscription_event_merged
+        WHERE subscription_state = 'cancelled'
+        )
+      , subscriptions as (
+        SELECT
+          s.user_sso_guid_merged
+          ,COALESCE(c.subscription_state, s.subscription_state) AS subscription_state
+          ,s.subscription_start
+          ,s.subscription_end
+          ,s.local_time
+        FROM prod.cu_user_analysis.subscription_event_merged s
+        LEFT JOIN cancelled c ON s.user_sso_guid_merged = c.user_sso_guid_merged AND s.contract_id = c.contract_id AND c.local_time > s.local_time
+        )
         SELECT
               s.user_sso_guid_merged
               ,d.terms_chron_order_desc
@@ -15,7 +34,7 @@ view: cohorts_user_term_subscriptions {
               ,s.subscription_end
               ,s.local_time
         FROM ${date_latest_5_terms.SQL_TABLE_NAME} d
-        INNER JOIN prod.cu_user_analysis.subscription_event_merged s
+        INNER JOIN subscriptions s
              ON (
                 (s.local_time::DATE BETWEEN d.start_date AND DATEADD(day, -8, d.end_date)) -- starts before the last week of the term
                 OR (s.local_time::DATE BETWEEN DATEADD(day, 8, d.start_date) AND d.end_date) -- ends after the first week of the term
