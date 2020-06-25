@@ -21,7 +21,7 @@ view: cohorts_user_term_subscriptions {
           ,s.subscription_end
           ,s.local_time
         FROM prod.cu_user_analysis.subscription_event_merged s
-        LEFT JOIN cancelled c ON s.user_sso_guid_merged = c.user_sso_guid_merged AND s.contract_id = c.contract_id AND c.local_time > s.local_time
+        LEFT JOIN cancelled c ON s.user_sso_guid_merged = c.user_sso_guid_merged AND s.contract_id = c.contract_id AND c.local_time > s.local_time AND s.subscription_state = 'full_access'
         )
         SELECT
               s.user_sso_guid_merged
