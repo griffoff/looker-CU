@@ -191,7 +191,7 @@ view: learner_profile {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
     sql:  ${TABLE}.first_event_time::datetime ;;
-    label: "First interaction"
+    label: "First Interaction"
     description: "Components of the timestamp when the user first logged in"
   }
 
