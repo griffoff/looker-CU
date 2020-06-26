@@ -149,6 +149,7 @@ view: guid_date_ebook {
   measure: num_users {
     type: count_distinct
     sql: ${TABLE}.user_sso_guid ;;
+    label: "# Users "
   }
 
 }

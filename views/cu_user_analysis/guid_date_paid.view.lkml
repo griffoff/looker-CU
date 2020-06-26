@@ -114,5 +114,6 @@ view: guid_date_paid {
   measure: user_count {
     type: count_distinct
     sql: ${TABLE}.USER_SSO_GUID ;;
+    label: "# Users"
   }
 }

@@ -52,6 +52,7 @@ view: guid_date_subscription {
     hidden: yes
     type:time
     timeframes: [raw,date,week,month,year]
+    label: "Calendar"
   }
 
     dimension: content_type {

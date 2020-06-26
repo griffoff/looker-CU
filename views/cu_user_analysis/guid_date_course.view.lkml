@@ -200,4 +200,10 @@ view: guid_date_course {
     type: string
   }
 
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    label: "# Users"
+  }
+
 }

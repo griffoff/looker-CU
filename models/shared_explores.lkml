@@ -5,6 +5,8 @@ include: "/views/cu_user_analysis/*.view"
 include: "/views/cu_user_analysis/cohorts/*.view"
 include: "/views/uploads/*.view"
 
+include: "/views/cu_user_analysis/filter_caches/*.view"
+
 include: "/views/shared/*.view"
 
 explore: user_courses {

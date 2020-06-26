@@ -80,5 +80,11 @@ view: guid_date_active {
   dimension: organization {}
   dimension: user_type {}
 
+  measure: user_sso_guid_count {
+    sql: ${user_sso_guid} ;;
+    type: count_distinct
+    label: "# Users"
+  }
+
 
  }

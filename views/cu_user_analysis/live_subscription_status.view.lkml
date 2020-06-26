@@ -27,6 +27,8 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
     description: "Active, Cancelled, Expired, Pending"
+    suggest_explore: filter_cache_live_subscription_status_subscription_state
+    suggest_dimension: subscription_state
   }
 
   dimension: record_rank {
