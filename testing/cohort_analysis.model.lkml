@@ -3,21 +3,25 @@ connection: "snowflake_prod"
 include: "//core/common.lkml"
 include: "/views/cu_user_analysis/all_events.view"
 include: "/views/cu_user_analysis/learner_profile.view"
-#include: "/views/cu_user_analysis/filter_caches/*.view"
+include: "/views/cu_user_analysis/filter_caches/filter_cache_all_events_event_name.view"
+include: "/datagroups.lkml"
 
-explore: all_events_base {
-  hidden: yes
-}
+# explore: all_events_base {
+#   hidden: no
+#   sql_always_where: ${event_date_raw} >= DATEADD(month, -12, CURRENT_DATE()) ;;
+#   sql_always_having: ${count} > 1000 ;;
+#   persist_for: "24 hours"
+# }
 
-view: next_events {
-
-  dimension: primary_key {sql:HASH(${session_id}, ${event_number});; primary_key: yes hidden: yes}
-
-  dimension: session_id {type:number hidden:yes}
-  dimension: event_number {type: number}
-  dimension: event_name { type: string}
-  measure: count {type: count}
-}
+# view: next_events {
+#
+#   dimension: primary_key {sql:HASH(${session_id}, ${event_number});; primary_key: yes hidden: yes}
+#
+#   dimension: session_id {type:number hidden:yes}
+#   dimension: event_number {type: number}
+#   dimension: event_name { type: string}
+#   measure: count {type: count}
+# }
 
 view: cohort_selection {
   #extends: [all_events]
@@ -28,8 +32,8 @@ view: cohort_selection {
     description: "Select the things that you want your cohort to have done "
     type: string
     default_value: ""
-    suggest_explore: all_events_base
-    suggest_dimension: all_events_base.event_name
+    suggest_explore: filter_cache_all_events_event_name
+    suggest_dimension: filter_cache_all_events_event_name.event_name
     #suggest_persist_for: "24 hours"
   }
 
@@ -39,8 +43,8 @@ view: cohort_selection {
     description: "Select the things that you don't want to include in your flow"
     type: string
     default_value: ""
-    suggest_explore: all_events_base
-    suggest_dimension: all_events_base.event_name
+    suggest_explore: filter_cache_all_events_event_name
+    suggest_dimension: filter_cache_all_events_event_name.event_name
     #suggest_persist_for: "24 hours"
   }
 
