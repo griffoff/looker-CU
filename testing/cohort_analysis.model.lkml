@@ -1,10 +1,11 @@
 connection: "snowflake_prod"
 
+include: "//core/common.lkml"
 include: "/views/cu_user_analysis/all_events.view"
 include: "/views/cu_user_analysis/learner_profile.view"
+#include: "/views/cu_user_analysis/filter_caches/*.view"
 
-explore: events {
-  from: all_events
+explore: all_events_base {
   hidden: yes
 }
 
@@ -21,15 +22,26 @@ view: next_events {
 view: cohort_selection {
   #extends: [all_events]
 
-  parameter: cohort_events_filter {
+  filter: cohort_events_filter {
     view_label: "** COHORT ANALYSIS **"
     label: "Choose cohort behavior"
     description: "Select the things that you want your cohort to have done "
     type: string
     default_value: ""
-    suggest_explore: events
-    suggest_dimension: events.event_name
-    suggest_persist_for: "24 hours"
+    suggest_explore: all_events_base
+    suggest_dimension: all_events_base.event_name
+    #suggest_persist_for: "24 hours"
+  }
+
+  filter: exclude_events_filter {
+    view_label: "** COHORT ANALYSIS **"
+    label: "Exclude events"
+    description: "Select the things that you don't want to include in your flow"
+    type: string
+    default_value: ""
+    suggest_explore: all_events_base
+    suggest_dimension: all_events_base.event_name
+    #suggest_persist_for: "24 hours"
   }
 
   filter: cohort_date_range_filter {
@@ -49,6 +61,16 @@ view: cohort_selection {
     default_value: "before"
     allowed_value: {label: "Before" value: "before"}
     allowed_value: {label: "After" value: "after"}
+  }
+
+  parameter: ignore_duplicates {
+    view_label: "** COHORT ANALYSIS **"
+    label: "Ignore duplicate events?"
+    description: "Do you want to ignore consecutive events that are the same (e.g. only count the first page view in an ebook session)?"
+    type: unquoted
+    default_value: "ignore"
+    allowed_value: {label:"Exclude duplicates" value:"exclude"}
+    allowed_value: {label:"Include all events" value:"include"}
   }
 
   parameter: time_period {
@@ -88,28 +110,38 @@ view: cohort_selection {
       FROM ${all_events.SQL_TABLE_NAME} all_events
       WHERE (DATEADD(day, 1, event_time::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
       AND (DATEADD(day, -1, event_time::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
-      AND UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
+      AND {% condition cohort_events_filter %} event_name {% endcondition %}
       GROUP BY 1, 2
       ) cohort_selection
       LEFT JOIN (
           SELECT *
+          {% if ignore_duplicates._parameter_value == 'include' %}
+              ,FALSE
+          {% elsif before_or_after._parameter_value == 'before' %}
+              ,LEAD(event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = event_name
+          {% else %}
+              ,LAG(event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = event_name
+          {% endif %}
+              AS is_duplicate
           FROM ${all_events.SQL_TABLE_NAME}
           WHERE (DATEADD(day, 1, event_time::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
           AND (DATEADD(day, -1, event_time::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+          AND NOT {% condition exclude_events_filter %} event_name {% endcondition %}
       ) all_events ON cohort_selection.session_id = all_events.session_id
+        AND NOT all_events.is_duplicate
         {% if before_or_after._parameter_value == 'before' %}
           --PRECEDING EVENT ANALYSIS
-         and all_events.event_time < cohort_selection.start_event_time
-         and (
+         AND all_events.event_time < cohort_selection.start_event_time
+         AND (
             all_events.event_time > cohort_selection.boundary_event_time
-           or cohort_selection.boundary_event_time IS NULL
+           OR cohort_selection.boundary_event_time IS NULL
           )
         {% else %}
         --SUBSEQUENT EVENT ANALYSIS
-         and all_events.event_time > cohort_selection.start_event_time
-         and (
+         AND all_events.event_time > cohort_selection.start_event_time
+         AND (
             all_events.event_time < cohort_selection.boundary_event_time
-           or cohort_selection.boundary_event_time IS NULL
+           OR cohort_selection.boundary_event_time IS NULL
           )
         {% endif %}
       )
@@ -119,7 +151,7 @@ view: cohort_selection {
    }
 
   dimension: user_sso_guid {hidden:yes}
-  dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string}
+  dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string primary_key:yes}
 #   dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
 #   dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
   dimension: event_1 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "1 event after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}

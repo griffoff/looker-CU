@@ -2,6 +2,19 @@ view: all_sessions {
   sql_table_name: prod.cu_user_analysis.all_sessions ;;
   view_label: "Sessions"
 
+#   parameter: session_sampling {
+#     view_label: "** RECOMMENDED FILTERS **"
+#     group_label: "Sampling"
+#     label: "Session sample size"
+#     description: "Only use a sample of the full dataset (speeds up queries and gives good overall results, but will not return every datapoint if you are looking at detailed records)"
+#     type: unquoted
+#     default_value: "10"
+#     allowed_value: {label:"10% sampling" value:"10"}
+#     allowed_value: {label:"25% sampling" value:"25"}
+#     allowed_value: {label:"50% sampling" value:"50"}
+#     allowed_value: {label:"All records" value:"100"}
+#   }
+
   dimension: session_id {
     hidden:  yes
     type: number

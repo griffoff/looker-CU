@@ -1,6 +1,29 @@
 include: "//core/common.lkml"
+include: "all_sessions.view.lkml"
 
 view: all_events {
+  extends: [all_events_base]
+
+  dimension_group: time_since_session_start {
+    label: "Time between start of session and event"
+    type: duration
+    intervals: [second, minute, hour, day, week]
+    sql_start: ${all_sessions.session_start_raw} ;;
+    sql_end: ${event_date_raw} ;;
+
+  }
+
+  dimension_group: time_since_enrollment {
+    label: "Time between enrollment and event"
+    type: duration
+    intervals: [second, minute, hour, day, week]
+    sql_start: ${user_courses.enrollment_date} ;;
+    sql_end: ${event_date_raw} ;;
+
+  }
+}
+
+view: all_events_base {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
 
@@ -672,13 +695,12 @@ view: all_events {
 #     sql:${dim_date.datevalue_date} ;;
 #   }
 
-dimension: load_metadata_source {
-  group_label: "Event Classification - Raw"
-  label: "Load source"
-  type: string
-  sql: ${TABLE}."LOAD_METADATA":source::string ;;
-}
-
+  dimension: load_metadata_source {
+    group_label: "Event Classification - Raw"
+    label: "Load source"
+    type: string
+    sql: ${TABLE}."LOAD_METADATA":source::string ;;
+  }
 
   dimension_group: local_est {
     type: time

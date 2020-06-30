@@ -459,6 +459,7 @@ explore: session_analysis {
   #fields: [-]
 
   join: all_sessions {
+    #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     relationship: one_to_many
   }
@@ -515,11 +516,11 @@ explore: session_analysis {
 
 }
 
-explore: grace_period_test{
-  label: "Grace Period Test Dev"
-  from: all_events_dev
-  join: TrialAccess_cohorts {
-    sql_on: ${grace_period_test.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
-    relationship: many_to_many
-  }
-}
+# explore: grace_period_test{
+#   label: "Grace Period Test Dev"
+#   from: all_events_dev
+#   join: TrialAccess_cohorts {
+#     sql_on: ${grace_period_test.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
+#     relationship: many_to_many
+#   }
+# }

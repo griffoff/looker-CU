@@ -14,7 +14,9 @@ case_sensitive: no
 
 
 explore: all_events {
-  }
+  from: all_events_base
+  view_name: all_events
+}
 
 explore: all_event_actions {
 }
