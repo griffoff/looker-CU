@@ -99,16 +99,16 @@ view: cohort_selection {
       ) all_events ON cohort_selection.session_id = all_events.session_id
         {% if before_or_after._parameter_value == 'before' %}
           --PRECEDING EVENT ANALYSIS
-         and all_events.event_id < cohort_selection.first_event_id
+         and all_events.event_time < cohort_selection.start_event_time
          and (
-            cohort_selection.boundary_event_time < all_events.event_time
+            all_events.event_time > cohort_selection.boundary_event_time
            or cohort_selection.boundary_event_time IS NULL
           )
         {% else %}
         --SUBSEQUENT EVENT ANALYSIS
-         and all_events.event_id > cohort_selection.first_event_id
+         and all_events.event_time > cohort_selection.start_event_time
          and (
-            cohort_selection.boundary_event_time > all_events.event_time
+            all_events.event_time < cohort_selection.boundary_event_time
            or cohort_selection.boundary_event_time IS NULL
           )
         {% endif %}
@@ -135,51 +135,6 @@ view: cohort_selection {
 
 }
 
-
-# view: cohort_selection_old {
-#
-#   parameter: cohort_events_filter {
-#     label: "Choose cohort behavior"
-#     description: "Select the things that you want your cohort to have done "
-#     type: string
-#     default_value: ""
-#     suggest_explore: events
-#     suggest_dimension: events.event_name
-#     suggest_persist_for: "24 hours"
-#   }
-#
-#   filter: cohort_date_range_filter {
-#     label: "Choose a cohort date range"
-#     description: "Select a date range for the taret cohort behavior"
-#     type: date
-#     datatype: date
-#
-#   }
-#
-#   parameter: time_period {
-#     label: "Include events (n) hours after the initial behavior"
-#     description: "How long after the initial behavior (within the same session) do you want to look for subsequent actions"
-#     type: number
-#   }
-#
-#   derived_table: {
-#     sql:
-#       SELECT user_sso_guid, session_id, min(event_time) as start_event_time, min(event_id) as first_event_id
-#         ,CASE WHEN {{ time_period._parameter_value }} IS NULL THEN NULL ELSE DATEADD(hour,  {{ time_period._parameter_value }}, start_event_time) END as end_event_time
-#       FROM ${all_events.SQL_TABLE_NAME}
-#       WHERE UPPER(event_name) IN ( {{ cohort_events_filter._parameter_value | replace: ", ", "," | replace: ",", "', '" | upcase }})
-#       AND (event_time >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-#       AND (event_time < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
-#       GROUP BY 1, 2
-#       ;;
-#   }
-#
-#   dimension: user_sso_guid {type:string hidden: yes}
-#   dimension: session_id {type:number hidden: yes}
-#   dimension: start_event_time {type: date hidden: yes}
-#   dimension: end_event_time {type: date hidden: yes}
-#   dimension: first_event_id { type: number hidden: yes}
-# }
 
 explore: cohort_analysis {
   from: cohort_selection
