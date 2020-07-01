@@ -682,6 +682,20 @@ explore: adoption_usage_analysis {
   }
 }
 
+view: date_ty_ly {
+  derived_table: {
+    sql:
+    select datevalue, datevalue as date, date as ty_date, null as ly_date from prod.dm_common.dim_date_legacy_cube
+    union all
+    select datevalue, dateadd(year, -1, datevalue) as date, null, date from prod.dm_common.dim_date_legacy_cube ;;
+  }
+
+  dimension: datevalue {type: date_raw hidden:yes}
+  dimension: date {type: date_raw hidden:yes}
+  dimension: ty_date {type:date_raw hidden:yes}
+  dimension: ly_date {type:date_raw hidden:yes}
+}
+
 explore: kpi_user_stats {
   persist_with: daily_refresh
   from: dim_date
@@ -691,12 +705,16 @@ explore: kpi_user_stats {
     ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
     ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
 
+  join: date_ty_ly {
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${date_ty_ly.datevalue} ;;
+  }
   join: combinations {
     view_label: "Filters"
     from: kpi_user_counts_filter_combinations_agg
-    sql_on: ${kpi_user_stats.datevalue_raw} = ${combinations.date}
-        OR DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${combinations.date}
-        ;;
+    # sql_on: ${kpi_user_stats.datevalue_raw} = ${combinations.date}
+    #     OR DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${combinations.date}
+    #    ;;
+    sql_on: ${date_ty_ly.date} = ${combinations.date} ;;
     type: inner
     relationship: one_to_many
   }
@@ -704,7 +722,8 @@ explore: kpi_user_stats {
    join: kpi_user_counts {
     from: kpi_user_counts_agg
     view_label: "User Counts"
-    sql_on: ${kpi_user_stats.datevalue_raw} = ${kpi_user_counts.date_raw}
+    sql_on: ${date_ty_ly.ty_date} = ${kpi_user_counts.date_raw}
+        AND ${combinations.date} = ${kpi_user_counts.date_raw}
         AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
         AND ${combinations.platform} = ${kpi_user_counts.platform}
         AND ${combinations.organization} = ${kpi_user_counts.organization}
@@ -717,7 +736,8 @@ explore: kpi_user_stats {
   join: kpi_user_counts_ly {
     from: kpi_user_counts_agg
     view_label: "User Counts - Prior Year"
-    sql_on: DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${kpi_user_counts_ly.date_raw}
+    sql_on: ${date_ty_ly.ly_date} = ${kpi_user_counts_ly.date_raw}
+        AND ${combinations.date} = ${kpi_user_counts_ly.date_raw}
         AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
         AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
         AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
