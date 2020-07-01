@@ -176,6 +176,8 @@ explore: cohort_analysis {
   from: cohort_selection
   view_name: cohort_selection
 
+  always_filter: {filters:[cohort_events_filter: "", exclude_events_filter: "", cohort_date_range_filter: "", time_period: "30", ignore_duplicates: "exclude", before_or_after: "before"]}
+
 #   join: next_events {
 #     sql: inner join TABLE(prod.cu_user_analysis.next_events(${cohort_selection.session_id}, ${cohort_selection.first_event_id}, 10 )) ON 1=1;;
 #   }
