@@ -37,10 +37,10 @@ view: cohort_selection {
     #suggest_persist_for: "24 hours"
   }
 
-  filter: exclude_events_filter {
+  filter: flow_events_filter {
     view_label: "** COHORT ANALYSIS **"
-    label: "Exclude events"
-    description: "Select the things that you don't want to include in your flow"
+    label: "Events to include / exclude in the flow"
+    description: "Select the things that you want to include or exclude in your flow"
     type: string
     default_value: ""
     suggest_explore: filter_cache_all_events_event_name
@@ -51,10 +51,9 @@ view: cohort_selection {
   filter: cohort_date_range_filter {
     view_label: "** COHORT ANALYSIS **"
     label: "Choose a cohort date range"
-    description: "Select a date range for the taret cohort behavior"
+    description: "Select a date range for the target cohort behavior"
     type: date
     datatype: date
-
   }
 
   parameter: before_or_after {
@@ -65,6 +64,18 @@ view: cohort_selection {
     default_value: "before"
     allowed_value: {label: "Before" value: "before"}
     allowed_value: {label: "After" value: "after"}
+  }
+
+  parameter: sample_size {
+    view_label: "** COHORT ANALYSIS **"
+    label: "Sample size"
+    description: "How much of the data do you want to use in this analysis?  Reduce sample size to speed up the query"
+    type: unquoted
+    default_value: "50"
+    allowed_value: {label: "25%" value: "25"}
+    allowed_value: {label: "50%" value: "50"}
+    allowed_value: {label: "75%" value: "75"}
+    allowed_value: {label: "No sampling" value: "100"}
   }
 
   parameter: ignore_duplicates {
@@ -111,7 +122,7 @@ view: cohort_selection {
           ELSE
             DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
           END as boundary_event_time
-      FROM ${all_events.SQL_TABLE_NAME} all_events
+      FROM ${all_events.SQL_TABLE_NAME} SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
       WHERE (DATEADD(day, 1, event_time::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
       AND (DATEADD(day, -1, event_time::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
       AND {% condition cohort_events_filter %} event_name {% endcondition %}
@@ -127,10 +138,10 @@ view: cohort_selection {
               ,LAG(event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = event_name
           {% endif %}
               AS is_duplicate
-          FROM ${all_events.SQL_TABLE_NAME}
+          FROM ${all_events.SQL_TABLE_NAME} SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
           WHERE (DATEADD(day, 1, event_time::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
           AND (DATEADD(day, -1, event_time::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
-          AND NOT {% condition exclude_events_filter %} event_name {% endcondition %}
+          AND ({% condition flow_events_filter %} event_name {% endcondition %})
       ) all_events ON cohort_selection.session_id = all_events.session_id
         AND NOT all_events.is_duplicate
         {% if before_or_after._parameter_value == 'before' %}
@@ -176,7 +187,7 @@ explore: cohort_analysis {
   from: cohort_selection
   view_name: cohort_selection
 
-  always_filter: {filters:[cohort_events_filter: "", exclude_events_filter: "", cohort_date_range_filter: "", time_period: "30", ignore_duplicates: "exclude", before_or_after: "before"]}
+  always_filter: {filters:[cohort_events_filter: "", flow_events_filter: "-UNLOAD UNLOAD", cohort_date_range_filter: "after 21 days ago", time_period: "30", ignore_duplicates: "exclude", before_or_after: "before"]}
 
 #   join: next_events {
 #     sql: inner join TABLE(prod.cu_user_analysis.next_events(${cohort_selection.session_id}, ${cohort_selection.first_event_id}, 10 )) ON 1=1;;
