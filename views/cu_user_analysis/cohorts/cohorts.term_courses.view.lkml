@@ -55,17 +55,15 @@ view: cohorts_term_courses {
     sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
   }
 
-  dimension: current { group_label: "# Courses in Terms"
-    type:number
-  }
+  dimension: current { group_label: "# Courses in Terms" type:number description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec" }
 
-  dimension: minus_1 { group_label: "# Courses in Terms" type:number}
+  dimension: minus_1 { group_label: "# Courses in Terms" type:number description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec" }
 
-  dimension: minus_2 { group_label: "# Courses in Terms" type:number}
+  dimension: minus_2 { group_label: "# Courses in Terms" type:number description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec" }
 
-  dimension: minus_3 { group_label: "# Courses in Terms" type:number}
+  dimension: minus_3 { group_label: "# Courses in Terms" type:number description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec" }
 
-  dimension: minus_4 { group_label: "# Courses in Terms" type:number}
+  dimension: minus_4 { group_label: "# Courses in Terms" type:number description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec" }
 
 }
 
@@ -150,12 +148,12 @@ view: cohorts_term_courses_old {
     sql: CASE WHEN ${TABLE}."1" > 4 THEN '4+' ELSE ${TABLE}."1"::string END;;
     }
 
-  dimension: minus_1 { group_label: "# Courses in Terms" }
+  dimension: minus_1 { group_label: "# Courses in Terms" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 { group_label: "# Courses in Terms" }
+  dimension: minus_2 { group_label: "# Courses in Terms" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 { group_label: "# Courses in Terms" }
+  dimension: minus_3 { group_label: "# Courses in Terms" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 { group_label: "# Courses in Terms" }
+  dimension: minus_4 { group_label: "# Courses in Terms" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 }

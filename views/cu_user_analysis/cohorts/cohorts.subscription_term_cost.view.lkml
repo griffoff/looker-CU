@@ -88,19 +88,19 @@ view: subscription_term_cost {
        ;;
   }
 
-  dimension: current {group_label: "CU Term Cost ($)" }
+  dimension: current {group_label: "CU Term Cost ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "CU Term Cost ($)"}
+  dimension: minus_1 {group_label: "CU Term Cost ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "CU Term Cost ($)"}
+  dimension: minus_2 {group_label: "CU Term Cost ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "CU Term Cost ($)"}
+  dimension: minus_3 {group_label: "CU Term Cost ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "CU Term Cost ($)"}
+  dimension: minus_4 {group_label: "CU Term Cost ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: current_tiers {group_label: "CU Term Cost ($)" hidden:no}
+  dimension: current_tiers {group_label: "CU Term Cost ($)" hidden:no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1_tiers {group_label: "CU Term Cost ($)" hidden:no}
+  dimension: minus_1_tiers {group_label: "CU Term Cost ($)" hidden:no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 #   measure: institutional_cu_cost_previous_term {
 #     label: "Institutional CU cost - previous term"

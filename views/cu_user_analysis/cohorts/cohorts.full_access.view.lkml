@@ -36,14 +36,14 @@ view: full_access_cohort {
       ;;
   }
 
-  dimension: current { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
+  dimension: current { group_label: "Full Access" description: "Student started full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_1 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
+  dimension: minus_1 { group_label: "Full Access" description: "Student started full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_2 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
+  dimension: minus_2 { group_label: "Full Access" description: "Student started full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_3 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
+  dimension: minus_3 { group_label: "Full Access" description: "Student started full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_4 { group_label: "Full Access" description: "Student started full access CU subscription this semester (government defined academic calendar"}
+  dimension: minus_4 { group_label: "Full Access" description: "Student started full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
 }

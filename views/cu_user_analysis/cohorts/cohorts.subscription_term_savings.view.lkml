@@ -261,19 +261,19 @@ view: subscription_term_savings {
 #             GROUP BY c.user_sso_guid_merged, c.governmentdefinedacademicterm, c.subscription_state, c.entity_name ;;
 #  }
 
-  dimension: current {group_label: "CU Term Savings ($)"}
+  dimension: current {group_label: "CU Term Savings ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "CU Term Savings ($)"}
+  dimension: minus_1 {group_label: "CU Term Savings ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "CU Term Savings ($)"}
+  dimension: minus_2 {group_label: "CU Term Savings ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "CU Term Savings ($)"}
+  dimension: minus_3 {group_label: "CU Term Savings ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "CU Term Savings ($)"}
+  dimension: minus_4 {group_label: "CU Term Savings ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: current_tiers {group_label: "CU Term Savings ($)" hidden:no}
+  dimension: current_tiers {group_label: "CU Term Savings ($)" hidden:no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1_tiers {group_label: "CU Term Savings ($)" hidden:no}
+  dimension: minus_1_tiers {group_label: "CU Term Savings ($)" hidden:no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 
 }

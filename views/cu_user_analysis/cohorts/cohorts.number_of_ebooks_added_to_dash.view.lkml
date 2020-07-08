@@ -76,15 +76,15 @@ view: cohorts_number_of_ebooks_added_dash {
       sql: ${TABLE}."GOVERNMENTDEFINEDACADEMICTERM" ;;
     }
 
-    dimension: current { group_label: "# of ebook on dashboard" hidden: no}
+    dimension: current { group_label: "# of ebook on dashboard" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_1 { group_label: "# of ebook on dashboard" hidden: no}
+    dimension: minus_1 { group_label: "# of ebook on dashboard" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_2 { group_label: "# of ebook on dashboard" hidden: no}
+    dimension: minus_2 { group_label: "# of ebook on dashboard" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_3 { group_label: "# of ebook on dashboard" hidden: no}
+    dimension: minus_3 { group_label: "# of ebook on dashboard" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_4 { group_label: "# of ebook on dashboard" hidden: no}
+    dimension: minus_4 { group_label: "# of ebook on dashboard" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 #   dimension: current_tiers_times {
 #     group_label: "# of ebook on dashboard (tiers)"

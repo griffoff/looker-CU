@@ -60,19 +60,19 @@ view: cohorts_time_in_platform {
   dimension: current_tiers_time {
     group_label: "Time in platform (tiers)"
     hidden: no
-    description: "Buckets of hours spent in platform for term"
+    description: "Buckets of hours spent in platform for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"
   }
 
   dimension: minus_1_tiers_time {
     group_label: "Time in platform (tiers)"
     hidden: no
-    description: "Buckets of hours spent in platform for term"
+    description: "Buckets of hours spent in platform for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"
   }
 
   dimension: minus_2_tiers_time {
     group_label: "Time in platform (tiers)"
     hidden: no
-    description: "Buckets of hours spent in platform for term"
+    description: "Buckets of hours spent in platform for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"
   }
 
 

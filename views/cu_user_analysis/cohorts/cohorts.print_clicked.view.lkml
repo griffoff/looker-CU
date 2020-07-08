@@ -9,15 +9,15 @@ view: cohorts_print_clicked {
     hidden: yes
   }
 
-  dimension: current {group_label: "Print options clicked"}
+  dimension: current {group_label: "Print options clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "Print options clicked"}
+  dimension: minus_1 {group_label: "Print options clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Print options clicked"}
+  dimension: minus_2 {group_label: "Print options clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Print options clicked"}
+  dimension: minus_3 {group_label: "Print options clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Print options clicked"}
+  dimension: minus_4 {group_label: "Print options clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 
 

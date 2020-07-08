@@ -11,15 +11,15 @@ view: cohorts_full_access_new {
     hidden: yes
   }
 
-  dimension: current {group_label: "Full Access New"}
+  dimension: current {group_label: "Full Access New" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "Full Access New"}
+  dimension: minus_1 {group_label: "Full Access New" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Full Access New"}
+  dimension: minus_2 {group_label: "Full Access New" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Full Access New"}
+  dimension: minus_3 {group_label: "Full Access New" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Full Access New"}
+  dimension: minus_4 {group_label: "Full Access New" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 
   dimension: renewed_flag {

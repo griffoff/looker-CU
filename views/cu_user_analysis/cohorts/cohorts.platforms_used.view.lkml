@@ -45,14 +45,14 @@ view: cohorts_platforms_used {
 
   }
 
-  dimension: current { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array"}
+  dimension: current { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_1 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array" }
+  dimension: minus_1 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)" }
 
-  dimension: minus_2 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array" }
+  dimension: minus_2 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)" }
 
-  dimension: minus_3 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array" }
+  dimension: minus_3 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)" }
 
-  dimension: minus_4 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array" }
+  dimension: minus_4 { group_label: "Platforms Accessed" description:"List of platforms used (MindTap, WA, etc.) in an array (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)" }
 
 }

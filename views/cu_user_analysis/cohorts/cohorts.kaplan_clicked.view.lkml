@@ -8,15 +8,15 @@ view: cohorts_kaplan_clicked {
     hidden: yes
   }
 
-  dimension: current {group_label: "Clicked on Kaplan"}
+  dimension: current {group_label: "Clicked on Kaplan" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "Clicked on Kaplan"}
+  dimension: minus_1 {group_label: "Clicked on Kaplan" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Clicked on Kaplan"}
+  dimension: minus_2 {group_label: "Clicked on Kaplan" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Clicked on Kaplan"}
+  dimension: minus_3 {group_label: "Clicked on Kaplan" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Clicked on Kaplan"}
+  dimension: minus_4 {group_label: "Clicked on Kaplan" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 }
 

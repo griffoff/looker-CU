@@ -11,15 +11,15 @@ view: cohorts_quizlet_clicked {
     hidden: yes
   }
 
-  dimension: current {group_label: "Partners: Quizlet clicked"}
+  dimension: current {group_label: "Partners: Quizlet clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "Partners: Quizlet clicked"}
+  dimension: minus_1 {group_label: "Partners: Quizlet clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Partners: Quizlet clicked"}
+  dimension: minus_2 {group_label: "Partners: Quizlet clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Partners: Quizlet clicked"}
+  dimension: minus_3 {group_label: "Partners: Quizlet clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Partners: Quizlet clicked"}
+  dimension: minus_4 {group_label: "Partners: Quizlet clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
   }
 

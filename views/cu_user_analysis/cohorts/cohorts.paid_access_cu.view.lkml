@@ -40,14 +40,14 @@ view: cohorts_paid_access_cu {
     hidden: yes
   }
 
-  dimension: current { group_label: "# Paid Courses (CU)"}
+  dimension: current { group_label: "# Paid Courses (CU)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 { group_label: "# Paid Courses (CU)"}
+  dimension: minus_1 { group_label: "# Paid Courses (CU)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 { group_label: "# Paid Courses (CU)"}
+  dimension: minus_2 { group_label: "# Paid Courses (CU)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 { group_label: "# Paid Courses (CU)"}
+  dimension: minus_3 { group_label: "# Paid Courses (CU)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 { group_label: "# Paid Courses (CU)"}
+  dimension: minus_4 { group_label: "# Paid Courses (CU)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 }
