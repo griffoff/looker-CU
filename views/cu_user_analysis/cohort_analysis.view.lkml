@@ -1,30 +1,4 @@
-connection: "snowflake_prod"
-
-include: "//core/common.lkml"
-include: "/views/cu_user_analysis/all_events.view"
-include: "/views/cu_user_analysis/learner_profile.view"
-include: "/views/cu_user_analysis/filter_caches/filter_cache_all_events_event_name.view"
-include: "/datagroups.lkml"
-
-# explore: all_events_base {
-#   hidden: no
-#   sql_always_where: ${event_date_raw} >= DATEADD(month, -12, CURRENT_DATE()) ;;
-#   sql_always_having: ${count} > 1000 ;;
-#   persist_for: "24 hours"
-# }
-
-# view: next_events {
-#
-#   dimension: primary_key {sql:HASH(${session_id}, ${event_number});; primary_key: yes hidden: yes}
-#
-#   dimension: session_id {type:number hidden:yes}
-#   dimension: event_number {type: number}
-#   dimension: event_name { type: string}
-#   measure: count {type: count}
-# }
-
 view: cohort_selection {
-  #extends: [all_events]
 
   filter: cohort_events_filter {
     view_label: "** COHORT ANALYSIS **"
@@ -34,7 +8,6 @@ view: cohort_selection {
     default_value: ""
     suggest_explore: filter_cache_all_events_event_name
     suggest_dimension: filter_cache_all_events_event_name.event_name
-    #suggest_persist_for: "24 hours"
   }
 
   filter: flow_events_filter {
@@ -45,7 +18,6 @@ view: cohort_selection {
     default_value: ""
     suggest_explore: filter_cache_all_events_event_name
     suggest_dimension: filter_cache_all_events_event_name.event_name
-    #suggest_persist_for: "24 hours"
   }
 
   filter: cohort_date_range_filter {
@@ -163,7 +135,7 @@ view: cohort_selection {
     WHERE event_sequence <= 5
     GROUP BY 1, 2
       ;;
-   }
+  }
 
   dimension: user_sso_guid {hidden:yes}
   dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string primary_key:yes}
@@ -180,29 +152,4 @@ view: cohort_selection {
   dimension: event_4_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "4 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
   dimension: event_5_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "5 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
 
-}
-
-
-explore: cohort_analysis {
-  from: cohort_selection
-  view_name: cohort_selection
-
-  always_filter: {filters:[cohort_events_filter: "", flow_events_filter: "-UNLOAD UNLOAD", cohort_date_range_filter: "after 21 days ago", time_period: "30", ignore_duplicates: "exclude", before_or_after: "before"]}
-
-#   join: next_events {
-#     sql: inner join TABLE(prod.cu_user_analysis.next_events(${cohort_selection.session_id}, ${cohort_selection.first_event_id}, 10 )) ON 1=1;;
-#   }
-#   join: all_events {
-#     sql_on: ${cohort_selection.session_id} = ${all_events.session_id}
-#         and ${all_events.event_id} > ${cohort_selection.first_event_id}
-#         --and ${cohort_selection.start_event_time} <= ${all_events.event_date_raw}
-#         and (
-#            ${cohort_selection.end_event_time} > ${all_events.event_date_raw}
-#           or  ${cohort_selection.end_event_time} IS NULL
-#           );;
-#   }
-  join: learner_profile {
-    sql_on: ${cohort_selection.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
-    relationship: many_to_one
-  }
 }
