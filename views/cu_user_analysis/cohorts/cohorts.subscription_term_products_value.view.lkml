@@ -75,19 +75,19 @@ view: subscription_term_products_value {
   }
 
 
-  dimension: current {group_label: "CU Term Value ($)"}
+  dimension: current {group_label: "CU Term Value ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "CU Term Value ($)"}
+  dimension: minus_1 {group_label: "CU Term Value ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "CU Term Value ($)"}
+  dimension: minus_2 {group_label: "CU Term Value ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "CU Term Value ($)"}
+  dimension: minus_3 {group_label: "CU Term Value ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "CU Term Value ($)"}
+  dimension: minus_4 {group_label: "CU Term Value ($)" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: current_tiers {group_label: "CU Term Value ($)" hidden:no}
+  dimension: current_tiers {group_label: "CU Term Value ($)" hidden:no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1_tiers {group_label: "CU Term Value ($)" hidden:no}
+  dimension: minus_1_tiers {group_label: "CU Term Value ($)" hidden:no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 
 

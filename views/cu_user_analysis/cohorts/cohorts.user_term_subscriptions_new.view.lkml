@@ -25,11 +25,11 @@ view: cohorts_user_term_subscriptions_new {
   }
 
   dimension: user_sso_guid_merged {}
-  dimension: current {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed"}
-  dimension: minus_1 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed"}
-  dimension: minus_2 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed"}
-  dimension: minus_3 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed"}
-  dimension: minus_4 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed"}
+  dimension: current {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_1 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_2 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_3 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_4 {group_label: "New subscriptions" hidden: no description: "Subscription started this semester i.e. not renewed (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
 
 #   dimension: new_subscription_flag {

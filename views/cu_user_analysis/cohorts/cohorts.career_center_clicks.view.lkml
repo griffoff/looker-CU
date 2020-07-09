@@ -8,15 +8,15 @@ view: subscription_term_careercenter_clicks {
     hidden: yes
   }
 
-  dimension: current {group_label: "Career center clicks"}
+  dimension: current {group_label: "Career center clicks" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "Career center clicks"}
+  dimension: minus_1 {group_label: "Career center clicks" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Career center clicks"}
+  dimension: minus_2 {group_label: "Career center clicks" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Career center clicks"}
+  dimension: minus_3 {group_label: "Career center clicks" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Career center clicks"}
+  dimension: minus_4 {group_label: "Career center clicks" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 }
 

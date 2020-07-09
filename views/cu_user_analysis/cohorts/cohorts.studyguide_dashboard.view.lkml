@@ -107,14 +107,14 @@
 #     }
 
 
-    dimension: current {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
+    dimension: current {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-    dimension: minus_1 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
+    dimension: minus_1 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-    dimension: minus_2 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
+    dimension: minus_2 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-    dimension: minus_3 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
+    dimension: minus_3 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-    dimension: minus_4 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term"}
+    dimension: minus_4 {group_label: "Studyguide added to dashboard" description: "Number of study guides added to dashboard for term (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
   }

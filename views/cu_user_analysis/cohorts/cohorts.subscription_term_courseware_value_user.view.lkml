@@ -51,19 +51,19 @@ view: subscription_term_courseware_value_users {
 
 
   dimension: current {group_label: "CU Term Value User ($)"
-    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date"}
+    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
   dimension: minus_1 {group_label: "CU Term Value User ($)"
-    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date"}
+    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
   dimension: minus_2 {group_label: "CU Term Value User ($)"
-    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date"}
+    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
   dimension: minus_3 {group_label: "CU Term Value User ($)"
-    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date"}
+    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
   dimension: minus_4 {group_label: "CU Term Value User ($)"
-    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date"}
+    value_format_name: "usd" description: "Total net price of courseware used between subscription start and end date (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
 
 

@@ -105,14 +105,14 @@ view: cohorts_flashcards_dashboard {
 #     }
 
 
-    dimension: current {group_label: "Flashcards added to dashboard"}
+    dimension: current {group_label: "Flashcards added to dashboard" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_1 {group_label: "Flashcards added to dashboard"}
+    dimension: minus_1 {group_label: "Flashcards added to dashboard" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_2 {group_label: "Flashcards added to dashboard"}
+    dimension: minus_2 {group_label: "Flashcards added to dashboard" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_3 {group_label: "Flashcards added to dashboard"}
+    dimension: minus_3 {group_label: "Flashcards added to dashboard" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_4 {group_label: "Flashcards added to dashboard"}
+    dimension: minus_4 {group_label: "Flashcards added to dashboard" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
   }

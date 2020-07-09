@@ -8,15 +8,15 @@ view: cohorts_evernote_clicked {
     hidden: yes
   }
 
-  dimension: current {group_label: "Clicked on Evernote"}
+  dimension: current {group_label: "Clicked on Evernote" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 {group_label: "Clicked on Evernote"}
+  dimension: minus_1 {group_label: "Clicked on Evernote" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Clicked on Evernote"}
+  dimension: minus_2 {group_label: "Clicked on Evernote" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Clicked on Evernote"}
+  dimension: minus_3 {group_label: "Clicked on Evernote" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Clicked on Evernote"}
+  dimension: minus_4 {group_label: "Clicked on Evernote" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 }
 
