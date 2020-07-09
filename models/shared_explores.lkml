@@ -235,6 +235,11 @@ explore: learner_profile {
     relationship: one_to_one
   }
 
+  join: course_section_usage_facts {
+    sql_on:  ${dim_course.olr_course_key} = ${course_section_usage_facts.course_key} ;;
+    relationship: one_to_one
+  }
+
 #   join: dim_date {
 #     view_label: "Subscription Start Date"
 #     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
@@ -447,6 +452,27 @@ explore: learner_profile {
     sql_on: ${learner_profile.user_sso_guid} = ${cohorts_paid_access_non_cu.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
+
+  join: cohorts_mobile_usage {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${cohorts_mobile_usage.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
+  join: uploads_cu_sidebar_cohort {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: many_to_one
+  }
+
+  join: guid_cohort {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${guid_cohort.guid} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+
 }
 
 
@@ -462,17 +488,6 @@ explore: session_analysis {
     #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     relationship: one_to_many
-  }
-
-  join: uploads_cu_sidebar_cohort {
-    sql_on: ${learner_profile.user_sso_guid}=${uploads_cu_sidebar_cohort.merged} ;;
-    relationship: many_to_one
-  }
-
-  join: guid_cohort {
-    sql_on: ${learner_profile.user_sso_guid} = ${guid_cohort.guid} ;;
-    relationship: many_to_one
-    type: inner
   }
 
   join: subscription_term_cost {
@@ -517,6 +532,7 @@ explore: session_analysis {
 }
 
 explore: cohort_analysis {
+  extends: [learner_profile]
   from: cohort_selection
   view_name: cohort_selection
 
