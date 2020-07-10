@@ -25,6 +25,7 @@ view: guid_course_used{
     }
 
     dimension: user_sso_guid {
+      hidden:yes
       label: "Guid Course Date Active User SSO GUID"
       description: "User SSO GUID from guid_course_date_active view"
 

@@ -713,6 +713,7 @@ view: all_events_base {
 
 
   dimension_group: local_unconverted {
+    hidden:  yes
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
     sql:  ${TABLE}."LOCAL_TIME" ;;
