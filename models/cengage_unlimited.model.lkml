@@ -82,8 +82,11 @@ explore: active_users {
   from: guid_platform_date_active
 }
 
-explore: active_users_stats  {
-  from: dim_date
+# start of active user stats
+
+
+ explore: active_users_stats  {
+   from: dim_date
 
   always_filter: {
     filters: [date: "before today"]
@@ -250,6 +253,8 @@ explore: active_users_stats  {
     type: inner
   }
 }
+
+# end of active user stats
 
 explore: strategy_ecom_sales_orders {
   label: "Revenue"
@@ -687,13 +692,21 @@ view: date_ty_ly {
     sql:
     select datevalue, datevalue as date, date as ty_date, null as ly_date from prod.dm_common.dim_date_legacy_cube
     union all
-    select datevalue, dateadd(year, -1, datevalue) as date, null, date from prod.dm_common.dim_date_legacy_cube ;;
+    select datevalue, DATEADD(day, {{ ${offset._parameter_value }}},dateadd(year, -1, datevalue)) as date, null, date from prod.dm_common.dim_date_legacy_cube ;;
   }
 
   dimension: datevalue {type: date_raw hidden:yes}
   dimension: date {type: date_raw hidden:yes}
   dimension: ty_date {type:date_raw hidden:yes}
   dimension: ly_date {type:date_raw hidden:yes}
+
+  parameter: offset {
+    view_label: "Filters"
+    description: "Offset (days/weeks/months depending on metric) to use when comparing vs prior year, can be positive to move prior year values forwards or negative to shift prior year backwards"
+    type: number
+    default_value: "0"
+  }
+
 }
 
 explore: kpi_user_stats {
@@ -736,7 +749,7 @@ explore: kpi_user_stats {
   join: kpi_user_counts_ly {
     from: kpi_user_counts_agg
     view_label: "User Counts - Prior Year"
-    sql_on: ${date_ty_ly.ly_date} = ${kpi_user_counts_ly.date_raw}
+    sql_on:${date_ty_ly.ly_date} = ${kpi_user_counts_ly.date_raw}
         AND ${combinations.date} = ${kpi_user_counts_ly.date_raw}
         AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
         AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
@@ -750,7 +763,7 @@ explore: kpi_user_stats {
 
   join: yru {
     view_label: "User Counts"
-    sql_on: ${kpi_user_stats.datevalue_raw} = ${yru.date_raw};;
+    sql_on: ${date_ty_ly.ty_date} = ${yru.date_raw};;
     relationship: many_to_one
     type: left_outer
   }
@@ -758,7 +771,8 @@ explore: kpi_user_stats {
   join: yru_ly {
     from: yru
     view_label: "User Counts - Prior Year"
-    sql_on: ${kpi_user_stats.datevalue_raw} = ${yru_ly.date_raw};;
+    sql_on: ${date_ty_ly.ly_date} =  ${yru_ly.date_raw}
+    ;;
     relationship: many_to_one
     type: left_outer
   }

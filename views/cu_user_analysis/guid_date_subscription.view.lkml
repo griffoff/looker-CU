@@ -58,6 +58,7 @@ view: guid_date_subscription {
     dimension: content_type {
       view_label: "Filters"
       type: string
+      hidden:  yes
     }
 
   dimension: subscription_length {
@@ -90,6 +91,7 @@ view: guid_date_subscription {
   dimension: organization {
     view_label: "Filters"
     type: string
+
   }
 
   measure: full_access_user_count {

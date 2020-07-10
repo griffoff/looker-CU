@@ -1,4 +1,15 @@
-explore: date_user_type_count {}
+explore: date_user_type_count {
+  join: date_user_type_count_ly {
+    from: date_user_type_count
+    view_label: "Prior Year"
+    sql_on: dateadd(w,-52,${date_user_type_count.date}) = ${date_user_type_count_ly.date}
+      AND ${date_user_type_count.user_type} = ${date_user_type_count_ly.user_type};;
+    relationship: one_to_one
+    type: left_outer
+    fields: [user_count, average_user_count]
+  }
+}
+
 view: date_user_type_count {
   derived_table: {
     create_process: {
@@ -115,6 +126,7 @@ view: date_user_type_count {
 
       measure: average_user_count {
         group_label: "Visualization Dimensions"
+        description: "For visualization only. Use with Date & User Type to show table breakdown for Current Student and Instructor Users"
         type: average
         sql: ${user_count};;
         value_format_name: decimal_0
