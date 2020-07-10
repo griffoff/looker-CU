@@ -23,7 +23,7 @@ view: date_user_type_count {
       ;;
 
       sql_step:
-      DELETE FROM LOOKER_SCRATCH.date_user_type_count WHERE date = date_trunc(week,CURRENT_DATE())
+      DELETE FROM LOOKER_SCRATCH.date_user_type_count WHERE date = date_trunc(week,dateadd(d,-1,CURRENT_DATE()))
       ;;
 
 
