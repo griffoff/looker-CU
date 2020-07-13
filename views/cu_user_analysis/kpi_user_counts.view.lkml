@@ -2,7 +2,9 @@ view: kpi_user_counts_agg {
   extends: [kpi_user_counts]
   #hidden:yes
   sql_table_name:
-    {% if kpi_user_stats.datevalue_week._in_query %}
+    {% if kpi_user_stats.datevalue_date._in_query %}
+    ${kpi_user_counts.SQL_TABLE_NAME}
+    {% elsif kpi_user_stats.datevalue_week._in_query %}
     LOOKER_SCRATCH.kpi_user_counts_weekly
     {% elsif kpi_user_stats.datevalue_month._in_query %}
     LOOKER_SCRATCH.kpi_user_counts_monthly
@@ -480,5 +482,12 @@ measure: all_paid_active_user_guid {
     sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.user_type = 'Student' THEN ${TABLE}.all_active_user_guid END;;
     label: "# Total Active Student Users"
   }
+
+  measure: paid_active_courseware_student {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.userbase_paid_courseware_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
+    label: "# Total Paid Active Courseware Student Users"
+  }
+
 
 }

@@ -1051,6 +1051,7 @@ view: all_events_base {
 
 
   dimension: ATC_usage {
+    hidden: yes
     label: "ATC Event"
     description: "Above The Course event Y/N"
     type:  yesno
@@ -1078,7 +1079,7 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
   measure: above_the_courses{
-    hidden:  no
+    hidden:  yes
     label:"# of ATC usages - no ebook"
     description: "Number of times an Above The Course event occurred"
     type: count_distinct

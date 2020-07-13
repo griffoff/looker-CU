@@ -3,7 +3,9 @@ explore: kpi_user_counts_filter_combinations {hidden:yes}
 view: kpi_user_counts_filter_combinations_agg {
   extends: [kpi_user_counts_filter_combinations]
   sql_table_name:
-  {% if kpi_user_stats.datevalue_week._in_query %}
+  {% if kpi_user_stats.datevalue_date._in_query %}
+  ${kpi_user_counts_filter_combinations.SQL_TABLE_NAME}
+  {% elsif kpi_user_stats.datevalue_week._in_query %}
   LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly
   {% elsif kpi_user_stats.datevalue_month._in_query %}
   LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly
