@@ -468,4 +468,17 @@ measure: all_paid_active_user_guid {
     label: "# Total Active Instructors (Active Course)"
   }
 
+
+  measure: all_active_instructor {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.user_type = 'Instructor' THEN ${TABLE}.all_active_user_guid END;;
+    label: "# Total Active Instructors"
+  }
+
+  measure: all_active_student {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.user_type = 'Student' THEN ${TABLE}.all_active_user_guid END;;
+    label: "# Total Active Student Users"
+  }
+
 }

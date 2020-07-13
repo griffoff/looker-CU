@@ -71,7 +71,7 @@ view: guid_date_active {
   dimension_group: date {
     label: "Calendar"
     type:time
-    timeframes: [raw,date,month,year]
+    timeframes: [raw,date,week,month,year]
   }
 
   dimension: user_sso_guid {}
