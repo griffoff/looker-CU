@@ -768,21 +768,16 @@ view: yru {
           WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.YRU)
           AND d.datevalue < CURRENT_DATE()
         )
-        ,distinct_primary AS (
-          SELECT DISTINCT primary_guid FROM prod.unlimited.vw_partner_to_primary_user_guid
-        )
         ,all_events_merged AS (
-          SELECT DISTINCT e.user_sso_guid AS merged_guid, u.instructor, e.date as event_time
-          FROM ${guid_platform_date_active.SQL_TABLE_NAME} e
-          LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON e.user_sso_guid = u.user_sso_guid
+          SELECT DISTINCT e.user_sso_guid AS merged_guid, CASE WHEN e.user_type = 'Instructor' then TRUE ELSE FALSE END AS instructor, e.date as event_time
+          FROM ${guid_date_active.SQL_TABLE_NAME} e
         )
         ,first_mutation AS (
-          SELECT DISTINCT COALESCE(m.primary_guid, e.linked_guid) AS merged_guid, u.instructor, e.rsrc_timestamp::date AS event_time
+          SELECT DISTINCT COALESCE(m.primary_guid, e.linked_guid) AS merged_guid, e.instructor, e.rsrc_timestamp::date AS event_time
           FROM prod.datavault.hub_user hu
           INNER JOIN prod.datavault.sat_user e ON hu.hub_user_key = e.hub_user_key
           LEFT JOIN prod.datavault.sat_user_internal ui on hu.hub_user_key = ui.hub_user_key and ui.active and ui.internal
           LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m ON e.linked_guid = m.partner_guid
-          LEFT JOIN ${merged_cu_user_info.SQL_TABLE_NAME} u ON COALESCE(m.primary_guid, e.linked_guid) = u.user_sso_guid
           WHERE merged_guid IS NOT NULL
           AND event_time NOT IN ('2018-08-03','2019-08-22')
           AND ui.hub_user_key IS NULL
