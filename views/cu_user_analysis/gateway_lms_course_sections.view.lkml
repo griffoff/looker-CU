@@ -30,15 +30,15 @@ view: gateway_lms_course_sections {
     description: "Deployment = use of an LMS in a course section"
   }
 
-  measure: lms_context_count {
+  measure: lms_context_id_count {
     type: count_distinct
     sql: ${TABLE}.lms_context_id ;;
     hidden: yes
   }
 
-  measure: average_deployments_per_course_context {
+  measure: average_deployments_per_lms_context_id {
     type: number
-    sql: ${deployment_count} / ${lms_context_count}  ;;
+    sql: ${deployment_count} / nullif(${lms_context_id_count},0)  ;;
 }
 
  }
