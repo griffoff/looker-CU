@@ -1,4 +1,4 @@
-explore:  gateway_lms_course_sections {}
+explore:  gateway_lms_course_sections {hidden:yes}
 view: gateway_lms_course_sections {
 
   derived_table: {
@@ -17,6 +17,11 @@ view: gateway_lms_course_sections {
     hidden: yes
   }
 
+  dimension: deployment_linked_to_course {
+    sql: concat(${TABLE}.gateway_institution_id,${TABLE}.iac_isbn,${TABLE}.lms_context_id) ;;
+    hidden: yes
+  }
+
   dimension: lms_type {label: "LMS Type"}
 
   dimension: section_product_type {hidden: yes}
@@ -27,7 +32,13 @@ view: gateway_lms_course_sections {
     type: count_distinct
     sql: ${deployment} ;;
     label: "# LMS Deployments"
-    description: "Deployment = use of an LMS in a course section"
+    description: "Deployment = institution ID + IAC ISBN combination"
+  }
+
+  measure: deployment_linked_to_course_count {
+    type: count_distinct
+    sql: ${deployment_linked_to_course} ;;
+    hidden: yes
   }
 
   measure: lms_context_id_count {
@@ -38,7 +49,8 @@ view: gateway_lms_course_sections {
 
   measure: average_deployments_per_lms_context_id {
     type: number
-    sql: ${deployment_count} / nullif(${lms_context_id_count},0)  ;;
+    sql: ${deployment_linked_to_course_count} / nullif(${lms_context_id_count},0)  ;;
+    description: "Count of deployments divided by count of LMS context IDs (deployment = institution ID + IAC ISBN + LMS context ID combination)"
 }
 
  }
