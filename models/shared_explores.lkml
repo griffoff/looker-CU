@@ -63,11 +63,6 @@ explore: all_sessions {
     relationship: many_to_many
   }
 
-  join: wa_course_language {
-    sql_on: ${dim_course.context_id} = ${wa_course_language.context_id} ;;
-    view_label: "Course / Section Details"
-  }
-
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
     relationship: one_to_one

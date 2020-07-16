@@ -548,6 +548,8 @@ view: all_events_base {
   }
 
 
+
+
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
@@ -727,6 +729,8 @@ view: all_events_base {
     description: "Which page did the student come from to get here?"
     sql: ${event_data}:"referral path"::STRING ;;
   }
+
+
 
   dimension: referral_host {
     group_label: "Referral Path"
