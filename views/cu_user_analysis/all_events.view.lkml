@@ -548,6 +548,8 @@ view: all_events_base {
   }
 
 
+
+
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
@@ -727,6 +729,8 @@ view: all_events_base {
     description: "Which page did the student come from to get here?"
     sql: ${event_data}:"referral path"::STRING ;;
   }
+
+
 
   dimension: referral_host {
     group_label: "Referral Path"
@@ -1051,6 +1055,7 @@ view: all_events_base {
 
 
   dimension: ATC_usage {
+    hidden: yes
     label: "ATC Event"
     description: "Above The Course event Y/N"
     type:  yesno
@@ -1078,7 +1083,7 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
   measure: above_the_courses{
-    hidden:  no
+    hidden:  yes
     label:"# of ATC usages - no ebook"
     description: "Number of times an Above The Course event occurred"
     type: count_distinct

@@ -30,9 +30,9 @@ view: guid_date_active {
         )
 
         ,events AS (
-          SELECT DISTINCT user_sso_guid, local_time::DATE AS date,product_platform, event_data:course_key AS course_key
+          SELECT DISTINCT user_sso_guid, event_time::DATE AS date,product_platform, event_data:course_key AS course_key
           FROM prod.cu_user_analysis.all_events
-          INNER JOIN dates d ON local_time::DATE = d.datevalue
+          INNER JOIN dates d ON event_time::DATE = d.datevalue
         )
 
         SELECT DISTINCT
