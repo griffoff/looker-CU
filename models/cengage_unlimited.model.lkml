@@ -74,9 +74,7 @@ explore: course_sections {
   }
 
   join: gateway_lms_course_sections {
-    sql_on: ${dim_course.context_id} = ${gateway_lms_course_sections.olr_context_id}
-    --AND ${dim_course.product_type}=${gateway_lms_course_sections.section_product_type}
-    ;;
+    sql_on: ${dim_course.context_id} = ${gateway_lms_course_sections.olr_context_id};;
     relationship: one_to_one
     view_label: "Course / Section Details"
   }

@@ -1,4 +1,3 @@
-explore:  gateway_lms_course_sections {hidden:yes}
 view: gateway_lms_course_sections {
 
   derived_table: {
@@ -22,7 +21,10 @@ view: gateway_lms_course_sections {
     hidden: yes
   }
 
-  dimension: lms_type {label: "LMS Type"}
+  dimension: lms_type {
+    label: "LMS Type"
+    hidden: yes
+    }
 
   dimension: section_product_type {hidden: yes}
 
