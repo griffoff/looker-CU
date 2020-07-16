@@ -319,6 +319,15 @@ view: live_subscription_status {
     hidden: no
   }
 
+  dimension: marketing_intention {
+    description: "Bucket for determining how to commuicate with users"
+    label: "Marketing Bucket"
+#     Trial source is via courselink
+# Trial source is via ala carte trial-opt in
+# Trial source is via Cengage.com
+    sql:  ;;
+  }
+
 
   measure: student_count {
     hidden: yes

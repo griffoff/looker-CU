@@ -17,7 +17,7 @@ view: learner_profile {
       learner_profile.activations_after_subscription_start, learner_profile.activations_on_subscription_start, learner_profile.activations_before_subscription_start
      ,learner_profile.activations_two_weeks_before_subscription_start,cu_subscription_length, assigned_group,assigned_group_no,no_of_groups,current_date, learner_profile.count
       ,learner_profile.control_flag_1 ,learner_profile.control_flag_2 ,learner_profile.control_flag_3 ,learner_profile.control_flag_4 ,learner_profile.control_flag_5
-      ,learner_profile.email_control_flag, learner_profile.ipm_control_flag, learner_profile.user_count
+      ,learner_profile.email_control_flag, learner_profile.ipm_control_flag, learner_profile.user_count, learner_profile.cu_target_segment
     ]
   }
 
@@ -665,7 +665,18 @@ view: learner_profile {
     hidden: yes
   }
 
-
+  dimension: cu_target_segment {
+    label: "CU Target Segment"
+    sql: case
+          when ${live_subscription_status.subscription_state} ilike '%trial%'
+          then case
+                when ${user_courses.paid} then 'Upgrade to CU from ALC'
+                when ${user_courses.enrolled} then 'Advocate Subscription over ALC'
+                else 'Advocate Products and CU'
+                end
+          end
+    ;;
+  }
 
   dimension: cu_price {
     type: number
