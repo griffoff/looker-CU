@@ -2,7 +2,7 @@ view: gateway_lms_course_sections {
 
   derived_table: {
     sql:
-    SELECT c.lms_type, c.olr_context_id, c.lms_context_id, c.gateway_institution_id, c.deleted, s.iac_isbn, s.section_product_type
+    SELECT c.lms_type, c.lms_version, c.olr_context_id, c.lms_context_id, c.gateway_institution_id ,c.school_entity_id, c.deleted, s.iac_isbn, s.section_product_type
     FROM gateway.prod.course c
     INNER JOIN olr.prod.section_v4 s ON c.olr_context_id = s.context_id AND NOT s.deleted
     WHERE NOT c.deleted
