@@ -326,43 +326,49 @@ explore: raw_olr_enrollment {
 
 # MT Mobile Data
 
-# explore: mobiledata {
-#   from: dim_course
-#   view_name: dim_course
-#   label: "MT Mobile GA Data"
-#   extends: [dim_course]
-#
-#   join: ga_mobiledata {
-#     sql_on: ${dim_course.coursekey} = ${ga_mobiledata.coursekey};;
-#     relationship: many_to_one
-#   }
-#
-#   join: learner_profile {
-#     sql_on: ${ga_mobiledata.userssoguid}= ${learner_profile.user_sso_guid} ;;
-#     type: left_outer
-#     relationship: many_to_one
-#   }
-#
-#   join: live_subscription_status {
-#     view_label: "Learner Profile"
-#     sql_on: ${ga_mobiledata.userssoguid}= ${live_subscription_status.user_sso_guid} ;;
-#     type: left_outer
-#     relationship: many_to_one
-#   }
-#
-#
-#   join: raw_olr_provisioned_product {
-#     sql_on: ${ga_mobiledata.userssoguid}= ${raw_olr_provisioned_product.user_sso_guid} ;;
-#     type: left_outer
-#     relationship: many_to_one
-#   }
-#
-# # join: cu_user_info {
-# #   sql_on: ${ga_mobiledata.userssoguid} = ${cu_user_info.guid} ;;
-# #   relationship: many_to_one
-# # }
-#
+explore: mobiledata {
+  from: dim_course
+  view_name: dim_course
+  label: "MT Mobile GA Data"
+  extends: [dim_course]
+
+  join: ga_mobiledata {
+    sql_on: ${dim_course.coursekey} = ${ga_mobiledata.coursekey};;
+    relationship: many_to_one
+  }
+
+  join: learner_profile {
+    sql_on: ${ga_mobiledata.userssoguid}= ${learner_profile.user_sso_guid} ;;
+    type: left_outer
+    relationship: many_to_one
+  }
+
+  join: user_courses {
+    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key}
+          and ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid};;
+    relationship: one_to_one
+  }
+
+  join: live_subscription_status {
+    view_label: "Learner Profile"
+    sql_on: ${ga_mobiledata.userssoguid}= ${live_subscription_status.user_sso_guid} ;;
+    type: left_outer
+    relationship: many_to_one
+  }
+
+
+  join: raw_olr_provisioned_product {
+    sql_on: ${ga_mobiledata.userssoguid}= ${raw_olr_provisioned_product.user_sso_guid} ;;
+    type: left_outer
+    relationship: many_to_one
+  }
+
+# join: cu_user_info {
+#   sql_on: ${ga_mobiledata.userssoguid} = ${cu_user_info.guid} ;;
+#   relationship: many_to_one
 # }
+
+}
 
 ################ MApped guids ###########################
 
