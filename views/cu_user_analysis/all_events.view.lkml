@@ -669,9 +669,10 @@ view: all_events_base {
   }
 
   dimension: event_date_raw {
-    hidden: yes
+    hidden: no
     type: date
     sql: ${TABLE}.event_time::date ;;
+
   }
 
 
@@ -780,7 +781,7 @@ view: all_events_base {
 
   dimension: grace_period_flag {
     type: yesno
-    description: "Event occurred before course activation up to midpoint of course or 60 days after start. Even occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
+    description: "Event occurred before course activation up to midpoint of course or 60 days after start. Event occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
   }
 
   dimension: day_of_grace_period {

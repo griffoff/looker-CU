@@ -610,3 +610,8 @@ explore: kpi_user_stats {
   }
 
 }
+
+# access_grant: access_grant_test {
+#   user_attribute: test_attribute
+#   allowed_values: [ "yes" ]
+# }
