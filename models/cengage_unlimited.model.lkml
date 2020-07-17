@@ -34,7 +34,7 @@ view: current_date {
 }
 
 explore: course_sections {
-  extends: [dim_course]
+  extends: [dim_course, learner_profile_cohorts]
   from: dim_course
   view_name: dim_course
 
@@ -50,6 +50,11 @@ explore: course_sections {
     view_label: "Course / Section Students"
     sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
+  }
+
+  join: learner_profile {
+    sql_on: ${user_courses.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+    relationship: many_to_one
   }
 
   join: live_subscription_status {
@@ -321,43 +326,43 @@ explore: raw_olr_enrollment {
 
 # MT Mobile Data
 
-explore: mobiledata {
-  from: dim_course
-  view_name: dim_course
-  label: "MT Mobile GA Data"
-  extends: [dim_course]
-
-  join: ga_mobiledata {
-    sql_on: ${dim_course.coursekey} = ${ga_mobiledata.coursekey};;
-    relationship: many_to_one
-  }
-
-  join: learner_profile {
-    sql_on: ${ga_mobiledata.userssoguid}= ${learner_profile.user_sso_guid} ;;
-    type: left_outer
-    relationship: many_to_one
-  }
-
-  join: live_subscription_status {
-    view_label: "Learner Profile"
-    sql_on: ${ga_mobiledata.userssoguid}= ${live_subscription_status.user_sso_guid} ;;
-    type: left_outer
-    relationship: many_to_one
-  }
-
-
-  join: raw_olr_provisioned_product {
-    sql_on: ${ga_mobiledata.userssoguid}= ${raw_olr_provisioned_product.user_sso_guid} ;;
-    type: left_outer
-    relationship: many_to_one
-  }
-
-# join: cu_user_info {
-#   sql_on: ${ga_mobiledata.userssoguid} = ${cu_user_info.guid} ;;
-#   relationship: many_to_one
+# explore: mobiledata {
+#   from: dim_course
+#   view_name: dim_course
+#   label: "MT Mobile GA Data"
+#   extends: [dim_course]
+#
+#   join: ga_mobiledata {
+#     sql_on: ${dim_course.coursekey} = ${ga_mobiledata.coursekey};;
+#     relationship: many_to_one
+#   }
+#
+#   join: learner_profile {
+#     sql_on: ${ga_mobiledata.userssoguid}= ${learner_profile.user_sso_guid} ;;
+#     type: left_outer
+#     relationship: many_to_one
+#   }
+#
+#   join: live_subscription_status {
+#     view_label: "Learner Profile"
+#     sql_on: ${ga_mobiledata.userssoguid}= ${live_subscription_status.user_sso_guid} ;;
+#     type: left_outer
+#     relationship: many_to_one
+#   }
+#
+#
+#   join: raw_olr_provisioned_product {
+#     sql_on: ${ga_mobiledata.userssoguid}= ${raw_olr_provisioned_product.user_sso_guid} ;;
+#     type: left_outer
+#     relationship: many_to_one
+#   }
+#
+# # join: cu_user_info {
+# #   sql_on: ${ga_mobiledata.userssoguid} = ${cu_user_info.guid} ;;
+# #   relationship: many_to_one
+# # }
+#
 # }
-
-}
 
 ################ MApped guids ###########################
 
@@ -520,17 +525,6 @@ explore: adoption_usage_analysis {
 }
 
 view: date_ty_ly {
-  derived_table: {
-    sql:
-    select datevalue, datevalue as date, date as ty_date, null as ly_date from prod.dm_common.dim_date_legacy_cube
-    union all
-    select datevalue, DATEADD(day, {{ ${offset._parameter_value }}},dateadd(year, -1, datevalue)) as date, null, date from prod.dm_common.dim_date_legacy_cube ;;
-  }
-
-  dimension: datevalue {type: date_raw hidden:yes}
-  dimension: date {type: date_raw hidden:yes}
-  dimension: ty_date {type:date_raw hidden:yes}
-  dimension: ly_date {type:date_raw hidden:yes}
 
   parameter: offset {
     view_label: "Filters"
@@ -538,6 +532,18 @@ view: date_ty_ly {
     type: number
     default_value: "0"
   }
+
+  derived_table: {
+    sql:
+    select datevalue, datevalue as date, date as ty_date, null as ly_date from prod.dm_common.dim_date_legacy_cube
+    union all
+    select datevalue, DATEADD(day, {% parameter offset %},dateadd(year, -1, datevalue)) as date, null, date from prod.dm_common.dim_date_legacy_cube ;;
+  }
+
+  dimension: datevalue {type: date_raw hidden:yes}
+  dimension: date {type: date_raw hidden:yes primary_key:yes}
+  dimension: ty_date {type:date_raw hidden:yes}
+  dimension: ly_date {type:date_raw hidden:yes}
 
 }
 
@@ -552,6 +558,7 @@ explore: kpi_user_stats {
 
   join: date_ty_ly {
     sql_on: ${kpi_user_stats.datevalue_raw} = ${date_ty_ly.datevalue} ;;
+    relationship: one_to_many
   }
   join: combinations {
     view_label: "Filters"
