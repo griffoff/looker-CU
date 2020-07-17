@@ -2,8 +2,8 @@ view: gateway_institution {
   derived_table: {
     sql:
     select school_entity_id as entity_no
-      , listagg(distinct lms_type, ',') within group (order by lms_type) as lms_type
-      , listagg(distinct concat(lms_type,' ',lms_version), ',') within group (order by concat(lms_type,' ',lms_version)) as lms_version
+      , listagg(distinct lms_type, ', ') within group (order by lms_type) as lms_type
+      , listagg(distinct concat(lms_type,' ',lms_version), ', ') within group (order by concat(lms_type,' ',lms_version)) as lms_version
     from ${gateway_lms_course_sections.SQL_TABLE_NAME}
     group by entity_no
     ;;
