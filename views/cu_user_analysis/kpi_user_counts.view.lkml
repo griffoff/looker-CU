@@ -449,10 +449,7 @@ measure: userbase_paid_courseware_guid  {type:count_distinct label: "# Paid Cour
 measure: userbase_paid_ebook_only_guid  {type:count_distinct label: "# Paid eBook ONLY Student Users"}
 measure: userbase_full_access_cu_only_guid  {type:count_distinct label: "# Paid CU ONLY Student Users (no provisions)"}
 
-measure: userbase_trial_access_cu_only_guid  {
-  type:count_distinct label: "# Trial CU ONLY Student Users"
-  #required_access_grants: [test_attribute]
-  }
+measure: userbase_trial_access_cu_only_guid  {type:count_distinct label: "# Trial CU ONLY Student Users"}
 
 measure: all_courseware_guid  {type:count_distinct label: "# Total Courseware Student Users"}
 measure: all_ebook_guid  {type:count_distinct label: "# Total eBook Student Users"}

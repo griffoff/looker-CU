@@ -669,7 +669,7 @@ view: all_events_base {
   }
 
   dimension: event_date_raw {
-    hidden: no
+    hidden: yes
     type: date
     sql: ${TABLE}.event_time::date ;;
 

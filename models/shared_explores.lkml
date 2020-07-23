@@ -398,7 +398,8 @@ explore: learner_profile {
   extends: [learner_profile_cohorts, dim_course, user_courses]
   view_name: learner_profile
   from: learner_profile
-  extension: required
+  label: "Learner Profile"
+#   extension: required
   join: merged_cu_user_info {
     view_label: "Learner Profile"
     sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
@@ -429,7 +430,7 @@ explore: learner_profile {
   }
 
   join: raw_olr_provisioned_product {
-    fields: []
+    fields: [product_provisioned, ebook_provisioned, current_product_count, current_ebook_product_count]
     view_label: "Provisioned Products"
     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
     relationship: many_to_one
@@ -474,10 +475,10 @@ explore: learner_profile {
 #     relationship: one_to_one
 #   }
 
-  join: strategy_ecom_sales_orders {
-    sql_on: ${learner_profile.user_sso_guid} = ${strategy_ecom_sales_orders.user_sso_guid} ;;
-    relationship: one_to_many
-  }
+#   join: strategy_ecom_sales_orders {
+#     sql_on: ${learner_profile.user_sso_guid} = ${strategy_ecom_sales_orders.user_sso_guid} ;;
+#     relationship: one_to_many
+#   }
 
 
 }
@@ -502,6 +503,7 @@ explore: session_analysis {
     sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_cost.user_sso_guid_merged} ;;
     relationship:  one_to_many
   }
+
   join: subscription_term_products_value {
     view_label: "Institution"
     sql_on: ${learner_profile.user_sso_guid} = ${subscription_term_products_value.user_sso_guid_merged} ;;
@@ -537,6 +539,7 @@ explore: session_analysis {
 
 
 }
+
 
 explore: cohort_analysis {
   extends: [learner_profile]

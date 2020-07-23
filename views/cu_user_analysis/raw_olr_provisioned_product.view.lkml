@@ -36,59 +36,49 @@ derived_table: {
 # --                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS);;
 
   sql:
- With pp as (
-   SELECT prod.*
-          FROM  olr.prod.provisioned_product Prod
-              wHERE prod.user_type like 'student'
-                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS)
-     ),prim_map AS(
-        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
-      )
-      ,types as (
-        SELECT iac.pp_pid
-            , iac.pp_product_type
-            ,iac.pp_name
-            , array_agg(distinct iac.cp_product_type) as cppt
-        from  prod.unlimited.RAW_OLR_EXTENDED_IAC as iac
-        group by iac.pp_pid, iac.pp_product_type,pp_name
-      )
-      ,guid_mapping AS(
-        Select * from prim_map where latest
-      )
-     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid,iac.pp_product_type,pp_name,
-      case when iac.pp_product_type not like 'SMART' then iac.pp_product_type else
-      case when ARRAY_CONTAINS('MTC'::variant, cppt) then 'MTC' else
-      case when ARRAY_CONTAINS('CSFI'::variant, cppt) then 'CSFI' else
-      case when ARRAY_CONTAINS('4LT'::variant, cppt) then '4LT' else
-      case when ARRAY_CONTAINS('APLIA'::variant, cppt) then 'APLIA' else
-      case when ARRAY_CONTAINS('SAM'::variant, cppt) then 'SAM' else
-      case when ARRAY_CONTAINS('CNOWV8'::variant, cppt) then 'CNOWV8' else
-      case when ARRAY_CONTAINS('NATGEO'::variant, cppt) then 'NATGEO' else
-      case when ARRAY_CONTAINS('MT4'::variant, cppt) then 'MT4' else
-      case when ARRAY_CONTAINS('4LTV1'::variant, cppt) then '4LTV1' else
-      case when ARRAY_CONTAINS('DEV-MATH'::variant, cppt) then 'DEV-MATH' else
-      case when ARRAY_CONTAINS('OWL'::variant, cppt) or ARRAY_CONTAINS('OWLV8'::variant, cppt) then 'OWL' else
-      case when ARRAY_CONTAINS('MTS'::variant, cppt) then 'MTS' else
-      case when ARRAY_CONTAINS('WA'::variant, cppt) then 'WA' else
-      case when ARRAY_CONTAINS('WA3P'::variant, cppt) then 'WA3P' else 'other' end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end as product_type_platform
-    from pp
+WITH pp AS (
+             SELECT prod.*, COALESCE(su.linked_guid, prod.user_sso_guid) AS merged_guid
+             FROM olr.prod.provisioned_product_v4 prod
+                  INNER JOIN prod.datavault.hub_user hu ON prod.user_sso_guid = hu.uid
+                  INNER JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
+                  LEFT JOIN prod.datavault.sat_user_internal sui
+                            ON hu.hub_user_key = sui.hub_user_key AND sui.internal AND sui.active
+             WHERE prod.user_type LIKE 'student'
+               AND sui.hub_user_key IS NULL
+           )
+   , types AS (
+                SELECT iac.pp_pid
+                     , iac.pp_product_type
+                     , iac.pp_name
+                     , array_agg(DISTINCT iac.cp_product_type) AS cppt
+                FROM prod.unlimited.raw_olr_extended_iac AS iac
+                GROUP BY iac.pp_pid, iac.pp_product_type, pp_name
+              )
+SELECT pp.*
+     , iac.pp_product_type
+     , pp_name
+     , CASE
+         WHEN iac.pp_product_type NOT LIKE 'SMART' THEN iac.pp_product_type
+         WHEN ARRAY_CONTAINS('MTC'::VARIANT, cppt) THEN 'MTC'
+         WHEN ARRAY_CONTAINS('CSFI'::VARIANT, cppt) THEN 'CSFI'
+         WHEN ARRAY_CONTAINS('4LT'::VARIANT, cppt) THEN '4LT'
+         WHEN ARRAY_CONTAINS('APLIA'::VARIANT, cppt) THEN 'APLIA'
+         WHEN ARRAY_CONTAINS('SAM'::VARIANT, cppt) THEN 'SAM'
+         WHEN ARRAY_CONTAINS('CNOWV8'::VARIANT, cppt) THEN 'CNOWV8'
+         WHEN ARRAY_CONTAINS('NATGEO'::VARIANT, cppt) THEN 'NATGEO'
+         WHEN ARRAY_CONTAINS('MT4'::VARIANT, cppt) THEN 'MT4'
+         WHEN ARRAY_CONTAINS('4LTV1'::VARIANT, cppt) THEN '4LTV1'
+         WHEN ARRAY_CONTAINS('DEV-MATH'::VARIANT, cppt) THEN 'DEV-MATH'
+         WHEN ARRAY_CONTAINS('OWL'::VARIANT, cppt) OR ARRAY_CONTAINS('OWLV8'::VARIANT, cppt) THEN 'OWL'
+         WHEN ARRAY_CONTAINS('MTS'::VARIANT, cppt) THEN 'MTS'
+         WHEN ARRAY_CONTAINS('WA'::VARIANT, cppt) THEN 'WA'
+         WHEN ARRAY_CONTAINS('WA3P'::VARIANT, cppt) THEN 'WA3P'
+         ELSE 'other'
+       END AS product_type_platform
+FROM pp
      LEFT JOIN types iac
-     ON iac.pp_pid = pp.product_id AND pp.user_type like 'student'
-     LEFT JOIN guid_mapping m on pp.user_sso_guid = m.partner_guid ;;
+               ON iac.pp_pid = pp.product_id
+    ;;
 }
 
   dimension: _hash {
@@ -275,6 +265,35 @@ dimension_group: _ldts {
     type: count_distinct
     drill_fields: [detail*]
     sql:  ${TABLE}.product_id;;
+  }
+
+  dimension: product_provisioned {
+    label: "Product provisioned"
+    type: "yesno"
+    sql:  case when current_date() between ${TABLE}.date_added and ${TABLE}.expiration_date then 1 else 0 end;;
+  }
+
+  dimension: ebook_provisioned {
+    label: "eBook provisioned"
+    type: "yesno"
+    sql:  case when ${TABLE}.context_id is null and current_date() between ${TABLE}.date_added and ${TABLE}.expiration_date then 1 else 0 end;;
+  }
+
+
+  measure: current_product_count {
+    label: "# Current Products Provisioned"
+    description: "Count of unique product ids where date added is in the past and expiration date is in the future"
+    type: sum
+#     drill_fields: [detail*]
+    sql:  ${product_provisioned};;
+  }
+
+  measure: current_ebook_product_count {
+    label: "# Current eBooks Provisioned"
+    description: "Count of unique product ids with no context id where date added is in the past and expiration date is in the future"
+    type: sum
+#     drill_fields: [detail*]
+    sql:  ${ebook_provisioned};;
   }
 
   measure: user_count{
