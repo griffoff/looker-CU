@@ -454,11 +454,6 @@ explore: learner_profile {
     relationship: many_to_many
   }
 
-  join: dim_institution {
-    sql_on: ${dim_course.course_entity_id} = ${dim_institution.entity_no} ;;
-    relationship: many_to_one
-  }
-
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
     relationship: one_to_one
