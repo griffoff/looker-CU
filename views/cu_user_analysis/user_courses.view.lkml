@@ -113,23 +113,6 @@ derived_table: {
     description: "Payment ISBN13 from OLR enrollments table"
   }
 
-
-
-
-#   dimension: is_new_customer {
-#     group_label: "Instructor"
-#     label: "Is New Instructor"
-#     type: string
-#     sql:  ${TABLE}."IS_NEW_CUSTOMER" ;;
-#   }
-#
-#   dimension: is_returning_customer {
-#     group_label: "Instructor"
-#     label: "Is Returning Instructor"
-#     type: string
-#     sql:  ${TABLE}."IS_RETURNING_CUSTOMER" ;;
-#   }
-
   dimension: pk {
     sql: HASH(${user_sso_guid}, ${olr_course_key}) ;;
     primary_key: yes
@@ -454,9 +437,28 @@ derived_table: {
   }
 
   measure: student_course_list {
+    group_label: "Course Lists"
     type: string
-    sql: LISTAGG(DISTINCT ${dim_course.coursename}, ', ') ;;
+    sql: CASE
+          WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
+          ELSE
+          LISTAGG(DISTINCT CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} END)
+        END ;;
     description: "List of student courses"
+  }
+
+  measure: student_course_list_extended {
+    group_label: "Course Lists"
+    label: "Student Course List (with dates)"
+    type: string
+    sql: CASE
+          WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
+          ELSE
+          LISTAGG(DISTINCT CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END)
+          END ;;
+    description: "List of student courses (including dates)"
   }
 
   dimension: enrollment_date {

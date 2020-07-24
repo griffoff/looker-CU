@@ -3,6 +3,8 @@ include: "//cube/dim_course.view"
 
 include: "/views/cu_user_analysis/*.view"
 include: "/views/cu_user_analysis/cohorts/*.view"
+include: "/views/discounts/*.view"
+include: "/views/strategy/*.view"
 include: "/views/uploads/*.view"
 
 include: "/views/cu_user_analysis/filter_caches/*.view"
@@ -464,17 +466,17 @@ explore: learner_profile {
     relationship: one_to_one
   }
 
-#   join: dim_date {
-#     view_label: "Subscription Start Date"
-#     sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
-#     relationship: one_to_one
-#   }
+  join: student_discounts_dps {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
+    relationship: one_to_one
+  }
 
-#   join: strategy_ecom_sales_orders {
-#     sql_on: ${learner_profile.user_sso_guid} = ${strategy_ecom_sales_orders.user_sso_guid} ;;
-#     relationship: one_to_many
-#   }
-
+  join: institutional_savings {
+    view_label: "Institution"
+    sql_on: ${dim_institution.entity_no}::STRING = ${institutional_savings.entity_no}::STRING ;;
+    relationship: many_to_one
+  }
 
 }
 
