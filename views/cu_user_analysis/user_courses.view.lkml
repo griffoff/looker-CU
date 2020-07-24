@@ -180,6 +180,15 @@ derived_table: {
     hidden: no
   }
 
+  dimension: enrolled_current {
+    label: "Currently enrolled"
+    group_label: "Enrolled?"
+    description: "Enrolled on a course with a future end date"
+    type: yesno
+    sql: ${TABLE}.enrolled::BOOLEAN and ${course_end_date} > CURRENT_DATE()  ;;
+    hidden: no
+  }
+
   dimension: enrolled_desc {
     group_label: "Enrolled?"
     label: "Enrolled (Description)"
@@ -194,6 +203,15 @@ derived_table: {
     description: "Course has been activated Y/N"
     type: yesno
     sql: ${TABLE}.activated = 'True'  ;;
+    hidden: no
+  }
+
+  dimension: activated_current {
+    label: "Currently activated"
+    group_label: "Activated?"
+    description: "Activated on a course with a future end date"
+    type: yesno
+    sql: ${TABLE}.activated::BOOLEAN and ${course_end_date} > CURRENT_DATE()  ;;
     hidden: no
   }
 
@@ -236,14 +254,21 @@ derived_table: {
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN ${isbn} END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct products activated by non-CU subscribers"
+  }
+
+  dimension: has_ala_cart_purchase_current {
+    label:  "Has current a la carte purchase"
+    type: yesno
+    sql: NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE();;
+    description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 
   measure: distinct_ala_cart_purchase_current {
     label:  "# of current a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE() THEN ${isbn} END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE() THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 
