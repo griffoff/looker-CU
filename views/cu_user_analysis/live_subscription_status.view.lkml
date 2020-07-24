@@ -330,15 +330,15 @@ view: live_subscription_status {
 
 
   measure: student_count {
-    hidden: yes
-    label: "# Students"
+    hidden: no
+    label: "# Subscribers (All types inc. trial)"
     type: number
     sql: COUNT(DISTINCT ${user_sso_guid}) ;;
     drill_fields: [user_sso_guid]
   }
 
   measure: subscriber_count {
-    label: "# Subscribers"
+    label: "# Full Access Subscribers"
     type: number
     sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN ${user_sso_guid} END) ;;
     description: "Distinct count of full access subscribers"

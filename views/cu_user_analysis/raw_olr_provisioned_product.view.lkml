@@ -81,15 +81,22 @@ derived_table: {
       , pp_name
       , nullif(context_id_array,array_construct()) as context_id
       , case when context_id is not null or hub_serial_number_key is not null then 1 else 0 end as paid_provision
+      , case when context_id is not null or hub_serial_number_key is not null then 0 else 1 end as unpaid_provision
+
       , case when current_date() between date_added and expiration_date then 1 else 0 end as current_provision
       , case when (current_date() between date_added and expiration_date) and context_id is null then 1 else 0 end as current_ebook_provision
       , case when (current_date() between date_added and expiration_date) and context_id is not null then 1 else 0 end as current_courseware_provision
+
       , sum(current_courseware_provision) over (partition by merged_guid) as current_user_courseware_provisions
       , sum(case when paid_provision = 1 then current_courseware_provision else 0 end) over (partition by merged_guid) as current_user_paid_courseware_provisions
       , sum(current_provision) over (partition by merged_guid) as current_user_provisions
       , sum(case when paid_provision = 1 then current_provision else 0 end) over (partition by merged_guid) as current_paid_user_provisions
+
+      , sum(case when unpaid_provision = 1 then current_provision else 0 end) over (partition by merged_guid) as current_unpaid_user_provisions
+
       , sum(current_ebook_provision) over (partition by merged_guid) as current_user_ebook_provisions
       , sum(case when paid_provision = 1 then current_ebook_provision else 0 end) over (partition by merged_guid) as current_paid_user_ebook_provisions
+
       , CASE
           WHEN iac.pp_product_type NOT LIKE 'SMART' THEN iac.pp_product_type
           WHEN ARRAY_CONTAINS('MTC'::VARIANT, cppt) THEN 'MTC'
@@ -239,12 +246,14 @@ derived_table: {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
-  dimension: current_user_provisions {}
-  dimension: current_paid_user_provisions {}
-  dimension: current_user_ebook_provisions {}
-  dimension: current_paid_user_ebook_provisions {}
-  dimension: current_user_courseware_provisions {}
-  dimension: current_user_paid_courseware_provisions {}
+  dimension: current_user_provisions {type:number description:"For particular user guid"}
+  dimension: current_paid_user_provisions {type:number description:"For particular user guid"}
+  dimension: current_unpaid_user_provisions {type:number description:"For particular user guid"}
+#   dimension: current_user_ebook_provisions {type:number}
+#   dimension: current_paid_user_ebook_provisions {type:number}
+#   dimension: current_user_courseware_provisions {type:number}
+#   dimension: current_user_paid_courseware_provisions {type:number}
+
 
 
   set: detail {
