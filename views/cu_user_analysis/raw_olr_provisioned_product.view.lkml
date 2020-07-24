@@ -229,13 +229,13 @@ derived_table: {
     sql: ${current_provision};;
   }
 
-  measure: current_ebook_product_count {
-    label: "# Current eBooks Provisioned"
-    description: "Count of unique product ids with no context id where date added is in the past and expiration date is in the future"
-    type: number
-    drill_fields: [detail*]
-    sql:  sum(${current_ebook_provision});;
-  }
+#   measure: current_ebook_product_number {
+#     label: "# Current eBooks Provisioned"
+#     description: "Count of unique product ids with no context id where date added is in the past and expiration date is in the future"
+#     type: number
+#     drill_fields: [detail*]
+#     sql:  sum(${current_ebook_provision});;
+#   }
 
   measure: user_count{
     description: "Count of unique user guids"
@@ -248,13 +248,47 @@ derived_table: {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
-  dimension: current_user_provisions {type:number description:"For particular user guid"}
-  dimension: current_paid_user_provisions {type:number description:"For particular user guid"}
-  dimension: current_unpaid_user_provisions {type:number description:"For particular user guid"}
-#   dimension: current_user_ebook_provisions {type:number}
-#   dimension: current_paid_user_ebook_provisions {type:number}
-#   dimension: current_user_courseware_provisions {type:number}
-#   dimension: current_user_paid_courseware_provisions {type:number}
+  dimension: current_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_provisions,0) ;;
+    }
+
+  dimension: current_paid_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_paid_user_provisions,0) ;;
+    }
+
+  dimension: current_unpaid_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_unpaid_user_provisions,0) ;;
+    }
+
+  dimension: current_user_ebook_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_ebook_provisions,0) ;;
+    }
+
+  dimension: current_paid_user_ebook_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_paid_user_ebook_provisions,0) ;;
+    }
+
+  dimension: current_user_courseware_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_courseware_provisions,0) ;;
+    }
+
+  dimension: current_user_paid_courseware_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_paid_courseware_provisions,0) ;;
+    }
 
 
 
