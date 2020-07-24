@@ -229,13 +229,13 @@ derived_table: {
     sql: ${current_provision};;
   }
 
-  measure: current_ebook_product_count {
-    label: "# Current eBooks Provisioned"
-    description: "Count of unique product ids with no context id where date added is in the past and expiration date is in the future"
-    type: number
-    drill_fields: [detail*]
-    sql:  sum(${current_ebook_provision});;
-  }
+#   measure: current_ebook_product_number {
+#     label: "# Current eBooks Provisioned"
+#     description: "Count of unique product ids with no context id where date added is in the past and expiration date is in the future"
+#     type: number
+#     drill_fields: [detail*]
+#     sql:  sum(${current_ebook_provision});;
+#   }
 
   measure: user_count{
     description: "Count of unique user guids"
