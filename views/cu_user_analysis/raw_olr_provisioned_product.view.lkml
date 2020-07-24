@@ -118,6 +118,8 @@ derived_table: {
     FROM prod_clean pp
     LEFT JOIN types iac ON iac.pp_pid = pp.product_id
     ;;
+
+  datagroup_trigger: daily_refresh
 }
 
   dimension: provision_key {
