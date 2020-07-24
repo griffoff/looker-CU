@@ -248,14 +248,47 @@ derived_table: {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
-  dimension: current_user_provisions {type:number description:"For particular user guid"}
-  dimension: current_paid_user_provisions {type:number description:"For particular user guid"}
-  dimension: current_unpaid_user_provisions {type:number description:"For particular user guid"}
+  dimension: current_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_provisions,0) ;;
+    }
 
-  dimension: current_user_ebook_provisions {type:number description:"For particular user guid"}
-  dimension: current_paid_user_ebook_provisions {type:number description:"For particular user guid"}
-  dimension: current_user_courseware_provisions {type:number description:"For particular user guid"}
-  dimension: current_user_paid_courseware_provisions {type:number description:"For particular user guid"}
+  dimension: current_paid_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_paid_user_provisions,0) ;;
+    }
+
+  dimension: current_unpaid_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_unpaid_user_provisions,0) ;;
+    }
+
+  dimension: current_user_ebook_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_ebook_provisions,0) ;;
+    }
+
+  dimension: current_paid_user_ebook_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_paid_user_ebook_provisions,0) ;;
+    }
+
+  dimension: current_user_courseware_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_courseware_provisions,0) ;;
+    }
+
+  dimension: current_user_paid_courseware_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_paid_courseware_provisions,0) ;;
+    }
 
 
 
