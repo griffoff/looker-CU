@@ -251,10 +251,11 @@ derived_table: {
   dimension: current_user_provisions {type:number description:"For particular user guid"}
   dimension: current_paid_user_provisions {type:number description:"For particular user guid"}
   dimension: current_unpaid_user_provisions {type:number description:"For particular user guid"}
-#   dimension: current_user_ebook_provisions {type:number}
-#   dimension: current_paid_user_ebook_provisions {type:number}
-#   dimension: current_user_courseware_provisions {type:number}
-#   dimension: current_user_paid_courseware_provisions {type:number}
+
+  dimension: current_user_ebook_provisions {type:number description:"For particular user guid"}
+  dimension: current_paid_user_ebook_provisions {type:number description:"For particular user guid"}
+  dimension: current_user_courseware_provisions {type:number description:"For particular user guid"}
+  dimension: current_user_paid_courseware_provisions {type:number description:"For particular user guid"}
 
 
 
