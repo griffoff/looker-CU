@@ -240,6 +240,13 @@ derived_table: {
     description: "Count of distinct products activated by non-CU subscribers"
   }
 
+  measure: distinct_ala_cart_purchase_current {
+    label:  "# of current a la carte purchases (distinct)"
+    type: count_distinct
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE() THEN ${isbn} END;;
+    description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
+  }
+
   dimension: cu_subscription_id {
     group_label: "Subscription"
     type: string
