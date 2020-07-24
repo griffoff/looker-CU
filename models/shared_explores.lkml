@@ -430,10 +430,10 @@ explore: learner_profile {
   }
 
   join: raw_olr_provisioned_product {
-    fields: [product_provisioned, ebook_provisioned, current_product_count, current_ebook_product_count]
+    fields: [current_product_count, product_provisioned]
     view_label: "Provisioned Products"
-    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
-    relationship: many_to_one
+    sql_on: ${live_subscription_status.user_sso_guid} = ${raw_olr_provisioned_product.merged_guid} ;;
+    relationship: many_to_many
   }
 
   join: products_v {
