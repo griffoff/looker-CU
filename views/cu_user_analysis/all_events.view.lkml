@@ -479,7 +479,7 @@ view: all_events_base {
     group_label: "CAFE Tags"
     label: "ISBN"
     type: string
-    sql: ${event_data}:ISBN::string  ;;
+    sql: coalesce(${event_data}:ISBN::string,${event_data}:isbn::string)  ;;
     description: "Event data"
     hidden: no
   }
@@ -549,12 +549,15 @@ view: all_events_base {
 
 
   dimension: tags_ISBN13 {
-    label: "ISBN13 (event_data)"
+    group_label: "CAFE Tags"
+    label: "ISBN13"
     type: string
     sql: replace(${event_data}:isbn13::string,'-','')  ;;
     description: "ISBN13 (Event data tags)"
     hidden: no
   }
+
+
 
 
 
