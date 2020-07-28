@@ -670,8 +670,8 @@ view: learner_profile {
     sql: case
           when ${live_subscription_status.subscription_state} ilike '%trial%'
           then case
-                when ${user_courses.paid} then 'Upgrade to CU from ALC'
-                when ${user_courses.enrolled} then 'Advocate Subscription over ALC'
+                when ${user_courses.paid_current} then 'Upgrade to CU from ALC'
+                when ${user_courses.enrolled_current} then 'Advocate Subscription over ALC'
                 else 'Advocate Products and CU'
                 end
           end

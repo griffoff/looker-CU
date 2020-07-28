@@ -548,6 +548,14 @@ view: all_events_base {
   }
 
 
+  dimension: tags_ISBN13 {
+    label: "ISBN13 (event_data)"
+    type: string
+    sql: ${event_data}:isbn13::string  ;;
+    description: "ISBN13 (Event data tags)"
+    hidden: no
+  }
+
 
 
   dimension: product_platform {
@@ -580,6 +588,7 @@ view: all_events_base {
     description: "Y indicates search resulted in the user adding a product to their dashboard and N if not"
     sql:   event_data:search_outcome;;
   }
+
 
   dimension: search_term {
     group_label: "Search"

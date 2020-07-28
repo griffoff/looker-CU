@@ -4,7 +4,7 @@ view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
 derived_table: {
-  sql: Select *, (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
+  sql: Select *, (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
         from prod.cu_user_analysis.user_courses  ;;
 }
 
@@ -15,6 +15,7 @@ derived_table: {
       , user_courses_dev.cu_subscription_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated
       ,current_enrollments,current_activations,current_students,current_activations_cu,current_activations_non_cu, current_not_activated_enrollments,current_course_sections]
   }
+
 
   dimension: isbn {
     type: string
@@ -86,6 +87,14 @@ derived_table: {
     group_label: "Payment Information"
     label: "Paid"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
+  }
+
+  dimension: paid_current {
+    type: yesno
+    sql: ${TABLE}."PAID" and ${course_end_date} > CURRENT_DATE();;
+    group_label: "Payment Information"
+    label: "Paid Current"
+    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
   }
 
   dimension: paid_in_full {
@@ -185,7 +194,7 @@ derived_table: {
     group_label: "Activated?"
     description: "Course has been activated Y/N"
     type: yesno
-    sql: ${TABLE}.activated = 'True'  ;;
+    sql: ${TABLE}.activated::BOOLEAN  ;;
     hidden: no
   }
 
@@ -237,21 +246,21 @@ derived_table: {
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN HASH(${user_sso_guid}, ${isbn}) END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND (${activated} or ${paid}) THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct products activated by non-CU subscribers"
   }
 
   dimension: has_ala_cart_purchase_current {
     label:  "Has current a la carte purchase"
     type: yesno
-    sql: NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE();;
-    description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
+    sql: NOT ${TABLE}.cu_flag AND (${activated} or ${paid}) AND ${course_end_date} > CURRENT_DATE();;
+    description: "Distinct courseware product activated by non-CU subscribers for courses with a future end date"
   }
 
   measure: distinct_ala_cart_purchase_current {
     label:  "# of current a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE() THEN HASH(${user_sso_guid}, ${isbn}) END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND (${activated} or ${paid}) AND ${course_end_date} > CURRENT_DATE() THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 

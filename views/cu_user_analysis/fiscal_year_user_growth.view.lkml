@@ -73,11 +73,12 @@ view: fiscal_year_user_growth {
           coalesce(su.LINKED_GUID,hu.uid) as user_guid
           , su.INSTRUCTOR
           , date_trunc(year,dateadd(month,9,CONVERT_TIMEZONE('UTC',se.enrollment_date))) as course_year
-          , concat(sc.INSTITUTION_ID, p.PROD_FAMILY_CD) as adoption_key
+          , concat(hs.INSTITUTION_ID, p.PROD_FAMILY_CD) as adoption_key
         from prod.datavault.HUB_COURSESECTION hc
-        inner join prod.DATAVAULT.SAT_COURSESECTION sc on hc.HUB_COURSESECTION_KEY = sc.HUB_COURSESECTION_KEY and sc._LATEST and not sc.IS_DEMO
-        inner join prod.DATAVAULT.LINK_COURSESECTION_ISBN lci on hc.HUB_COURSESECTION_KEY = lci.HUB_COURSESECTION_KEY
-        inner join prod.DATAVAULT.HUB_ISBN hi on lci.HUB_ISBN_KEY = hi.HUB_ISBN_KEY
+        left join prod.DATAVAULT.LINK_COURSESECTION_INSTITUTION lcs on lcs.HUB_COURSESECTION_KEY = hc.HUB_COURSESECTION_KEY
+        left join prod.DATAVAULT.HUB_INSTITUTION hs on hs.HUB_INSTITUTION_KEY = lcs.HUB_INSTITUTION_KEY
+        left join prod.DATAVAULT.LINK_COURSESECTION_ISBN lci on hc.HUB_COURSESECTION_KEY = lci.HUB_COURSESECTION_KEY
+        left join prod.DATAVAULT.HUB_ISBN hi on lci.HUB_ISBN_KEY = hi.HUB_ISBN_KEY
         left join prod.STG_CLTS.products p on hi.ISBN13 = p.ISBN13
         inner join prod.DATAVAULT.LINK_USER_COURSESECTION luc on hc.HUB_COURSESECTION_KEY = luc.HUB_COURSESECTION_KEY
         inner join prod.DATAVAULT.SAT_ENROLLMENT se on luc.HUB_ENROLLMENT_KEY = se.HUB_ENROLLMENT_KEY and se._LATEST
