@@ -551,7 +551,7 @@ view: all_events_base {
   dimension: tags_ISBN13 {
     label: "ISBN13 (event_data)"
     type: string
-    sql: ${event_data}:isbn13::string  ;;
+    sql: replace(${event_data}:isbn13::string,'-','')  ;;
     description: "ISBN13 (Event data tags)"
     hidden: no
   }
