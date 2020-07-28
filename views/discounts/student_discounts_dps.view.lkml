@@ -81,7 +81,7 @@ view: student_discounts_dps {
   dimension: amount_to_upgrade {
     group_label: "Discount info"
     type: number
-    sql: CASE WHEN (120 - COALESCE(${TABLE}."DISCOUNT", 0)) < 0 THEN 0 ELSE (120 - COALESCE(${TABLE}."DISCOUNT", 0)) END ;;
+    sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
   }
 
   dimension: amount_to_upgrade_buckets {

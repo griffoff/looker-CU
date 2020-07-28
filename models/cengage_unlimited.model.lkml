@@ -62,6 +62,13 @@ explore: course_sections {
     relationship: many_to_one
   }
 
+  join: raw_olr_provisioned_product {
+    fields: []
+    view_label: "Provisioned Products"
+    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: many_to_one
+  }
+
   join: gateway_institution {
     view_label: "Institution"
     sql_on: ${dim_institution.entity_no}::string = ${gateway_institution.entity_no};;
