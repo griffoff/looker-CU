@@ -91,10 +91,19 @@ derived_table: {
   dimension: paid_in_full {
     type: yesno
     hidden: yes
-    sql: ${TABLE}."PAID_IN_FULL" = 'true' ;;
+    sql: TRY_CAST(${TABLE}."PAID_IN_FULL"  AS BOOLEAN) ;;
     group_label: "Payment Information"
     label: "Paid in full"
     description: "paid_in_full flag from OLR enrollments table"
+  }
+
+  dimension: paid_current {
+    type: yesno
+    hidden: yes
+    sql: ${paid_in_full} and ${current_course};;
+    group_label: "Payment Information"
+    label: "Paid in full"
+    description: "paid_in_full flag from OLR enrollments table on course with future end date"
   }
 
   dimension: payment_code {
@@ -133,6 +142,12 @@ derived_table: {
     description: "OLR user course key"
   }
 
+  dimension: current_course {
+    type: yesno
+    hidden: yes
+    sql: ${course_end_date} > CURRENT_DATE()  ;;
+  }
+
   dimension: course_start_date {
     type: date_raw
     sql: ${TABLE}."COURSE_START_DATE"
@@ -159,7 +174,7 @@ derived_table: {
     group_label: "Enrolled?"
     description: "OLR enrollment has occurred Y/N"
     type: yesno
-    sql: ${TABLE}.enrolled = 'True'  ;;
+    sql: TRY_CAST(${TABLE}.enrolled AS BOOLEAN)  ;;
     hidden: no
   }
 
@@ -168,7 +183,7 @@ derived_table: {
     group_label: "Enrolled?"
     description: "Enrolled on a course with a future end date"
     type: yesno
-    sql: ${TABLE}.enrolled::BOOLEAN and ${course_end_date} > CURRENT_DATE()  ;;
+    sql: ${enrolled} and ${current_course}  ;;
     hidden: no
   }
 
@@ -185,7 +200,7 @@ derived_table: {
     group_label: "Activated?"
     description: "Course has been activated Y/N"
     type: yesno
-    sql: ${TABLE}.activated = 'True'  ;;
+    sql: TRY_CAST(${TABLE}.activated AS BOOLEAN)  ;;
     hidden: no
   }
 
@@ -194,7 +209,7 @@ derived_table: {
     group_label: "Activated?"
     description: "Activated on a course with a future end date"
     type: yesno
-    sql: ${TABLE}.activated::BOOLEAN and ${course_end_date} > CURRENT_DATE()  ;;
+    sql: ${activated} and ${current_course}  ;;
     hidden: no
   }
 
@@ -244,14 +259,14 @@ derived_table: {
   dimension: has_ala_cart_purchase_current {
     label:  "Has current a la carte purchase"
     type: yesno
-    sql: NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE();;
+    sql: NOT ${TABLE}.cu_flag AND ${activated} AND ${current_course};;
     description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 
   measure: distinct_ala_cart_purchase_current {
     label:  "# of current a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${course_end_date} > CURRENT_DATE() THEN HASH(${user_sso_guid}, ${isbn}) END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${current_course} THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 
@@ -367,7 +382,7 @@ derived_table: {
     group_label: ""
     label: "# Currently active courses"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN ${olr_course_key} END   ;;
+    sql: CASE WHEN ${current_course} THEN ${olr_course_key} END   ;;
     drill_fields: [marketing_fields*]
     description: "Distinct count of courses (by course key) that have not yet ended"
   }
@@ -376,7 +391,7 @@ derived_table: {
     group_label: "Enrollments"
     label: "# Current enrollments"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${enrolled} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${enrolled} THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
     description: "Count of distinct course enrollments for courses that have not yet ended"
   }
@@ -385,7 +400,7 @@ derived_table: {
     group_label: "Enrollments"
     label: "# Current paid enrollments"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${enrolled} AND ${paid} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${enrolled} AND ${paid} THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
     description: "Count of distinct paid course enrollments on courses that have not yet ended"
   }
@@ -394,7 +409,7 @@ derived_table: {
     group_label: "Activations"
     label: "# Current activations"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${activated} THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
     description: "Count of distinct course activations on courses that have not yet ended"
   }
@@ -403,7 +418,7 @@ derived_table: {
     group_label: "Activations"
     label: "# Current Non CU activations"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND NOT ${cu_flag} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${activated} AND NOT ${cu_flag} THEN ${pk} END   ;;
     description: "Count of distinct course activations that have not yet ended from non-CU users"
     drill_fields: [marketing_fields*]
   }
@@ -413,7 +428,7 @@ derived_table: {
     group_label: "Activations"
     label: "# Current CU activations"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() AND ${activated} AND ${cu_flag} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${activated} AND ${cu_flag} THEN ${pk} END   ;;
     description: "Count of distinct course activations that have not yet ended from CU users"
     drill_fields: [marketing_fields*]
   }
@@ -431,7 +446,7 @@ derived_table: {
     group_label: "Enrollments"
     label: "# Current students"
     type: count_distinct
-    sql: CASE WHEN ${course_end_date} > CURRENT_TIMESTAMP() THEN ${user_sso_guid} END   ;;
+    sql: CASE WHEN ${current_course} THEN ${user_sso_guid} END   ;;
     drill_fields: [marketing_fields*]
     description: "Distinct count of students enrolled in courses that have not ended"
   }
@@ -442,8 +457,8 @@ derived_table: {
     sql: CASE
           WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
           ELSE
-          LISTAGG(DISTINCT CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} END, ', ')
-            WITHIN GROUP (ORDER BY CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} END)
+          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${dim_course.coursename} END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} END)
         END ;;
     description: "List of student courses"
   }
@@ -455,8 +470,8 @@ derived_table: {
     sql: CASE
           WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
           ELSE
-          LISTAGG(DISTINCT CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END, ', ')
-            WITHIN GROUP (ORDER BY CASE WHEN ${course_end_date} > CURRENT_DATE() THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END)
+          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END)
           END ;;
     description: "List of student courses (including dates)"
   }
