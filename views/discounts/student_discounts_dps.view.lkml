@@ -101,7 +101,7 @@ view: student_discounts_dps {
     type: string
     sql: CASE
             WHEN ${amount_to_upgrade} = 0 THEN 'for free'
-            WHEN ${amount_to_upgrade} > 50 THEN ' '
+            WHEN ${amount_to_upgrade} > 50 THEN CONCAT('$', ${amount_to_upgrade}::string)
             ELSE CONCAT('for only $', ${amount_to_upgrade}::string) END;;
    }
 
