@@ -32,8 +32,8 @@ derived_table: {
     select
       ssc.HUB_SERIALNUMBER_KEY
       , coalesce(su.linked_guid, hu.uid) as merged_guid
-      , concat(merged_guid, spp.DATE_ADDED, spp.PRODUCT_ID) as provision_key
-      , spp.DATE_ADDED
+      , concat(merged_guid, spp.DATE_ADDED::date, spp.PRODUCT_ID) as provision_key
+      , spp.DATE_ADDED::date as date_added
       , spp.CONTEXT_ID
       , spp.EXPIRATION_DATE
       , spp.IAC_ISBN
@@ -60,7 +60,7 @@ derived_table: {
         , USER_TYPE
         , iac_isbn
         , max(HUB_SERIALNUMBER_KEY) as hub_serial_number_key
-        , array_agg(CONTEXT_ID) as context_id_array
+        , array_agg(distinct CONTEXT_ID) as context_id_array
         , max(EXPIRATION_DATE) as expiration_date
       from prod
       group by 1,2,3,4,5,6
