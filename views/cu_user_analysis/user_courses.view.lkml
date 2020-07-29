@@ -5,8 +5,8 @@ view: user_courses {
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
 derived_table: {
   sql:
-    select *
-      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
+    select u.*
+      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
       , coalesce(try_cast(paid as boolean),false) as paid_bool
       , coalesce(try_cast(activated as boolean),false) as activated_bool
       , coalesce(TRY_CAST(enrolled AS BOOLEAN),false) as enrolled_bool
@@ -14,7 +14,9 @@ derived_table: {
       , HASH(user_sso_guid, olr_course_key) as pk
       , count(distinct case when (paid_bool or activated_bool) and current_course then pk end) over (partition by user_sso_guid) as current_paid_count
       , count(distinct case when enrolled_bool and current_course then pk end) over (partition by user_sso_guid) as current_enrollments_count
-    from prod.cu_user_analysis.user_courses
+    from prod.cu_user_analysis.user_courses u
+    left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
+    left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
   ;;
   datagroup_trigger: daily_refresh
 }
