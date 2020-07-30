@@ -302,6 +302,71 @@ view: all_events_base {
     hidden: no
   }
 
+  dimension: tags_isImpersonated {
+    group_label: "CAFE Tags"
+    label: "Is Impersonated"
+    type: string
+    sql: ${event_data}:isImpersonated::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_impersonatorGuid {
+    group_label: "CAFE Tags"
+    label: "Impersonator Guid"
+    type: string
+    sql: ${event_data}:impersonatorGuid::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_impersonatorUserType {
+    group_label: "CAFE Tags"
+    label: "Impersonator User Type"
+    type: string
+    sql: ${event_data}:impersonatorUserType::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_courseCategoryId {
+    group_label: "CAFE Tags"
+    label: "Course Category Id"
+    type: string
+    sql: ${event_data}:courseCategoryId::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_iacISBN {
+    group_label: "CAFE Tags"
+    label: "IAC ISBN"
+    type: string
+    sql: ${event_data}:iacISBN::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_UserType {
+    group_label: "CAFE Tags"
+    label: "User Type"
+    type: string
+    sql: ${event_data}:userType::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_ContextID {
+    group_label: "CAFE Tags"
+    label: "Context ID"
+    type: string
+    sql: ${event_data}:contextId::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+
+
   dimension: tags_coursekey {
     group_label: "CAFE Tags"
     label: "Course key"

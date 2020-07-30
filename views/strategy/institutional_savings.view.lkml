@@ -53,6 +53,7 @@ view: institutional_savings {
   dimension: entity_no {
     type: number
     sql: ${TABLE}."ENTITY_NO" ;;
+    hidden: yes
   }
 
   dimension: Top_course_1{}
@@ -67,6 +68,7 @@ view: institutional_savings {
   dimension: institution_nm {
     type: string
     sql: ${TABLE}."INSTITUTION_NM" ;;
+    hidden: yes
   }
 
   dimension: on_map_entity_list_ {
