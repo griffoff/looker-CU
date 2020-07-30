@@ -170,7 +170,8 @@ derived_table: {
 
   dimension: current_course {
     type: yesno
-    hidden: yes
+    hidden: no
+    description: "Course end date is in the future"
   }
 
   dimension: course_start_date {

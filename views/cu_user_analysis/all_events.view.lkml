@@ -727,6 +727,15 @@ view: all_events_base {
     description: "Components of the events local timestamp converted to UTC"
   }
 
+  dimension_group: local_pt {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
+    sql: convert_timezone('America/Los_Angeles', ${TABLE}."EVENT_TIME") ;;
+    group_label: "Event Time (PT)"
+    label: "Event (PT)"
+    description: "Components of the events local timestamp converted to pacific time (America/Los_Angeles)"
+  }
+
   dimension: semester {
     type: string
     sql:REPLACE(REPLACE(REPLACE(
