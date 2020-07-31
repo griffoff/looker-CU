@@ -15,6 +15,7 @@ derived_table: {
       , count(distinct case when (paid_bool or activated_bool) and current_course then pk end) over (partition by user_sso_guid) as current_paid_count
       , count(distinct case when enrolled_bool and current_course then pk end) over (partition by user_sso_guid) as current_enrollments_count
       , count(distinct entity_id) over (partition by user_sso_guid) as user_entity_count
+      , last_value(entity_id IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_entity_id
     from prod.cu_user_analysis.user_courses u
     left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
     left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
@@ -33,6 +34,9 @@ derived_table: {
   dimension: current_paid_count {type:number hidden:yes}
   dimension: current_enrollments_count {type:number hidden:yes}
   dimension: user_entity_count {type:number hidden:yes}
+  dimension: current_entity_id {
+    description: "Entity ID for user's most recent course by start date"
+  }
 
   dimension: isbn {
     type: string
