@@ -129,14 +129,25 @@ derived_table: {
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
   }
 
+  dimension: unpaid_current {
+    type: yesno
+    sql:(NOT ${paid}) and ${course_end_date} > CURRENT_DATE();;
+    group_label: "Payment Information"
+    label: "Unaid Current"
+    description: "No paid flag or activation AND course has future end date"
+  }
+
   measure: current_paid {
     group_label: "Payment Information"
     label: "# Current Paid Courses"
     type: count_distinct
     sql: CASE WHEN ${current_course} AND (${paid}) THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
-    description: "Count of distinct paid courses that have not yet ended"
+    description: "Count of distinct paid user courses (guid+coursekey combo) that have not yet ended"
   }
+
+
+
 
   dimension: paid_in_full {
     type: yesno
