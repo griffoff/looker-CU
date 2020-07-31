@@ -302,6 +302,71 @@ view: all_events_base {
     hidden: no
   }
 
+  dimension: tags_isImpersonated {
+    group_label: "CAFE Tags"
+    label: "Is Impersonated"
+    type: string
+    sql: ${event_data}:isImpersonated::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_impersonatorGuid {
+    group_label: "CAFE Tags"
+    label: "Impersonator Guid"
+    type: string
+    sql: ${event_data}:impersonatorGuid::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_impersonatorUserType {
+    group_label: "CAFE Tags"
+    label: "Impersonator User Type"
+    type: string
+    sql: ${event_data}:impersonatorUserType::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_courseCategoryId {
+    group_label: "CAFE Tags"
+    label: "Course Category Id"
+    type: string
+    sql: ${event_data}:courseCategoryId::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_iacISBN {
+    group_label: "CAFE Tags"
+    label: "IAC ISBN"
+    type: string
+    sql: ${event_data}:iacISBN::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_UserType {
+    group_label: "CAFE Tags"
+    label: "User Type"
+    type: string
+    sql: ${event_data}:userType::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_ContextID {
+    group_label: "CAFE Tags"
+    label: "Context ID"
+    type: string
+    sql: ${event_data}:contextId::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+
+
   dimension: tags_coursekey {
     group_label: "CAFE Tags"
     label: "Course key"
@@ -479,7 +544,7 @@ view: all_events_base {
     group_label: "CAFE Tags"
     label: "ISBN"
     type: string
-    sql: ${event_data}:ISBN::string  ;;
+    sql: coalesce(${event_data}:ISBN::string,${event_data}:isbn::string)  ;;
     description: "Event data"
     hidden: no
   }
@@ -548,6 +613,17 @@ view: all_events_base {
   }
 
 
+  dimension: tags_ISBN13 {
+    group_label: "CAFE Tags"
+    label: "ISBN13"
+    type: string
+    sql: replace(${event_data}:isbn13::string,'-','')  ;;
+    description: "ISBN13 (Event data tags)"
+    hidden: no
+  }
+
+
+
 
 
   dimension: product_platform {
@@ -580,6 +656,7 @@ view: all_events_base {
     description: "Y indicates search resulted in the user adding a product to their dashboard and N if not"
     sql:   event_data:search_outcome;;
   }
+
 
   dimension: search_term {
     group_label: "Search"
@@ -648,6 +725,15 @@ view: all_events_base {
     group_label: "Event Time (UTC)"
     label: "Event (UTC)"
     description: "Components of the events local timestamp converted to UTC"
+  }
+
+  dimension_group: local_pt {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
+    sql: convert_timezone('America/Los_Angeles', ${TABLE}."EVENT_TIME") ;;
+    group_label: "Event Time (PT)"
+    label: "Event (PT)"
+    description: "Components of the events local timestamp converted to pacific time (America/Los_Angeles)"
   }
 
   dimension: semester {

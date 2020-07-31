@@ -670,8 +670,8 @@ view: learner_profile {
     sql: case
           when ${live_subscription_status.subscription_state} ilike '%trial%' --no current subscription
           then case
-                when ${user_courses.paid_current} then 'Upgrade to CU from ALC' --has paid courseware
-                when ${user_courses.enrolled_current} then 'Advocate Subscription over ALC' --has unpaid courseware
+                when ${user_courses.current_paid_count} > 0 then 'Upgrade to CU from ALC' --has paid courseware
+                when ${user_courses.current_enrollments_count} > 0 then 'Advocate Subscription over ALC' --has unpaid courseware
                 when ${raw_olr_provisioned_product.current_paid_user_ebook_provisions} > 0 then 'Upgrade to CUe from paid ebook'
                 when ${raw_olr_provisioned_product.current_user_ebook_provisions} > 0 then 'Advocate eTextbook subscription over paid ebook'
                 else 'Advocate Products and CU' --has no courseware set up

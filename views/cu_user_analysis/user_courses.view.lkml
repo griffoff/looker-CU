@@ -4,8 +4,22 @@ view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
 derived_table: {
-  sql: Select *, (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
-        from prod.cu_user_analysis.user_courses  ;;
+  sql:
+    select u.*
+      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
+      , coalesce(try_cast(paid as boolean),false) as paid_bool
+      , coalesce(try_cast(activated as boolean),false) as activated_bool
+      , coalesce(TRY_CAST(enrolled AS BOOLEAN),false) as enrolled_bool
+      , coalesce(course_end_date > CURRENT_DATE(),false) as current_course
+      , HASH(user_sso_guid, olr_course_key) as pk
+      , count(distinct case when (paid_bool or activated_bool) and current_course then pk end) over (partition by user_sso_guid) as current_paid_count
+      , count(distinct case when enrolled_bool and current_course then pk end) over (partition by user_sso_guid) as current_enrollments_count
+      , count(distinct entity_id) over (partition by user_sso_guid) as user_entity_count
+    from prod.cu_user_analysis.user_courses u
+    left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
+    left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
+  ;;
+  datagroup_trigger: daily_refresh
 }
 
   set: marketing_fields {
@@ -15,6 +29,10 @@ derived_table: {
       , user_courses_dev.cu_subscription_id, user_courses_dev.cui_flag, user_courses_dev.no_enrollments, user_courses_dev.cu_flag, user_courses_dev.cu_purchase,no_activated
       ,current_enrollments,current_activations,current_students,current_activations_cu,current_activations_non_cu, current_not_activated_enrollments,current_course_sections]
   }
+
+  dimension: current_paid_count {type:number hidden:yes}
+  dimension: current_enrollments_count {type:number hidden:yes}
+  dimension: user_entity_count {type:number hidden:yes}
 
   dimension: isbn {
     type: string
@@ -82,29 +100,38 @@ derived_table: {
 
   dimension: paid {
     type: yesno
-    sql: ${TABLE}."PAID" ;;
+    sql: ${TABLE}.paid_bool ;;
     group_label: "Payment Information"
     label: "Paid"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
   }
 
+  dimension: paid_current {
+    type: yesno
+    sql:(${paid} or ${activated}) and ${course_end_date} > CURRENT_DATE();;
+    group_label: "Payment Information"
+    label: "Paid Current"
+    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
+  }
+
+  measure: current_paid {
+    group_label: "Payment Information"
+    label: "# Current Paid Courses"
+    type: count_distinct
+    sql: CASE WHEN ${current_course} AND (${paid} or ${activated}) THEN ${pk} END   ;;
+    drill_fields: [marketing_fields*]
+    description: "Count of distinct paid courses that have not yet ended"
+  }
+
   dimension: paid_in_full {
     type: yesno
     hidden: yes
-    sql: TRY_CAST(${TABLE}."PAID_IN_FULL"  AS BOOLEAN) ;;
+    sql: coalesce(TRY_CAST(${TABLE}."PAID_IN_FULL"  AS BOOLEAN),false) ;;
     group_label: "Payment Information"
     label: "Paid in full"
     description: "paid_in_full flag from OLR enrollments table"
   }
 
-  dimension: paid_current {
-    type: yesno
-    hidden: yes
-    sql: ${paid_in_full} and ${current_course};;
-    group_label: "Payment Information"
-    label: "Paid in full"
-    description: "paid_in_full flag from OLR enrollments table on course with future end date"
-  }
 
   dimension: payment_code {
     type: string
@@ -123,7 +150,6 @@ derived_table: {
   }
 
   dimension: pk {
-    sql: HASH(${user_sso_guid}, ${olr_course_key}) ;;
     primary_key: yes
     hidden: yes
   }
@@ -144,8 +170,8 @@ derived_table: {
 
   dimension: current_course {
     type: yesno
-    hidden: yes
-    sql: ${course_end_date} > CURRENT_DATE()  ;;
+    hidden: no
+    description: "Course end date is in the future"
   }
 
   dimension: course_start_date {
@@ -174,7 +200,7 @@ derived_table: {
     group_label: "Enrolled?"
     description: "OLR enrollment has occurred Y/N"
     type: yesno
-    sql: TRY_CAST(${TABLE}.enrolled AS BOOLEAN)  ;;
+    sql: ${TABLE}.enrolled_bool  ;;
     hidden: no
   }
 
@@ -200,7 +226,7 @@ derived_table: {
     group_label: "Activated?"
     description: "Course has been activated Y/N"
     type: yesno
-    sql: TRY_CAST(${TABLE}.activated AS BOOLEAN)  ;;
+    sql: coalesce(TRY_CAST(${TABLE}.activated AS BOOLEAN),false)  ;;
     hidden: no
   }
 
@@ -252,21 +278,21 @@ derived_table: {
   measure: distinct_ala_cart_purchase {
     label:  "# of a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} THEN HASH(${user_sso_guid}, ${isbn}) END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND (${activated} or ${paid}) THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct products activated by non-CU subscribers"
   }
 
   dimension: has_ala_cart_purchase_current {
     label:  "Has current a la carte purchase"
     type: yesno
-    sql: NOT ${TABLE}.cu_flag AND ${activated} AND ${current_course};;
+    sql: NOT ${TABLE}.cu_flag AND (${activated} or ${paid}) AND ${current_course};;
     description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 
   measure: distinct_ala_cart_purchase_current {
     label:  "# of current a la carte purchases (distinct)"
     type: count_distinct
-    sql: CASE WHEN NOT ${TABLE}.cu_flag AND ${activated} AND ${current_course} THEN HASH(${user_sso_guid}, ${isbn}) END;;
+    sql: CASE WHEN NOT ${TABLE}.cu_flag AND (${activated} or ${paid}) AND ${current_course} THEN HASH(${user_sso_guid}, ${isbn}) END;;
     description: "Count of distinct courseware products activated by non-CU subscribers for courses with a future end date"
   }
 
