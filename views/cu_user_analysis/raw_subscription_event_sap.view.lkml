@@ -16,7 +16,7 @@ view: raw_subscription_event_sap {
             COALESCE(m.primary_guid, r.current_guid) AS merged_guid
             --,ROW_NUMBER() OVER (PARTITION BY subscription_id, contract_id ORDER BY r.event_time DESC, subscription_start DESC) AS record_rank
             ,ROW_NUMBER() OVER (PARTITION BY merged_guid ORDER BY r.placed_time DESC, r.event_time DESC) AS record_rank
-            ,CASE WHEN m.primary_guid IS NOT NULL OR m2.primary_guid IS NOT NULL THEN 1 ELSE 0 END AS lms_user_status
+            ,COALESCE(l.lms_user_status, 0) as lms_user_status
             ,current_guid AS user_sso_guid
             ,r.event_time AS local_time
             ,CASE
@@ -42,8 +42,12 @@ view: raw_subscription_event_sap {
           FROM subscription.prod.sap_subscription_event r
           LEFT JOIN prod.unlimited.vw_partner_to_primary_user_guid m
               ON r.current_guid = m.partner_guid
-          LEFT JOIN distinct_primary m2
-              ON  r.current_guid = m2.primary_guid
+          LEFT JOIN (
+            SELECT uc.user_sso_guid, MAX(CASE WHEN g.lms_type IS NOT NULL THEN 1 END) as lms_user_status
+            FROM cu_user_analysis.user_courses uc
+            INNER JOIN ${gateway_lms_course_sections.SQL_TABLE_NAME} g ON uc.entity_id::STRING = g.school_entity_id::STRING
+            GROUP BY 1
+            ) l ON COALESCE(m.primary_guid, r.current_guid) = l.user_sso_guid
           WHERE user_environment = 'production'
           AND platform_environment = 'production'
           AND NOT

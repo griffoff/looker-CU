@@ -6,24 +6,28 @@ view: student_discounts_dps {
     WITH most_recent_run_eloqua AS
     (
         SELECT
-          ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
+          ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY run_time DESC) AS row_order
           ,user_sso_guid
           ,discount AS discount
           ,price
           ,isbn AS isbn
           ,run_time
        FROM prod.eloqua_discounts.student_discounts
+        WHERE run_time >= CURRENT_DATE - 30
+        AND isbn IS NOT NULL
     )
     ,most_recent_run_ipm AS
     (
         SELECT
-          ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
+          ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY run_time DESC) AS row_order
           ,user_sso_guid
           ,discount AS discount
           ,isbn AS isbn
           ,price
           ,run_time
        FROM prod.ipm_discounts.student_discounts
+      WHERE run_time >= CURRENT_DATE - 30
+        AND isbn IS NOT NULL
     )
     SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, price, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
     FROM most_recent_run_eloqua
