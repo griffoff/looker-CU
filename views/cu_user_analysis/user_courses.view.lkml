@@ -6,7 +6,7 @@ view: user_courses {
 derived_table: {
   sql:
     select u.*
-      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
+      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND hs.SUBSCRIPTION_ID is not null and coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
       , coalesce(try_cast(paid as boolean),false) as paid_bool
       , coalesce(try_cast(activated as boolean),false) as activated_bool
       , coalesce(TRY_CAST(enrolled AS BOOLEAN),false) as enrolled_bool
@@ -15,6 +15,9 @@ derived_table: {
       , count(distinct case when (paid_bool or activated_bool) and current_course then pk end) over (partition by user_sso_guid) as current_paid_count
       , count(distinct case when enrolled_bool and current_course then pk end) over (partition by user_sso_guid) as current_enrollments_count
       , count(distinct entity_id) over (partition by user_sso_guid) as user_entity_count
+      , last_value(entity_id IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_entity_id
+      , last_value(entity_name IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_institution_name
+      , last_value(product_type IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_product_type
     from prod.cu_user_analysis.user_courses u
     left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
     left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
@@ -33,6 +36,18 @@ derived_table: {
   dimension: current_paid_count {type:number hidden:yes}
   dimension: current_enrollments_count {type:number hidden:yes}
   dimension: user_entity_count {type:number hidden:yes}
+
+  dimension: current_entity_id {
+    description: "Entity ID for user's most recent course by start date"
+  }
+
+  dimension: current_institution_name {
+    description: "Institution name for user's most recent course by start date"
+  }
+
+  dimension: current_product_type {
+    description: "Product type for user's most recent course by start date"
+  }
 
   dimension: isbn {
     type: string
@@ -100,7 +115,7 @@ derived_table: {
 
   dimension: paid {
     type: yesno
-    sql: ${TABLE}.paid_bool ;;
+    sql: (${TABLE}.paid_bool or ${TABLE}.activated_bool) ;;
     group_label: "Payment Information"
     label: "Paid"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
@@ -108,7 +123,7 @@ derived_table: {
 
   dimension: paid_current {
     type: yesno
-    sql:(${paid} or ${activated}) and ${course_end_date} > CURRENT_DATE();;
+    sql:(${paid}) and ${course_end_date} > CURRENT_DATE();;
     group_label: "Payment Information"
     label: "Paid Current"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
@@ -118,7 +133,7 @@ derived_table: {
     group_label: "Payment Information"
     label: "# Current Paid Courses"
     type: count_distinct
-    sql: CASE WHEN ${current_course} AND (${paid} or ${activated}) THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND (${paid}) THEN ${pk} END   ;;
     drill_fields: [marketing_fields*]
     description: "Count of distinct paid courses that have not yet ended"
   }
@@ -182,6 +197,11 @@ derived_table: {
 
   dimension: course_end_date {
     type: date_raw
+  }
+
+  dimension: activation_date {
+    description: "Date on which user activated course"
+    type: date
   }
 
   dimension: product_type {
@@ -500,6 +520,14 @@ derived_table: {
             WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END)
           END ;;
     description: "List of student courses (including dates)"
+  }
+
+  measure: student_cu_course_list {
+    group_label: "Course Lists"
+    type: string
+    sql: LISTAGG(DISTINCT case when ${cu_flag} then ${isbn} end, ', ')
+            WITHIN GROUP (ORDER BY case when ${cu_flag} then ${isbn} end);;
+    description: "List of student CU course ISBNs"
   }
 
   dimension: enrollment_date {
