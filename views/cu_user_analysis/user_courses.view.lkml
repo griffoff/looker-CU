@@ -558,6 +558,12 @@ derived_table: {
     description: "Total unique course enrollments divided by total number of distinct users"
   }
 
+  measure: count {
+    type: count
+    label: "# User Courses"
+    description: "# of user course records (distinct user guid + olr course key combinations)"
+  }
+
 #   measure: courses_used_per_student {
 #     type: number
 #     label: "# courses used per Student"

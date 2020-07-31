@@ -194,7 +194,7 @@ derived_table: {
 
   measure: count {
     label: "# Products Provisioned"
-    description: "Count of unique product ids"
+    description: "Count of unique products provisioned (guid + date added + product ID combinations)"
     type: count
     drill_fields: [detail*]
   }
