@@ -29,11 +29,11 @@ view: student_discounts_dps {
        FROM prod.ipm_discounts.student_discounts
       WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_ipm)
     )
-    SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
-    FROM most_recent_run_eloqua GROUP BY 1, 2
+    SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, price, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
+    FROM most_recent_run_eloqua GROUP BY 1, 2, 3
     UNION
     SELECT user_sso_guid, 'ipm' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
-    FROM most_recent_run_ipm GROUP BY 1, 2
+    FROM most_recent_run_ipm GROUP BY 1, 2, 3
 
 
       ;;
