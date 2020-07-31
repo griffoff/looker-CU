@@ -3,8 +3,7 @@ explore: student_discounts_dps {}
 view: student_discounts_dps {
   derived_table: {
     sql:
-    WITH most_recent_run_time_eloqua AS (SELECT MAX(run_time) AS most_recent_run FROM prod.eloqua_discounts.student_discounts)
-    ,most_recent_run_eloqua AS
+    WITH most_recent_run_eloqua AS
     (
         SELECT
           ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
@@ -14,9 +13,7 @@ view: student_discounts_dps {
           ,isbn AS isbn
           ,run_time
        FROM prod.eloqua_discounts.student_discounts
-      WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_eloqua)
     )
-    ,most_recent_run_time_ipm AS (SELECT MAX(run_time) AS most_recent_run FROM prod.ipm_discounts.student_discounts)
     ,most_recent_run_ipm AS
     (
         SELECT
@@ -27,13 +24,16 @@ view: student_discounts_dps {
           ,price
           ,run_time
        FROM prod.ipm_discounts.student_discounts
-      WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_ipm)
     )
     SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, price, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
-    FROM most_recent_run_eloqua GROUP BY 1, 2, 3
+    FROM most_recent_run_eloqua
+    WHERE row_order = 1
+    GROUP BY 1, 2, 3
     UNION
     SELECT user_sso_guid, 'ipm' AS marketing_mechanism, price, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
-    FROM most_recent_run_ipm GROUP BY 1, 2, 3
+    FROM most_recent_run_ipm
+    WHERE row_order = 1
+    GROUP BY 1, 2, 3
 
 
       ;;
