@@ -15,9 +15,9 @@ derived_table: {
       , count(distinct case when (paid_bool or activated_bool) and current_course then pk end) over (partition by user_sso_guid) as current_paid_count
       , count(distinct case when enrolled_bool and current_course then pk end) over (partition by user_sso_guid) as current_enrollments_count
       , count(distinct entity_id) over (partition by user_sso_guid) as user_entity_count
-      , last_value(entity_id IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_entity_id
-      , last_value(entity_name IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_institution_name
-      , last_value(product_type IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_product_type
+      , last_value(entity_id IGNORE NULLS) over (partition by user_sso_guid order by course_start_date) as current_entity_id
+      , last_value(entity_name IGNORE NULLS) over (partition by user_sso_guid order by course_start_date) as current_institution_name
+      , last_value(product_type IGNORE NULLS) over (partition by user_sso_guid order by course_start_date) as current_product_type
     from prod.cu_user_analysis.user_courses u
     left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
     left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
