@@ -10,9 +10,11 @@ view: student_discounts_dps {
           ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
           ,user_sso_guid
           ,discount AS discount
+          ,price
           ,isbn AS isbn
           ,run_time
-       FROM prod.eloqua_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_eloqua)
+       FROM prod.eloqua_discounts.student_discounts
+      WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_eloqua)
     )
     ,most_recent_run_time_ipm AS (SELECT MAX(run_time) AS most_recent_run FROM prod.ipm_discounts.student_discounts)
     ,most_recent_run_ipm AS
@@ -22,8 +24,10 @@ view: student_discounts_dps {
           ,user_sso_guid
           ,discount AS discount
           ,isbn AS isbn
+          ,price
           ,run_time
-       FROM prod.ipm_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_ipm)
+       FROM prod.ipm_discounts.student_discounts
+      WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_ipm)
     )
     SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
     FROM most_recent_run_eloqua GROUP BY 1, 2
@@ -81,7 +85,8 @@ view: student_discounts_dps {
   dimension: amount_to_upgrade {
     group_label: "Discount info"
     type: number
-    sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
+    sql: GREATEST(${TABLE}.price, 0) ;;
+    #sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
   }
 
   dimension: amount_to_upgrade_buckets {
