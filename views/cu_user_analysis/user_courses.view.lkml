@@ -6,7 +6,7 @@ view: user_courses {
 derived_table: {
   sql:
     select u.*
-      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND ss.subscription_plan_id is not null and coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
+      , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND hs.SUBSCRIPTION_ID is not null and coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
       , coalesce(try_cast(paid as boolean),false) as paid_bool
       , coalesce(try_cast(activated as boolean),false) as activated_bool
       , coalesce(TRY_CAST(enrolled AS BOOLEAN),false) as enrolled_bool
@@ -17,6 +17,7 @@ derived_table: {
       , count(distinct entity_id) over (partition by user_sso_guid) as user_entity_count
       , last_value(entity_id IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_entity_id
       , last_value(entity_name IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_institution_name
+      , last_value(product_type IGNORE NULLS) over (partition by user_sso_guid order by course_start_date desc) as current_product_type
     from prod.cu_user_analysis.user_courses u
     left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
     left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
@@ -42,6 +43,10 @@ derived_table: {
 
   dimension: current_institution_name {
     description: "Institution name for user's most recent course by start date"
+  }
+
+  dimension: current_product_type {
+    description: "Product type for user's most recent course by start date"
   }
 
   dimension: isbn {
