@@ -42,31 +42,31 @@ view: cohorts_base {
   parameter: dimension_current_name {
     type: unquoted
     hidden: yes
-    default_value: "Summer_2020"
+    default_value: "Fall_2021"
   }
 
   parameter: dimension_minus_1_name {
     type: unquoted
     hidden: yes
-    default_value: "Spring_2020"
+    default_value: "Summer_2020"
   }
 
   parameter: dimension_minus_2_name {
     type: unquoted
     hidden: yes
-    default_value: "Fall_2020"
+    default_value: "Spring_2020"
   }
 
   parameter: dimension_minus_3_name {
     type: unquoted
     hidden: yes
-    default_value: "Summer_2019"
+    default_value: "Fall_2020"
   }
 
   parameter: dimension_minus_4_name {
     type: unquoted
     hidden: yes
-    default_value: "Spring_2019"
+    default_value: "Summer_2019"
   }
 
   dimension: current {
