@@ -121,6 +121,14 @@ derived_table: {
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
   }
 
+  dimension: date_paid {
+    type: date
+    sql: case when ${paid} then coalesce(${activation_date},${enrollment_date},${course_start_date}) end ;;
+    group_label: "Payment Information"
+    label: "Date paid (approximate)"
+    description: "Activation date or enrollment date / course start date when paid flag is true"
+  }
+
   dimension: paid_current {
     type: yesno
     sql:(${paid}) and ${course_end_date} > CURRENT_DATE();;

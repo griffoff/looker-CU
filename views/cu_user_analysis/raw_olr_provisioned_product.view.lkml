@@ -157,6 +157,13 @@ derived_table: {
      sql: ${TABLE}."CONTEXT_ID" ;;
    }
 
+  dimension: date_paid {
+    type: date
+    sql: case when context_id is not null or hub_serial_number_key is not null then date_added end ;;
+    label: "Date paid (approximate)"
+    description: "Date added for ebook with serial number consumed or courseware"
+  }
+
   dimension_group: date_added {
     description: "Date this product was provisioned i.e. added to the dashboard"
     type: time
@@ -212,17 +219,17 @@ derived_table: {
   }
 
 
-  measure: current_product_count_number {
-    label: "# Current Products Provisioned (type: number)"
-    description: "Count of unique product ids where date added is in the past and expiration date is in the future"
-    type: number
-    drill_fields: [detail*]
-    sql:  sum(${current_provision});;
-  }
+#   measure: current_product_count_number {
+#     label: "# Current Products Provisioned (type: number)"
+#     description: "Count of unique product ids where date added is in the past and expiration date is in the future"
+#     type: number
+#     drill_fields: [detail*]
+#     sql:  sum(${current_provision});;
+#   }
 
 
   measure: current_product_count_sum {
-    label: "# Current Products Provisioned (type: sum)"
+    label: "# Current Products Provisioned"
     description: "Count of unique product ids where date added is in the past and expiration date is in the future"
     type: sum
     drill_fields: [detail*]

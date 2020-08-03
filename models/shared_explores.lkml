@@ -88,7 +88,8 @@ explore: all_sessions {
   }
 
   join: dim_filter {
-    fields: [-dim_filter.ALL_FIELDS*]
+    sql_on: ${dim_course.coursekey} = ${dim_filter.course_key} ;;
+#     fields: [-dim_filter.ALL_FIELDS*]
   }
 }
 
@@ -432,8 +433,6 @@ explore: learner_profile {
   }
 
   join: raw_olr_provisioned_product {
-    fields: [count, current_user_provisions, current_paid_user_provisions, current_unpaid_user_provisions
-      , current_user_ebook_provisions, current_paid_user_ebook_provisions, current_user_courseware_provisions, current_user_paid_courseware_provisions ]
     view_label: "Provisioned Products"
     sql_on: ${live_subscription_status.user_sso_guid} = ${raw_olr_provisioned_product.merged_guid} ;;
     relationship: many_to_many
