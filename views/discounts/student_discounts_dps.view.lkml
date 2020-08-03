@@ -89,7 +89,8 @@ view: student_discounts_dps {
   dimension: amount_to_upgrade {
     group_label: "Discount info"
     type: number
-    sql: GREATEST(${TABLE}.price, 0) ;;
+    value_format: "$0.00"
+    sql: COALESCE(GREATEST(${TABLE}.price, 0),199.99) ;;
     #sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
   }
 
