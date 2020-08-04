@@ -253,7 +253,7 @@ derived_table: {
   measure: user_count{
     description: "Count of unique user guids"
     type: count_distinct
-    sql:  ${TABLE}.user_sso_guid;;
+    sql:  ${user_sso_guid};;
   }
 
   dimension: user_type {
