@@ -31,6 +31,7 @@ derived_table: {
   with prod as (
     select
       ssc.HUB_SERIALNUMBER_KEY
+      ,ssc.registration_date
       , coalesce(su.linked_guid, hu.uid) as merged_guid
       , concat(merged_guid, spp.DATE_ADDED::date, spp.PRODUCT_ID) as provision_key
       , spp.DATE_ADDED::date as date_added
@@ -59,6 +60,7 @@ derived_table: {
         , PRODUCT_ID
         , USER_TYPE
         , iac_isbn
+        , max(registration_date) as registration_date
         , max(HUB_SERIALNUMBER_KEY) as hub_serial_number_key
         , array_agg(distinct CONTEXT_ID) as context_id_array
         , max(EXPIRATION_DATE) as expiration_date
@@ -79,6 +81,7 @@ derived_table: {
       pp.*
       , iac.pp_product_type
       , pp_name
+      , coalesce(registration_date,date_added) as date_paid
       , nullif(context_id_array,array_construct()) as context_id
       , case when context_id is not null or hub_serial_number_key is not null then 1 else 0 end as paid_provision
       , case when context_id is not null or hub_serial_number_key is not null then 0 else 1 end as unpaid_provision
@@ -143,6 +146,9 @@ derived_table: {
     hidden: yes
   }
 
+  dimension: HUB_SERIAL_NUMBER_KEY {hidden:yes}
+
+
   dimension: pp_product_type {
     description: "Can be filtered on to differentiate between courseware and ebook usage"
     label: "Product Type"
@@ -159,7 +165,7 @@ derived_table: {
 
   dimension: date_paid {
     type: date
-    sql: case when context_id is not null or hub_serial_number_key is not null then date_added end ;;
+    sql: case when ${context_id} is not null or ${HUB_SERIAL_NUMBER_KEY} is not null then ${TABLE}.date_paid end ;;
     label: "Date paid (approximate)"
     description: "Date added for ebook with serial number consumed or courseware"
   }
