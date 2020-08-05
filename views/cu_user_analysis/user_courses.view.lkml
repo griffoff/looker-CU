@@ -302,9 +302,10 @@ derived_table: {
   }
 
   measure: net_price_paid {
-    description: "Total $ value of all paid courses"
+    label: "Total $ value of all paid courses"
     type: sum
     sql: case when ${paid} then ${net_price} end ;;
+    value_format_name: currency
   }
 
   dimension: cu_price {
