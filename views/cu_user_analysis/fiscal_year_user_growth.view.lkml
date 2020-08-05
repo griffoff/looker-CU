@@ -160,8 +160,8 @@ view: fiscal_year_user_growth {
       select * from adoptions_dv
       union
       select * from adoptions_raw
-      --union
-      --select * from adoptions_other
+      union
+      select * from adoptions_other
       )
 
      ,adoptions_list as (
