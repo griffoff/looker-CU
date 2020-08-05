@@ -30,8 +30,8 @@ derived_table: {
   sql:
   with prod as (
     select
-      ssc.HUB_SERIALNUMBER_KEY
-      ,ssc.registration_date
+      ssc2.HUB_SERIALNUMBER_KEY
+      ,ssc2.registration_date
       , coalesce(su.linked_guid, hu.uid) as merged_guid
       , concat(merged_guid, spp.DATE_ADDED::date, spp.PRODUCT_ID) as provision_key
       , spp.DATE_ADDED::date as date_added
@@ -44,10 +44,11 @@ derived_table: {
     INNER JOIN prod.datavault.hub_user hu ON spp.user_sso_guid = hu.uid
     INNER JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
     LEFT JOIN prod.datavault.sat_user_internal sui ON hu.hub_user_key = sui.hub_user_key AND sui.internal AND sui.active
-    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc on ssc.USER_SSO_GUID = spp.USER_SSO_GUID and ssc._LATEST
-    left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lsp.HUB_SERIALNUMBER_KEY = ssc.HUB_SERIALNUMBER_KEY
-    left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_PRODUCT_KEY = lsp.HUB_PRODUCT_KEY
-    left join prod.DATAVAULT.hub_isbn hi on hi.ISBN13 = spp.IAC_ISBN and lpi.HUB_ISBN_KEY = hi.HUB_ISBN_KEY
+    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc on ssc.USER_SSO_GUID = spp.USER_SSO_GUID and ssc._LATEST --all of user's serial #s
+    left join prod.DATAVAULT.hub_isbn hi on hi.ISBN13 = spp.IAC_ISBN
+    left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_ISBN_KEY = hi.HUB_ISBN_KEY --isbn for provisioned product
+    left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lpi.HUB_PRODUCT_KEY = lsp.HUB_PRODUCT_KEY and lsp.HUB_SERIALNUMBER_KEY = ssc.HUB_SERIALNUMBER_KEY -- join on product & USER serial #
+    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc2 on lsp.HUB_SERIALNUMBER_KEY = ssc2.HUB_SERIALNUMBER_KEY and ssc._LATEST
     where spp._LATEST
       and sui.INTERNAL is null
       and spp.USER_TYPE ilike 'student'
@@ -83,8 +84,8 @@ derived_table: {
       , pp_name
       , coalesce(registration_date,date_added) as date_paid
       , nullif(context_id_array,array_construct()) as context_id
-      , case when context_id is not null or hub_serial_number_key is not null then 1 else 0 end as paid_provision
-      , case when context_id is not null or hub_serial_number_key is not null then 0 else 1 end as unpaid_provision
+      , case when hub_serial_number_key is not null then 1 else 0 end as paid_provision
+      , case when hub_serial_number_key is not null then 0 else 1 end as unpaid_provision
 
       , case when current_date() between date_added and expiration_date then 1 else 0 end as current_provision
       , case when (current_date() between date_added and expiration_date) and context_id is null then 1 else 0 end as current_ebook_provision
@@ -165,9 +166,9 @@ derived_table: {
 
   dimension: date_paid {
     type: date
-    sql: case when ${context_id} is not null or ${HUB_SERIAL_NUMBER_KEY} is not null then ${TABLE}.date_paid end ;;
+    sql: case when ${HUB_SERIAL_NUMBER_KEY} is not null then ${TABLE}.date_paid end ;;
     label: "Date paid (approximate)"
-    description: "Date added for ebook with serial number consumed or courseware"
+    description: "Date added for ebook or courseware with serial number consumed"
   }
 
   dimension_group: date_added {
