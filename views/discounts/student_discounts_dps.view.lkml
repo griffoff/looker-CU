@@ -87,29 +87,37 @@ view: student_discounts_dps {
   }
 
 
-  dimension: amount_to_upgrade_num {
-    group_label: "Discount info"
-    type: number
-    value_format_name: decimal_2
-#     value_format: "$0.00"
-    sql: COALESCE(GREATEST(${TABLE}.price, 0),199.99) ;;
-    #sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
-  }
+#   dimension: amount_to_upgrade_num {
+#     group_label: "Discount info"
+#     type: number
+#     value_format_name: decimal_2
+# #     value_format: "$0.00"
+#     sql: COALESCE(GREATEST(${TABLE}.price, 0),199.99) ;;
+#     #sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
+#   }
+
+#   dimension: amount_to_upgrade {
+#     group_label: "Discount info"
+#     type: string
+#     sql: concat('$',${amount_to_upgrade_num});;
+#
+#   }
 
   dimension: amount_to_upgrade {
     group_label: "Discount info"
-    type: string
-    sql: concat('$',${amount_to_upgrade_num});;
-
+    type: number
+    sql: COALESCE(GREATEST(${TABLE}.price, 0),199.99);;
+    value_format_name: usd
   }
 
   dimension: amount_to_upgrade_buckets {
     group_label: "Discount info"
     label: "Amount to upgrade buckets"
     type: tier
-    sql: ${amount_to_upgrade_num} ;;
+    sql: ${amount_to_upgrade} ;;
     tiers: [0, 10, 20, 30, 40, 50, 60, 70]
     style: integer
+    value_format_name: usd
   }
 
 
@@ -119,9 +127,9 @@ view: student_discounts_dps {
     group_label: "Discount info"
     type: string
     sql: CASE
-            WHEN ${amount_to_upgrade_num} = 0 THEN 'for free'
-            WHEN ${amount_to_upgrade_num} between 0 and 30 THEN CONCAT('for $', ${amount_to_upgrade}::string)
-            WHEN ${amount_to_upgrade_num} between 30 and 65 THEN '31-65'
+            WHEN ${amount_to_upgrade} = 0 THEN 'for free'
+            WHEN ${amount_to_upgrade} between 0 and 30 THEN CONCAT('for $', ${amount_to_upgrade}::string)
+            WHEN ${amount_to_upgrade} between 30 and 65 THEN '31-65'
             ELSE '' END;;
    }
 
