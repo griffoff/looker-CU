@@ -214,6 +214,7 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
     description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
+    hidden: yes
   }
 
 

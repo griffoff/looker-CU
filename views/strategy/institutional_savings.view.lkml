@@ -1,4 +1,4 @@
-explore: institutional_savings {}
+explore: institutional_savings {hidden:yes}
 view: institutional_savings {
 
   derived_table: {
@@ -48,6 +48,7 @@ view: institutional_savings {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: entity_no {
@@ -56,12 +57,14 @@ view: institutional_savings {
     hidden: yes
   }
 
-  dimension: Top_course_1{}
-  dimension: Top_course_2{}
-  dimension: Top_course_3{}
+  dimension: Top_course_1{hidden: yes}
+  dimension: Top_course_2{hidden: yes}
+  dimension: Top_course_3{hidden: yes}
+
   dimension: total_stud{
     label: "# Subscribers per school"
     description: "based on activations contract id till summer'19 "
+    hidden: yes
   }
 
 
@@ -74,11 +77,13 @@ view: institutional_savings {
   dimension: on_map_entity_list_ {
     type: string
     sql: ${TABLE}."ON_MAP_ENTITY_LIST_" ;;
+    hidden: yes
   }
 
   dimension: subscribers {
     type: string
     sql: ${TABLE}."SUBSCRIBERS" ;;
+    hidden: yes
   }
 
   dimension: student_savings_courseware_ebook_chegg_ {
@@ -86,21 +91,25 @@ view: institutional_savings {
     description: "Total Savings based on courseware,ebook & chegg calculations done by strategy team. Based off CU subscriptions till Spring 2019 semester. Please Note - This is ONE TIME Feed "
     type: string
     sql: ${TABLE}."STUDENT_SAVINGS_COURSEWARE_EBOOK_CHEGG_" ;;
+    hidden: yes
   }
 
   dimension: average_savings_per_subscription {
     type: string
     sql: ${TABLE}."AVERAGE_SAVINGS_PER_SUBSCRIPTION" ;;
+    hidden: yes
   }
 
   dimension: average_savings_per_subscriber_who_saved {
     type: string
     sql: ${TABLE}."AVERAGE_SAVINGS_PER_SUBSCRIBER_WHO_SAVED" ;;
+    hidden: yes
   }
 
   dimension_group: _fivetran_synced {
     type: time
     sql: ${TABLE}."_FIVETRAN_SYNCED" ;;
+    hidden: yes
   }
 
   set: detail {

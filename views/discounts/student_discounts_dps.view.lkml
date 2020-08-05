@@ -64,6 +64,7 @@ view: student_discounts_dps {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
     primary_key: yes
+    hidden: yes
   }
 
   dimension: discount {

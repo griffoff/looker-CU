@@ -294,6 +294,19 @@ derived_table: {
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
   }
 
+  dimension: net_price {
+    description: "Value of product regardless of paid status"
+    label: "$ value of course"
+    type: number
+    sql: ${TABLE}.net_price ;;
+  }
+
+  measure: net_price_paid {
+    description: "Total $ value of all paid courses"
+    type: sum
+    sql: case when ${paid} then ${net_price} end ;;
+  }
+
   dimension: cu_price {
     sql: 120 ;;
     hidden: yes
