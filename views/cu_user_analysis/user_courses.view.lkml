@@ -292,6 +292,7 @@ derived_table: {
     label: "$ value of enrolled courses"
     type: number
     sql: ${TABLE}."NET_PRICE_ENROLLED" ;;
+    value_format: "$0.00"
   }
 
   dimension: net_price {
@@ -299,13 +300,14 @@ derived_table: {
     label: "$ value of course"
     type: number
     sql: ${TABLE}.net_price ;;
+    value_format: "$0.00"
   }
 
   measure: net_price_paid {
     label: "Total $ value of all paid courses"
     type: sum
     sql: case when ${paid} then ${net_price} end ;;
-    value_format_name: currency
+    value_format: "$0.00"
   }
 
   dimension: cu_price {
