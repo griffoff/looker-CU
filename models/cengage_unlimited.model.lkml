@@ -91,6 +91,16 @@ explore: course_sections {
     view_label: "Course / Section Details"
   }
 
+  join: all_events {
+    sql_on: (${user_courses.user_sso_guid}, ${user_courses.olr_course_key}) = (${all_events.user_sso_guid}, ${all_events.event_data_course_key}) ;;
+    relationship: one_to_many
+  }
+
+  join: all_sessions {
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
+    relationship: many_to_one
+  }
+
 
 }
 
