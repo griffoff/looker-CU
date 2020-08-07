@@ -39,9 +39,9 @@ view: cu_user_info {
                 ,COALESCE(usmar.opt_out, 'true') AS marketing_opt_out
                 ,COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 as opt_out_by_party
             FROM prod.datavault.hub_user h
-            INNER JOIN prod.datavault.sat_user sa
+            INNER JOIN prod.datavault.SAT_USER_V2 sa
                         ON h.hub_user_key = sa.hub_user_key
-                        AND sa.active
+                        AND sa._latest
             LEFT JOIN prod.datavault.sat_user_pii p
                         ON h.hub_user_key = p.hub_user_key
                         AND p.active

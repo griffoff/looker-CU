@@ -47,9 +47,9 @@ view: guid_date_active {
         FROM events a
         LEFT JOIN prod.cu_user_analysis.user_courses u ON a.course_key = u.course_key AND a.user_sso_guid = u.user_sso_guid
         LEFT JOIN prod.datavault.hub_user hu ON a.user_sso_guid = hu.UID
-        INNER JOIN prod.datavault.sat_user su ON hu.hub_user_key = su.hub_user_key AND su.active
+        INNER JOIN prod.datavault.SAT_USER_V2 su ON hu.hub_user_key = su.hub_user_key AND su._LATEST
         INNER JOIN prod.datavault.link_user_institution lui ON hu.hub_user_key = lui.hub_user_key
-        INNER JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key AND sui.active
+        INNER JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key and sui.active
         INNER JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
         LEFT JOIN prod.STG_CLTS.ENTITIES e ON hi.institution_id = e.ENTITY_NO
         LEFT JOIN prod.stg_clts.products p ON u.isbn = p.isbn13

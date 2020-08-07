@@ -1,4 +1,5 @@
 # include: "cengage_unlimited.model.lkml"
+
 explore: guid_platform_date_active {
   hidden: yes
 }

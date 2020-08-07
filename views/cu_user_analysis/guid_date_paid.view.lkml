@@ -57,6 +57,7 @@ view: guid_date_paid {
           , content_type
           , CASE WHEN content_type = 'Full Access CU Subscription' THEN 3 ELSE 4 END AS content_order
           FROM paid_cu_only_users
+
         )
         select date, user_sso_guid, region, platform, organization, paid_flag, content_type
           , rank() over(partition by date,user_sso_guid order by content_order) AS paid_content_rank
@@ -72,6 +73,7 @@ view: guid_date_paid {
                 CLONE LOOKER_SCRATCH.guid_date_paid;;
           }
           datagroup_trigger: daily_refresh
+
         }
 
 
@@ -83,6 +85,11 @@ view: guid_date_paid {
   dimension: date {
     type: date
     sql: ${TABLE}.date ;;
+  }
+
+  dimension: fiscal_year {
+    type: date
+    sql: date_trunc(year,dateadd(month,9,CONVERT_TIMEZONE('UTC',${date}))) ;;
   }
 
   dimension: content_type {

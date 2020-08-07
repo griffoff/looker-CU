@@ -73,7 +73,7 @@ view: fiscal_year_user_growth {
       union
       select * from el_users_raw
       )
-
+/*
       ,el_counts as (
         select
           case
@@ -90,6 +90,19 @@ view: fiscal_year_user_growth {
       from el_users e
       group by e.license_type, e.prev_license_type, e.el_year, e.INSTRUCTOR
       order by e.el_year desc, e.INSTRUCTOR
+      )
+      */
+      ,el_counts as (
+        select e.*
+          ,case
+            when e.license_type = 'IA' and prev_license_type = 'IA' then 'Existing IA deal'
+            when e.license_type = 'IA' and prev_license_type = 'CUI' then 'Downgrade CUI to IA'
+            when e.license_type = 'IA' and prev_license_type is null then 'New IA deal'
+            when e.license_type = 'CUI' and prev_license_type = 'IA' then 'Upgrade IA to CUI'
+            when e.license_type = 'CUI' and prev_license_type = 'CUI' then 'Existing CUI deal'
+            when e.license_type = 'CUI' and prev_license_type is null then 'New CUI deal'
+          end as user_count_descr
+      from el_users e
       )
 
 
@@ -136,6 +149,21 @@ view: fiscal_year_user_growth {
       where sui.INTERNAL is null
       )
 
+    , adoptions_other as (
+
+    select user_sso_guid as user_guid
+      , case when user_type = 'Instructor' then true else false end as instructor
+      , date_trunc(year,dateadd(month,9,CONVERT_TIMEZONE('UTC',coalesce(activation_date,course_start)))) as course_year
+      , adoption_key
+    from ${courseware_users.SQL_TABLE_NAME}
+    where activation_date is not null or instructor
+
+    )
+
+
+--
+
+      /*
       , adoptions_other as (
       SELECT
         coalesce(su.LINKED_GUID,hu.uid) as user_guid
@@ -155,6 +183,7 @@ view: fiscal_year_user_growth {
         AND coalesce(code_source,'') <> 'Locker'
         AND sui.INTERNAL is null
       )
+      */
 
       , adoptions as (
       select * from adoptions_dv
@@ -168,7 +197,7 @@ view: fiscal_year_user_growth {
       select distinct course_year, adoption_key
       from adoptions
     )
-
+/*
     , adoptions_counts as (
 
     select
@@ -183,39 +212,63 @@ view: fiscal_year_user_growth {
     group by user_count_descr, a.course_year, a.INSTRUCTOR
     order by a.course_year desc, a.INSTRUCTOR
     )
+*/
+    , adoptions_counts as (
+
+    select a.*
+         ,iff(a2.adoption_key is null,'New faculty adoption', 'Existing faculty adoption') as user_count_descr
+    from adoptions a
+    left join adoptions_list a2 on dateadd(year,-1,a.course_year) = a2.course_year and a.adoption_key = a2.adoption_key
+    left join el_users el on a.user_guid = el.user_guid and a.course_year = el.el_year
+    where el.user_guid is null
+    )
 
 
-
+/*
     , fiscal_year_counts as (
     select * from adoptions_counts
     union
     select * from el_counts
     )
 
+
     select ty.user_count_descr, ty.fiscal_year, ty.instructor, ty.user_count, py.user_count as prev_year_user_count, (ty.user_count - py.user_count) as net_change_user_count
     from fiscal_year_counts ty
     left join fiscal_year_counts py on ty.user_count_descr = py.user_count_descr
       and ty.instructor = py.instructor
       and dateadd(y,-1,ty.fiscal_year) = py.fiscal_year
+*/
 
+select user_guid, instructor, el_year as fiscal_year, user_count_descr
+from el_counts
+union
+select user_guid, instructor, course_year as fiscal_year, user_count_descr
+from adoptions_counts
 
     ;;
   }
+
+  dimension: user_guid {}
 
   dimension: user_count_descr {}
   dimension: fiscal_year {type:date}
   dimension: instructor {}
 
   measure: user_count {
-    type: sum
+    type: count_distinct
+    sql: ${user_guid} ;;
   }
 
-  measure: prev_year_user_count {
-    type: sum
-  }
+#   measure: user_count {
+#     type: sum
+#   }
+#
+#   measure: prev_year_user_count {
+#     type: sum
+#   }
+#
+#   measure: net_change_user_count {
+#     type: sum
+#   }
 
-  measure: net_change_user_count {
-    type: sum
-  }
-
-  }
+}
