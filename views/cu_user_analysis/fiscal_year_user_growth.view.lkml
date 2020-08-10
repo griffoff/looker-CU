@@ -95,12 +95,12 @@ view: fiscal_year_user_growth {
       ,el_counts as (
         select e.*
           ,case
-            when e.license_type = 'IA' and prev_license_type = 'IA' then 'Existing IA deal'
+            when e.license_type = 'IA' and prev_license_type = 'IA' then 'Existing IA adoption'
             when e.license_type = 'IA' and prev_license_type = 'CUI' then 'Downgrade CUI to IA'
-            when e.license_type = 'IA' and prev_license_type is null then 'New IA deal'
+            when e.license_type = 'IA' and prev_license_type is null then 'New IA adoption'
             when e.license_type = 'CUI' and prev_license_type = 'IA' then 'Upgrade IA to CUI'
-            when e.license_type = 'CUI' and prev_license_type = 'CUI' then 'Existing CUI deal'
-            when e.license_type = 'CUI' and prev_license_type is null then 'New CUI deal'
+            when e.license_type = 'CUI' and prev_license_type = 'CUI' then 'Existing CUI adoption'
+            when e.license_type = 'CUI' and prev_license_type is null then 'New CUI adoption'
           end as user_count_descr
       from el_users e
       )
@@ -253,12 +253,20 @@ select instructor, fiscal_year, user_count_descr, count(distinct user_guid) as u
 from all_users
 group by 1,2,3
 union
-select instructor, fiscal_year, 'Total' as user_count_descr, count(distinct user_guid) as user_count
+select instructor, fiscal_year, 'Current FY Total' as user_count_descr, count(distinct user_guid) as user_count
+from all_users
+group by 1,2
+union
+select instructor, dateadd(y,1,fiscal_year) as fiscal_year, 'Previous FY Total' as user_count_descr, count(distinct user_guid) as user_count
 from all_users
 group by 1,2
 )
 
-select ty.user_count_descr, ty.fiscal_year, ty.instructor, ty.user_count, py.user_count as prev_year_user_count, (ty.user_count - py.user_count) as net_change_user_count
+select ty.user_count_descr
+  , ty.fiscal_year
+  , case when ty.instructor then 'Instructor' else 'Student' end as user_type
+  , ty.user_count, py.user_count as prev_year_user_count
+  , (ty.user_count - py.user_count) as net_change_user_count
 from user_counts ty
 left join user_counts py on ty.user_count_descr = py.user_count_descr
   and ty.instructor = py.instructor
@@ -270,9 +278,41 @@ left join user_counts py on ty.user_count_descr = py.user_count_descr
 
 #   dimension: user_guid {}
 
-  dimension: user_count_descr {}
+  dimension: user_count_order {
+    hidden: yes
+    sql:
+    case
+    when ${TABLE}.user_count_descr = 'Previous FY Total'
+    then '0'
+    when ${TABLE}.user_count_descr = 'New faculty adoption'
+    then '1'
+    when ${TABLE}.user_count_descr = 'New CUI adoption'
+    then '2'
+    when ${TABLE}.user_count_descr = 'New IA adoption'
+    then '3'
+    when ${TABLE}.user_count_descr = 'Existing faculty adoption'
+    then '4'
+    when ${TABLE}.user_count_descr = 'Existing CUI adoption'
+    then '5'
+    when ${TABLE}.user_count_descr = 'Existing IA adoption'
+    then '6'
+    when ${TABLE}.user_count_descr = 'Upgrade IA to CUI'
+    then '7'
+    when ${TABLE}.user_count_descr = 'Downgrade CUI to IA'
+    then '8'
+    when ${TABLE}.user_count_descr = 'Current FY Total'
+    then '9'
+    end
+    ;;
+  }
+
+  dimension: user_count_descr {
+    order_by_field: user_count_order
+  }
+
   dimension: fiscal_year {type:date}
-  dimension: instructor {}
+  dimension: user_type {}
+#   dimension: instructor {}
 
 #   measure: user_count {
 #     type: count_distinct
