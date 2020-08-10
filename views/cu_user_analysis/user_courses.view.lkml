@@ -105,6 +105,7 @@ derived_table: {
     type: string
     sql: ${TABLE}."INSTRUCTOR_GUID" ;;
     description: "Course instructor GUID"
+    hidden: yes
   }
 
   dimension: entity_id {

@@ -58,7 +58,7 @@ view: guid_date_ebook {
                 ELSE 'Other' END AS organization
       FROM prod.datavault.hub_product hp
       INNER JOIN prod.datavault.SAT_SERIAL_NUMBER_CONSUMED ss ON hp.pid = ss.product_id and ss._LATEST
-      INNER JOIN prod.datavault.sat_product_olr sp ON hp.HUB_PRODUCT_KEY = sp.hub_product_key
+      INNER JOIN prod.datavault.sat_product_olr sp ON hp.HUB_PRODUCT_KEY = sp.hub_product_key and sp._LATEST
       INNER JOIN prod.datavault.hub_user hu on ss.user_sso_guid = hu.uid
       LEFT JOIN prod.datavault.sat_user_internal ui on hu.hub_user_key = ui.hub_user_key and ui.internal
       LEFT JOIN prod.STG_CLTS.ENTITIES e ON ss.institution_id = e.ENTITY_NO
