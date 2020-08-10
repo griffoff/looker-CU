@@ -239,36 +239,56 @@ view: fiscal_year_user_growth {
       and dateadd(y,-1,ty.fiscal_year) = py.fiscal_year
 */
 
+, all_users as (
+
 select user_guid, instructor, el_year as fiscal_year, user_count_descr
 from el_counts
 union
 select user_guid, instructor, course_year as fiscal_year, user_count_descr
 from adoptions_counts
+)
+
+, user_counts as (
+select instructor, fiscal_year, user_count_descr, count(distinct user_guid) as user_count
+from all_users
+group by 1,2,3
+union
+select instructor, fiscal_year, 'Total' as user_count_descr, count(distinct user_guid) as user_count
+from all_users
+group by 1,2
+)
+
+select ty.user_count_descr, ty.fiscal_year, ty.instructor, ty.user_count, py.user_count as prev_year_user_count, (ty.user_count - py.user_count) as net_change_user_count
+from user_counts ty
+left join user_counts py on ty.user_count_descr = py.user_count_descr
+  and ty.instructor = py.instructor
+  and dateadd(y,-1,ty.fiscal_year) = py.fiscal_year
+
 
     ;;
   }
 
-  dimension: user_guid {}
+#   dimension: user_guid {}
 
   dimension: user_count_descr {}
   dimension: fiscal_year {type:date}
   dimension: instructor {}
 
+#   measure: user_count {
+#     type: count_distinct
+#     sql: ${user_guid} ;;
+#   }
+
   measure: user_count {
-    type: count_distinct
-    sql: ${user_guid} ;;
+    type: sum
   }
 
-#   measure: user_count {
-#     type: sum
-#   }
-#
-#   measure: prev_year_user_count {
-#     type: sum
-#   }
-#
-#   measure: net_change_user_count {
-#     type: sum
-#   }
+  measure: prev_year_user_count {
+    type: sum
+  }
+
+  measure: net_change_user_count {
+    type: sum
+  }
 
 }

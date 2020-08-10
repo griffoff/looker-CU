@@ -67,6 +67,7 @@ view: all_events_base {
   }
 
   dimension: event_data_course_key {
+    group_label: "CAFE Tags"
     type: string
     sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)::STRING  ;;
     label: "Course key"
@@ -75,12 +76,14 @@ view: all_events_base {
 
   dimension: event_data_reader_type {
     type: string
+    group_label: "CAFE Tags"
     sql: ${TABLE}."EVENT_DATA":reader_type::STRING  ;;
     label: "Reader type (event data)"
     description: "Reader type (Gutenberg, Tribble, etc.)"
   }
 
   dimension: reader_mode {
+    group_label: "CAFE Tags"
     type: string
     label: "Reader Mode Type (Mindtap only)"
     required_fields: [product_platform]
