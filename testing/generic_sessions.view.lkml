@@ -179,14 +179,14 @@ view: sessions {
     group_label: "% Active Time"
     type: average
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_min {
     group_label: "% Active Time"
     type: min
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_p10 {
@@ -194,7 +194,7 @@ view: sessions {
     type: percentile
     percentile: 10
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_p25 {
@@ -202,7 +202,7 @@ view: sessions {
     type: percentile
     percentile: 25
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_p50 {
@@ -210,7 +210,7 @@ view: sessions {
     type: percentile
     percentile: 50
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_p75 {
@@ -218,7 +218,7 @@ view: sessions {
     type: percentile
     percentile: 75
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_p90 {
@@ -226,14 +226,14 @@ view: sessions {
     type: percentile
     percentile: 90
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: percent_active_time_max {
     group_label: "% Active Time"
     type: max
     sql: ${percent_active_time} ;;
-    value_format_name: duration_minutes
+    value_format_name: percent_1
   }
 
   measure: count {
