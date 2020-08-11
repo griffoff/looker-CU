@@ -23,13 +23,13 @@ view: user_longevity {
         UPDATE LOOKER_SCRATCH.user_longevity e
         SET term_user = 1
         FROM ${courseware_users.SQL_TABLE_NAME} g
-        WHERE e.user_sso_guid = g.user_sso_guid and g.activation_date between e.term_start and e.term_end
+        WHERE e.user_sso_guid = g.user_sso_guid and g.activation_date between e.term_start and e.term_end and g.USER_TYPE = 'Student'
       ;;
       sql_step:
       UPDATE LOOKER_SCRATCH.user_longevity e
       SET term_user = 1
       FROM ${courseware_users.SQL_TABLE_NAME} g
-      WHERE e.user_sso_guid = g.user_sso_guid and g.COURSE_START between e.term_start and e.term_end and g.USER_TYPE = 'Instructor'
+      WHERE e.user_sso_guid = g.user_sso_guid and g.COURSE_START between e.term_start and e.term_end and g.USER_TYPE = 'Instructor' and g.activation_date is null
       ;;
 
       sql_step:
