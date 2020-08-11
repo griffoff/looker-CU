@@ -101,6 +101,7 @@ view: user_event_conversion {
     type: number
     sql: ${conversion_user_count} / nullif(${user_count},0) ;;
     view_label: "** USER EVENT CONVERSION **"
+    value_format_name: percent_2
   }
 
 }
