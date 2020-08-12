@@ -120,6 +120,7 @@ view: user_event_conversion {
   dimension: period_number {view_label: "** USER EVENT CONVERSION **" type: number hidden:yes}
 
   dimension: conversion_period {
+    label: "Conversion Period (output)"
     view_label: "** USER EVENT CONVERSION **"
     order_by_field: period_number
     description: "Conversion occurred during this period after the initial event"
