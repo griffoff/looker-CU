@@ -1,5 +1,5 @@
-explore: user_event_conversion {}
-view: user_event_conversion {
+explore: conversion_analysis {}
+view: conversion_analysis {
 
   filter: initial_events_filter {
     view_label: "** USER EVENT CONVERSION **"
