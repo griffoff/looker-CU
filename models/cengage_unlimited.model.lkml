@@ -211,6 +211,13 @@ explore: raw_subscription_event {
     sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
     relationship: many_to_one
   }
+  join: date_active {
+    view_label: "Subscription at point in time"
+    from: dim_date
+    sql_on: ${date_active.datevalue_raw} between ${raw_subscription_event.subscription_start_raw}::date and ${raw_subscription_event.subscription_end_raw}::date;;
+    relationship: many_to_many
+    type: inner
+  }
 #   join: sub_actv {
 #     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
 #     relationship: many_to_one

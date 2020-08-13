@@ -90,6 +90,8 @@ view: raw_subscription_event {
           ,prior_status IS NULL as earliest
           ,subscription_start AS effective_from
           ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
+
+          ,sum(case when subscription_state='full_access' then datediff(d,subscription_start,subscription_end) end ) over (partition by ${merged_guid}) as total_duration_full_access
       FROM raw_subscription_event_merged_clean e
     ;;
 
@@ -593,6 +595,8 @@ view: raw_subscription_event {
     sql: ${TABLE}.subscription_state ;;
     hidden: yes
   }
+
+  dimension: total_duration_full_access {}
 
   set: detail {
     fields: [

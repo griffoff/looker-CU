@@ -164,4 +164,29 @@ view: conversion_analysis {
     description: "Ratio of number of users who converted over number that did one of the initial event(s)"
   }
 
+
+  measure: first_conversion_duration_average {
+    type: average
+    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
+    view_label: "** USER EVENT CONVERSION **"
+    value_format_name: percent_2
+    description: "Average time between first initital event and first conversion event"
+  }
+
+  measure: first_conversion_duration_max {
+    type: max
+    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
+    view_label: "** USER EVENT CONVERSION **"
+    value_format_name: percent_2
+    description: "Max time between first initital event and first conversion event"
+  }
+
+  measure: first_conversion_duration_min {
+    type: min
+    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
+    view_label: "** USER EVENT CONVERSION **"
+    value_format_name: percent_2
+    description: "Min time between first initital event and first conversion event"
+  }
+
 }
