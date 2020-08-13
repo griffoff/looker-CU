@@ -91,7 +91,7 @@ view: raw_subscription_event {
           ,subscription_start AS effective_from
           ,COALESCE(LEAST(next_subscription_start, subscription_end), subscription_end) AS effective_to
 
-          ,sum(case when subscription_state='full_access' then datediff(d,subscription_start,subscription_end) end ) over (partition by ${merged_guid}) as total_duration_full_access
+          ,sum(case when subscription_state='full_access' then datediff(d,subscription_start,subscription_end) end ) over (partition by merged_guid) as total_duration_full_access
       FROM raw_subscription_event_merged_clean e
     ;;
 
