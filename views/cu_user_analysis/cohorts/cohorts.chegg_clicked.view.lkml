@@ -7,14 +7,19 @@ view: cohorts_chegg_clicked {
     default_value: "One month Free Chegg Clicked"
   }
 
-  dimension: current {group_label: "Partners: Chegg clicked"}
+#   parameter: term_descr {
+#     type: string
+#     default_value: "(Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"
+#   }
 
-  dimension: minus_1 {group_label: "Partners: Chegg clicked"}
+  dimension: current {group_label: "Partners: Chegg clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 {group_label: "Partners: Chegg clicked"}
+  dimension: minus_1 {group_label: "Partners: Chegg clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 {group_label: "Partners: Chegg clicked"}
+  dimension: minus_2 {group_label: "Partners: Chegg clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 {group_label: "Partners: Chegg clicked"}
+  dimension: minus_3 {group_label: "Partners: Chegg clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
+
+  dimension: minus_4 {group_label: "Partners: Chegg clicked" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 }

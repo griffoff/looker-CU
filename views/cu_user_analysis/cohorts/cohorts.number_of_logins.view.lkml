@@ -9,28 +9,31 @@ view: cohorts_number_of_logins {
 
 
 
-  dimension: current { group_label: "# of logins" hidden: no}
+  dimension: current { group_label: "# of logins" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_1 { group_label: "# of logins" hidden: no}
+  dimension: minus_1 { group_label: "# of logins" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_2 { group_label: "# of logins" hidden: no}
+  dimension: minus_2 { group_label: "# of logins" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_3 { group_label: "# of logins" hidden: no}
+  dimension: minus_3 { group_label: "# of logins" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-  dimension: minus_4 { group_label: "# of logins" hidden: no}
+  dimension: minus_4 { group_label: "# of logins" hidden: no description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
   dimension: current_tiers_times {
     group_label: "# of logins (tiers)"
+    description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
     hidden: no
   }
 
   dimension: minus_1_tiers_times {
     group_label: "# of logins (tiers)"
+    description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
     hidden: no
   }
 
   dimension: minus_2_tiers_times {
     group_label: "# of logins (tiers)"
+    description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
     hidden: no
   }
 

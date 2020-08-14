@@ -1,6 +1,29 @@
 include: "//core/common.lkml"
+include: "all_sessions.view.lkml"
 
 view: all_events {
+  extends: [all_events_base]
+
+  dimension_group: time_since_session_start {
+    label: "Time between start of session and event"
+    type: duration
+    intervals: [second, minute, hour, day, week]
+    sql_start: ${all_sessions.session_start_raw} ;;
+    sql_end: ${event_date_raw} ;;
+
+  }
+
+  dimension_group: time_since_enrollment {
+    label: "Time between enrollment and event"
+    type: duration
+    intervals: [second, minute, hour, day, week]
+    sql_start: ${user_courses.enrollment_date} ;;
+    sql_end: ${event_date_raw} ;;
+
+  }
+}
+
+view: all_events_base {
   view_label: "Events"
   sql_table_name: prod.cu_user_analysis.all_events ;;
 
@@ -32,6 +55,8 @@ view: all_events {
     type: string
     sql: COALESCE(${TABLE}.subscription_state, INITCAP(REPLACE(${TABLE}.event_data:subscription_state, '_', ' ')));;
     description: "Subscription state at the time of the event"
+    suggest_explore: filter_cache_all_events_subscription_state
+    suggest_dimension: filter_cache_all_events_subscription_state.event_subscription_state
   }
 
   dimension: event_data {
@@ -42,6 +67,7 @@ view: all_events {
   }
 
   dimension: event_data_course_key {
+    group_label: "CAFE Tags"
     type: string
     sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)::STRING  ;;
     label: "Course key"
@@ -50,12 +76,14 @@ view: all_events {
 
   dimension: event_data_reader_type {
     type: string
+    group_label: "CAFE Tags"
     sql: ${TABLE}."EVENT_DATA":reader_type::STRING  ;;
     label: "Reader type (event data)"
     description: "Reader type (Gutenberg, Tribble, etc.)"
   }
 
   dimension: reader_mode {
+    group_label: "CAFE Tags"
     type: string
     label: "Reader Mode Type (Mindtap only)"
     required_fields: [product_platform]
@@ -277,6 +305,71 @@ view: all_events {
     hidden: no
   }
 
+  dimension: tags_isImpersonated {
+    group_label: "CAFE Tags"
+    label: "Is Impersonated"
+    type: string
+    sql: ${event_data}:isImpersonated::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_impersonatorGuid {
+    group_label: "CAFE Tags"
+    label: "Impersonator Guid"
+    type: string
+    sql: ${event_data}:impersonatorGuid::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_impersonatorUserType {
+    group_label: "CAFE Tags"
+    label: "Impersonator User Type"
+    type: string
+    sql: ${event_data}:impersonatorUserType::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_courseCategoryId {
+    group_label: "CAFE Tags"
+    label: "Course Category Id"
+    type: string
+    sql: ${event_data}:courseCategoryId::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_iacISBN {
+    group_label: "CAFE Tags"
+    label: "IAC ISBN"
+    type: string
+    sql: ${event_data}:iacISBN::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_UserType {
+    group_label: "CAFE Tags"
+    label: "User Type"
+    type: string
+    sql: ${event_data}:userType::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+  dimension: tags_ContextID {
+    group_label: "CAFE Tags"
+    label: "Context ID"
+    type: string
+    sql: ${event_data}:contextId::string ;;
+    description: "Event data"
+    hidden: no
+  }
+
+
+
   dimension: tags_coursekey {
     group_label: "CAFE Tags"
     label: "Course key"
@@ -312,6 +405,7 @@ view: all_events {
     sql: ${event_data}:activityId::string  ;;
     hidden: no
     description: "Event data"
+#     CGI need to map to source to get metadata such as activity title
   }
 
   dimension: tags_checkpointId {
@@ -453,7 +547,7 @@ view: all_events {
     group_label: "CAFE Tags"
     label: "ISBN"
     type: string
-    sql: ${event_data}:ISBN::string  ;;
+    sql: coalesce(${event_data}:ISBN::string,${event_data}:isbn::string)  ;;
     description: "Event data"
     hidden: no
   }
@@ -522,6 +616,19 @@ view: all_events {
   }
 
 
+  dimension: tags_ISBN13 {
+    group_label: "CAFE Tags"
+    label: "ISBN13"
+    type: string
+    sql: replace(${event_data}:isbn13::string,'-','')  ;;
+    description: "ISBN13 (Event data tags)"
+    hidden: no
+  }
+
+
+
+
+
   dimension: product_platform {
     type: string
     group_label: "Event Classification"
@@ -553,6 +660,7 @@ view: all_events {
     sql:   event_data:search_outcome;;
   }
 
+
   dimension: search_term {
     group_label: "Search"
     label: "Search term"
@@ -583,9 +691,14 @@ view: all_events {
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
     label: "Event action"
-    description: "Direct from source.
-    A classification of event within the hierarchy of events beneath event type and above event name i.e. 'OLR Enrollment'"
+    description:
+    "DEFINITION: Action (verb) taken or performed by user or internal system.
+    CAVEAT(S): Action labels are not necessarily consistent from platform to platform.
+    SOURCE: CAFe, GTM, OLR, etc. See 'product platform' dimension for details.
+    RAW/DERIVED: Raw
+    "
     hidden: no
+
   }
 
   dimension: event_name {
@@ -603,6 +716,8 @@ view: all_events {
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **"
     link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
     If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
+  suggest_explore: filter_cache_all_events_event_name
+  suggest_dimension: filter_cache_all_events_event_name.event_name
   }
 
 
@@ -613,6 +728,15 @@ view: all_events {
     group_label: "Event Time (UTC)"
     label: "Event (UTC)"
     description: "Components of the events local timestamp converted to UTC"
+  }
+
+  dimension_group: local_pt {
+    type: time
+    timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
+    sql: convert_timezone('America/Los_Angeles', ${TABLE}."EVENT_TIME") ;;
+    group_label: "Event Time (PT)"
+    label: "Event (PT)"
+    description: "Components of the events local timestamp converted to pacific time (America/Los_Angeles)"
   }
 
   dimension: semester {
@@ -634,9 +758,10 @@ view: all_events {
   }
 
   dimension: event_date_raw {
-    hidden: no
+    hidden: yes
     type: date
     sql: ${TABLE}.event_time::date ;;
+
   }
 
 
@@ -662,13 +787,12 @@ view: all_events {
 #     sql:${dim_date.datevalue_date} ;;
 #   }
 
-dimension: load_metadata_source {
-  group_label: "Event Classification - Raw"
-  label: "Load source"
-  type: string
-  sql: ${TABLE}."LOAD_METADATA":source::string ;;
-}
-
+  dimension: load_metadata_source {
+    group_label: "Event Classification - Raw"
+    label: "Load source"
+    type: string
+    sql: ${TABLE}."LOAD_METADATA":source::string ;;
+  }
 
   dimension_group: local_est {
     type: time
@@ -681,6 +805,7 @@ dimension: load_metadata_source {
 
 
   dimension_group: local_unconverted {
+    hidden:  yes
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day]
     sql:  ${TABLE}."LOCAL_TIME" ;;
@@ -694,6 +819,8 @@ dimension: load_metadata_source {
     description: "Which page did the student come from to get here?"
     sql: ${event_data}:"referral path"::STRING ;;
   }
+
+
 
   dimension: referral_host {
     group_label: "Referral Path"
@@ -743,7 +870,7 @@ dimension: load_metadata_source {
 
   dimension: grace_period_flag {
     type: yesno
-    description: "Event occurred before course activation up to midpoint of course or 60 days after start. Even occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
+    description: "Event occurred before course activation up to midpoint of course or 60 days after start. Event occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
   }
 
   dimension: day_of_grace_period {
@@ -887,12 +1014,34 @@ dimension: load_metadata_source {
     hidden: yes
   }
 
+  dimension: event_duration_seconds {
+    type: number
+    #cut off at 30 mins
+    sql: NULLIF(LEAST(${event_data}:event_duration::int, 1800), 0) ;;
+    hidden: yes
+  }
+
+  dimension: time_to_next_event_seconds {
+    type: number
+    #cut off at 30 mins
+    sql: NULLIF(LEAST(${event_data}:time_to_next_event::int, 1800), 0) ;;
+    hidden: yes
+  }
+
   measure: event_duration_total {
     group_label: "Time spent"
     label: "Total Time Active"
     type: sum
-    sql: NULLIF(${event_data}:event_duration::int, 0) / 60 / 60 / 24 ;; #event duration is in seconds
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m] \m\i\n\s"
+  }
+
+  measure: event_duration_average {
+    group_label: "Time spent"
+    label: "Average Time Per Event"
+    type: average
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m] \m\i\n\s s \s\e\c\s"
   }
 
 
@@ -900,9 +1049,10 @@ dimension: load_metadata_source {
     group_label: "Time spent"
     label: "Total Time Active (time_to_next_event)"
     type: sum
-    sql: ${event_data}:event_duration / 3600 / 24  ;;
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m] \m\i\n\s"
+    hidden: yes
   }
 
   measure: average_time_to_next_event_spent_per_student {
@@ -929,6 +1079,14 @@ dimension: load_metadata_source {
     type: number
     sql: ${event_duration_total} / ${user_week_count};;
     value_format: "[m] \m\i\n\s"
+
+    description:
+    "DEFINITION: The average amount of time a student is active per week.
+    CAVEAT(S): Some events are excluded, e.g. event_action = 'STOP'. Event durations are approximate.
+    SOURCE: Looker calculation
+    RAW/DERIVED: Derived
+    "
+
   }
 
   measure: average_time_spent_per_student_per_month {
@@ -987,6 +1145,7 @@ dimension: load_metadata_source {
 
 
   dimension: ATC_usage {
+    hidden: yes
     label: "ATC Event"
     description: "Above The Course event Y/N"
     type:  yesno
@@ -1014,7 +1173,7 @@ OR (event_action = 'JUMP' AND event_type IN (
   }
 
   measure: above_the_courses{
-    hidden:  no
+    hidden:  yes
     label:"# of ATC usages - no ebook"
     description: "Number of times an Above The Course event occurred"
     type: count_distinct

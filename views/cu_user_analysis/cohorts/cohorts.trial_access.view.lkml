@@ -132,14 +132,14 @@ view: TrialAccess_cohorts {
 #        ;;
 #   }
 
-  dimension: current { group_label: "Trial Access" description:"User had trial access during term Y/N"}
+  dimension: current { group_label: "Trial Access" description:"User had trial access during term Y/N (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_1 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
+  dimension: minus_1 { group_label: "Trial Access" description:"User had trial access during term Y/N (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_2 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
+  dimension: minus_2 { group_label: "Trial Access" description:"User had trial access during term Y/N (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_3 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
+  dimension: minus_3 { group_label: "Trial Access" description:"User had trial access during term Y/N (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_4 { group_label: "Trial Access" description:"User had trial access during term Y/N"}
+  dimension: minus_4 { group_label: "Trial Access" description:"User had trial access during term Y/N (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
 }

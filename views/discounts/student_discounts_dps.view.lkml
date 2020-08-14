@@ -3,33 +3,51 @@ explore: student_discounts_dps {}
 view: student_discounts_dps {
   derived_table: {
     sql:
-    WITH most_recent_run_time_eloqua AS (SELECT MAX(run_time) AS most_recent_run FROM prod.eloqua_discounts.student_discounts)
-    ,most_recent_run_eloqua AS
+    WITH most_recent_run_eloqua AS
     (
         SELECT
-          ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
-          ,user_sso_guid
-          ,discount AS discount
-          ,isbn AS isbn
-          ,run_time
-       FROM prod.eloqua_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_eloqua)
+          rank() OVER (PARTITION BY user_sso_guid ORDER BY run_time DESC) AS row_order
+             ,user_sso_guid
+             ,run_time
+             ,MAX(CASE WHEN isbn = '9780357693339' THEN discount END) as discount_etextbook
+             ,MAX(CASE WHEN isbn = '9780357700006' THEN discount END) as discount_cu
+             ,MAX(CASE WHEN isbn = '9780357693339' THEN price END) as price_etextbook
+             ,MAX(CASE WHEN isbn = '9780357700006' THEN price END) as price_cu
+        FROM prod.eloqua_discounts.student_discounts
+        WHERE run_time >= CURRENT_DATE - 30
+          AND isbn IN (
+            '9780357693339' --etextbook
+            ,'9780357700006' --CU
+          )
+        GROUP BY user_sso_guid, run_time
+
     )
-    ,most_recent_run_time_ipm AS (SELECT MAX(run_time) AS most_recent_run FROM prod.ipm_discounts.student_discounts)
     ,most_recent_run_ipm AS
     (
-        SELECT
-          ROW_NUMBER() OVER (PARTITION BY user_sso_guid, ISBN ORDER BY run_time DESC) AS row_order
-          ,user_sso_guid
-          ,discount AS discount
-          ,isbn AS isbn
-          ,run_time
-       FROM prod.ipm_discounts.student_discounts WHERE run_time = (SELECT most_recent_run FROM most_recent_run_time_ipm)
-    )
-    SELECT  user_sso_guid, 'eloqua' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
-    FROM most_recent_run_eloqua GROUP BY 1, 2
+       SELECT
+          rank() OVER (PARTITION BY user_sso_guid ORDER BY run_time DESC) AS row_order
+             ,user_sso_guid
+             ,run_time
+             ,MAX(CASE WHEN isbn = '9780357693339' THEN discount END) as discount_etextbook
+             ,MAX(CASE WHEN isbn = '9780357700006' THEN discount END) as discount_cu
+             ,MAX(CASE WHEN isbn = '9780357693339' THEN price END) as price_etextbook
+             ,MAX(CASE WHEN isbn = '9780357700006' THEN price END) as price_cu
+        FROM prod.ipm_discounts.student_discounts
+        WHERE run_time >= CURRENT_DATE - 30
+          AND isbn IN (
+            '9780357693339' --etextbook
+            ,'9780357700006' --CU
+          )
+        GROUP BY user_sso_guid, run_time
+
+      )
+    SELECT  'eloqua' AS marketing_mechanism, *
+    FROM most_recent_run_eloqua
+    WHERE row_order = 1
     UNION
-    SELECT user_sso_guid, 'ipm' AS marketing_mechanism, SUM(discount) AS discount, LISTAGG(isbn) AS isbn, MAX(run_time) AS run_time
-    FROM most_recent_run_ipm GROUP BY 1, 2
+    SELECT 'ipm', *
+    FROM most_recent_run_ipm
+    WHERE row_order = 1
 
 
       ;;
@@ -56,33 +74,69 @@ view: student_discounts_dps {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
     primary_key: yes
+    hidden: yes
   }
 
   dimension: discount {
     group_label: "Discount info"
     type: number
-    sql: ${TABLE}.discount ;;
+    sql: ${TABLE}.discount_cu ;;
+  }
+
+  dimension: discount_etextbook {
+    group_label: "Discount info"
+    type: number
+    sql: ${TABLE}.discount_etextbook ;;
   }
 
   dimension: isbn {
     type: string
-    sql: ${TABLE}."ISBN" ;;
+    sql: 'N/A' ;;
+    hidden: yes
   }
 
 
   dimension_group: run_time {
     group_label: "Discount info"
     type: time
-    timeframes: [date, week, month, year, raw]
+    timeframes: [date]
     sql: ${TABLE}."RUN_TIME" ;;
   }
 
 
+#   dimension: amount_to_upgrade_num {
+#     group_label: "Discount info"
+#     type: number
+#     value_format_name: decimal_2
+# #     value_format: "$0.00"
+#     sql: COALESCE(GREATEST(${TABLE}.price, 0),199.99) ;;
+#     #sql: GREATEST(120 - COALESCE(${TABLE}."DISCOUNT", 0), 0) ;;
+#   }
+
+#   dimension: amount_to_upgrade {
+#     group_label: "Discount info"
+#     type: string
+#     sql: concat('$',${amount_to_upgrade_num});;
+#
+#   }
+
   dimension: amount_to_upgrade {
     group_label: "Discount info"
     type: number
-    sql: CASE WHEN (120 - COALESCE(${TABLE}."DISCOUNT", 0)) < 0 THEN 0 ELSE (120 - COALESCE(${TABLE}."DISCOUNT", 0)) END ;;
+    sql: COALESCE(GREATEST(${TABLE}.price_cu, 0),119.99);;
+    value_format_name: usd
   }
+
+  dimension: amount_to_upgrade_string {
+    group_label: "Discount info"
+    type: string
+    sql: CASE
+            WHEN ${amount_to_upgrade} = 0 THEN 'for free'
+            WHEN ${amount_to_upgrade} between 0 and 30 THEN CONCAT('for $', ${amount_to_upgrade}::string)
+            WHEN ${amount_to_upgrade} between 30 and 65 THEN '31-65'
+            ELSE '' END;;
+  }
+
 
   dimension: amount_to_upgrade_buckets {
     group_label: "Discount info"
@@ -91,49 +145,49 @@ view: student_discounts_dps {
     sql: ${amount_to_upgrade} ;;
     tiers: [0, 10, 20, 30, 40, 50, 60, 70]
     style: integer
+    value_format_name: usd
   }
 
+  dimension: amount_to_upgrade_etextbook {
+    group_label: "Discount info"
+    type: number
+    sql: COALESCE(GREATEST(${TABLE}.price_etextbook, 0),69.99);;
+    value_format_name: usd
+  }
 
-
-
-  dimension: amount_to_upgrade_string {
+  dimension: amount_to_upgrade_etextbook_string {
     group_label: "Discount info"
     type: string
     sql: CASE
-            WHEN ${amount_to_upgrade} = 0 THEN 'for free'
-            WHEN ${amount_to_upgrade} > 50 THEN ' '
-            ELSE CONCAT('for only $', ${amount_to_upgrade}::string) END;;
-   }
+            WHEN ${amount_to_upgrade_etextbook} = 0 THEN 'for free'
+            WHEN ${amount_to_upgrade_etextbook} between 0 and 30 THEN CONCAT('for $', ${amount_to_upgrade_etextbook}::string)
+            WHEN ${amount_to_upgrade_etextbook} between 30 and 65 THEN '31-65'
+            ELSE '' END;;
+  }
+
+  dimension: amount_to_upgrade_etexbook_buckets {
+    group_label: "Discount info"
+    label: "Amount to upgrade to e-Textbook (buckets)"
+    type: tier
+    sql: ${amount_to_upgrade_etextbook} ;;
+    tiers: [0, 10, 20, 30, 40]
+    style: integer
+    value_format_name: usd
+  }
 
 
-#
-#   dimension: amount_to_upgrade_tiers {
-#     type: string
-#     sql: CASE
-#             WHEN ${amount_to_upgrade} = 0 THEN '0'
-#             WHEN ${amount_to_upgrade} < 10 THEN '$0.01-$9.99'
-#             WHEN ${amount_to_upgrade} < 20 THEN '$10.00-$19.99'
-#             WHEN ${amount_to_upgrade} < 30 THEN '$20.00-$29.99'
-#             WHEN ${amount_to_upgrade} < 40 THEN '$30.00-$39.99'
-#             WHEN ${amount_to_upgrade} < 50 THEN '$40.00-$49.99'
-#             ELSE 'over $50.00'
-#             END
-#             ;;
-#   }
-
-  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, discount
-      , isbn, discount, run_time_date, marketing_mechanism
-      ,amount_to_upgrade_buckets]}
+  set: marketing_fields {fields: [amount_to_upgrade_string, amount_to_upgrade, amount_to_upgrade_etextbook_string, amount_to_upgrade_etextbook, discount
+      , discount, run_time_date, marketing_mechanism
+      , amount_to_upgrade_buckets]}
 
 
   set: detail {
     fields: [
       user_sso_guid,
-      isbn,
       discount,
       run_time_date,
       amount_to_upgrade,
-      amount_to_upgrade_string,
+      amount_to_upgrade_etextbook,
     ]
   }
 

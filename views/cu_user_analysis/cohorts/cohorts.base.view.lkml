@@ -42,52 +42,55 @@ view: cohorts_base {
   parameter: dimension_current_name {
     type: unquoted
     hidden: yes
-    default_value: "Spring_2020"
+    default_value: "Fall_2021"
   }
 
   parameter: dimension_minus_1_name {
     type: unquoted
     hidden: yes
-    default_value: "Fall_2020"
+    default_value: "Summer_2020"
   }
 
   parameter: dimension_minus_2_name {
     type: unquoted
     hidden: yes
-    default_value: "Summer_2019"
+    default_value: "Spring_2020"
   }
 
   parameter: dimension_minus_3_name {
     type: unquoted
     hidden: yes
-    default_value: "Spring_2019"
+    default_value: "Fall_2020"
   }
 
   parameter: dimension_minus_4_name {
     type: unquoted
     hidden: yes
-    default_value: "Fall_2019"
+    default_value: "Summer_2019"
   }
 
-
   dimension: current {
+    type: string
     label: "1) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_current_name._parameter_value | replace: '_', ' ' }}"
-
   }
 
   dimension: minus_1 {
+    type: string
     label: "2) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_1_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_2 {
+    type: string
     label: "3) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_2_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_3 {
+    type: string
     label: "4) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_3_name._parameter_value | replace: '_', ' ' }}"
   }
 
   dimension: minus_4 {
+    type: string
     label: "5) {{ _view._name | replace: 'cohorts', ''| replace: 'subscription_term', '' | replace: 'cohort', '' | replace: '_', ' ' | strip | capitalize }} - {{ dimension_minus_4_name._parameter_value | replace: '_', ' ' }}"
   }
 
@@ -281,28 +284,28 @@ view: cohorts_base_binary {
   extends: [cohorts_base]
 
   dimension: current {
-    type: string
-    sql: CASE WHEN ${TABLE}."1" > 0 THEN 'Yes' ELSE 'No' END ;;
+    type: yesno
+    sql: ${TABLE}."1" > 0;;
   }
 
   dimension: minus_1 {
-    type: string
-    sql: CASE WHEN ${TABLE}."2" > 0 THEN 'Yes' ELSE 'No' END ;;
+    type: yesno
+    sql:  ${TABLE}."2" > 0;;
   }
 
   dimension: minus_2 {
-    type: string
-    sql: CASE WHEN ${TABLE}."3" > 0 THEN 'Yes' ELSE 'No' END ;;
+    type: yesno
+    sql:  ${TABLE}."3" > 0;;
   }
 
   dimension: minus_3 {
-    type: string
-    sql: CASE WHEN ${TABLE}."4" > 0 THEN 'Yes' ELSE 'No' END ;;
+    type: yesno
+    sql:  ${TABLE}."4" > 0;;
   }
 
   dimension: minus_4 {
-    type: string
-    sql: CASE WHEN ${TABLE}."5" > 0 THEN 'Yes' ELSE 'No' END  ;;
+    type: yesno
+    sql:  ${TABLE}."5" > 0;;
   }
 
 }
@@ -313,11 +316,11 @@ view: cohorts_base_number {
   extends: [cohorts_base_binary]
 
 
-  dimension: current {sql: COALESCE(${TABLE}."1", 0);;}
-  dimension: minus_1 {sql: COALESCE(${TABLE}."2", 0);;}
-  dimension: minus_2 {sql: COALESCE(${TABLE}."3", 0);;}
-  dimension: minus_3 {sql: COALESCE(${TABLE}."4", 0);;}
-  dimension: minus_4 {sql: COALESCE(${TABLE}."5", 0);;}
+  dimension: current {type:number sql: COALESCE(${TABLE}."1", 0);;}
+  dimension: minus_1 {type:number sql: COALESCE(${TABLE}."2", 0);;}
+  dimension: minus_2 {type:number sql: COALESCE(${TABLE}."3", 0);;}
+  dimension: minus_3 {type:number sql: COALESCE(${TABLE}."4", 0);;}
+  dimension: minus_4 {type:number sql: COALESCE(${TABLE}."5", 0);;}
 }
 
 view: cohorts_base_string {

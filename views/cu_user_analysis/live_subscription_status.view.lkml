@@ -27,6 +27,8 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
     description: "Active, Cancelled, Expired, Pending"
+    suggest_explore: filter_cache_live_subscription_status_subscription_state
+    suggest_dimension: subscription_state
   }
 
   dimension: record_rank {
@@ -212,6 +214,7 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
     description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
+    hidden: yes
   }
 
 
@@ -317,17 +320,26 @@ view: live_subscription_status {
     hidden: no
   }
 
+  dimension: marketing_intention {
+    description: "Bucket for determining how to commuicate with users"
+    label: "Marketing Bucket"
+#     Trial source is via courselink
+# Trial source is via ala carte trial-opt in
+# Trial source is via Cengage.com
+    sql:  ;;
+  }
+
 
   measure: student_count {
-    hidden: yes
-    label: "# Students"
+    hidden: no
+    label: "# Subscribers (All types inc. trial)"
     type: number
     sql: COUNT(DISTINCT ${user_sso_guid}) ;;
     drill_fields: [user_sso_guid]
   }
 
   measure: subscriber_count {
-    label: "# Subscribers"
+    label: "# Full Access Subscribers"
     type: number
     sql: COUNT(DISTINCT CASE WHEN ${subscription_status} = 'Full Access' THEN ${user_sso_guid} END) ;;
     description: "Distinct count of full access subscribers"

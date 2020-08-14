@@ -4,6 +4,25 @@ view: cohorts_user_term_subscriptions {
     persist_for: "60 minutes"
 
     sql:
+      WITH cancelled AS (
+        SELECT
+          user_sso_guid_merged
+          , contract_id
+          , local_time
+          , subscription_state
+        FROM prod.cu_user_analysis.subscription_event_merged
+        WHERE subscription_state = 'cancelled'
+        )
+      , subscriptions as (
+        SELECT
+          s.user_sso_guid_merged
+          ,COALESCE(c.subscription_state, s.subscription_state) AS subscription_state
+          ,s.subscription_start
+          ,s.subscription_end
+          ,s.local_time
+        FROM prod.cu_user_analysis.subscription_event_merged s
+        LEFT JOIN cancelled c ON s.user_sso_guid_merged = c.user_sso_guid_merged AND s.contract_id = c.contract_id AND c.local_time > s.local_time AND s.subscription_state = 'full_access'
+        )
         SELECT
               s.user_sso_guid_merged
               ,d.terms_chron_order_desc
@@ -15,10 +34,19 @@ view: cohorts_user_term_subscriptions {
               ,s.subscription_end
               ,s.local_time
         FROM ${date_latest_5_terms.SQL_TABLE_NAME} d
-        INNER JOIN prod.cu_user_analysis.subscription_event_merged s
+        INNER JOIN subscriptions s
              ON (
-                (s.local_time::DATE BETWEEN d.start_date AND DATEADD(day, -8, d.end_date)) -- starts before the last week of the term
-                OR (s.local_time::DATE BETWEEN DATEADD(day, 8, d.start_date) AND d.end_date) -- ends after the first week of the term
+                -- starts this term before the last week of the term
+                s.subscription_start::DATE BETWEEN d.start_date AND DATEADD(day, -8, d.end_date)
+                OR
+                -- ends this term after the first week of the term
+                s.subscription_end::DATE BETWEEN DATEADD(day, 8, d.start_date) and d.end_date
+                OR
+                --started before this term and ends after this term
+                (
+                  s.subscription_start::DATE < d.start_date
+                  AND s.subscription_end::DATE > d.end_date
+                )
               )
       --WHERE user_sso_guid_merged IN ('033b20b27ca503d5:20c4c7b6:15f6f339f0c:-5f8b', '033b20b27ca503d5:20c4c7b6:15e2fad1470:5223', 'efa047457a23f24d:-260a5249:1655840aed1:-1568')
       ;;

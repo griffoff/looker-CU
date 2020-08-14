@@ -34,7 +34,7 @@ view: current_date {
 }
 
 explore: course_sections {
-  extends: [dim_course]
+  extends: [dim_course, learner_profile_cohorts]
   from: dim_course
   view_name: dim_course
 
@@ -52,8 +52,26 @@ explore: course_sections {
     relationship: one_to_one
   }
 
+  join: learner_profile {
+    sql_on: ${user_courses.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
   join: live_subscription_status {
     sql_on: ${user_courses.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+    relationship: many_to_one
+  }
+
+  join: raw_olr_provisioned_product {
+    fields: []
+    view_label: "Provisioned Products"
+    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+    relationship: many_to_one
+  }
+
+  join: gateway_institution {
+    view_label: "Institution"
+    sql_on: ${dim_institution.entity_no}::string = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
 
@@ -67,6 +85,22 @@ explore: course_sections {
     relationship: many_to_one
   }
 
+  join: gateway_lms_course_sections {
+    sql_on: ${dim_course.context_id} = ${gateway_lms_course_sections.olr_context_id};;
+    relationship: one_to_one
+    view_label: "Course / Section Details"
+  }
+
+  join: all_events {
+    sql_on: (${user_courses.user_sso_guid}, ${user_courses.olr_course_key}) = (${all_events.user_sso_guid}, ${all_events.event_data_course_key}) ;;
+    relationship: one_to_many
+  }
+
+  join: all_sessions {
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
+    relationship: many_to_one
+  }
+
 
 }
 
@@ -74,74 +108,6 @@ explore: course_sections {
 explore: active_users {
   hidden: yes
   from: guid_platform_date_active
-
-}
-
-explore: active_users_stats  {
-  from: dim_date
-
-  join: active_users_platforms {
-    relationship: many_to_many
-    type: cross
-  }
-
-  join: daily_coursesection_instructors {
-    sql_on: ${active_users_stats.datevalue} = ${daily_coursesection_instructors.date} ;;
-    relationship: one_to_many
-  }
-
-  join: daily_paid_active_users {
-    sql_on: ${active_users_stats.datevalue} = ${daily_paid_active_users.date} ;;
-    relationship: one_to_many
-  }
-
-  join: dau {
-    sql_on: ${active_users_stats.datevalue} = ${dau.date}
-        AND ${active_users_platforms.product_platform} = ${dau.product_platform};;
-    relationship: one_to_one
-    type: inner
-  }
-
-  join: dau_ly {
-    view_label: "User Activity Counts - Prior Year"
-    from: dau
-    sql_on: DATEADD(day, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue}) = DATEADD(year, 1, ${dau_ly.date})
-      AND ${active_users_platforms.product_platform} = ${dau_ly.product_platform};;
-    relationship: one_to_one
-    type: left_outer
-  }
-
-  join: wau {
-    sql_on: ${active_users_stats.datevalue} = ${wau.date}
-        AND ${active_users_platforms.product_platform} = ${wau.product_platform};;
-    relationship: one_to_one
-    type: inner
-  }
-
-  join: wau_ly {
-    view_label: "User Activity Counts - Prior Year"
-    from: wau
-    sql_on: DATEADD(week, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${wau_ly.date})
-      AND ${active_users_platforms.product_platform} = ${wau_ly.product_platform};;
-    relationship: one_to_one
-    type: left_outer
-  }
-
-  join: mau {
-    sql_on: ${active_users_stats.datevalue} = ${mau.date}
-        AND ${active_users_platforms.product_platform} = ${mau.product_platform};;
-    relationship: one_to_one
-    type: inner
-  }
-
-  join: mau_ly {
-    view_label: "User Activity Counts - Prior Year"
-    from: mau
-    sql_on: DATEADD(month, {{ ${active_users_platforms.offset._parameter_value }}, ${active_users_stats.datevalue})  = DATEADD(year, 1, ${mau_ly.date})
-      AND ${active_users_platforms.product_platform} = ${mau_ly.product_platform};;
-    relationship: one_to_one
-    type: left_outer
-  }
 }
 
 explore: strategy_ecom_sales_orders {
@@ -244,6 +210,13 @@ explore: raw_subscription_event {
   join: dim_date {
     sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
     relationship: many_to_one
+  }
+  join: date_active {
+    view_label: "Subscription at point in time"
+    from: dim_date
+    sql_on: ${date_active.datevalue_raw} between ${raw_subscription_event.subscription_start_raw}::date and ${raw_subscription_event.subscription_end_raw}::date;;
+    relationship: many_to_many
+    type: inner
   }
 #   join: sub_actv {
 #     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
@@ -392,6 +365,12 @@ explore: mobiledata {
     sql_on: ${ga_mobiledata.userssoguid}= ${learner_profile.user_sso_guid} ;;
     type: left_outer
     relationship: many_to_one
+  }
+
+  join: user_courses {
+    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key}
+          and ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid};;
+    relationship: one_to_one
   }
 
   join: live_subscription_status {
@@ -573,4 +552,103 @@ explore: adoption_usage_analysis {
     ;;
     relationship: one_to_many
   }
+}
+
+view: date_ty_ly {
+
+  parameter: offset {
+    view_label: "Filters"
+    description: "Offset (days/weeks/months depending on metric) to use when comparing vs prior year, can be positive to move prior year values forwards or negative to shift prior year backwards"
+    type: number
+    default_value: "0"
   }
+
+  derived_table: {
+    sql:
+    select datevalue, datevalue as date, date as ty_date, null as ly_date from prod.dm_common.dim_date_legacy_cube
+    union all
+    select datevalue, DATEADD(day, {% parameter offset %},dateadd(year, -1, datevalue)) as date, null, date from prod.dm_common.dim_date_legacy_cube ;;
+  }
+
+  dimension: datevalue {type: date_raw hidden:yes}
+  dimension: date {type: date_raw hidden:yes primary_key:yes}
+  dimension: ty_date {type:date_raw hidden:yes}
+  dimension: ly_date {type:date_raw hidden:yes}
+
+}
+
+explore: kpi_user_stats {
+  persist_with: daily_refresh
+  from: dim_date
+
+  view_label: "Date"
+  fields: [ALL_FIELDS*
+    ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
+    ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
+
+  join: date_ty_ly {
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${date_ty_ly.datevalue} ;;
+    relationship: one_to_many
+  }
+  join: combinations {
+    view_label: "Filters"
+    from: kpi_user_counts_filter_combinations_agg
+    # sql_on: ${kpi_user_stats.datevalue_raw} = ${combinations.date}
+    #     OR DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${combinations.date}
+    #    ;;
+    sql_on: ${date_ty_ly.date} = ${combinations.date} ;;
+    type: inner
+    relationship: one_to_many
+  }
+
+   join: kpi_user_counts {
+    from: kpi_user_counts_agg
+    view_label: "User Counts"
+    sql_on: ${date_ty_ly.ty_date} = ${kpi_user_counts.date_raw}
+        AND ${combinations.date} = ${kpi_user_counts.date_raw}
+        AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
+        AND ${combinations.platform} = ${kpi_user_counts.platform}
+        AND ${combinations.organization} = ${kpi_user_counts.organization}
+        AND ${combinations.region} = ${kpi_user_counts.region}
+        AND ${combinations.user_type} = ${kpi_user_counts.user_type}
+    ;;
+    relationship: one_to_many
+   }
+
+  join: kpi_user_counts_ly {
+    from: kpi_user_counts_agg
+    view_label: "User Counts - Prior Year"
+    sql_on:${date_ty_ly.ly_date} = ${kpi_user_counts_ly.date_raw}
+        AND ${combinations.date} = ${kpi_user_counts_ly.date_raw}
+        AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
+        AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
+        AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
+        AND ${combinations.region} = ${kpi_user_counts_ly.region}
+        AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
+    ;;
+    relationship: one_to_many
+
+  }
+
+  join: yru {
+    view_label: "User Counts"
+    sql_on: ${date_ty_ly.ty_date} = ${yru.date_raw};;
+    relationship: many_to_one
+    type: left_outer
+  }
+
+  join: yru_ly {
+    from: yru
+    view_label: "User Counts - Prior Year"
+    sql_on: ${date_ty_ly.ly_date} =  ${yru_ly.date_raw}
+    ;;
+    relationship: many_to_one
+    type: left_outer
+  }
+
+}
+
+# access_grant: access_grant_test {
+#   user_attribute: test_attribute
+#   allowed_values: [ "yes" ]
+# }

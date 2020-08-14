@@ -1,4 +1,5 @@
 # include: "cengage_unlimited.model.lkml"
+
 explore: guid_platform_date_active {
   hidden: yes
 }
@@ -105,5 +106,10 @@ view: guid_platform_date_active {
     type: average
     sql: ${event_duration_total} ;;
     value_format: "hh:mm:ss"
+  }
+  measure: event_count_measure {
+    type:  sum
+    sql:  ${event_count} ;;
+
   }
 }

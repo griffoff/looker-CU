@@ -31,15 +31,17 @@ view: cu_user_info {
                 ,COUNT(NULLIF(sa.instructor, 0)) OVER (PARTITION BY party_identifier) >= 1 AS instructor_by_party
                 ,LAST_VALUE(sa.k12) OVER (PARTITION BY party_identifier ORDER BY sa.rsrc_timestamp) AS k12_latest
                 ,COUNT(NULLIF(sa.k12, 0)) OVER (PARTITION BY party_identifier) >= 1 as k12_by_party
-                ,COUNT(CASE WHEN sa.region = 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1 AS usa_by_party
-                ,COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1 AS non_usa_by_party
+                ,COUNT(CASE WHEN sa.region = 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
+                  AND COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') = 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS usa_by_party
+                ,COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
+                 OR COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') != 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS non_usa_by_party
                 --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
                 ,COALESCE(usmar.opt_out, 'true') AS marketing_opt_out
                 ,COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 as opt_out_by_party
             FROM prod.datavault.hub_user h
-            INNER JOIN prod.datavault.sat_user sa
+            INNER JOIN prod.datavault.SAT_USER_V2 sa
                         ON h.hub_user_key = sa.hub_user_key
-                        AND sa.active
+                        AND sa._latest
             LEFT JOIN prod.datavault.sat_user_pii p
                         ON h.hub_user_key = p.hub_user_key
                         AND p.active

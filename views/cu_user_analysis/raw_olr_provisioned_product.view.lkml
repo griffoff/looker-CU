@@ -22,90 +22,133 @@ explore: raw_olr_provisioned_product {
   }
   }
 
+
 view: raw_olr_provisioned_product {
   view_label: "Provisioned Product"
-#   sql_table_name: UNLIMITED.RAW_OLR_PROVISIONED_PRODUCT ;;
+
 derived_table: {
-
-# --        SELECT prod.*,iac.PP_Name,iac.PP_LDAP_Group_name,iac.pp_product_type
-#  --         FROM  olr.prod.provisioned_product Prod
-# --              JOIN prod.unlimited.RAW_OLR_EXTENDED_IAC Iac
-# --                ON iac.pp_pid = prod.product_id
-# --                  AND prod.user_type like 'student'
-# --                --  AND prod."source" like 'unlimited'
-# --                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS);;
-
   sql:
- With pp as (
-   SELECT prod.*
-          FROM  olr.prod.provisioned_product Prod
-              wHERE prod.user_type like 'student'
-                  and prod.user_sso_guid not in (select user_sso_guid from prod.unlimited.EXCLUDED_USERS)
-     ),prim_map AS(
-        SELECT *,LEAD(event_time) OVER (PARTITION BY primary_guid ORDER BY event_time ASC) IS NULL AS latest from prod.unlimited.VW_PARTNER_TO_PRIMARY_USER_GUID
-      )
-      ,types as (
-        SELECT iac.pp_pid
-            , iac.pp_product_type
-            ,iac.pp_name
-            , array_agg(distinct iac.cp_product_type) as cppt
-        from  prod.unlimited.RAW_OLR_EXTENDED_IAC as iac
-        group by iac.pp_pid, iac.pp_product_type,pp_name
-      )
-      ,guid_mapping AS(
-        Select * from prim_map where latest
-      )
-     select pp.*,COALESCE(m.primary_guid, pp.user_sso_guid) AS merged_guid,iac.pp_product_type,pp_name,
-      case when iac.pp_product_type not like 'SMART' then iac.pp_product_type else
-      case when ARRAY_CONTAINS('MTC'::variant, cppt) then 'MTC' else
-      case when ARRAY_CONTAINS('CSFI'::variant, cppt) then 'CSFI' else
-      case when ARRAY_CONTAINS('4LT'::variant, cppt) then '4LT' else
-      case when ARRAY_CONTAINS('APLIA'::variant, cppt) then 'APLIA' else
-      case when ARRAY_CONTAINS('SAM'::variant, cppt) then 'SAM' else
-      case when ARRAY_CONTAINS('CNOWV8'::variant, cppt) then 'CNOWV8' else
-      case when ARRAY_CONTAINS('NATGEO'::variant, cppt) then 'NATGEO' else
-      case when ARRAY_CONTAINS('MT4'::variant, cppt) then 'MT4' else
-      case when ARRAY_CONTAINS('4LTV1'::variant, cppt) then '4LTV1' else
-      case when ARRAY_CONTAINS('DEV-MATH'::variant, cppt) then 'DEV-MATH' else
-      case when ARRAY_CONTAINS('OWL'::variant, cppt) or ARRAY_CONTAINS('OWLV8'::variant, cppt) then 'OWL' else
-      case when ARRAY_CONTAINS('MTS'::variant, cppt) then 'MTS' else
-      case when ARRAY_CONTAINS('WA'::variant, cppt) then 'WA' else
-      case when ARRAY_CONTAINS('WA3P'::variant, cppt) then 'WA3P' else 'other' end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end
-      end as product_type_platform
-    from pp
-     LEFT JOIN types iac
-     ON iac.pp_pid = pp.product_id AND pp.user_type like 'student'
-     LEFT JOIN guid_mapping m on pp.user_sso_guid = m.partner_guid ;;
+  with prod as (
+    select
+      ssc2.HUB_SERIALNUMBER_KEY
+      ,ssc2.registration_date
+      , coalesce(su.linked_guid, hu.uid) as merged_guid
+      , concat(merged_guid, spp.DATE_ADDED::date, spp.PRODUCT_ID) as provision_key
+      , spp.DATE_ADDED::date as date_added
+      , spp.CONTEXT_ID
+      , spp.EXPIRATION_DATE
+      , spp.IAC_ISBN
+      , spp.PRODUCT_ID
+      , spp.USER_TYPE
+    from prod.DATAVAULT.SAT_PROVISIONED_PRODUCT_V2 spp
+    INNER JOIN prod.datavault.hub_user hu ON spp.user_sso_guid = hu.uid
+    INNER JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
+    LEFT JOIN prod.datavault.sat_user_internal sui ON hu.hub_user_key = sui.hub_user_key AND sui.internal AND sui.active
+    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc on ssc.USER_SSO_GUID = spp.USER_SSO_GUID and ssc._LATEST --all of user's serial #s
+    left join prod.DATAVAULT.hub_isbn hi on hi.ISBN13 = spp.IAC_ISBN
+    left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_ISBN_KEY = hi.HUB_ISBN_KEY --isbn for provisioned product
+    left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lpi.HUB_PRODUCT_KEY = lsp.HUB_PRODUCT_KEY and lsp.HUB_SERIALNUMBER_KEY = ssc.HUB_SERIALNUMBER_KEY -- join on product & USER serial #
+    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc2 on lsp.HUB_SERIALNUMBER_KEY = ssc2.HUB_SERIALNUMBER_KEY and ssc._LATEST
+    where spp._LATEST
+      and sui.INTERNAL is null
+      and spp.USER_TYPE ilike 'student'
+    )
+    ,prod_clean as (
+      select
+        merged_guid
+        , provision_key
+        , DATE_ADDED
+        , PRODUCT_ID
+        , USER_TYPE
+        , iac_isbn
+        , max(registration_date) as registration_date
+        , max(HUB_SERIALNUMBER_KEY) as hub_serial_number_key
+        , array_agg(distinct CONTEXT_ID) as context_id_array
+        , max(EXPIRATION_DATE) as expiration_date
+      from prod
+      group by 1,2,3,4,5,6
+    )
+
+    , types AS (
+      SELECT iac.pp_pid
+        , iac.pp_product_type
+        , iac.pp_name
+        , array_agg(DISTINCT iac.cp_product_type) AS cppt
+      FROM prod.unlimited.raw_olr_extended_iac AS iac
+      GROUP BY iac.pp_pid, iac.pp_product_type, pp_name
+    )
+
+    SELECT
+      pp.*
+      , iac.pp_product_type
+      , pp_name
+      , coalesce(registration_date,date_added) as date_paid
+      , nullif(context_id_array,array_construct()) as context_id
+      , case when hub_serial_number_key is not null then 1 else 0 end as paid_provision
+      , case when hub_serial_number_key is not null then 0 else 1 end as unpaid_provision
+
+      , case when current_date() between date_added and expiration_date then 1 else 0 end as current_provision
+      , case when (current_date() between date_added and expiration_date) and context_id is null then 1 else 0 end as current_ebook_provision
+      , case when (current_date() between date_added and expiration_date) and context_id is not null then 1 else 0 end as current_courseware_provision
+
+      , sum(current_courseware_provision) over (partition by merged_guid) as current_user_courseware_provisions
+      , sum(case when paid_provision = 1 then current_courseware_provision else 0 end) over (partition by merged_guid) as current_user_paid_courseware_provisions
+      , sum(current_provision) over (partition by merged_guid) as current_user_provisions
+      , sum(case when paid_provision = 1 then current_provision else 0 end) over (partition by merged_guid) as current_paid_user_provisions
+
+      , sum(case when unpaid_provision = 1 then current_provision else 0 end) over (partition by merged_guid) as current_unpaid_user_provisions
+
+      , sum(current_ebook_provision) over (partition by merged_guid) as current_user_ebook_provisions
+      , sum(case when paid_provision = 1 then current_ebook_provision else 0 end) over (partition by merged_guid) as current_paid_user_ebook_provisions
+
+      , CASE
+          WHEN iac.pp_product_type NOT LIKE 'SMART' THEN iac.pp_product_type
+          WHEN ARRAY_CONTAINS('MTC'::VARIANT, cppt) THEN 'MTC'
+          WHEN ARRAY_CONTAINS('CSFI'::VARIANT, cppt) THEN 'CSFI'
+          WHEN ARRAY_CONTAINS('4LT'::VARIANT, cppt) THEN '4LT'
+          WHEN ARRAY_CONTAINS('APLIA'::VARIANT, cppt) THEN 'APLIA'
+          WHEN ARRAY_CONTAINS('SAM'::VARIANT, cppt) THEN 'SAM'
+          WHEN ARRAY_CONTAINS('CNOWV8'::VARIANT, cppt) THEN 'CNOWV8'
+          WHEN ARRAY_CONTAINS('NATGEO'::VARIANT, cppt) THEN 'NATGEO'
+          WHEN ARRAY_CONTAINS('MT4'::VARIANT, cppt) THEN 'MT4'
+          WHEN ARRAY_CONTAINS('4LTV1'::VARIANT, cppt) THEN '4LTV1'
+          WHEN ARRAY_CONTAINS('DEV-MATH'::VARIANT, cppt) THEN 'DEV-MATH'
+          WHEN ARRAY_CONTAINS('OWL'::VARIANT, cppt) OR ARRAY_CONTAINS('OWLV8'::VARIANT, cppt) THEN 'OWL'
+          WHEN ARRAY_CONTAINS('MTS'::VARIANT, cppt) THEN 'MTS'
+          WHEN ARRAY_CONTAINS('WA'::VARIANT, cppt) THEN 'WA'
+          WHEN ARRAY_CONTAINS('WA3P'::VARIANT, cppt) THEN 'WA3P'
+          ELSE 'other'
+        END AS product_type_platform
+    FROM prod_clean pp
+    LEFT JOIN types iac ON iac.pp_pid = pp.product_id
+    ;;
+
+  datagroup_trigger: daily_refresh
 }
 
-  dimension: _hash {
-     type: string
-     sql: ${TABLE}."_HASH" ;;
-    hidden: yes
-   }
+  dimension: provision_key {
+    primary_key: yes
+    hidden:  yes
+  }
+
+  dimension: iac_isbn {
+    type: string
+    sql: ${TABLE}."IAC_ISBN" ;;
+  }
 
   dimension: pp_name {
     label: "Product Name"
   }
+
   dimension: merged_guid {}
-#
-#   dimension: PP_LDAP_Group_name {
-#
-#     label: "Group Name"
-#   }
+
+  dimension: user_sso_guid {
+    sql: ${merged_guid} ;;
+    hidden: yes
+  }
+
+  dimension: HUB_SERIAL_NUMBER_KEY {hidden:yes}
+
 
   dimension: pp_product_type {
     description: "Can be filtered on to differentiate between courseware and ebook usage"
@@ -114,45 +157,19 @@ derived_table: {
 
   dimension: product_type_platform {
     description: "Platform names derived from 'SMART' product type"
-#     sql: ${product_type_platform} ;;
   }
 
-dimension_group: _ldts {
-     type: time
-     timeframes: [
-       raw,
-       time,
-       date,
-       week,
-       month,
-       quarter,
-       year
-     ]
-     sql: ${TABLE}."_LDTS" ;;
-    hidden: yes
-   }
-
-   dimension: _rsrc {
-     type: string
-     sql: ${TABLE}."_RSRC" ;;
-    hidden: yes
-   }
-
-   dimension: code_type {
-
-     type: string
-     sql: ${TABLE}."CODE_TYPE" ;;
-   }
    dimension: context_id {
-    description: "Course registration key"
-     type: string
+    description: "Course registration key (array to allow for multiple values)"
      sql: ${TABLE}."CONTEXT_ID" ;;
    }
 
-   dimension: core_text_isbn {
-     type: string
-     sql: ${TABLE}."CORE_TEXT_ISBN" ;;
-   }
+  dimension: date_paid {
+    type: date
+    sql: case when ${HUB_SERIAL_NUMBER_KEY} is not null then ${TABLE}.date_paid end ;;
+    label: "Date paid (approximate)"
+    description: "Date added for ebook or courseware with serial number consumed"
+  }
 
   dimension_group: date_added {
     description: "Date this product was provisioned i.e. added to the dashboard"
@@ -184,103 +201,60 @@ dimension_group: _ldts {
     sql: ${TABLE}."EXPIRATION_DATE" ;;
   }
 
-  dimension: iac_isbn {
-    type: string
-    sql: ${TABLE}."IAC_ISBN" ;;
-  }
-
-  dimension: institution_id {
-    type: string
-    sql: ${TABLE}."INSTITUTION_ID" ;;
-  }
-
-   dimension_group: local {
-    description: "Local time this product was provisioned"
-     type: time
-     timeframes: [
-       raw,
-       time,
-       date,
-       week,
-       month,
-       quarter,
-       year
-     ]
-     sql: ${TABLE}."LOCAL_TIME" ;;
-   }
-
-   dimension: message_format_version {
-     type: number
-     sql: ${TABLE}."MESSAGE_FORMAT_VERSION" ;;
-   }
-
-   dimension: message_type {
-    type: string
-    sql: ${TABLE}."MESSAGE_TYPE" ;;
-  }
-
-  dimension: platform_environment {
-    type: string
-    sql: ${TABLE}."PLATFORM_ENVIRONMENT" ;;
-  }
-
   dimension: product_id {
     type: string
     sql: ${TABLE}."PRODUCT_ID" ;;
   }
 
-  dimension: product_platform {
-    type: string
-    sql: ${TABLE}."PRODUCT_PLATFORM" ;;
-  }
-
-  dimension: region {
-    type: string
-    sql: ${TABLE}."REGION" ;;
-  }
-
-  dimension: source {
-    type: string
-    sql: ${TABLE}."source" ;;
-  }
-
-  dimension: source_id {
-    description: "The products contract ID"
-    type: string
-    sql: ${TABLE}."SOURCE_ID" ;;
-  }
-
-  dimension: status {
-    description: "The users CU status (trial, full, etc.) when the product was provisioned"
-    sql:
-      case
-        when (source_id like 'TRIAL') then 'TRIAL_ACCESS'
-        when (is_double(TRY_TO_DOUBLE(source_id))) then 'FULL_ACCESS'
-      else 'EMPTY' end ;;
-  }
-
-  dimension: user_environment {
-    type: string
-    sql: ${TABLE}."USER_ENVIRONMENT" ;;
-  }
-
-  dimension: user_sso_guid {
-    type: string
-    sql: ${TABLE}."USER_SSO_GUID" ;;
-  }
-
-  measure: product_count{
+  measure: count {
     label: "# Products Provisioned"
-    description: "Count of unique product ids"
-    type: count_distinct
+    description: "Count of unique products provisioned (guid + date added + product ID combinations)"
+    type: count
     drill_fields: [detail*]
-    sql:  ${TABLE}.product_id;;
   }
+
+  dimension: current_provision {
+    label: "Product provisioned"
+    description: "Product is currently provisioned (expiration date not passed)"
+     type: number
+  }
+
+  dimension: current_ebook_provision {
+    label: "eBook provisioned"
+    description: "Product has no context_id and is currently provisioned (expiration date not passed)"
+     type: number
+  }
+
+
+#   measure: current_product_count_number {
+#     label: "# Current Products Provisioned (type: number)"
+#     description: "Count of unique product ids where date added is in the past and expiration date is in the future"
+#     type: number
+#     drill_fields: [detail*]
+#     sql:  sum(${current_provision});;
+#   }
+
+
+  measure: current_product_count_sum {
+    label: "# Current Products Provisioned"
+    description: "Count of unique product ids where date added is in the past and expiration date is in the future"
+    type: sum
+    drill_fields: [detail*]
+    sql: ${current_provision};;
+  }
+
+#   measure: current_ebook_product_number {
+#     label: "# Current eBooks Provisioned"
+#     description: "Count of unique product ids with no context id where date added is in the past and expiration date is in the future"
+#     type: number
+#     drill_fields: [detail*]
+#     sql:  sum(${current_ebook_provision});;
+#   }
 
   measure: user_count{
     description: "Count of unique user guids"
     type: count_distinct
-    sql:  ${TABLE}.user_sso_guid;;
+    sql:  ${user_sso_guid};;
   }
 
   dimension: user_type {
@@ -288,19 +262,55 @@ dimension_group: _ldts {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
-  measure: count {
-    type: count
-    hidden: yes
-    drill_fields: []
-  }
+  dimension: current_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_provisions,0) ;;
+    }
+
+  dimension: current_paid_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_paid_user_provisions,0) ;;
+    }
+
+  dimension: current_unpaid_user_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_unpaid_user_provisions,0) ;;
+    }
+
+  dimension: current_user_ebook_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_ebook_provisions,0) ;;
+    }
+
+  dimension: current_paid_user_ebook_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_paid_user_ebook_provisions,0) ;;
+    }
+
+  dimension: current_user_courseware_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_courseware_provisions,0) ;;
+    }
+
+  dimension: current_user_paid_courseware_provisions {
+    type:number
+    description:"For particular user guid"
+    sql: coalesce(${TABLE}.current_user_paid_courseware_provisions,0) ;;
+    }
+
+
 
   set: detail {
     fields: [
       user_sso_guid,
-      local_time,
-      iac_isbn,
+      date_added_time,
       pp_product_type,
-      "source",
       user_type
     ]
   }

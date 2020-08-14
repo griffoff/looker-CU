@@ -38,6 +38,8 @@ view: event_groups {
           end;;
     label: "Event group"
     description: "Classification hard coded in for grouping events according to different business purposes"
+    suggest_explore: filter_cache_all_events_event_group
+    suggest_dimension: event_group
   }
 
   dimension: event_names {

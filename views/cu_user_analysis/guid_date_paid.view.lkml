@@ -2,119 +2,125 @@ explore: guid_date_paid {}
 
 view: guid_date_paid {
   derived_table: {
-    sql: WITH
-          tally AS
-          (
-              SELECT
-                  SEQ8() AS i
-              FROM TABLE(GENERATOR(ROWCOUNT=>10000))
-          )
-          ,paid_courses AS
-          (
-              SELECT
-                  user_sso_guid
-                  ,DATEADD(DAY, t.i, u.course_start_date::DATE) AS active_date
-                  ,CASE WHEN activated THEN 1 ELSE 0 END AS paid_status
-                  ,1 AS payment_type
-                  ,HASH(user_sso_guid, active_date) AS pk
-                  ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE WHEN ACTIVATED THEN 0 ELSE 1 END, u.course_start_date DESC, u.course_end_date DESC) AS r
-              FROM prod.cu_user_analysis.user_courses u
-              INNER JOIN tally t ON i <= DATEDIFF(DAY, u.course_start_date::DATE, LEAST(u.course_end_date::DATE, CURRENT_DATE()))
-              WHERE paid_status = 1
-         )
-          ,active_subs AS (
-            SELECT
-              user_sso_guid
-              ,DATEADD(DAY, t.i, effective_from::DATE) AS active_date
-              ,CASE WHEN subscription_state = 'full_access' THEN 1 ELSE 0 END AS paid_status
-              ,2 AS payment_type
-              ,HASH(user_sso_guid, active_date) AS pk
-              ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid, active_date ORDER BY CASE subscription_state WHEN 'full_access' THEN 0 ELSE 1 END, effective_from DESC, effective_to DESC) AS r
-            FROM ${raw_subscription_event.SQL_TABLE_NAME} e
-            INNER JOIN tally t ON i <= DATEDIFF(DAY, effective_from::DATE, LEAST(effective_to::DATE, CURRENT_DATE()))
-            -- FILTER FOR ONLY FULL ACCESS
-            WHERE paid_status = 1
-          )
-          -- only union for guids not in first CTE
-          ,combined AS (
-          SELECT
-            user_sso_guid
-            ,active_date
-            ,MAX(paid_status) AS paid_status
-            ,MAX(payment_type) AS payment_type
-          FROM paid_courses
-          WHERE r = 1
-          GROUP BY 1, 2
-          UNION
-          SELECT
-            user_sso_guid
-            ,active_date
-            ,MAX(paid_status) AS paid_status
-            ,MAX(payment_type) AS payment_type
-          FROM active_subs
-          WHERE r = 1
-          GROUP BY 1, 2
-          )
-          SELECT
-            user_sso_guid
-            ,active_date
-            ,MAX(paid_status) AS paid_status
-            ,SUM(payment_type) AS payment_type
-          FROM combined
-          GROUP BY 1, 2
-       ;;
-  }
+    create_process: {
+      sql_step:
+        CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.guid_date_paid
+        (
+          date DATE
+          ,user_sso_guid STRING
+          ,region STRING
+          ,platform STRING
+          ,organization STRING
+          ,paid_flag BOOLEAN
+          ,content_type STRING
+          ,paid_content_rank INT
+        )
+      ;;
 
-  measure: count {
-    type: count
-    #drill_fields: [detail*]
-  }
+      sql_step:
+      DELETE FROM LOOKER_SCRATCH.guid_date_paid WHERE date > dateadd(d,-3, current_date())
+      ;;
 
-  measure: distinct_users {
-    type: count_distinct
-    sql: ${user_sso_guid} ;;
-  }
+        sql_step:
+        CREATE OR REPLACE TEMPORARY TABLE looker_scratch.guid_date_paid_incremental
+        AS
+        WITH dates AS (
+          SELECT d.datevalue
+          FROM ${dim_date.SQL_TABLE_NAME} d
+          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.guid_date_paid)
+          AND d.datevalue < CURRENT_DATE()
+        )
+        ,paid_courseware_users AS (
+          SELECT DISTINCT c.date, c.user_sso_guid, region, platform, organization
+          FROM ${guid_date_course.SQL_TABLE_NAME} c
+          INNER JOIN dates d on d.datevalue = c.date
+          WHERE c.paid_flag = TRUE
+        )
+        ,paid_ebook_users AS (
+          SELECT DISTINCT e.date, e.user_sso_guid, region, platform, organization
+          FROM ${guid_date_ebook.SQL_TABLE_NAME} e
+          INNER JOIN dates d on d.datevalue = e.date
+          WHERE e.paid_flag = TRUE
+        )
+        ,paid_cu_only_users AS (
+          SELECT DISTINCT s.date, s.user_sso_guid, s.content_type, region, platform, organization
+          FROM ${guid_date_subscription.SQL_TABLE_NAME} s
+          INNER JOIN dates d on d.datevalue = s.date
+        )
+        ,paid_union as (
+          SELECT date, user_sso_guid, region, platform, organization, TRUE AS paid_flag, 'Courseware' AS content_type, 1 AS content_order FROM paid_courseware_users
+          UNION ALL
+          SELECT date, user_sso_guid, region, platform, organization, TRUE AS paid_flag, 'eBook' AS content_type, 2 AS content_order FROM paid_ebook_users
+          UNION ALL
+          SELECT date, user_sso_guid, region, platform, organization
+          , CASE WHEN content_type = 'Full Access CU Subscription' THEN TRUE ELSE FALSE END AS paid_flag
+          , content_type
+          , CASE WHEN content_type = 'Full Access CU Subscription' THEN 3 ELSE 4 END AS content_order
+          FROM paid_cu_only_users
+
+        )
+        select date, user_sso_guid, region, platform, organization, paid_flag, content_type
+          , rank() over(partition by date,user_sso_guid order by content_order) AS paid_content_rank
+        from paid_union
+        ;;
+        sql_step:
+              INSERT INTO LOOKER_SCRATCH.guid_date_paid
+              SELECT date, user_sso_guid, region, platform, organization, paid_flag, content_type, paid_content_rank
+              FROM looker_scratch.guid_date_paid_incremental
+              ;;
+          sql_step:
+                CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+                CLONE LOOKER_SCRATCH.guid_date_paid;;
+          }
+          datagroup_trigger: daily_refresh
+
+        }
+
 
   dimension: user_sso_guid {
     type: string
-    sql: ${TABLE}."USER_SSO_GUID" ;;
+    sql: ${TABLE}.USER_SSO_GUID ;;
   }
 
-  dimension_group: active_date {
-    type: time
-    timeframes: [year, month, date, raw]
-    sql: ${TABLE}."ACTIVE_DATE" ;;
+  dimension: date {
+    type: date
+    sql: ${TABLE}.date ;;
   }
 
-  dimension: payment_type {
+  dimension: fiscal_year {
+    type: date
+    sql: date_trunc(year,dateadd(month,9,CONVERT_TIMEZONE('UTC',${date}))) ;;
+  }
+
+  dimension: content_type {
+    type: string
+    sql: ${TABLE}.content_type ;;
+  }
+
+  dimension: paid_flag {
+    type: yesno
+    sql: ${TABLE}.paid_flag ;;
+  }
+
+  dimension: paid_content_rank {
     type: number
-    sql: ${TABLE}."PAYMENT_TYPE" ;;
   }
 
-  dimension: payment_type_name {
-    case: {
-      when: {
-        sql: ${TABLE}."PAYMENT_TYPE" = 1 ;;
-        label: "Stand-alone purchase"
-      }
-      when: {
-        sql:${TABLE}."PAYMENT_TYPE" = 2;;
-        label: "CU Subscription - no courseware"
-      }
-      when: {
-        sql: ${TABLE}."PAYMENT_TYPE" = 3 ;;
-        label: "Courseware and CU Subscription"
-      }
-    }
-
+  dimension: region {
+    type: string
   }
 
-  dimension: maxpaid_status {
-    type: number
-    sql: ${TABLE}."PAID_STATUS" ;;
+  dimension: platform {
+    type: string
   }
 
-#   set: detail {
-#     fields: [user_sso_guid, active_date, maxpaid_status]
-#   }
+  dimension: organization {
+    type: string
+  }
+
+  measure: user_count {
+    type: count_distinct
+    sql: ${TABLE}.USER_SSO_GUID ;;
+    label: "# Users"
+  }
 }

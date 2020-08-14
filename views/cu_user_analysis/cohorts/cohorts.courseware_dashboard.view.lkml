@@ -51,23 +51,28 @@ include: "cohorts.base.view"
 
     dimension: current {
       group_label: "# of courseware added to dashboard"
+      description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
       type: string
       sql: CASE WHEN COALESCE(${TABLE}."1", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."1", 0)::string END  ;;
       }
 
     dimension: minus_1 {group_label: "# of courseware added to dashboard"
+      description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
       type: string
       sql: CASE WHEN COALESCE(${TABLE}."2", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."2", 0)::string END  ;;}
 
     dimension: minus_2 {group_label: "# of courseware added to dashboard"
+      description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
       type: string
       sql: CASE WHEN COALESCE(${TABLE}."3", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."3", 0)::string END  ;;}
 
     dimension: minus_3 {group_label: "# of courseware added to dashboard"
+      description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
       type: string
       sql: CASE WHEN COALESCE(${TABLE}."4", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."4", 0)::string END  ;;}
 
     dimension: minus_4 {group_label: "# of courseware added to dashboard"
+      description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"
       type: string
       sql: CASE WHEN COALESCE(${TABLE}."5", 0) >= 7 THEN '7+' ELSE COALESCE(${TABLE}."5", 0)::string END  ;;}
 

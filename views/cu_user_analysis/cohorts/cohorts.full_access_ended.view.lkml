@@ -79,15 +79,15 @@ view: cohorts_full_access_ended {
       hidden:  yes
     }
 
-    dimension: current { group_label: "Full access ended" }
+    dimension: current { group_label: "Full access ended" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_1 { group_label: "Full access ended" }
+    dimension: minus_1 { group_label: "Full access ended" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_2 { group_label: "Full access ended" }
+    dimension: minus_2 { group_label: "Full access ended" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_3 { group_label: "Full access ended" }
+    dimension: minus_3 { group_label: "Full access ended" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
-    dimension: minus_4 { group_label: "Full access ended" }
+    dimension: minus_4 { group_label: "Full access ended" description: "Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec"}
 
 
   }
