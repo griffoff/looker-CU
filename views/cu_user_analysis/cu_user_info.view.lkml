@@ -336,7 +336,7 @@ view: cu_user_info {
     label: "User SSO Guid"
     description: "Primary User SSO Guid (not shadow guid)"
     sql: ${TABLE}."MERGED_GUID" ;;
-    hidden: yes
+    hidden: no
   }
 
   set: detail {
