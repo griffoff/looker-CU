@@ -10,6 +10,7 @@ include: "//core/common.lkml"
 include: "//cube/dims.lkml"
 include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
+include: "/daily_hed_enrollments.view"
 include: "/provisioned_products_trials.view"
 include: "/trials.view"
 include: "/guid_entity.view"
@@ -18,6 +19,10 @@ include: "/courseware_launches_fa.view"
 
 
 case_sensitive: no
+
+
+explore: daily_hed_enrollments{
+}
 
 explore: provisioned_products_trials{
 }
