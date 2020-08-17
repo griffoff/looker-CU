@@ -75,7 +75,7 @@ view: cu_user_info {
       WHERE hs.latest_linked_account
   ;;
 
-  sql_trigger_value: select count(*) from prod.datavault.sat_user ;;
+  sql_trigger_value: select count(*) from prod.datavault.sat_user_v2 ;;
   }
 
   measure: count {
