@@ -311,6 +311,13 @@ derived_table: {
     value_format: "$0.00"
   }
 
+  measure: net_price_paid_current {
+    label: "Total $ value of all paid active courses"
+    type: sum
+    sql: case when ${paid} and ${current_course} then ${net_price} end ;;
+    value_format: "$0.00"
+  }
+
   dimension: cu_price {
     sql: 120 ;;
     hidden: yes
@@ -609,6 +616,8 @@ derived_table: {
 #     value_format_name: decimal_2
 #   }
 #
+
+
 
 
 }
