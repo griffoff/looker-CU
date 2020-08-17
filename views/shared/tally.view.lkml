@@ -8,4 +8,10 @@ view: tally {
     persist_for: "24 hours"
   }
   dimension: i {}
+
+  dimension: j {
+    sql: i ;;
+    type: number
+    hidden: yes
+  }
 }

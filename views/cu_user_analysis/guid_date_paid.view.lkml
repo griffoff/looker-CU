@@ -14,6 +14,7 @@ view: guid_date_paid {
           ,paid_flag BOOLEAN
           ,content_type STRING
           ,paid_content_rank INT
+
         )
       ;;
 
@@ -53,9 +54,9 @@ view: guid_date_paid {
           SELECT date, user_sso_guid, region, platform, organization, TRUE AS paid_flag, 'eBook' AS content_type, 2 AS content_order FROM paid_ebook_users
           UNION ALL
           SELECT date, user_sso_guid, region, platform, organization
-          , CASE WHEN content_type = 'Full Access CU Subscription' THEN TRUE ELSE FALSE END AS paid_flag
+          , CASE WHEN content_type IN ('CU Full Access','CU eTextbook Full Access') THEN TRUE ELSE FALSE END AS paid_flag
           , content_type
-          , CASE WHEN content_type = 'Full Access CU Subscription' THEN 3 ELSE 4 END AS content_order
+          , CASE WHEN content_type = 'CU Full Access' THEN 3 WHEN content_type = 'CU eTextbook Full Access' THEN 4 WHEN content_type = 'CU Trial' THEN 5 ELSE 6 END AS content_order
           FROM paid_cu_only_users
 
         )

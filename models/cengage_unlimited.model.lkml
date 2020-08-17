@@ -581,6 +581,7 @@ explore: kpi_user_stats {
   persist_with: daily_refresh
   from: dim_date
 
+
   view_label: "Date"
   fields: [ALL_FIELDS*
     ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
@@ -633,7 +634,7 @@ explore: kpi_user_stats {
   join: yru {
     view_label: "User Counts"
     sql_on: ${date_ty_ly.ty_date} = ${yru.date_raw};;
-    relationship: many_to_one
+    relationship: one_to_one
     type: left_outer
   }
 
@@ -642,9 +643,15 @@ explore: kpi_user_stats {
     view_label: "User Counts - Prior Year"
     sql_on: ${date_ty_ly.ly_date} =  ${yru_ly.date_raw}
     ;;
-    relationship: many_to_one
+    relationship: one_to_one
     type: left_outer
   }
+
+join: date_to_date_filter {
+  sql_on: ${kpi_user_stats.datevalue_raw} between ${date_to_date_filter.begin_date} and ${date_to_date_filter.end_date} ;;
+  relationship: one_to_many
+}
+
 
 }
 

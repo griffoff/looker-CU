@@ -41,6 +41,8 @@ view: kpi_user_counts {
         ,all_paid_ebook_guid STRING comment ''
         ,all_full_access_cu_guid STRING comment ''
         ,all_trial_access_cu_guid STRING comment ''
+        ,all_full_access_cu_etextbook_guid STRING comment ''
+        ,all_trial_access_cu_extextbook_guid STRING comment ''
 
         ,all_active_user_guid STRING comment ''
         ,all_paid_active_user_guid STRING comment ''
@@ -143,8 +145,10 @@ view: kpi_user_counts {
         WHEN MATCHED THEN UPDATE
           SET
             k.userbase_digital_user_guid = c.user_sso_guid
-            ,k.all_full_access_cu_guid = CASE WHEN c.content_type = 'Full Access CU Subscription' THEN c.user_sso_guid END
-            ,k.all_trial_access_cu_guid = CASE WHEN c.content_type = 'Trial CU Subscription' THEN c.user_sso_guid END
+            ,k.all_full_access_cu_guid = CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
+            ,k.all_trial_access_cu_guid = CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
+            ,k.all_full_access_cu_etextbook_guid = CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
+            ,k.all_trial_access_cu_etextbook_guid = CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
         date
@@ -156,6 +160,8 @@ view: kpi_user_counts {
           ,userbase_digital_user_guid
           ,all_full_access_cu_guid
           ,all_trial_access_cu_guid
+          ,all_full_access_cu_etextbook_guid
+          ,all_trial_access_cu_etextbook_guid
         )
         VALUES
         (
@@ -166,8 +172,10 @@ view: kpi_user_counts {
           ,c.platform
           ,'Student'
           ,c.user_sso_guid
-          ,CASE WHEN c.content_type = 'Full Access CU Subscription' THEN c.user_sso_guid END
-          ,CASE WHEN c.content_type = 'Trial CU Subscription' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
         )
         ;;
 
@@ -257,6 +265,8 @@ view: kpi_user_counts {
               ,MAX(all_instructors_active_course_guid) as all_instructors_active_course_guid
               ,MAX(all_full_access_cu_guid) as all_full_access_cu_guid
               ,MAX(all_trial_access_cu_guid) as all_trial_access_cu_guid
+              ,MAX(all_full_access_cu_etextbook_guid) as all_full_access_cu_etextbook_guid
+              ,MAX(all_trial_access_cu_etextbook_guid) as all_trial_access_cu_etextbook_guid
             FROM LOOKER_SCRATCH.kpi_user_counts
             WHERE date < current_date() and date > $max_date
               AND all_active_user_guid iS NULL
@@ -280,6 +290,8 @@ view: kpi_user_counts {
             , kpi.all_instructors_active_course_guid
             , kpi.all_full_access_cu_guid
             , kpi.all_trial_access_cu_guid
+            , kpi.all_full_access_cu_etextbook_guid
+            , kpi.all_trial_access_cu_etextbook_guid
           FROM ${guid_date_active.SQL_TABLE_NAME} g
           LEFT JOIN LOOKER_SCRATCH.kpi_user_counts k ON g.date = k.date
             AND g.USER_SSO_GUID = k.USER_SSO_GUID
@@ -315,6 +327,8 @@ view: kpi_user_counts {
           ,all_instructors_active_course_guid
           ,all_full_access_cu_guid
           ,all_trial_access_cu_guid
+          ,all_full_access_cu_etextbook_guid
+          ,all_trial_access_cu_etextbook_guid
           ,all_active_user_guid
           ,all_paid_active_user_guid
         )
@@ -333,6 +347,8 @@ view: kpi_user_counts {
           ,c.all_instructors_active_course_guid
           ,c.all_full_access_cu_guid
           ,c.all_trial_access_cu_guid
+          ,c.all_full_access_cu_etextbook_guid
+          ,c.all_trial_access_cu_etextbook_guid
           ,c.user_sso_guid
           ,CASE WHEN c.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
         )
@@ -371,6 +387,8 @@ view: kpi_user_counts {
           ,MAX(ALL_PAID_EBOOK_GUID) AS ALL_PAID_EBOOK_GUID
           ,MAX(ALL_FULL_ACCESS_CU_GUID) AS ALL_FULL_ACCESS_CU_GUID
           ,MAX(ALL_TRIAL_ACCESS_CU_GUID) AS ALL_TRIAL_ACCESS_CU_GUID
+          ,MAX(ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID
+          ,MAX(ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID
           ,MAX(ALL_ACTIVE_USER_GUID) AS ALL_ACTIVE_USER_GUID
           ,MAX(ALL_PAID_ACTIVE_USER_GUID) AS ALL_PAID_ACTIVE_USER_GUID
           ,MAX(PAYMENT_CUI_GUID) AS PAYMENT_CUI_GUID
@@ -407,6 +425,8 @@ view: kpi_user_counts {
           ,MAX(ALL_PAID_EBOOK_GUID) AS ALL_PAID_EBOOK_GUID
           ,MAX(ALL_FULL_ACCESS_CU_GUID) AS ALL_FULL_ACCESS_CU_GUID
           ,MAX(ALL_TRIAL_ACCESS_CU_GUID) AS ALL_TRIAL_ACCESS_CU_GUID
+          ,MAX(ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID
+          ,MAX(ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID
           ,MAX(ALL_ACTIVE_USER_GUID) AS ALL_ACTIVE_USER_GUID
           ,MAX(ALL_PAID_ACTIVE_USER_GUID) AS ALL_PAID_ACTIVE_USER_GUID
           ,MAX(PAYMENT_CUI_GUID) AS PAYMENT_CUI_GUID
