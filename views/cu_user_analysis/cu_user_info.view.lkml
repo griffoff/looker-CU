@@ -12,63 +12,67 @@ view: cu_user_info {
   derived_table: {
     publish_as_db_view: yes
     sql:
-          WITH hub_sat_latest
-          AS (
-            SELECT
-                h.hub_user_key,h._ldts, sa.rsrc_timestamp
-                ,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid
-                ,COALESCE(p.email, merged_guid) as party_identifier
-                ,p.email
-                ,p.first_name
-                ,p.last_name
-                ,MAX(
-                    IFF(TRY_CAST(p.birth_year AS INT) < 1900 OR TRY_CAST(p.birth_year AS INT) >= YEAR(DATEADD(YEAR, -4, CURRENT_DATE()))
-                      ,NULL
-                      ,NULLIF(TRY_CAST(p.birth_year AS INT), 0)
-                    )
-                  ) OVER (PARTITION BY party_identifier) AS birth_year
-                ,sa.instructor,sa.k12, sa.region
-                ,COUNT(NULLIF(sa.instructor, 0)) OVER (PARTITION BY party_identifier) >= 1 AS instructor_by_party
-                ,LAST_VALUE(sa.k12) OVER (PARTITION BY party_identifier ORDER BY sa.rsrc_timestamp) AS k12_latest
-                ,COUNT(NULLIF(sa.k12, 0)) OVER (PARTITION BY party_identifier) >= 1 as k12_by_party
-                ,COUNT(CASE WHEN sa.region = 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
-                  AND COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') = 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS usa_by_party
-                ,COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
-                 OR COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') != 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS non_usa_by_party
-                --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
-                ,COALESCE(usmar.opt_out, 'true') AS marketing_opt_out
-                ,COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 as opt_out_by_party
-            FROM prod.datavault.hub_user h
-            INNER JOIN prod.datavault.SAT_USER_V2 sa
-                        ON h.hub_user_key = sa.hub_user_key
-                        AND sa._latest
-            LEFT JOIN prod.datavault.sat_user_pii p
-                        ON h.hub_user_key = p.hub_user_key
-                        AND p.active
-            LEFT JOIN prod.datavault.sat_user_marketing usmar
-                        ON h.hub_user_key = usmar.hub_user_key
-                        AND usmar.active
-          )
-          ,latest_institution as (
-            SELECT linkins.hub_user_key, linkins.hub_institution_key, ROW_NUMBER() OVER (PARTITION BY linkins.hub_user_key ORDER BY _ldts DESC ) = 1 as latest
-            FROM prod.datavault.link_user_institution linkins
-          )
-          SELECT DISTINCT
-              hs.*
-              ,hubin.institution_id
+        WITH hub_sat_latest
+        AS (
+             SELECT
+               h.hub_user_key,h._ldts, sa.rsrc_timestamp
+                  ,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid
+                  ,COALESCE(p.email, merged_guid) as party_identifier
+                  ,p.email
+                  ,p.first_name
+                  ,p.last_name
+                  ,MAX(
+                     IFF(TRY_CAST(p.birth_year AS INT) < 1900 OR TRY_CAST(p.birth_year AS INT) >= YEAR(DATEADD(YEAR, -4, CURRENT_DATE()))
+                       ,NULL
+                       ,NULLIF(TRY_CAST(p.birth_year AS INT), 0)
+                       )
+               ) OVER (PARTITION BY party_identifier) AS birth_year
+                  ,sa.instructor,sa.k12, sa.region
+                  ,COUNT(NULLIF(sa.instructor, 0)) OVER (PARTITION BY party_identifier) >= 1 AS instructor_by_party
+                  ,LAST_VALUE(sa.k12) OVER (PARTITION BY party_identifier ORDER BY sa.rsrc_timestamp) AS k12_latest
+                  ,COUNT(NULLIF(sa.k12, 0)) OVER (PARTITION BY party_identifier) >= 1 as k12_by_party
+                  ,COUNT(CASE WHEN sa.region = 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
+               AND COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') = 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS usa_by_party
+                  ,COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
+               OR COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') != 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS non_usa_by_party
+                  --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
+                  ,COALESCE(usmar.opt_out, 'true') AS marketing_opt_out
+                  ,COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 as opt_out_by_party
+                  --found multiple linked accounts - use this to take only the latest one
+                  ,LEAD(p.rsrc_timestamp) OVER (PARTITION BY merged_guid ORDER BY sa._effective_from) IS NULL as latest_linked_account
+             FROM prod.datavault.hub_user h
+                  INNER JOIN prod.datavault.SAT_USER_V2 sa
+                             ON h.hub_user_key = sa.hub_user_key
+                               AND sa._latest
+                  LEFT JOIN prod.datavault.sat_user_pii p
+                            ON h.hub_user_key = p.hub_user_key
+                              AND p.active
+                  LEFT JOIN prod.datavault.sat_user_marketing usmar
+                            ON h.hub_user_key = usmar.hub_user_key
+                              AND usmar.active
+           )
+         ,latest_institution as (
+                                  SELECT linkins.hub_user_key, linkins.hub_institution_key, ROW_NUMBER() OVER (PARTITION BY linkins.hub_user_key ORDER BY _ldts DESC ) = 1 as latest
+                                  FROM prod.datavault.link_user_institution linkins
+                                )
+      SELECT DISTINCT
+             hs.*
+           ,hubin.institution_id
 
-              ,usint.internal
-              ,COALESCE(bl.flag,'N') AS entity_flag
-          FROM hub_sat_latest hs
-          LEFT JOIN latest_institution linkins
-              ON hs.hub_user_key = linkins.hub_user_key -- 2486955
-              AND linkins.latest
-          LEFT JOIN prod.datavault.hub_institution hubin
-               ON linkins.hub_institution_key = hubin.hub_institution_key
-          LEFT JOIN prod.datavault.sat_user_internal usint ON hs.hub_user_key = usint.hub_user_key
-                                                          AND usint.active
-          LEFT JOIN (select distinct entity_id,flag  from UPLOADS.CU.ENTITY_BLACKLIST) bl
-               ON hubin.institution_id::STRING = bl.entity_id
+           ,usint.internal
+           ,COALESCE(bl.flag,FALSE) AS entity_flag
+      FROM hub_sat_latest hs
+           LEFT JOIN latest_institution linkins
+                     ON hs.hub_user_key = linkins.hub_user_key -- 2486955
+                       AND linkins.latest
+           LEFT JOIN prod.datavault.hub_institution hubin
+                     ON linkins.hub_institution_key = hubin.hub_institution_key
+           LEFT JOIN prod.datavault.sat_user_internal usint ON hs.hub_user_key = usint.hub_user_key
+        AND usint.active
+           LEFT JOIN (select entity_id,CAST(flag AS BOOLEAN) as flag, ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY _fivetran_synced DESC) = 1 as latest  from UPLOADS.CU.ENTITY_BLACKLIST) bl
+                     ON hubin.institution_id::STRING = bl.entity_id
+                    AND bl.latest
+      WHERE hs.latest_linked_account
   ;;
 
   sql_trigger_value: select count(*) from prod.datavault.sat_user ;;
@@ -190,7 +194,7 @@ view: cu_user_info {
   dimension: entity_flag {
     type: yesno
     label: "IPM Blacklist Institution"
-    sql: ${TABLE}.entity_flag ILIKE 'Y%' ;;
+    sql: ${TABLE}.entity_flag ;;
     description: "This flag is Yes for users that attend institutions that do NOT allow their student's to receive IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
     link: {
         label: "IPM suppression list google sheet"
