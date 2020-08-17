@@ -3,7 +3,7 @@ explore: guid_date_subscription {}
 view: guid_date_subscription {
     derived_table: {
       sql:
-        WITH sub_users AS (
+WITH sub_users AS (
         SELECT
           CASE WHEN ss.subscription_start IS NOT NULL THEN ss.CURRENT_GUID ELSE bp.USER_SSO_GUID END AS user_guid
           , COALESCE(ss.subscription_start, bp._effective_from) AS subscription_start
@@ -11,7 +11,11 @@ view: guid_date_subscription {
           , CASE WHEN ss.subscription_start IS NOT NULL THEN ss.SUBSCRIPTION_PLAN_ID ELSE bp.SUBSCRIPTION_STATE END AS subscription_type
         FROM prod.datavault.hub_subscription hs
         LEFT JOIN prod.datavault.sat_subscription_sap ss ON hs.hub_subscription_key = ss.hub_subscription_key
-          AND (ss.SUBSCRIPTION_PLAN_ID ILIKE 'Full%' OR ss.SUBSCRIPTION_PLAN_ID ILIKE 'Limited%' OR ss.SUBSCRIPTION_PLAN_ID = 'Trial')
+          AND (ss.SUBSCRIPTION_PLAN_ID ILIKE 'CU-ETextBook%'
+                   OR ss.SUBSCRIPTION_PLAN_ID ILIKE 'CU-Trial%'
+                   OR ss.SUBSCRIPTION_PLAN_ID ILIKE 'Full-Access%'
+                   OR ss.SUBSCRIPTION_PLAN_ID = 'Limited-Access-180'
+                   OR ss.SUBSCRIPTION_PLAN_ID = 'Trial')
           AND ss._LATEST
         LEFT JOIN prod.datavault.sat_subscription_bp bp ON hs.hub_subscription_key = bp.hub_subscription_key
           AND bp.SUBSCRIPTION_STATE IN ('full_access','trial_access')
@@ -20,7 +24,13 @@ view: guid_date_subscription {
         SELECT DISTINCT dim_date.datevalue as date
         , COALESCE(linked_guid,sub_users.user_guid) AS user_sso_guid
         , subscription_type
-        , CASE WHEN subscription_type ILIKE 'trial%' THEN 'Trial CU Subscription' ELSE 'Full Access CU Subscription' END AS content_type
+        , CASE
+            WHEN subscription_type ILIKE 'CU-ETextBook-Trial%' THEN 'CU eTextbook Trial'
+            WHEN subscription_type ILIKE 'CU-ETextBook%' THEN 'CU eTextbook Full Access'
+            WHEN subscription_type ILIKE 'trial%' THEN 'CU Trial'
+            WHEN subscription_type ILIKE 'CU-Trial%' THEN 'CU Trial'
+            ELSE 'CU Full Access'
+            END AS content_type
         , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
         , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
         , 'CU Subscription' AS platform
@@ -50,7 +60,6 @@ view: guid_date_subscription {
 
   dimension_group: date {
     hidden: yes
-    type:time
     timeframes: [raw,date,week,month,year]
     label: "Calendar"
   }
@@ -98,18 +107,32 @@ view: guid_date_subscription {
     group_label: "CU Subscribers"
     label: "# Full Access CU Subscribers"
     description: "# Full Access CU Subscribers"
-
     type: count_distinct
-    sql:  CASE WHEN ${content_type} = 'Full Access CU Subscription' THEN ${user_sso_guid} END;;
+    sql:  CASE WHEN ${content_type} = 'CU Full Access' THEN ${user_sso_guid} END;;
+  }
+
+  measure: cu_extextbook_user_count {
+    group_label: "CU Subscribers"
+    label: "# CU eTextbook Full Access Subscribers"
+    description: "# Full Access CU eTextbook Subscribers"
+    type: count_distinct
+    sql:  CASE WHEN ${content_type} = 'CU eTextbook Full Access' THEN ${user_sso_guid} END;;
   }
 
   measure: trial_access_user_count {
     group_label: "CU Subscribers"
     label: "# Trial Access CU Subscribers"
     description: "# Trial Access CU Subscribers"
-
     type: count_distinct
-    sql:  CASE WHEN ${content_type} = 'Trial CU Subscription' THEN ${user_sso_guid} END;;
+    sql:  CASE WHEN ${content_type} = 'CU Trial' THEN ${user_sso_guid} END;;
+  }
+
+  measure: cu_etextbook_trial_user_count {
+    group_label: "CU Subscribers"
+    label: "# CU eTextbook Trial Access Subscribers"
+    description: "# Trial Access CU eTextbook Subscribers"
+    type: count_distinct
+    sql:  CASE WHEN ${content_type} = 'CU eTextbook Trial' THEN ${user_sso_guid} END;;
   }
 
   }
