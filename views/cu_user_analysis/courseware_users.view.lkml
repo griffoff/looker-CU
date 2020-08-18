@@ -116,7 +116,7 @@ view: courseware_users {
             , DATEADD(w,course_length,course_start)::date AS course_end
             , COALESCE(LEAST(actv_dt, DATEADD(D, 1 / 2 * course_length, course_start), DATEADD(D, 60, course_start)),DATEADD(D, 14, course_start)) AS unpaid_access_end
             , actv_dt as activation_date
-            , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other' END AS platform
+            , CASE WHEN u.context_id LIKE 'olr:section:%' THEN 'Middle Product' WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other' END AS platform
             , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
             , CASE
                 WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
