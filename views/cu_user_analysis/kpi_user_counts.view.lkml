@@ -62,7 +62,9 @@ view: kpi_user_counts {
 # guid date course
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
-        (SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type FROM ${guid_date_course.SQL_TABLE_NAME} WHERE expired_access_flag = FALSE
+        (
+        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
+        FROM ${guid_date_course.SQL_TABLE_NAME} WHERE expired_access_flag = FALSE
         AND date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts)
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform AND k.user_type = c.user_type
@@ -100,9 +102,11 @@ view: kpi_user_counts {
 #   guid date ebook
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
-        (SELECT date, user_sso_guid, region, organization, platform, MAX(paid_flag) AS paid_flag FROM ${guid_date_ebook.SQL_TABLE_NAME}
-         WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_ebook_guid IS NOT NULL)
-         GROUP BY date, user_sso_guid, region, organization, platform
+        (
+        SELECT date, user_sso_guid, region, organization, platform, MAX(paid_flag) AS paid_flag
+        FROM ${guid_date_ebook.SQL_TABLE_NAME}
+        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_ebook_guid IS NOT NULL)
+        GROUP BY date, user_sso_guid, region, organization, platform
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
@@ -139,9 +143,11 @@ view: kpi_user_counts {
           #   guid date subscription
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
-        (SELECT date, user_sso_guid, region, organization, platform, user_type, MIN(content_type) AS content_type FROM ${guid_date_subscription.SQL_TABLE_NAME}
-         WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_full_access_cu_guid IS NOT NULL)
-         GROUP BY date, user_sso_guid, region, organization, platform, user_type
+        (
+        SELECT date, user_sso_guid, region, organization, platform, user_type, MIN(content_type) AS content_type
+        FROM ${guid_date_subscription.SQL_TABLE_NAME}
+        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_full_access_cu_guid IS NOT NULL)
+        GROUP BY date, user_sso_guid, region, organization, platform, user_type
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
@@ -185,9 +191,11 @@ view: kpi_user_counts {
             #   guid date paid
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
-        (SELECT * FROM ${guid_date_paid.SQL_TABLE_NAME}
+        (
+        SELECT *
+        FROM ${guid_date_paid.SQL_TABLE_NAME}
         WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE userbase_paid_user_guid IS NOT NULL)
-        and paid_content_rank = 1
+        AND paid_content_rank = 1
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
