@@ -96,7 +96,7 @@ view: kpi_user_counts_filter_combinations {
   dimension: platform_clean {
     label: "Platform"
     sql: CASE WHEN ${platform} IN ('CU Subscription','Cengage Unlimited') THEN 'Cengage Unlimited'
-              WHEN ${platform} = 'MindTap Reader' THEN 'MindTap Reader'
+              WHEN ${platform} IN ('MindTap Reader', 'Middle Product') THEN ${platform}
               WHEN ${platform} ILIKE '%MindTap%' THEN 'MindTap'
               WHEN ${platform} ILIKE '%webassign%' THEN 'WebAssign'
               WHEN ${platform} ILIKE '%ebook%' THEN 'Other eBook'
