@@ -494,14 +494,17 @@ measure: userbase_paid_user_guid  {type:count_distinct label: "# Paid Digital St
 measure: userbase_paid_courseware_guid  {type:count_distinct label: "# Paid Courseware Student Users"}
 measure: userbase_paid_ebook_only_guid  {type:count_distinct label: "# Paid eBook ONLY Student Users"}
 measure: userbase_full_access_cu_only_guid  {type:count_distinct label: "# Paid CU ONLY Student Users (no provisions)"}
-
 measure: userbase_trial_access_cu_only_guid  {type:count_distinct label: "# Trial CU ONLY Student Users"}
+measure: userbase_full_access_cu_etextbook_only_guid  {type:count_distinct label: "# Paid CU eTextbook ONLY Student Users (no provisions)"}
+measure: userbase_trial_access_cu_etextbook_only_guid  {type:count_distinct label: "# Trial CU eTextbook ONLY Student Users"}
 
 measure: all_courseware_guid  {type:count_distinct label: "# Total Courseware Student Users"}
 measure: all_ebook_guid  {type:count_distinct label: "# Total eBook Student Users"}
 measure: all_paid_ebook_guid  {type:count_distinct label: "# Total Paid eBook Student Users"}
 measure: all_full_access_cu_guid  {type:count_distinct label: "# Total Full Access CU Subscribers"}
 measure: all_trial_access_cu_guid  {type:count_distinct label: "# Total Trial Access CU Subscribers"}
+measure: all_full_access_cu_etextbook_guid  {type:count_distinct label: "# Total Full Access CU eTextbook Subscribers"}
+measure: all_trial_access_cu_etextbook_guid  {type:count_distinct label: "# Total Trial Access CU eTextbook Subscribers"}
 measure: all_instructors_active_course_guid  {type:count_distinct label: "# Instructors With Active Digital Course"}
 measure: all_active_user_guid  {type:count_distinct label: "# Total Active Users"}
 

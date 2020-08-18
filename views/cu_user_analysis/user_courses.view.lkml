@@ -573,6 +573,14 @@ derived_table: {
     description: "List of student CU course ISBNs"
   }
 
+  measure: student_non_cu_course_list {
+    group_label: "Course Lists"
+    type: string
+    sql: LISTAGG(DISTINCT case when not ${cu_flag} then ${isbn} end, ', ')
+      WITHIN GROUP (ORDER BY case when not ${cu_flag} then ${isbn} end);;
+    description: "List of student non-CU course ISBNs"
+  }
+
   dimension: enrollment_date {
     label: "Enrollment Date"
     description: "Date on which user enrolled into a course"
