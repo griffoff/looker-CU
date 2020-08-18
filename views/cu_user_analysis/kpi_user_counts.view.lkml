@@ -34,6 +34,8 @@ view: kpi_user_counts {
         ,userbase_paid_ebook_only_guid STRING comment ''
         ,userbase_full_access_cu_only_guid STRING comment ''
         ,userbase_trial_access_cu_only_guid STRING comment ''
+        ,userbase_full_access_cu_etextbook_only_guid STRING comment ''
+        ,userbase_trial_access_cu_etextbook_only_guid STRING comment ''
 
         ,all_instructors_active_course_guid STRING comment ''
         ,all_courseware_guid STRING comment ''
@@ -42,7 +44,7 @@ view: kpi_user_counts {
         ,all_full_access_cu_guid STRING comment ''
         ,all_trial_access_cu_guid STRING comment ''
         ,all_full_access_cu_etextbook_guid STRING comment ''
-        ,all_trial_access_cu_extextbook_guid STRING comment ''
+        ,all_trial_access_cu_etextbook_guid STRING comment ''
 
         ,all_active_user_guid STRING comment ''
         ,all_paid_active_user_guid STRING comment ''
@@ -193,8 +195,10 @@ view: kpi_user_counts {
             k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
             ,k.userbase_paid_courseware_guid = CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
             ,k.userbase_paid_ebook_only_guid = CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
-            ,k.userbase_full_access_cu_only_guid = CASE WHEN c.content_type = 'Full Access CU Subscription' THEN c.user_sso_guid END
-            ,k.userbase_trial_access_cu_only_guid = CASE WHEN c.content_type = 'Trial CU Subscription' THEN c.user_sso_guid END
+            ,k.userbase_full_access_cu_only_guid = CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
+            ,k.userbase_trial_access_cu_only_guid = CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
+            ,k.userbase_full_access_cu_etextbook_only_guid = CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
+            ,k.userbase_trial_access_cu_etextbook_only_guid = CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -208,6 +212,8 @@ view: kpi_user_counts {
           ,userbase_paid_ebook_only_guid
           ,userbase_full_access_cu_only_guid
           ,userbase_trial_access_cu_only_guid
+          ,userbase_full_access_cu_etextbook_only_guid
+          ,userbase_trial_access_cu_etextbook_only_guid
         )
         VALUES
         (
@@ -220,8 +226,10 @@ view: kpi_user_counts {
           ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
-          ,CASE WHEN c.content_type = 'Full Access CU Subscription' THEN c.user_sso_guid END
-          ,CASE WHEN c.content_type = 'Trial CU Subscription' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
         )
         ;;
 
@@ -287,6 +295,8 @@ view: kpi_user_counts {
             , kpi.userbase_paid_user_guid
             , kpi.userbase_full_access_cu_only_guid
             , kpi.userbase_trial_access_cu_only_guid
+            , kpi.userbase_full_access_cu_etextbook_only_guid
+            , kpi.userbase_trial_access_cu_etextbook_only_guid
             , kpi.all_instructors_active_course_guid
             , kpi.all_full_access_cu_guid
             , kpi.all_trial_access_cu_guid
@@ -299,11 +309,11 @@ view: kpi_user_counts {
             AND g.ORGANIZATION = k.ORGANIZATION
             AND g.user_type = k.user_type
           LEFT JOIN kpi ON g.date = kpi.date
-          AND g.USER_SSO_GUID = kpi.USER_SSO_GUID
+            AND g.USER_SSO_GUID = kpi.USER_SSO_GUID
             AND g.region = kpi.region
             AND g.ORGANIZATION = kpi.ORGANIZATION
             AND g.user_type = kpi.user_type
-            WHERE g.date < current_date()
+          WHERE g.date < current_date()
             AND g.date > $max_date
             AND k.ALL_ACTIVE_USER_GUID IS NULL
         ) c
@@ -324,6 +334,8 @@ view: kpi_user_counts {
           ,userbase_paid_user_guid
           ,userbase_full_access_cu_only_guid
           ,userbase_trial_access_cu_only_guid
+          ,userbase_full_access_cu_etextbook_only_guid
+          ,userbase_trial_access_cu_etextbook_only_guid
           ,all_instructors_active_course_guid
           ,all_full_access_cu_guid
           ,all_trial_access_cu_guid
@@ -344,6 +356,8 @@ view: kpi_user_counts {
           ,c.userbase_paid_user_guid
           ,c.userbase_full_access_cu_only_guid
           ,c.userbase_trial_access_cu_only_guid
+          ,c.userbase_full_access_cu_etextbook_only_guid
+          ,c.userbase_trial_access_cu_etextbook_only_guid
           ,c.all_instructors_active_course_guid
           ,c.all_full_access_cu_guid
           ,c.all_trial_access_cu_guid
@@ -381,6 +395,8 @@ view: kpi_user_counts {
           ,MAX(USERBASE_PAID_EBOOK_ONLY_GUID) AS USERBASE_PAID_EBOOK_ONLY_GUID
           ,MAX(USERBASE_FULL_ACCESS_CU_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ONLY_GUID
           ,MAX(USERBASE_TRIAL_ACCESS_CU_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ONLY_GUID
+          ,MAX(USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
+          ,MAX(USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
           ,MAX(ALL_INSTRUCTORS_ACTIVE_COURSE_GUID) AS ALL_INSTRUCTORS_ACTIVE_COURSE_GUID
           ,MAX(ALL_COURSEWARE_GUID) AS ALL_COURSEWARE_GUID
           ,MAX(ALL_EBOOK_GUID) AS ALL_EBOOK_GUID
@@ -419,6 +435,8 @@ view: kpi_user_counts {
           ,MAX(USERBASE_PAID_EBOOK_ONLY_GUID) AS USERBASE_PAID_EBOOK_ONLY_GUID
           ,MAX(USERBASE_FULL_ACCESS_CU_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ONLY_GUID
           ,MAX(USERBASE_TRIAL_ACCESS_CU_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ONLY_GUID
+          ,MAX(USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
+          ,MAX(USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
           ,MAX(ALL_INSTRUCTORS_ACTIVE_COURSE_GUID) AS ALL_INSTRUCTORS_ACTIVE_COURSE_GUID
           ,MAX(ALL_COURSEWARE_GUID) AS ALL_COURSEWARE_GUID
           ,MAX(ALL_EBOOK_GUID) AS ALL_EBOOK_GUID

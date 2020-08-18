@@ -234,6 +234,22 @@ derived_table: {
 #     sql:  sum(${current_provision});;
 #   }
 
+  measure: current_paid_product_count_sum {
+    label: "# Current Paid Products Provisioned"
+    description: "Count of unique product ids where date added is in the past and expiration date is in the future that the user has paid for"
+    type: sum
+    drill_fields: [detail*]
+    sql: ${TABLE}.paid_provision * ${current_provision};;
+  }
+
+  measure: current_paid_ebook_count_sum {
+    label: "# Current Paid eBooks Provisioned"
+    description: "Count of unique ebook product ids where date added is in the past and expiration date is in the future that the user has paid for"
+    type: sum
+    drill_fields: [detail*]
+    sql: ${TABLE}.paid_provision * ${current_ebook_provision};;
+  }
+
 
   measure: current_product_count_sum {
     label: "# Current Products Provisioned"
