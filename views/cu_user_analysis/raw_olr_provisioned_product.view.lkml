@@ -30,8 +30,8 @@ derived_table: {
   sql:
   with prod as (
     select
-      ssc2.HUB_SERIALNUMBER_KEY
-      ,ssc2.registration_date
+      ssn.HUB_SERIALNUMBER_KEY
+      ,ssn.registration_date
       , coalesce(su.linked_guid, hu.uid) as merged_guid
       , concat(merged_guid, spp.DATE_ADDED::date, spp.PRODUCT_ID) as provision_key
       , spp.DATE_ADDED::date as date_added
@@ -44,11 +44,10 @@ derived_table: {
     INNER JOIN prod.datavault.hub_user hu ON spp.user_sso_guid = hu.uid
     INNER JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
     LEFT JOIN prod.datavault.sat_user_internal sui ON hu.hub_user_key = sui.hub_user_key AND sui.internal AND sui.active
-    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc on ssc.USER_SSO_GUID = spp.USER_SSO_GUID and ssc._LATEST --all of user's serial #s
-    left join prod.DATAVAULT.hub_isbn hi on hi.ISBN13 = spp.IAC_ISBN
-    left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_ISBN_KEY = hi.HUB_ISBN_KEY --isbn for provisioned product
-    left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lpi.HUB_PRODUCT_KEY = lsp.HUB_PRODUCT_KEY and lsp.HUB_SERIALNUMBER_KEY = ssc.HUB_SERIALNUMBER_KEY -- join on product & USER serial #
-    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssc2 on lsp.HUB_SERIALNUMBER_KEY = ssc2.HUB_SERIALNUMBER_KEY and ssc._LATEST
+    left join prod.DATAVAULT.LINK_SERIALNUMBER_USER lsu on lsu.HUB_USER_KEY = hu.HUB_USER_KEY
+    left join prod.DATAVAULT.LINK_PRODUCT_PROVISIONEDPRODUCT lpp on lpp.HUB_PROVISIONED_PRODUCT_KEY = spp.HUB_PROVISIONED_PRODUCT_KEY
+    left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lsp.HUB_PRODUCT_KEY = lpp.HUB_PRODUCT_KEY and lsp.HUB_SERIALNUMBER_KEY = lsu.HUB_SERIALNUMBER_KEY
+    left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssn on ssn.HUB_SERIALNUMBER_KEY = lsp.HUB_SERIALNUMBER_KEY and ssn._LATEST
     where spp._LATEST
       and sui.INTERNAL is null
       and spp.USER_TYPE ilike 'student'
