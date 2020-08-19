@@ -278,6 +278,8 @@ view: kpi_user_counts {
               ,MAX(userbase_paid_user_guid) as userbase_paid_user_guid
               ,MAX(userbase_full_access_cu_only_guid) as userbase_full_access_cu_only_guid
               ,MAX(userbase_trial_access_cu_only_guid) as userbase_trial_access_cu_only_guid
+              ,MAX(userbase_full_access_cu_etextbook_only_guid) as userbase_full_access_cu_etextbook_only_guid
+              ,MAX(userbase_trial_access_cu_etextbook_only_guid) as userbase_trial_access_cu_etextbook_only_guid
               ,MAX(all_instructors_active_course_guid) as all_instructors_active_course_guid
               ,MAX(all_full_access_cu_guid) as all_full_access_cu_guid
               ,MAX(all_trial_access_cu_guid) as all_trial_access_cu_guid
