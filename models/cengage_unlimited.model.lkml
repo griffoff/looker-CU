@@ -655,6 +655,13 @@ join: date_to_date_filter {
 
 }
 
+explore: guid_date_subscription {
+  join: date_to_date_filter {
+    sql_on: ${guid_date_subscription.date_raw} between ${date_to_date_filter.begin_date} and ${date_to_date_filter.end_date} ;;
+    relationship: one_to_many
+  }
+}
+
 # access_grant: access_grant_test {
 #   user_attribute: test_attribute
 #   allowed_values: [ "yes" ]

@@ -1,5 +1,3 @@
-explore: guid_date_subscription {}
-
 view: guid_date_subscription {
     derived_table: {
       sql:
@@ -41,10 +39,10 @@ WITH sub_users AS (
         INNER JOIN sub_users ON dim_date.datevalue BETWEEN subscription_start AND subscription_end
         LEFT JOIN prod.datavault.hub_user hu ON sub_users.user_guid = hu.UID
         LEFT JOIN prod.datavault.sat_user_internal ui on hu.hub_user_key = ui.hub_user_key and ui.internal
-        INNER JOIN prod.datavault.SAT_USER_V2 su ON hu.hub_user_key = su.hub_user_key AND su._LATEST
-        INNER JOIN prod.datavault.link_user_institution lui ON hu.hub_user_key = lui.hub_user_key
-        INNER JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key and sui.active
-        INNER JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
+        LEFT JOIN prod.datavault.SAT_USER_V2 su ON hu.hub_user_key = su.hub_user_key AND su._LATEST
+        LEFT JOIN prod.datavault.link_user_institution lui ON hu.hub_user_key = lui.hub_user_key
+        LEFT JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key and sui.active
+        LEFT JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
         LEFT JOIN prod.STG_CLTS.ENTITIES e ON hi.institution_id = e.ENTITY_NO
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
@@ -58,10 +56,12 @@ WITH sub_users AS (
       type: string
     }
 
+
   dimension_group: date {
-    hidden: yes
-    timeframes: [raw,date,week,month,year]
     label: "Calendar"
+    type:time
+    timeframes: [raw,date,week,month,year]
+    hidden: no
   }
 
     dimension: content_type {
@@ -69,6 +69,8 @@ WITH sub_users AS (
       type: string
       hidden:  yes
     }
+
+    dimension: subscription_type {}
 
   dimension: subscription_length {
     case: {

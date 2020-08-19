@@ -1,6 +1,6 @@
 explore: date_to_date_filter {
   always_filter: {filters:[date_range: ""]}
-
+  hidden: yes
 }
 view: date_to_date_filter {
 
@@ -25,10 +25,10 @@ view: date_to_date_filter {
 
   }
 
-  dimension: begin_date {
+  dimension: begin_date {hidden: yes
   }
 
-  dimension: end_date {
+  dimension: end_date {type: date
   }
 
 

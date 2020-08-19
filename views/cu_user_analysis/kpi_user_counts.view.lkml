@@ -52,6 +52,7 @@ view: kpi_user_counts {
         ,payment_cui_guid STRING comment ''
         ,payment_ia_guid STRING comment ''
         ,payment_direct_purchase_guid STRING comment ''
+
         )
       ;;
 
