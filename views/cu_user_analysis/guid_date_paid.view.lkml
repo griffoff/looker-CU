@@ -68,14 +68,19 @@ view: guid_date_paid {
               INSERT INTO LOOKER_SCRATCH.guid_date_paid
               SELECT date, user_sso_guid, region, platform, organization, paid_flag, content_type, paid_content_rank
               FROM looker_scratch.guid_date_paid_incremental
+              ORDER BY DATE
               ;;
-          sql_step:
-                CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
-                CLONE LOOKER_SCRATCH.guid_date_paid;;
-          }
-          datagroup_trigger: daily_refresh
+        sql_step: ALTER TABLE LOOKER_SCRATCH.guid_date_paid CLUSTER BY (date) ;;
+        sql_step: ALTER TABLE LOOKER_SCRATCH.guid_date_paid RECLUSTER ;;
 
+        sql_step:
+              CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+              CLONE LOOKER_SCRATCH.guid_date_paid;;
         }
+
+        datagroup_trigger: daily_refresh
+
+      }
 
 
   dimension: user_sso_guid {

@@ -60,7 +60,11 @@ view: guid_date_active {
               INSERT INTO LOOKER_SCRATCH.guid_date_active
               SELECT date, user_sso_guid, region, platform, organization, user_type
               FROM looker_scratch.guid_date_active_incremental
+              ORDER BY date
               ;;
+
+      sql_step: ALTER TABLE LOOKER_SCRATCH.guid_date_active CLUSTER BY (date);;
+      sql_step: ALTER TABLE LOOKER_SCRATCH.guid_date_active RECLUSTER;;
       sql_step:
                 CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
                 CLONE LOOKER_SCRATCH.guid_date_active;;

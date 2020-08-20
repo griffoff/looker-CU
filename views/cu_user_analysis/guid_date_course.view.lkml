@@ -2,7 +2,10 @@ explore: guid_date_course {hidden:no}
 
 view: guid_date_course {
   derived_table: {
-    sql:
+    create_process: {
+      sql_step:
+      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+      AS
       SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'Courseware' AS content_type, user_type, platform, region, organization, cu_flg
         , CASE WHEN dim_date.datevalue >= activation_date THEN TRUE ELSE FALSE END AS paid_flag
         , CASE WHEN activation_date IS NULL AND dim_date.datevalue > unpaid_access_end THEN TRUE ELSE FALSE END AS expired_access_flag
@@ -10,7 +13,12 @@ view: guid_date_course {
       LEFT JOIN ${courseware_users.SQL_TABLE_NAME} ON dim_date.datevalue BETWEEN course_start AND course_end
       WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
       ORDER BY date
-    ;;
+      ;;
+      sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;
+
+      sql_step: ALTER TABLE ${SQL_TABLE_NAME} RECLUSTER ;;
+    }
+
     datagroup_trigger: daily_refresh
   }
 

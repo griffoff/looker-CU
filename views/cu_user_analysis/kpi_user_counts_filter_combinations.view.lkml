@@ -67,6 +67,9 @@ view: kpi_user_counts_filter_combinations {
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly CLUSTER BY(date) ;;
 
       sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly RECLUSTER ;;
+
+      sql_step:
         CREATE OR REPLACE TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly
         AS
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
@@ -75,6 +78,9 @@ view: kpi_user_counts_filter_combinations {
 
       sql_step:
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly CLUSTER BY(date) ;;
+
+      sql_step:
+        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly RECLUSTER ;;
 
 
     }

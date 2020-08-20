@@ -2,7 +2,10 @@ explore: guid_date_ebook {}
 
 view: guid_date_ebook {
   derived_table: {
-    sql:
+    create_process: {
+      sql_step:
+      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+      AS
       WITH activations_olr_no_context_id AS (
       SELECT DISTINCT coalesce(su.LINKED_GUID,a.USER_GUID) AS user_sso_guid
         , actv_dt AS course_start
@@ -101,7 +104,14 @@ view: guid_date_ebook {
       LEFT JOIN ebook_users ON dim_date.datevalue BETWEEN ebook_start AND ebook_end
         AND dim_date.datevalue BETWEEN subscription_start AND subscription_end
       WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
-    ;;
+      ORDER BY 1
+      ;;
+
+      sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;
+      sql_step: ALTER TABLE ${SQL_TABLE_NAME} RECLUSTER ;;
+
+    }
+
     datagroup_trigger: daily_refresh
   }
 
