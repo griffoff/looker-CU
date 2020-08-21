@@ -33,16 +33,14 @@ view: kpi_user_counts_filter_combinations {
         )
         ;;
 
+      sql_step: DELETE FROM  LOOKER_SCRATCH.kpi_user_counts_filter_combinations WHERE date > (SELECT DATEADD(day, -3, MAX(date)) FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations);;
+
       sql_step:
         INSERT INTO LOOKER_SCRATCH.kpi_user_counts_filter_combinations
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
-        FROM ${kpi_user_counts.SQL_TABLE_NAME}
-        EXCEPT
-        (
-        SELECT date, user_sso_guid, region, organization, platform, user_type
-        FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations
-        )
-        ORDER BY user_sso_guid
+        FROM LOOKER_SCRATCH.kpi_user_counts
+        WHERE date > (SELECT COALESCE(MAX(date), '1970-01-01') FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations)
+        ORDER BY 1
         ;;
 
       sql_step:
@@ -56,11 +54,15 @@ view: kpi_user_counts_filter_combinations {
       CLONE LOOKER_SCRATCH.kpi_user_counts_filter_combinations
       ;;
 
+      sql_step: CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly LIKE LOOKER_SCRATCH.kpi_user_counts_filter_combinations ;;
+
+      sql_step: DELETE FROM  LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly WHERE date = (SELECT MAX(date) FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly);;
+
       sql_step:
-        CREATE OR REPLACE TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly
-        AS
+        INSERT INTO LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
-        FROM LOOKER_SCRATCH.kpi_user_counts_weekly
+        FROM LOOKER_SCRATCH.kpi_user_counts
+        WHERE date > (SELECT COALESCE(MAX(date), '1970-01-01') FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly)
         ORDER BY 1;;
 
       sql_step:
@@ -69,11 +71,15 @@ view: kpi_user_counts_filter_combinations {
       sql_step:
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly RECLUSTER ;;
 
+      sql_step: CREATE TABLE IF NOT EXISTS  LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly LIKE LOOKER_SCRATCH.kpi_user_counts_filter_combinations ;;
+
+      sql_step: DELETE FROM  LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly WHERE date = (SELECT MAX(date) FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly);;
+
       sql_step:
-        CREATE OR REPLACE TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly
-        AS
+        INSERT INTO LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
-        FROM LOOKER_SCRATCH.kpi_user_counts_monthly
+        FROM LOOKER_SCRATCH.kpi_user_counts_weekly
+        WHERE date > (SELECT COALESCE(MAX(date), '1970-01-01') FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations_monthly)
         ORDER BY 1;;
 
       sql_step:

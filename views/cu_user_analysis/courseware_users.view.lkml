@@ -139,15 +139,18 @@ view: courseware_users {
           WHERE ui.hub_user_key IS NULL
         )
         ,course_instructors AS (
-          SELECT coalesce(s.linked_guid, hu.uid, course.instructor_guid) as merged_guid
-            , course_key, course.platform, course.region, organization, adoption_key, min(course_start) as course_start, max(course_end) as course_end
-            FROM course_users course
-            left join prod.datavault.hub_coursesection h on course.context_id = h.context_id
-            left join prod.datavault.link_user_coursesection l on h.hub_coursesection_key = l.hub_coursesection_key
-            left join prod.datavault.SAT_USER_V2 s on l.hub_user_key = s.hub_user_key and s._LATEST and s.instructor
-            left join prod.datavault.hub_user hu on s.HUB_USER_KEY = hu.HUB_USER_KEY
-          WHERE course.INSTRUCTOR_GUID is not null
-          GROUP BY 1,2,3,4,5,6
+          SELECT DISTINCT coalesce(s.linked_guid, hu.uid, course.instructor_guid) as merged_guid
+            , course_key, course.platform, course.region, course.organization, course.adoption_key, course.course_start, course.course_end
+            FROM (
+              SELECT instructor_guid, context_id, course_key, platform, region, organization, adoption_key, min(course_start) as course_start, max(course_end) as course_end
+              FROM course_users
+              WHERE instructor_guid is not null
+              GROUP BY 1, 2, 3, 4, 5, 6, 7
+                  ) course
+            LEFT JOIN prod.datavault.hub_coursesection h on course.context_id = h.context_id
+            LEFT JOIN prod.datavault.link_user_coursesection l on h.hub_coursesection_key = l.hub_coursesection_key
+            LEFT JOIN prod.datavault.SAT_USER_V2 s on l.hub_user_key = s.hub_user_key and s._LATEST and s.instructor
+            LEFT JOIN prod.datavault.hub_user hu on s.HUB_USER_KEY = hu.HUB_USER_KEY
         )
         SELECT merged_guid as user_sso_guid, course_start, course_end, user_type, activation_date, NULL AS unpaid_access_end, 'Activations Non-OLR' AS source, platform, region, organization, adoption_key, cu_flg
         FROM activations_non_olr

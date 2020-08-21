@@ -56,6 +56,8 @@ view: kpi_user_counts {
         )
       ;;
 
+
+
       sql_step:
       DELETE FROM LOOKER_SCRATCH.kpi_user_counts WHERE date > dateadd(d,-3, current_date())
       ;;
@@ -391,8 +393,13 @@ view: kpi_user_counts {
         ;;
 
       sql_step:
-        CREATE OR REPLACE TABLE looker_scratch.kpi_user_counts_weekly
-        AS
+      CREATE TABLE IF NOT EXISTS looker_scratch.kpi_user_counts_weekly LIKE looker_scratch.kpi_user_counts;;
+
+      sql_step:
+      DELETE FROM looker_scratch.kpi_user_counts_weekly WHERE date = (SELECT MAX(date) FROM looker_scratch.kpi_user_counts_weekly);;
+
+      sql_step:
+        INSERT INTO looker_scratch.kpi_user_counts_weekly
         SELECT
           DATE_TRUNC(WEEK, DATE) AS DATE
           ,USER_SSO_GUID
@@ -422,6 +429,7 @@ view: kpi_user_counts {
           ,MAX(PAYMENT_IA_GUID) AS PAYMENT_IA_GUID
           ,MAX(PAYMENT_DIRECT_PURCHASE_GUID) AS PAYMENT_DIRECT_PURCHASE_GUID
         FROM looker_scratch.kpi_user_counts
+        WHERE DATE_TRUNC(WEEK, DATE) > (SELECT COALESCE(MAX(date), '1970=01-01') FROM looker_scratch.kpi_user_counts_weekly)
         GROUP BY 1, 2, 3, 4, 5, 6
         ORDER BY 1
         ;;
@@ -435,8 +443,13 @@ view: kpi_user_counts {
       ;;
 
       sql_step:
-        CREATE OR REPLACE TABLE looker_scratch.kpi_user_counts_monthly
-        AS
+      CREATE TABLE IF NOT EXISTS looker_scratch.kpi_user_counts_monthly LIKE looker_scratch.kpi_user_counts;;
+
+      sql_step:
+      DELETE FROM looker_scratch.kpi_user_counts_monthly WHERE date = (SELECT MAX(date) FROM looker_scratch.kpi_user_counts_monthly);;
+
+      sql_step:
+        INSERT INTO looker_scratch.kpi_user_counts_monthly
         SELECT
           DATE_TRUNC(MONTH, DATE) AS DATE
           ,USER_SSO_GUID
@@ -466,6 +479,7 @@ view: kpi_user_counts {
           ,MAX(PAYMENT_IA_GUID) AS PAYMENT_IA_GUID
           ,MAX(PAYMENT_DIRECT_PURCHASE_GUID) AS PAYMENT_DIRECT_PURCHASE_GUID
         FROM looker_scratch.kpi_user_counts_weekly
+        WHERE DATE_TRUNC(MONTH, DATE) > (SELECT COALESCE(MAX(date), '1970=01-01') FROM looker_scratch.kpi_user_counts_monthly)
         GROUP BY 1, 2, 3, 4, 5, 6
         ORDER BY 1
         ;;
