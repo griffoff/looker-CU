@@ -220,6 +220,7 @@ derived_table: {
   }
 
   dimension_group: activation {
+    sql: ${TABLE}.activation_date ;;
     label: "Activation"
     description: "Date on which user activated course"
     type: time
