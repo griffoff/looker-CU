@@ -1,7 +1,10 @@
 view: guid_date_subscription {
     derived_table: {
-      sql:
-WITH sub_users AS (
+      create_process: {
+        sql_step:
+        CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
+        AS
+        WITH sub_users AS (
         SELECT
           CASE WHEN ss.subscription_start IS NOT NULL THEN ss.CURRENT_GUID ELSE bp.USER_SSO_GUID END AS user_guid
           , COALESCE(ss.subscription_start, bp._effective_from) AS subscription_start
@@ -47,7 +50,12 @@ WITH sub_users AS (
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
         ORDER BY date
-          ;;
+        ;;
+
+        sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;
+        sql_step: ALTER TABLE ${SQL_TABLE_NAME} RECLUSTER ;;
+      }
+
       datagroup_trigger: daily_refresh
     }
 
