@@ -219,9 +219,26 @@ derived_table: {
     type: date_raw
   }
 
-  dimension: activation_date {
+  dimension_group: activation {
+    label: "Activation"
     description: "Date on which user activated course"
-    type: date
+    type: time
+    timeframes: [
+      date,
+      week,
+      month,
+      month_name,
+      year,
+      day_of_week,
+      week_of_year,
+      day_of_year
+      ]
+  }
+
+  dimension: activation_fiscal_year {
+    sql: left(date_trunc(year,dateadd(month,9,CONVERT_TIMEZONE('UTC',${activation_date}))),4) ;;
+    group_label: "Activation Date"
+    label: "Fiscal Year"
   }
 
   dimension: product_type {
