@@ -477,7 +477,7 @@ view: kpi_user_counts {
       sql_step:
         ALTER TABLE looker_scratch.kpi_user_counts_monthly RECLUSTER
       ;;
-      }
+       }
 
       datagroup_trigger: daily_refresh
     }

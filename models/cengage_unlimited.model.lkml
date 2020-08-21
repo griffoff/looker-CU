@@ -652,6 +652,17 @@ join: date_to_date_filter {
   relationship: one_to_many
 }
 
+join: guid_first_last_date_seen {
+  view_label: "Filters"
+  sql_on: ${combinations.user_sso_guid} = ${guid_first_last_date_seen.merged_guid} and ${combinations.user_type} = ${guid_first_last_date_seen.user_type}  ;;
+  relationship: many_to_one
+}
+
+  join: past_x_days_filter {
+    sql_on: ${kpi_user_stats.datevalue_raw} between ${past_x_days_filter.begin_date} and ${past_x_days_filter.end_date} ;;
+    relationship: one_to_many
+  }
+
 
 }
 
@@ -661,6 +672,7 @@ explore: guid_date_subscription {
     relationship: one_to_many
   }
 }
+
 
 # access_grant: access_grant_test {
 #   user_attribute: test_attribute
