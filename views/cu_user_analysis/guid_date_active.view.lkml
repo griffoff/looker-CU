@@ -30,9 +30,10 @@ view: guid_date_active {
         )
 
         ,events AS (
-          SELECT DISTINCT user_sso_guid, event_time::DATE AS date,product_platform, event_data:course_key AS course_key
-          FROM prod.cu_user_analysis.all_events
-          INNER JOIN dates d ON event_time::DATE = d.datevalue
+          SELECT DISTINCT e.user_sso_guid, e.event_time::DATE AS date, e.product_platform, COALESCE(e.event_data:course_key, e.event_data:courseKey) AS course_key
+          FROM prod.cu_user_analysis.all_sessions s
+          INNER JOIN prod.cu_user_analysis.all_events e USING(session_id)
+          INNER JOIN dates d ON s.session_start::DATE = d.datevalue
         )
 
         SELECT DISTINCT
