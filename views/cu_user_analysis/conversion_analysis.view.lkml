@@ -167,26 +167,26 @@ view: conversion_analysis {
 
   measure: first_conversion_duration_average {
     type: average
-    sql: datediff(h,${initial_time_min},${conversion_time_min});;
+    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
     view_label: "** USER EVENT CONVERSION **"
 #     value_format: "[hh]:mm:ss"
-    description: "Average time between first initital event and first conversion event"
+    description: "Average time (in days) between first initital event and first conversion event"
   }
 
   measure: first_conversion_duration_max {
     type: max
-    sql: datediff(h,${initial_time_min},${conversion_time_min});;
+    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
     view_label: "** USER EVENT CONVERSION **"
 #     value_format: "[hh]:mm:ss"
-    description: "Max time between first initital event and first conversion event"
+    description: "Max time (in days) between first initital event and first conversion event"
   }
 
   measure: first_conversion_duration_min {
     type: min
-    sql: datediff(h,${initial_time_min},${conversion_time_min});;
+    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
     view_label: "** USER EVENT CONVERSION **"
 #     value_format: "[hh]:mm:ss"
-    description: "Min time between first initital event and first conversion event"
+    description: "Min time (in days) between first initital event and first conversion event"
   }
 
 }
