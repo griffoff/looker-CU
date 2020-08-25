@@ -30,7 +30,6 @@ view: kpi_user_counts_filter_combinations {
           ,organization STRING NOT NULL
           ,platform STRING NOT NULL
           ,user_type STRING NOT NULL
-
         )
         ;;
 
@@ -64,7 +63,8 @@ view: kpi_user_counts_filter_combinations {
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
         FROM LOOKER_SCRATCH.kpi_user_counts
         WHERE date > (SELECT COALESCE(MAX(date), '1970-01-01') FROM LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly)
-        ORDER BY 1;;
+        ORDER BY 1
+        ;;
 
       sql_step:
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts_filter_combinations_weekly CLUSTER BY(date) ;;
