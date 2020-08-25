@@ -13,6 +13,7 @@ view: guid_date_course {
       LEFT JOIN ${courseware_users.SQL_TABLE_NAME} ON dim_date.datevalue BETWEEN course_start AND course_end
       WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
       ORDER BY date
+
       ;;
       sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;
 

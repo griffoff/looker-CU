@@ -45,14 +45,11 @@ view: kpi_user_counts {
         ,all_trial_access_cu_guid STRING comment ''
         ,all_full_access_cu_etextbook_guid STRING comment ''
         ,all_trial_access_cu_etextbook_guid STRING comment ''
-
         ,all_active_user_guid STRING comment ''
         ,all_paid_active_user_guid STRING comment ''
-
         ,payment_cui_guid STRING comment ''
         ,payment_ia_guid STRING comment ''
         ,payment_direct_purchase_guid STRING comment ''
-
         )
       ;;
 

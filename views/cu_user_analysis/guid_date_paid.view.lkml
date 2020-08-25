@@ -14,7 +14,6 @@ view: guid_date_paid {
           ,paid_flag BOOLEAN
           ,content_type STRING
           ,paid_content_rank INT
-
         )
       ;;
 
@@ -58,7 +57,6 @@ view: guid_date_paid {
           , content_type
           , CASE WHEN content_type = 'CU Full Access' THEN 3 WHEN content_type = 'CU eTextbook Full Access' THEN 4 WHEN content_type = 'CU Trial' THEN 5 ELSE 6 END AS content_order
           FROM paid_cu_only_users
-
         )
         select date, user_sso_guid, region, platform, organization, paid_flag, content_type
           , rank() over(partition by date,user_sso_guid order by content_order) AS paid_content_rank

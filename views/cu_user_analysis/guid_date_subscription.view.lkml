@@ -7,8 +7,8 @@ view: guid_date_subscription {
         WITH sub_users AS (
         SELECT
           CASE WHEN ss.subscription_start IS NOT NULL THEN ss.CURRENT_GUID ELSE bp.USER_SSO_GUID END AS user_guid
-          , COALESCE(ss.subscription_start, bp._effective_from) AS subscription_start
-          , COALESCE(COALESCE(ss.cancelled_time, ss.subscription_end), COALESCE(bp._effective_to, bp.subscription_end)) AS subscription_end
+          , COALESCE(ss.subscription_start, bp._effective_from)::date AS subscription_start
+          , COALESCE(COALESCE(ss.cancelled_time, ss.subscription_end), COALESCE(bp._effective_to, bp.subscription_end))::date AS subscription_end
           , CASE WHEN ss.subscription_start IS NOT NULL THEN ss.SUBSCRIPTION_PLAN_ID ELSE bp.SUBSCRIPTION_STATE END AS subscription_type
         FROM prod.datavault.hub_subscription hs
         LEFT JOIN prod.datavault.sat_subscription_sap ss ON hs.hub_subscription_key = ss.hub_subscription_key
@@ -50,6 +50,7 @@ view: guid_date_subscription {
         WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
         ORDER BY date
+
         ;;
 
         sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;

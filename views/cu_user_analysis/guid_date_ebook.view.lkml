@@ -49,7 +49,9 @@ view: guid_date_ebook {
       )
       UNION
       (
-      SELECT ss.user_sso_guid, ss.registration_date AS ebook_start, DATEADD(d,ss.subscription_length_in_days,ss.registration_date) as ebook_end
+      SELECT ss.user_sso_guid
+        , ss.registration_date AS ebook_start
+        , DATEADD(week,LEAST(16,ss.subscription_length_in_days),ss.registration_date) as ebook_end
         , ebook_start AS subscription_start
         , ebook_end AS subscription_end
         , 'Full Access' AS subscription_type
@@ -72,7 +74,11 @@ view: guid_date_ebook {
       )
       UNION
       (
-      SELECT pp.USER_SSO_GUID, pp.date_added AS ebook_start, pp.expiration_date AS ebook_end
+      SELECT pp.USER_SSO_GUID
+        , pp.date_added AS ebook_start
+        , case when pp.expiration_date < pp.date_added then dateadd(week,16,ebook_start)
+          else least(dateadd(week,16,ebook_start),pp.expiration_date)
+          end as ebook_end
         , COALESCE(ss.subscription_start, bp._effective_from) AS subscription_start
         , COALESCE(COALESCE(ss.cancelled_time, ss.subscription_end), COALESCE(bp._effective_to, CURRENT_DATE())) AS subscription_end
         , CASE WHEN ss.subscription_start IS NOT NULL THEN ss.subscription_plan_id WHEN bp.subscription_start IS NOT NULL THEN bp.subscription_state END AS subscription_type
@@ -99,12 +105,13 @@ view: guid_date_ebook {
       )
       )
       SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'eBook' AS content_type, region, platform, organization
-        , CASE WHEN (subscription_type ILIKE 'Full%' OR subscription_type ILIKE 'Limited%') THEN TRUE ELSE FALSE END AS paid_flag
+        , CASE WHEN (subscription_type ILIKE 'Full%' OR subscription_type ILIKE 'Limited%' OR (subscription_type ILIKE 'CU-ETextBook%' AND subscription_type NOT ILIKE 'CU-ETextBook-Trial%')) THEN TRUE ELSE FALSE END AS paid_flag
       FROM  ${dim_date.SQL_TABLE_NAME} dim_date
       LEFT JOIN ebook_users ON dim_date.datevalue BETWEEN ebook_start AND ebook_end
         AND dim_date.datevalue BETWEEN subscription_start AND subscription_end
       WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
       ORDER BY 1
+
       ;;
 
       sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;
