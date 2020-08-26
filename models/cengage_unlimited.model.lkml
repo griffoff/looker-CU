@@ -14,6 +14,8 @@ include: "/views/spring_review/*.view.lkml"
 include: "/views/sales_order_forecasting/*.view.lkml"
 include: "/views/kpi_dashboards/*.view.lkml"
 include: "/views/uploads/covid19_trial_shutoff_schedule.view"
+include: "/views/uploads/ehp_tweets.view"
+include: "/views/uploads/parsed_ehp_tweets.view"
 
 include: "/models/shared_explores.lkml"
 
@@ -454,6 +456,16 @@ explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
 }
 
 
+# **************************************** EHP Data *************************************
+
+explore: ehp_tweets {
+  label: "EHP"
+  from: ehp_tweets
+  join: parsed_ehp_tweets {
+    sql_on: ${ehp_tweets._row} = ${parsed_ehp_tweets._row} ;;
+    relationship: one_to_many
+  }
+}
 
 # ------ Sales order explore -------------------------------------
 
