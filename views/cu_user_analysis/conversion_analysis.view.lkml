@@ -84,7 +84,7 @@ view: conversion_analysis {
         , max(event_time) as conversion_time_max
         , min(event_time) as conversion_time_min
 
-        , coalesce(greatest(1, ceil(datediff(d,initial_time_max, conversion_time_min)/{{ time_period._parameter_value }})),1) as period_number
+        , coalesce(greatest(1, ceil(datediff(d,initial_time_min, conversion_time_min)/{{ time_period._parameter_value }})),1) as period_number
 
         , case
             when {{ time_period._parameter_value }} = 365 then 'Year'
@@ -99,9 +99,9 @@ view: conversion_analysis {
       left join ${all_events.SQL_TABLE_NAME} e
 
       on i.user_sso_guid = e.user_sso_guid
-        and e.event_time between i.initial_time_max
+        and e.event_time between i.initial_time_min
 
-        and coalesce(dateadd(d, {{ time_period._parameter_value }} * {{ number_period._parameter_value }}, i.initial_time_max), current_date())
+        and coalesce(dateadd(d, {{ time_period._parameter_value }} * {{ number_period._parameter_value }}, i.initial_time_min), current_date())
 
         AND {% condition conversion_events_filter %} event_name {% endcondition %}
       group by 1,2,3,4
@@ -150,7 +150,7 @@ view: conversion_analysis {
 
   measure: conversion_user_count {
     type: count_distinct
-    sql: case when ${conversion_time_max} is not null then ${user_sso_guid} end ;;
+    sql: case when ${conversion_time_min} is not null then ${user_sso_guid} end ;;
     view_label: "** USER EVENT CONVERSION **"
     description: "Number of users who converted (did one of the initial event(s) followed by one of the conversion event(s))"
   }
@@ -167,24 +167,27 @@ view: conversion_analysis {
 
   measure: first_conversion_duration_average {
     type: average
-    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
+    sql: datediff(seconds,${initial_time_min},${conversion_time_min})/24/60/60;;
     view_label: "** USER EVENT CONVERSION **"
+    value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
     description: "Average time (in days) between first initital event and first conversion event"
   }
 
   measure: first_conversion_duration_max {
     type: max
-    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
+    sql: datediff(seconds,${initial_time_min},${conversion_time_min})/24/60/60;;
     view_label: "** USER EVENT CONVERSION **"
+    value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
     description: "Max time (in days) between first initital event and first conversion event"
   }
 
   measure: first_conversion_duration_min {
     type: min
-    sql: datediff(h,${initial_time_min},${conversion_time_min})/24;;
+    sql: datediff(seconds,${initial_time_min},${conversion_time_min})/24/60/60;;
     view_label: "** USER EVENT CONVERSION **"
+    value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
     description: "Min time (in days) between first initital event and first conversion event"
   }
