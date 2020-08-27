@@ -36,7 +36,6 @@ view: kpi_user_counts {
         ,userbase_trial_access_cu_only_guid STRING comment ''
         ,userbase_full_access_cu_etextbook_only_guid STRING comment ''
         ,userbase_trial_access_cu_etextbook_only_guid STRING comment ''
-
         ,all_instructors_active_course_guid STRING comment ''
         ,all_courseware_guid STRING comment ''
         ,all_ebook_guid STRING comment ''
