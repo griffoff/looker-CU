@@ -112,6 +112,7 @@ derived_table: {
     type: string
     description: "Institution/school ID#"
     sql: ${TABLE}."ENTITY_ID"::string ;;
+    hidden:yes
   }
 
   dimension: paid {
@@ -631,6 +632,23 @@ derived_table: {
     type: count
     label: "# User Courses"
     description: "# of user course records (distinct user guid + olr course key combinations)"
+  }
+
+  measure: course_sections {
+    group_label: ""
+    label: "# Courses"
+    type: count_distinct
+    sql: ${olr_course_key} ;;
+    drill_fields: [marketing_fields*]
+    description: "Distinct count of courses (by course key)"
+  }
+
+  measure: students_per_course {
+    type: number
+    label: "# Students per Course"
+    sql: ${user_count} / NULLIF(${course_sections}, 0)  ;;
+    value_format_name: decimal_1
+    description: "Total number of distinct users divided by total unique courses (by course key)"
   }
 
 #   measure: courses_used_per_student {
