@@ -63,9 +63,10 @@ view: kpi_user_counts {
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
         (
-        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
+        SELECT date, user_sso_guid, region, organization, platform, user_type, max(paid_flag) as paid_flag
         FROM ${guid_date_course.SQL_TABLE_NAME} WHERE expired_access_flag = FALSE
         AND date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts)
+        GROUP BY date, user_sso_guid, region, organization, platform, user_type
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform AND k.user_type = c.user_type
         WHEN MATCHED THEN UPDATE
@@ -73,6 +74,8 @@ view: kpi_user_counts {
             k.userbase_digital_user_guid = CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
             ,k.all_instructors_active_course_guid = CASE WHEN c.user_type = 'Instructor' THEN c.user_sso_guid END
             ,k.all_courseware_guid = CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
+            ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
+            ,k.userbase_paid_courseware_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -84,6 +87,8 @@ view: kpi_user_counts {
           ,all_instructors_active_course_guid
           ,userbase_digital_user_guid
           ,all_courseware_guid
+          ,userbase_paid_user_guid
+          ,userbase_paid_courseware_guid
         )
         VALUES
         (
@@ -96,6 +101,8 @@ view: kpi_user_counts {
           ,CASE WHEN c.user_type = 'Instructor' THEN c.user_sso_guid END
           ,CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
           ,CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
         )
         ;;
 
@@ -113,7 +120,8 @@ view: kpi_user_counts {
         SET
           k.userbase_digital_user_guid = c.user_sso_guid
           ,k.all_ebook_guid = c.user_sso_guid
-          ,k.all_paid_ebook_guid = CASE WHEN c.paid_flag IS NOT NULL THEN c.user_sso_guid END
+          ,k.all_paid_ebook_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
+          ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -125,6 +133,7 @@ view: kpi_user_counts {
           ,userbase_digital_user_guid
           ,all_ebook_guid
           ,all_paid_ebook_guid
+          ,userbase_paid_user_guid
         )
         VALUES
         (
@@ -136,7 +145,8 @@ view: kpi_user_counts {
           ,'Student'
           ,c.user_sso_guid
           ,c.user_sso_guid
-          ,CASE WHEN c.paid_flag IS NOT NULL THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
         )
         ;;
 
@@ -144,12 +154,12 @@ view: kpi_user_counts {
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
         (
-        SELECT date, user_sso_guid, region, organization, platform, user_type, MIN(content_type) AS content_type
-        FROM ${guid_date_subscription.SQL_TABLE_NAME}
+        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
+          , last_value(s.content_type) over (partition by date, user_sso_guid, region, organization, platform, user_type order by (CASE WHEN s.content_type = 'CU Full Access' THEN 1 WHEN s.content_type = 'CU eTextbook Full Access' THEN 2 WHEN s.content_type = 'CU Trial' THEN 3 WHEN s.content_type = 'CU eTextbook Trial' THEN 4 END) desc) AS content_type
+        FROM ${guid_date_subscription.SQL_TABLE_NAME} s
         WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_full_access_cu_guid IS NOT NULL)
-        GROUP BY date, user_sso_guid, region, organization, platform, user_type
         ) c
-        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
+        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type
         WHEN MATCHED THEN UPDATE
           SET
             k.userbase_digital_user_guid = c.user_sso_guid
@@ -157,6 +167,7 @@ view: kpi_user_counts {
             ,k.all_trial_access_cu_guid = CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
             ,k.all_full_access_cu_etextbook_guid = CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
             ,k.all_trial_access_cu_etextbook_guid = CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
+            ,k.userbase_paid_user_guid = CASE WHEN c.content_type IN ('CU Full Access','CU eTextbook Full Access') THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
         date
@@ -170,6 +181,7 @@ view: kpi_user_counts {
           ,all_trial_access_cu_guid
           ,all_full_access_cu_etextbook_guid
           ,all_trial_access_cu_etextbook_guid
+          ,userbase_paid_user_guid
         )
         VALUES
         (
@@ -184,6 +196,7 @@ view: kpi_user_counts {
           ,CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type IN ('CU Full Access','CU eTextbook Full Access') THEN c.user_sso_guid END
         )
         ;;
 
@@ -200,7 +213,8 @@ view: kpi_user_counts {
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
           SET
-            k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+            k.userbase_digital_user_guid = c.user_sso_guid
+            ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
             ,k.userbase_paid_courseware_guid = CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
             ,k.userbase_paid_ebook_only_guid = CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
             ,k.userbase_full_access_cu_only_guid = CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
@@ -215,6 +229,7 @@ view: kpi_user_counts {
           ,organization
           ,platform
           ,user_type
+          ,userbase_digital_user_guid
           ,userbase_paid_user_guid
           ,userbase_paid_courseware_guid
           ,userbase_paid_ebook_only_guid
@@ -231,6 +246,7 @@ view: kpi_user_counts {
           ,c.organization
           ,c.platform
           ,'Student'
+          ,c.user_sso_guid
           ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
@@ -360,7 +376,7 @@ view: kpi_user_counts {
           ,c.user_sso_guid
           ,c.region
           ,c.organization
-          ,c.platform
+          ,'Other'
           ,c.user_type
           ,c.userbase_digital_user_guid
           ,c.userbase_paid_user_guid
