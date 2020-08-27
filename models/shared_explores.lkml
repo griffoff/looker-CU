@@ -550,3 +550,16 @@ explore: cohort_analysis {
     relationship: many_to_one
   }
 }
+
+explore: ebook_sessions {
+  join: ebook_sessions_weekly {
+    sql_on: ${ebook_sessions.merged_guid} = ${ebook_sessions_weekly.merged_guid}
+      and ${ebook_sessions.session_start_time_week} = ${ebook_sessions_weekly.session_start_time_week} ;;
+    type: inner
+    relationship: many_to_one
+  }
+  join: cu_user_info {
+    sql_on: ${ebook_sessions.merged_guid} = ${cu_user_info.merged_guid} ;;
+    relationship: many_to_one
+  }
+}
