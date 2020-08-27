@@ -560,5 +560,26 @@ measure: all_paid_active_user_guid {
     label: "# Total Paid Active Courseware Student Users"
   }
 
+  measure: paid_a_la_carte_courseware_users {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.userbase_paid_courseware_guid IS NOT NULL
+                AND ${TABLE}.all_full_access_cu_guid IS NULL
+                AND ${TABLE}.all_full_access_cu_etextbook_guid IS NULL
+              THEN ${TABLE}.userbase_paid_courseware_guid END;;
+    label: "# Total Paid a la carte Courseware Student Users"
+    description: "Paid courseware users with no CU or CUe subscription"
+  }
+
+  measure: paid_a_la_carte_ebook_users {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_paid_ebook_guid IS NOT NULL
+                AND ${TABLE}.all_full_access_cu_guid IS NULL
+                AND ${TABLE}.all_full_access_cu_etextbook_guid IS NULL
+                AND ${TABLE}.userbase_paid_courseware_guid IS NULL
+              THEN ${TABLE}.all_paid_ebook_guid END;;
+    label: "# Total Paid a la carte eBook Student Users"
+    description: "Paid ebook users with no courseware access and no CU or CUe subscription"
+  }
+
 
 }
