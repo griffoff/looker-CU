@@ -3,6 +3,7 @@ include: "//cube/dim_course.view"
 
 include: "/views/cu_user_analysis/*.view"
 include: "/views/cu_user_analysis/cohorts/*.view"
+include: "/views/event_analysis/*.view"
 include: "/views/discounts/*.view"
 include: "/views/strategy/*.view"
 include: "/views/uploads/*.view"
@@ -537,19 +538,6 @@ explore: session_analysis {
 
 }
 
-
-explore: cohort_analysis {
-  extends: [learner_profile]
-  from: cohort_selection
-  view_name: cohort_selection
-
-  always_filter: {filters:[cohort_events_filter: "", flow_events_filter: "-UNLOAD UNLOAD", cohort_date_range_filter: "after 21 days ago", time_period: "30", ignore_duplicates: "exclude", before_or_after: "before"]}
-
-  join: learner_profile {
-    sql_on: ${cohort_selection.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
-    relationship: many_to_one
-  }
-}
 
 explore: ebook_sessions {
   join: ebook_sessions_weekly {

@@ -1,7 +1,7 @@
 view: cohort_selection {
+  label: "** COHORT ANALYSIS **"
 
   filter: cohort_events_filter {
-    view_label: "** COHORT ANALYSIS **"
     label: "Choose cohort behavior"
     description: "Select the things that you want your cohort to have done "
     type: string
@@ -11,7 +11,6 @@ view: cohort_selection {
   }
 
   filter: flow_events_filter {
-    view_label: "** COHORT ANALYSIS **"
     label: "Events to include / exclude in the flow"
     description: "Select the things that you want to include or exclude in your flow"
     type: string
@@ -21,7 +20,7 @@ view: cohort_selection {
   }
 
   filter: cohort_date_range_filter {
-    view_label: "** COHORT ANALYSIS **"
+
     label: "Choose a cohort date range"
     description: "Select a date range for the target cohort behavior"
     type: date
@@ -29,7 +28,7 @@ view: cohort_selection {
   }
 
   parameter: before_or_after {
-    view_label: "** COHORT ANALYSIS **"
+
     label: "Before or after analysis?"
     description: "Do you want to find behaviors before (leading up to) or after (happened after) the chosen cohort behavior?"
     type: unquoted
@@ -39,7 +38,7 @@ view: cohort_selection {
   }
 
   parameter: sample_size {
-    view_label: "** COHORT ANALYSIS **"
+
     label: "Sample size"
     description: "How much of the data do you want to use in this analysis?  Reduce sample size to speed up the query"
     type: unquoted
@@ -51,7 +50,7 @@ view: cohort_selection {
   }
 
   parameter: ignore_duplicates {
-    view_label: "** COHORT ANALYSIS **"
+
     label: "Ignore duplicate events?"
     description: "Do you want to ignore consecutive events that are the same (e.g. only count the first page view in an ebook session)?"
     type: unquoted
@@ -61,7 +60,7 @@ view: cohort_selection {
   }
 
   parameter: time_period {
-    view_label: "** COHORT ANALYSIS **"
+
     label: "Include events (n) minutes before/after the initial behavior"
     description: "How long after the initial behavior (within the same session) do you want to look for subsequent actions"
     type: number
@@ -137,19 +136,34 @@ view: cohort_selection {
       ;;
   }
 
-  dimension: user_sso_guid {hidden:yes}
-  dimension: cohort_events {view_label: "** COHORT ANALYSIS **" type: string primary_key:yes}
-#   dimension: event_sequence {view_label: "** COHORT ANALYSIS **" type: number}
-#   dimension: event_sequence_description {view_label: "** COHORT ANALYSIS **" type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
-  dimension: event_1 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "1 event after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}
-  dimension: event_2 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "2 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_2 {% else %} NULL {% endif%} ;;}
-  dimension: event_3 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "3 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_3 {% else %} NULL {% endif%} ;;}
-  dimension: event_4 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "4 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
-  dimension: event_5 {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events after" label: "5 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
-  dimension: event_1_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "1 event before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}
-  dimension: event_2_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "2 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_2 {% else %} NULL {% endif%} ;;}
-  dimension: event_3_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "3 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_3 {% else %} NULL {% endif%} ;;}
-  dimension: event_4_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "4 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
-  dimension: event_5_p {view_label: "** COHORT ANALYSIS **" type: string  group_label: "Events before" label: "5 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
+  dimension: user_sso_guid {hidden:yes primary_key:yes}
+  dimension: cohort_events { type: string}
+#   dimension: event_sequence { type: number}
+#   dimension: event_sequence_description { type: string sql: ${event_sequence} || ' event' || IFF(${event_sequence} > 1, 's ', ' ') || '{% parameter before_or_after %}';; order_by_field: event_sequence}
+  dimension: event_1 { type: string  group_label: "Events after" label: "1 event after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}
+  dimension: event_2 { type: string  group_label: "Events after" label: "2 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_2 {% else %} NULL {% endif%} ;;}
+  dimension: event_3 { type: string  group_label: "Events after" label: "3 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_3 {% else %} NULL {% endif%} ;;}
+  dimension: event_4 { type: string  group_label: "Events after" label: "4 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
+  dimension: event_5 { type: string  group_label: "Events after" label: "5 events after" sql: {% if before_or_after._parameter_value == "after" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
+  dimension: event_1_p { type: string  group_label: "Events before" label: "1 event before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_1 {% else %} NULL {% endif%} ;;}
+  dimension: event_2_p { type: string  group_label: "Events before" label: "2 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_2 {% else %} NULL {% endif%} ;;}
+  dimension: event_3_p { type: string  group_label: "Events before" label: "3 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_3 {% else %} NULL {% endif%} ;;}
+  dimension: event_4_p { type: string  group_label: "Events before" label: "4 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
+  dimension: event_5_p { type: string  group_label: "Events before" label: "5 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
+
+  measure: user_count {
+    label: "# Users"
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
+    link: {
+      label: "Conversion Rate to 1st event"
+      url: "
+      {% assign vis_config = '{
+      \"type\":\"looker_column\",
+      \"y_axes\":[{\"maxValue\":1}]
+      }' %}
+      https://cengage.looker.com/explore/event_analysis/conversion_analysis?vis_config={{ vis_config | encode_uri }}&fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period&f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}&f[conversion_analysis.time_period]=1&f[conversion_analysis.number_period]=5&f[conversion_analysis.initial_events_filter]={{cohort_events._value | url_encode}}&f[conversion_analysis.conversion_events_filter]={{event_1._value | url_encode}}"
+    }
+  }
 
 }
