@@ -156,13 +156,37 @@ view: cohort_selection {
     type: count_distinct
     sql: ${user_sso_guid} ;;
     link: {
-      label: "Conversion Rate to 1st event"
+      label: "Daily Conversion Rate to 1st event"
       url: "
       {% assign vis_config = '{
       \"type\":\"looker_column\",
       \"y_axes\":[{\"maxValue\":1}]
       }' %}
-      https://cengage.looker.com/explore/event_analysis/conversion_analysis?vis_config={{ vis_config | encode_uri }}&fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period&f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}&f[conversion_analysis.time_period]=1&f[conversion_analysis.number_period]=5&f[conversion_analysis.initial_events_filter]={{cohort_events._value | url_encode}}&f[conversion_analysis.conversion_events_filter]={{event_1._value | url_encode}}"
+      https://cengage.looker.com/explore/event_analysis/conversion_analysis?
+        vis_config={{ vis_config | encode_uri }}
+        &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+        &f[conversion_analysis.time_period]=1
+        &f[conversion_analysis.number_period]=5
+        &f[conversion_analysis.initial_events_filter]={{cohort_events._value | url_encode}}
+        &f[conversion_analysis.conversion_events_filter]={{event_1._value | url_encode}}
+        &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
+    }
+
+    link: {
+      label: "Daily Conversion Rate to 2nd event"
+      url: "
+      {% assign vis_config = '{
+      \"type\":\"looker_column\",
+      \"y_axes\":[{\"maxValue\":1}]
+      }' %}
+      https://cengage.looker.com/explore/event_analysis/conversion_analysis?
+      vis_config={{ vis_config | encode_uri }}
+      &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+      &f[conversion_analysis.time_period]=1
+      &f[conversion_analysis.number_period]=5
+        &f[conversion_analysis.initial_events_filter]={{cohort_events._value | url_encode}}
+        &f[conversion_analysis.conversion_events_filter]={{event_2._value | url_encode}}
+      &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
     }
   }
 
