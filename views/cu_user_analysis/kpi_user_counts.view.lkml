@@ -58,13 +58,17 @@ view: kpi_user_counts {
       DELETE FROM LOOKER_SCRATCH.kpi_user_counts WHERE date > dateadd(d,-3, current_date())
       ;;
 
+      sql_step:
+      SET max_date = (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts)
+      ;;
+
 # guid date course
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
         (
         SELECT date, user_sso_guid, region, organization, platform, user_type, max(paid_flag) as paid_flag
         FROM ${guid_date_course.SQL_TABLE_NAME} WHERE expired_access_flag = FALSE
-        AND date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts)
+        AND date < current_date() and date > $max_date
         GROUP BY date, user_sso_guid, region, organization, platform, user_type
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform AND k.user_type = c.user_type
@@ -111,7 +115,7 @@ view: kpi_user_counts {
         (
         SELECT date, user_sso_guid, region, organization, platform, MAX(paid_flag) AS paid_flag
         FROM ${guid_date_ebook.SQL_TABLE_NAME}
-        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_ebook_guid IS NOT NULL)
+        WHERE date < current_date() and date > $max_date
         GROUP BY date, user_sso_guid, region, organization, platform
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
@@ -156,7 +160,7 @@ view: kpi_user_counts {
         SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
           , last_value(s.content_type) over (partition by date, user_sso_guid, region, organization, platform, user_type order by (CASE WHEN s.content_type = 'CU Full Access' THEN 1 WHEN s.content_type = 'CU eTextbook Full Access' THEN 2 WHEN s.content_type = 'CU Trial' THEN 3 WHEN s.content_type = 'CU eTextbook Trial' THEN 4 END) desc) AS content_type
         FROM ${guid_date_subscription.SQL_TABLE_NAME} s
-        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_full_access_cu_guid IS NOT NULL)
+        WHERE date < current_date() and date > $max_date
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type
         WHEN MATCHED THEN UPDATE
@@ -206,7 +210,7 @@ view: kpi_user_counts {
         (
         SELECT *
         FROM ${guid_date_paid.SQL_TABLE_NAME}
-        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE userbase_paid_user_guid IS NOT NULL)
+        WHERE date < current_date() and date > $max_date
         AND paid_content_rank = 1
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
@@ -260,9 +264,7 @@ view: kpi_user_counts {
 
 # update everything with a match
 # then insert 'other' records where there wasnt a match
-      sql_step:
-      SET max_date = (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_active_user_guid IS NOT NULL)
-      ;;
+
 
 # update
       sql_step:
