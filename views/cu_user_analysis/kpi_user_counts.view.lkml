@@ -77,8 +77,8 @@ view: kpi_user_counts {
             k.userbase_digital_user_guid = CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
             ,k.all_instructors_active_course_guid = CASE WHEN c.user_type = 'Instructor' THEN c.user_sso_guid END
             ,k.all_courseware_guid = CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
-            ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
-            ,k.userbase_paid_courseware_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
+            ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+            ,k.userbase_paid_courseware_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -104,8 +104,8 @@ view: kpi_user_counts {
           ,CASE WHEN c.user_type = 'Instructor' THEN c.user_sso_guid END
           ,CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
           ,CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
-          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
-          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         )
         ;;
 
@@ -123,8 +123,8 @@ view: kpi_user_counts {
         SET
           k.userbase_digital_user_guid = c.user_sso_guid
           ,k.all_ebook_guid = c.user_sso_guid
-          ,k.all_paid_ebook_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
-          ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag THEN c.user_sso_guid END
+          ,k.all_paid_ebook_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+          ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -148,8 +148,8 @@ view: kpi_user_counts {
           ,'Student'
           ,c.user_sso_guid
           ,c.user_sso_guid
-          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
-          ,CASE WHEN c.paid_flag THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         )
         ;;
 
