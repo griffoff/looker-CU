@@ -573,8 +573,8 @@ view: all_events_base {
   dimension: tags_cla_page_number {
     group_label: "CAFE Tags"
     label: "CLA Page Number"
-    type: string
-    sql: ${event_data}:claPageNumber::string ;;
+    type: number
+    sql: ${event_data}:claPageNumber::number ;;
     description: "Event data - Compound Learning Activity"
     hidden: no
   }
@@ -582,8 +582,8 @@ view: all_events_base {
   dimension: tags_number_of_pages {
     group_label: "CAFE Tags"
     label: "Number of Pages"
-    type: string
-    sql: ${event_data}:numberOfPages::string ;;
+    type: number
+    sql: ${event_data}:numberOfPages::number ;;
     description: "Event data"
     hidden: no
   }
@@ -625,6 +625,123 @@ view: all_events_base {
     hidden: no
   }
 
+  dimension: tags_activityType {
+    group_label: "CAFE Tags"
+    label: "Activity Type"
+    type: string
+    sql: ${event_data}:activityType::string  ;;
+    description: "activityType (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_activityLaunchSource {
+    group_label: "CAFE Tags"
+    label: "Activity Launch Source"
+    type: string
+    sql: ${event_data}:activityLaunchSource::string  ;;
+    description: "activityLaunchSourcee (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_grade {
+    group_label: "CAFE Tags"
+    label: "Grade"
+    type: string
+    sql: ${event_data}:grade::string ;;
+    description: "grade (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_searchTerm {
+    group_label: "CAFE Tags"
+    label: "Search Term"
+    type: string
+    sql: ${event_data}:searchTerm::string  ;;
+    description: "searchTerm (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_resultsCount {
+    group_label: "CAFE Tags"
+    label: "Results Count"
+    type: number
+    sql: ${event_data}:resultsCount::number  ;;
+    description: "resultsCount (Event data tags)"
+    hidden: no
+  }
+
+
+  dimension: tags_reportType {
+    group_label: "CAFE Tags"
+    label: "Report Type"
+    type: string
+    sql: ${event_data}:reportType::string  ;;
+    description: "reportType (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_cloneStatus {
+    group_label: "CAFE Tags"
+    label: "Clone Status"
+    type: string
+    sql: ${event_data}:cloneStatus::string  ;;
+    description: "cloneStatus (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_assignmentStart {
+    group_label: "CAFE Tags"
+    label: "Assignment Start"
+    type: date_time
+    sql: ${event_data}:assignmentStart::datetime  ;;
+    description: "assignmentStart (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_assignmentDue {
+    group_label: "CAFE Tags"
+    label: "Assignment Due"
+    type: date_time
+    sql: ${event_data}:assignmentDue::datetime  ;;
+    description: "assignmentDue (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_numberAttempts {
+    group_label: "CAFE Tags"
+    label: "Number Attempts"
+    type: number
+    sql: ${event_data}:numberAttempts::number  ;;
+    description: "numberAttempts (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_gradebookCategory {
+    group_label: "CAFE Tags"
+    label: "Gradebook Category"
+    type: string
+    sql: ${event_data}:gradebookCategory::string  ;;
+    description: "gradebookCategory (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_studentCount {
+    group_label: "CAFE Tags"
+    label: "Student Count"
+    type: number
+    sql: ${event_data}:studentCount::number  ;;
+    description: "studentCount (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_itemID {
+    group_label: "CAFE Tags"
+    label: "Item ID"
+    type: string
+    sql: ${event_data}:itemID::string  ;;
+    description: "itemID (Event data tags)"
+    hidden: no
+  }
 
 
 

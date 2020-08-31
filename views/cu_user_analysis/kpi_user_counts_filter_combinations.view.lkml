@@ -30,6 +30,7 @@ view: kpi_user_counts_filter_combinations {
           ,organization STRING NOT NULL
           ,platform STRING NOT NULL
           ,user_type STRING NOT NULL
+
         )
         ;;
 

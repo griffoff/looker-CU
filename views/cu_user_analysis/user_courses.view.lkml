@@ -169,6 +169,7 @@ derived_table: {
   }
 
 
+
   dimension: payment_code {
     type: string
     sql: ${TABLE}."PAYMENT_CODE"::string ;;
@@ -650,6 +651,7 @@ derived_table: {
     value_format_name: decimal_1
     description: "Total number of distinct users divided by total unique courses (by course key)"
   }
+
 
 #   measure: courses_used_per_student {
 #     type: number
