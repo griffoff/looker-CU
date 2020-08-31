@@ -35,6 +35,41 @@ view: current_date {
   dimension: current_week_of_year {type: number hidden:yes}
 }
 
+explore: instructor_provisioned_products {
+  from: raw_olr_provisioned_product
+  view_name: raw_olr_provisioned_product
+  sql_always_where: ${user_type} = 'instructor' ;;
+  label: "instructor Provisioned Products"
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+}
+
+explore: raw_olr_provisioned_product {
+  extends: [instructor_provisioned_products]
+  sql_always_where: ${user_type} = 'student' ;;
+  label: "Student Provisioned Products"
+
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+  join: uploads_cu_sidebar_cohort {
+    view_label: "CU sidebar cohort"
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: many_to_one
+  }
+}
+
 explore: course_sections {
   extends: [dim_course, learner_profile_cohorts]
   from: dim_course
