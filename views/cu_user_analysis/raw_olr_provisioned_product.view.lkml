@@ -2,27 +2,6 @@ include: "/views/cu_user_analysis/live_subscription_status.view"
 include: "/views/cu_user_analysis/merged_cu_user_info.view"
 include: "/views/uploads/uploads.cu_sidebar_cohort.view"
 
-explore: raw_olr_provisioned_product {
-  label: "CU Provisioned Product"
-
-  join: live_subscription_status {
-    relationship: one_to_one
-    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
-  }
-
-  join: merged_cu_user_info {
-    relationship: one_to_one
-    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
-  }
-
-  join: uploads_cu_sidebar_cohort {
-    view_label: "CU sidebar cohort"
-    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
-    relationship: many_to_one
-  }
-  }
-
-
 view: raw_olr_provisioned_product {
   view_label: "Provisioned Product"
 
@@ -39,7 +18,12 @@ derived_table: {
       , spp.EXPIRATION_DATE
       , spp.IAC_ISBN
       , spp.PRODUCT_ID
-      , spp.USER_TYPE
+      , COALESCE(spp.USER_TYPE
+        ,
+        CASE WHEN su.k12 THEN 'k12' ELSE '' END
+        || CASE WHEN su.instructor THEN 'instructor' ELSE 'student' END
+        ) as user_type
+      , INITCAP(REPLACE(SUBSTRING(spp.modified_by, 4), '_', ' ')) as added_by
     from prod.DATAVAULT.SAT_PROVISIONED_PRODUCT_V2 spp
     INNER JOIN prod.datavault.hub_user hu ON spp.user_sso_guid = hu.uid
     INNER JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
@@ -49,8 +33,8 @@ derived_table: {
     left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lsp.HUB_PRODUCT_KEY = lpp.HUB_PRODUCT_KEY and lsp.HUB_SERIALNUMBER_KEY = lsu.HUB_SERIALNUMBER_KEY
     left join prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED ssn on ssn.HUB_SERIALNUMBER_KEY = lsp.HUB_SERIALNUMBER_KEY and ssn._LATEST
     where spp._LATEST
-      and sui.INTERNAL is null
-      and spp.USER_TYPE ilike 'student'
+      --and sui.INTERNAL is null
+      --and spp.USER_TYPE ilike 'student'
     )
     ,prod_clean as (
       select
@@ -60,12 +44,13 @@ derived_table: {
         , PRODUCT_ID
         , USER_TYPE
         , iac_isbn
+        , added_by
         , max(registration_date) as registration_date
         , max(HUB_SERIALNUMBER_KEY) as hub_serial_number_key
         , array_agg(distinct CONTEXT_ID) as context_id_array
         , max(EXPIRATION_DATE) as expiration_date
       from prod
-      group by 1,2,3,4,5,6
+      group by 1,2,3,4,5,6,7
     )
 
     , types AS (
@@ -275,6 +260,10 @@ derived_table: {
   dimension: user_type {
     type: string
     sql: ${TABLE}."USER_TYPE" ;;
+  }
+
+  dimension: added_by {
+    type: string
   }
 
   dimension: current_user_provisions {
