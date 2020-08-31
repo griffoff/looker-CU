@@ -1,6 +1,3 @@
-explore: conversion_analysis {
-  always_filter: {filters:[initial_events_filter: "", conversion_events_filter: "", initial_date_range_filter: "after 30 days ago", time_period: "", number_period: ""]}
-}
 view: conversion_analysis {
 
   filter: initial_events_filter {
