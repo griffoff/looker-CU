@@ -23,6 +23,8 @@ connection: "snowflake_prod"
 
 case_sensitive: no
 
+persist_for: "16 hours"
+
 ######################### Start of PROD Explores #########################################################################
 
 view: current_date {
