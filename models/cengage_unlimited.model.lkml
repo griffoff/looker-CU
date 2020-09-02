@@ -697,7 +697,7 @@ explore: kpi_user_stats {
   }
 
 join: date_to_date_filter {
-  sql_on: ${kpi_user_stats.datevalue_raw} between ${date_to_date_filter.begin_date} and ${date_to_date_filter.end_date} ;;
+  sql_on: ${kpi_user_stats.datevalue_raw} = ${date_to_date_filter.middle_date_raw}  ;;
   relationship: one_to_many
 }
 
@@ -708,7 +708,7 @@ join: guid_first_last_date_seen {
 }
 
   join: past_x_days_filter {
-    sql_on: ${kpi_user_stats.datevalue_raw} between ${past_x_days_filter.begin_date} and ${past_x_days_filter.end_date} ;;
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${past_x_days_filter.middle_date_raw} ;;
     relationship: one_to_many
   }
 
@@ -717,13 +717,7 @@ join: guid_first_last_date_seen {
 
 explore: guid_date_subscription {
   join: date_to_date_filter {
-    sql_on: ${guid_date_subscription.date_raw} between ${date_to_date_filter.begin_date} and ${date_to_date_filter.end_date} ;;
+    sql_on: ${guid_date_subscription.date_raw} = ${date_to_date_filter.middle_date_raw} ;;
     relationship: one_to_many
   }
 }
-
-
-# access_grant: access_grant_test {
-#   user_attribute: test_attribute
-#   allowed_values: [ "yes" ]
-# }
