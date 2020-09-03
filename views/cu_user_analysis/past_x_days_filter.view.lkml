@@ -30,6 +30,8 @@ view: past_x_days_filter {
       dimension: begin_date {hidden: yes
       }
 
+#   dimension: middle_date_raw {type:date hidden:yes sql:middle_date;;}
+
       dimension_group: middle_date {
         type:time
         timeframes: [raw]

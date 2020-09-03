@@ -238,6 +238,7 @@ explore: raw_subscription_event {
   label: "Raw Subscription Events"
   view_name: raw_subscription_event
   view_label: "Subscription Status"
+
   join: raw_olr_provisioned_product {
     sql_on: ${raw_olr_provisioned_product.merged_guid} = ${raw_subscription_event.merged_guid};;
     relationship: many_to_one
@@ -247,6 +248,7 @@ explore: raw_subscription_event {
     relationship: many_to_one
   }
   join: dim_date {
+    view_label: "Subscription Start"
     sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
     relationship: many_to_one
   }
@@ -699,6 +701,7 @@ explore: kpi_user_stats {
 join: date_to_date_filter {
   sql_on: ${kpi_user_stats.datevalue_raw} = ${date_to_date_filter.middle_date_raw}  ;;
   relationship: one_to_many
+  type: inner
 }
 
 join: guid_first_last_date_seen {
@@ -710,6 +713,7 @@ join: guid_first_last_date_seen {
   join: past_x_days_filter {
     sql_on: ${kpi_user_stats.datevalue_raw} = ${past_x_days_filter.middle_date_raw} ;;
     relationship: one_to_many
+    type: inner
   }
 
 
