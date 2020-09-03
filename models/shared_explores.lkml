@@ -44,6 +44,9 @@ explore: all_events {
 explore: all_sessions {
   extension: required
   extends: [all_events, dim_course]
+  always_filter: {
+    filters: [all_sessions.session_start_date: "Last 7 days"]
+  }
 
   join: all_events {
 #        from:  all_events_dev
