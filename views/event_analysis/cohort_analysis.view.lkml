@@ -1,5 +1,5 @@
 view: cohort_selection {
-  label: "** COHORT ANALYSIS **"
+  label: "** FLOW ANALYSIS **"
 
   filter: cohort_events_filter {
     label: "Choose cohort behavior"

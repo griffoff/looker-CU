@@ -120,7 +120,7 @@ view: subscription_term_courseware_value_users_old {
                 ,pp.expiration_date
                 ,pp.local_time
                 ,pp.date_added
-            FROM prod.cu_user_analysis_dev.subscription_event_merged s
+            FROM prod.cu_user_analysis.subscription_merged_new s
             LEFT JOIN term_dates_five_most_recent d
               ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
               OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
@@ -129,7 +129,7 @@ view: subscription_term_courseware_value_users_old {
               AND d.start_date < pp.expiration_date
               AND d.end_date > pp.local_time
               AND pp.context_id IS NOT NULL
-            LEFT JOIN prod.cu_user_analysis_dev.user_courses u
+            LEFT JOIN prod.cu_user_analysis.user_courses u
               ON s.user_sso_guid_merged = u.user_sso_guid
            )
            ,subscription_term_value AS

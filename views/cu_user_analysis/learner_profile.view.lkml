@@ -108,7 +108,11 @@ view: learner_profile {
     description: "Primary Guid, after mapping and merging from shadow guids"
     link: {
       label: "See this user's journey"
-      url: "/explore/cengage_unlimited/event_analysis?fields=all_events.product_platform,all_sessions.session_start_time,all_events.event_time,all_sessions.lat_lon,all_events.event_type,all_events.event_action,event_groups.event_group,all_events.event_name,all_events.event_data,all_events.sum_of_time_to_next_event&f[learner_profile_2.user_sso_guid]={{ value | url_encode }}&f[event_groups.event_group]=-Timers&sorts=all_events.event_time+desc&limit=500&toggle=vse"
+
+      url: "
+      {% assign vis_config = '{\"type\": \"looker_grid\"}' %}
+      /explore/cengage_unlimited/session_analysis?vis_config={{ vis_config | encode_uri }}&toggle=vis&fields=all_events.event_name,all_events.local_est_time,all_events.event_duration_total&f[all_sessions.session_start_date]=100+days&f[learner_profile.user_sso_guid]={{ value | url_encode }}&sorts=all_events.local_est_time+desc&limit=1000
+      "
     }
   }
 

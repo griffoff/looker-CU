@@ -1150,7 +1150,7 @@ view: all_events_base {
     label: "Total Time Active"
     type: sum
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: event_duration_average {
@@ -1158,7 +1158,7 @@ view: all_events_base {
     label: "Average Time Per Event"
     type: average
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
-    value_format: "[m] \m\i\n\s s \s\e\c\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
 
@@ -1168,7 +1168,7 @@ view: all_events_base {
     type: sum
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
     hidden: yes
   }
 
@@ -1178,7 +1178,7 @@ view: all_events_base {
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_time_to_next_event} / NULLIF(${user_count}, 0)  ;;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: average_time_spent_per_student {
@@ -1187,7 +1187,7 @@ view: all_events_base {
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_total} / NULLIF(${user_count}, 0)  ;;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: average_time_spent_per_student_per_week {
@@ -1195,7 +1195,7 @@ view: all_events_base {
     label: "Average time spent per student per week"
     type: number
     sql: ${event_duration_total} / ${user_week_count};;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
 
     description:
     "DEFINITION: The average amount of time a student is active per week.

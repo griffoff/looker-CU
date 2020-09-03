@@ -2,6 +2,8 @@ named_value_format: duration_minutes {
   value_format: "[m]:ss \m\i\n\s"
 }
 
+explore: session_events {}
+
 explore: sessions  {
   join: session_events {
     sql_on: ${sessions.session_id} = ${session_events.session_id};;
@@ -311,6 +313,7 @@ view: session_events {
     sql: ${TABLE}.duration / 60 / 60 / 24 ;;
     value_format_name: duration_minutes
   }
+  dimension: merged_guid {hidden:yes type:string}
 
   measure: event_duration_avg {
     group_label: "Event Duration"
@@ -378,6 +381,12 @@ view: session_events {
     label: "# Events"
     value_format_name: decimal_0
     drill_fields: [course_uri, activity_id, event_time_microsecond, event_category, event_action, duration]
+  }
+
+  measure: user_count {
+    label: "# Users"
+    type: count_distinct
+    sql: ${merged_guid} ;;
   }
 
 
