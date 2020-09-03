@@ -85,7 +85,7 @@ view: subscription_term_savings {
 #               RANK() OVER (PARTITION BY user_sso_guid ORDER BY course_start_date DESC) AS chron_desc_course_rank
 #               ,user_sso_guid
 #               ,entity_name
-#             FROM prod.cu_user_analysis_dev.user_courses
+#             FROM prod.cu_user_analysis.user_courses
 #           )
 #           ,subscription_terms AS
 #           (
@@ -98,7 +98,7 @@ view: subscription_term_savings {
 #                 ,DATEDIFF('d', subscription_start, subscription_end) AS subscription_length_days
 #                 ,RANK() OVER (PARTITION BY user_sso_guid_merged, governmentdefinedacademicterm ORDER BY subscription_start DESC) AS user_term_sub_rank
 #                 ,u.net_price
-#             FROM prod.cu_user_analysis_dev.subscription_event_merged s
+#             FROM prod.cu_user_analysis.subscription_merged_new s
 #             LEFT JOIN ${cohorts_user_term_subscriptions.SQL_TABLE_NAME}  d
 #               ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
 #               OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
@@ -109,7 +109,7 @@ view: subscription_term_savings {
 #               ON s.user_sso_guid_merged = pp.user_sso_guid
 #               AND d.start_date < pp.expiration_date
 #               AND d.end_date > pp.local_time
-#             LEFT JOIN prod.cu_user_analysis_dev.user_courses u
+#             LEFT JOIN prod.cu_user_analysis.user_courses u
 #               ON s.user_sso_guid_merged = u.user_sso_guid
 #             --WHERE subscription_state = 'full_access'
 #             )
@@ -188,7 +188,7 @@ view: subscription_term_savings {
 #               RANK() OVER (PARTITION BY user_sso_guid ORDER BY course_start_date DESC) AS chron_desc_course_rank
 #               ,user_sso_guid
 #               ,entity_name
-#             FROM prod.cu_user_analysis_dev.user_courses
+#             FROM prod.cu_user_analysis.user_courses
 #           )
 #           ,subscription_terms AS
 #           (
@@ -201,7 +201,7 @@ view: subscription_term_savings {
 #                 ,DATEDIFF('d', subscription_start, subscription_end) AS subscription_length_days
 #                 ,RANK() OVER (PARTITION BY user_sso_guid_merged, governmentdefinedacademicterm ORDER BY subscription_start DESC) AS user_term_sub_rank
 #                 ,u.net_price
-#             FROM prod.cu_user_analysis_dev.subscription_event_merged s
+#             FROM prod.cu_user_analysis.subscription_merged_new s
 #             LEFT JOIN term_dates_five_most_recent d
 #               ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
 #               OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
@@ -212,7 +212,7 @@ view: subscription_term_savings {
 #               ON s.user_sso_guid_merged = pp.user_sso_guid
 #               AND d.start_date < pp.expiration_date
 #               AND d.end_date > pp.local_time
-#             LEFT JOIN prod.cu_user_analysis_dev.user_courses u
+#             LEFT JOIN prod.cu_user_analysis.user_courses u
 #               ON s.user_sso_guid_merged = u.user_sso_guid
 #             --WHERE subscription_state = 'full_access'
 #             )

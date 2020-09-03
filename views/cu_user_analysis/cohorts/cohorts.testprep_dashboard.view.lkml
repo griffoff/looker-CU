@@ -14,7 +14,7 @@ view: cohorts_testprep_dashboard {
               ,governmentdefinedacademicterm
               ,subscription_state
               ,CASE WHEN pp_name ILIKE '%test%prep%' THEN 1 END AS testprep_count
-          FROM prod.cu_user_analysis_dev.subscription_event_merged s
+          FROM prod.cu_user_analysis.subscription_merged_new s
           LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
             OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
@@ -99,7 +99,7 @@ view: cohorts_testprep_dashboard_old {
               ,governmentdefinedacademicterm
               ,subscription_state
               ,CASE WHEN pp_name ILIKE '%test%prep%' THEN 1 END AS testprep_count
-          FROM prod.cu_user_analysis_dev.subscription_event_merged s
+          FROM prod.cu_user_analysis.subscription_merged_new s
           LEFT JOIN term_dates_five_most_recent d
             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
             OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
