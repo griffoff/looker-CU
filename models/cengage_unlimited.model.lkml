@@ -235,6 +235,7 @@ explore: provisioned_product {
 }
 
 explore: raw_subscription_event {
+  extends: [dim_course]
   label: "Raw Subscription Events"
   view_name: raw_subscription_event
   view_label: "Subscription Status"
@@ -256,6 +257,11 @@ explore: raw_subscription_event {
     sql_on: ${date_active.datevalue_raw} between ${raw_subscription_event.subscription_start_raw}::date and ${raw_subscription_event.subscription_end_raw}::date;;
     relationship: many_to_many
     type: inner
+  }
+  join: dim_course {
+    sql: cross join lateral flatten(${raw_olr_provisioned_product.context_id}, outer=>True)  courses
+        left join ${dim_course.SQL_TABLE_NAME} dim_course ON courses.value = ${dim_course.context_id} ;;
+    relationship: many_to_one
   }
 #   join: sub_actv {
 #     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
