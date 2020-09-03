@@ -1,6 +1,6 @@
 explore: past_x_days_filter {
   always_filter: {filters:[date_range: ""]}
-  hidden: yes
+  hidden: no
 }
 
 view: past_x_days_filter {
@@ -16,14 +16,25 @@ view: past_x_days_filter {
 
     derived_table: {
       sql:
-          select datevalue as end_date, dateadd(d,-{{ x_days._parameter_value }}, datevalue) as begin_date from ${dim_date.SQL_TABLE_NAME}
-          where {% condition date_range %} datevalue {% endcondition %}
+          select
+            d1.datevalue as end_date
+            , dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) as begin_date
+            , d2.datevalue as middle_date
+          from ${dim_date.SQL_TABLE_NAME} d1
+          inner join ${dim_date.SQL_TABLE_NAME} d2 on d2.datevalue between dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) and d1.datevalue
+          where {% condition date_range %} d1.datevalue {% endcondition %}
           ;;
 
       }
 
       dimension: begin_date {hidden: yes
       }
+
+      dimension_group: middle_date {
+        type:time
+        timeframes: [raw]
+        hidden: yes
+        }
 
       dimension: end_date {type: date
       }
