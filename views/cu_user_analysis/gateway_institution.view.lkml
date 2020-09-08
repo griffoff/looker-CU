@@ -18,12 +18,14 @@ view: gateway_institution {
   set: marketing_fields {fields:[lms_type]}
 
   dimension: lms_type {
+    group_label: "LMS Integration"
     label: "LMS Type"
     description: "Type of learning management system the institution uses i.e. Canvas, Blackboard, etc."
     sql: COALESCE(${TABLE}.lms_type, 'NOT LMS INTEGRATED') ;;
   }
 
   dimension: lms_version {
+    group_label: "LMS Integration"
     label: "LMS Version"
     description: "The release version of the LMS software i.e. 1.1"
   }
