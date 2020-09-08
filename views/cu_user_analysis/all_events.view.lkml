@@ -69,7 +69,11 @@ view: all_events_base {
   dimension: event_data_course_key {
     group_label: "CAFE Tags"
     type: string
-    sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)::STRING  ;;
+    sql: COALESCE(
+            ${event_data}:courseKey
+            ,${event_data}:course_key
+            ,REGEXP_SUBSTR(${event_data}:courseUri, '.*course-key:(.+)$', 1, 1, 'e')
+          )::STRING  ;;
     label: "Course key"
     description: "Event data"
   }
