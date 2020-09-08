@@ -3,16 +3,25 @@ view: gateway_institution {
     sql:
     with i as (
       select
-        hi.institution_id as entity_no, sig.lms_type, 'v' || NULLIF(sig.lms_version, '') AS lms_version
-        ,ROW_NUMBER() OVER (PARTITION BY hi.institution_id ORDER BY sig.created_at DESC) = 1 as latest
+        hi.institution_id as entity_no
+        ,CASE WHEN sig.hub_institutiongateway_key IS NOT NULL THEN 'Gateway' WHEN wpa.school_id IS NOT NULL THEN 'Webassign' ELSE 'N/A' END as source
+        ,COALESCE(sig.lms_type, wpa.kind) as lms_type_base
+        ,UPPER(DECODE(lms_type_base, 'BB', 'Blackboard', lms_type_base)) as lms_type
+        , 'v' || NULLIF(sig.lms_version, '') AS lms_version
+        ,ROW_NUMBER() OVER (PARTITION BY hi.institution_id ORDER BY COALESCE(sig.created_at, wpa.created_at) DESC) = 1 as latest
       from prod.datavault.hub_institution hi
-      inner join prod.datavault.link_institutiongateway_institution ligi on hi.hub_institution_key = ligi.hub_institution_key
-      inner join prod.datavault.sat_institution_gateway sig on ligi.hub_institutiongateway_key = sig.hub_institutiongateway_key and sig._latest
+      left join prod.datavault.link_institutiongateway_institution ligi on hi.hub_institution_key = ligi.hub_institution_key
+      left join prod.datavault.sat_institution_gateway sig on ligi.hub_institutiongateway_key = sig.hub_institutiongateway_key and sig._latest
+      left join webassign.wa_app_v4net.schools ws ON hi.institution_id = ws.cl_entity_number
+      left join webassign.wa_app_v4net.partner_applications wpa on ws.id = wpa.school_id
     )
-    select *
-    from i
-    where latest
+    SELECT *
+    FROM i
+    WHERE latest
+    AND lms_type IS NOT NULL
     ;;
+
+    persist_for: "24 hours"
   }
 
   set: marketing_fields {fields:[lms_type]}
