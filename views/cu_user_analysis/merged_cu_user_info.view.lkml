@@ -1,4 +1,6 @@
 include: "cu_user_info.view"
+explore: merged_cu_user_info {hidden:yes}
+
 view: merged_cu_user_info {
   extends: [cu_user_info]
 #   sql_table_name: ${cu_user_info.SQL_TABLE_NAME} ;;

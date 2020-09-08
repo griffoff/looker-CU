@@ -1,5 +1,7 @@
 include: "//core/access_grants_file.view"
-explore: cu_user_info {label: "CU User Info" hidden:yes}
+explore: cu_user_info {
+  label: "CU User Info" hidden:yes
+}
 
 view: cu_user_info {
 

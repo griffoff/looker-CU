@@ -406,6 +406,9 @@ explore: learner_profile {
   view_name: learner_profile
   from: learner_profile
   label: "Learner Profile"
+
+  always_filter: {filters:[merged_cu_user_info.real_user_flag: "Yes"]}
+
 #   extension: required
   join: merged_cu_user_info {
     view_label: "Learner Profile"
@@ -492,6 +495,8 @@ explore: session_analysis {
   from: learner_profile
   view_name: learner_profile
   #fields: [-]
+
+  always_filter: {filters:[merged_cu_user_info.real_user_flag: "Yes"]}
 
   join: all_sessions {
     #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
