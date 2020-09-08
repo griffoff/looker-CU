@@ -1,11 +1,17 @@
 view: gateway_institution {
   derived_table: {
     sql:
-    select school_entity_id as entity_no
-      , listagg(distinct lms_type, ', ') within group (order by lms_type) as lms_type
-      , listagg(distinct concat(lms_type,' ',lms_version), ', ') within group (order by concat(lms_type,' ',lms_version)) as lms_version
-    from ${gateway_lms_course_sections.SQL_TABLE_NAME}
-    group by entity_no
+    with i as (
+      select
+        hi.institution_id as entity_no, sig.lms_type, 'v' || NULLIF(sig.lms_version, '') AS lms_version
+        ,ROW_NUMBER() OVER (PARTITION BY hi.institution_id ORDER BY sig.created_at DESC) = 1 as latest
+      from prod.datavault.hub_institution hi
+      inner join prod.datavault.link_institutiongateway_institution ligi on hi.hub_institution_key = ligi.hub_institution_key
+      inner join prod.datavault.sat_institution_gateway sig on ligi.hub_institutiongateway_key = sig.hub_institutiongateway_key and sig._latest
+    )
+    select *
+    from i
+    where latest
     ;;
   }
 
@@ -13,7 +19,8 @@ view: gateway_institution {
 
   dimension: lms_type {
     label: "LMS Type"
-     description: "Type of learning management system the institution uses i.e. Canvas, Blackboard, etc."
+    description: "Type of learning management system the institution uses i.e. Canvas, Blackboard, etc."
+    sql: COALESCE(${TABLE}.lms_type, 'NOT LMS INTEGRATED') ;;
   }
 
   dimension: lms_version {
