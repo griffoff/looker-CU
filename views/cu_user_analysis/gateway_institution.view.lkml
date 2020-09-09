@@ -39,6 +39,14 @@ view: gateway_institution {
     description: "The release version of the LMS software i.e. 1.1"
   }
 
+  dimension: is_lms_integrated {
+    group_label: "LMS Integration"
+    description: "Is this a Gateway course?"
+    label: "LMS Integrated"
+    type: yesno
+    sql: ${lms_type}!='NOT LMS INTEGRATED' ;;
+  }
+
   dimension: entity_no {
     hidden: yes
   }
