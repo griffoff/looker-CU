@@ -77,7 +77,12 @@ explore: course_sections {
   from: dim_course
   view_name: dim_course
 
-  always_filter: {filters:[merged_cu_user_info.real_user_flag: "Yes"]}
+  always_filter: {
+    filters:[
+      merged_cu_user_info.real_user_flag: "Yes"
+      ,dim_filter.is_external: "Yes"
+    ]
+  }
 
   label: "Course Sections"
 
