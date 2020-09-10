@@ -27,6 +27,7 @@ explore: cohort_analysis {
       , flow_events_filter: "-UNLOAD UNLOAD"
       , cohort_date_range_filter: "after 21 days ago"
       , time_period: "30"
+      , bucket_other_events: "exclude"
       , ignore_duplicates: "exclude"
       , before_or_after: "after"
       ]
