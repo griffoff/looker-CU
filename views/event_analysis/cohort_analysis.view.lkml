@@ -128,9 +128,7 @@ view: cohort_selection {
                 {% endif %}
                   AS new_event_name
                 ,
-                {% if ignore_duplicates._parameter_value == 'include' %}
-                    FALSE
-                {% elsif before_or_after._parameter_value == 'before' %}
+                {% if before_or_after._parameter_value == 'before' %}
                     LEAD(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
                 {% else %}
                     LAG(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
@@ -144,21 +142,28 @@ view: cohort_selection {
                 AND {% condition flow_events_filter %} event_name {% endcondition %}
               {% endif %}
           ) flow_events ON starting_events.session_id = flow_events.session_id
-            AND NOT flow_events.is_duplicate
+            {% if ignore_duplicates._parameter_value == 'exclude' %}
+                    --remove all duplicate events
+                    AND NOT flow_events.is_duplicate
+            {% else %}
+                    -- only de duplicate the 'Other' bucket
+                    AND (new_event_name != '* Other Event(s) *' OR NOT flow_events.is_duplicate)
+            {% endif %}
+
             {% if before_or_after._parameter_value == 'before' %}
               --PRECEDING EVENT ANALYSIS
-             AND flow_events.event_time < starting_events.start_event_time
-             AND (
-                flow_events.event_time > starting_events.boundary_event_time
-               OR starting_events.boundary_event_time IS NULL
-              )
+                    AND flow_events.event_time < starting_events.start_event_time
+                    AND (
+                      flow_events.event_time > starting_events.boundary_event_time
+                      OR starting_events.boundary_event_time IS NULL
+                    )
             {% else %}
             --SUBSEQUENT EVENT ANALYSIS
-             AND flow_events.event_time > starting_events.start_event_time
-             AND (
-                flow_events.event_time < starting_events.boundary_event_time
-               OR starting_events.boundary_event_time IS NULL
-              )
+                    AND flow_events.event_time > starting_events.start_event_time
+                    AND (
+                      flow_events.event_time < starting_events.boundary_event_time
+                      OR starting_events.boundary_event_time IS NULL
+                    )
             {% endif %}
           )
         WHERE event_sequence <= 5
