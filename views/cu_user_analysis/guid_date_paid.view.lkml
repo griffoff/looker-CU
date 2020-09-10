@@ -3,6 +3,8 @@ explore: guid_date_paid {}
 view: guid_date_paid {
   derived_table: {
     create_process: {
+      sql_step: drop table LOOKER_SCRATCH.guid_date_paid;;
+
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.guid_date_paid
         (

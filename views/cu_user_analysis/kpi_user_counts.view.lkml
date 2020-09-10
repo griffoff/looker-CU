@@ -55,7 +55,7 @@ view: kpi_user_counts {
       ;;
 
       sql_step:
-      DELETE FROM LOOKER_SCRATCH.kpi_user_counts WHERE date > dateadd(d,-4, current_date())
+      DELETE FROM LOOKER_SCRATCH.kpi_user_counts WHERE date > dateadd(d,-3, current_date())
       ;;
 
       sql_step:
@@ -327,7 +327,7 @@ view: kpi_user_counts {
               FROM ${guid_date_active.SQL_TABLE_NAME} g
               WHERE g.date < current_date() and g.date > $max_date
               ) c
-          WHERE k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
+          WHERE k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type AND k.platform = c.platform
         ;;
 
 #         insert
@@ -394,7 +394,7 @@ view: kpi_user_counts {
             AND g.date > $max_date
             AND k.ALL_ACTIVE_USER_GUID IS NULL
         ) c
-        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
+        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
           SET
             k.all_active_user_guid = c.user_sso_guid

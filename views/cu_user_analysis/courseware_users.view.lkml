@@ -18,7 +18,7 @@ view: courseware_users {
             , actv_dt AS activation_date
             , actv_dt AS course_start
             , DATEADD(W,16,actv_dt) AS course_end
-            , non_olr.platform
+            , coalesce(product.platform, non_olr.platform) as platform
             , case when actv_user_type = 'student' then 'Student' else 'Instructor' end as user_type
             , coalesce(try_cast(CU_FLG as boolean),false) as cu_flg
             , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
@@ -48,7 +48,7 @@ view: courseware_users {
           SELECT PRODUCT.PRINT_DIGITAL_CONFIG_CD as content_code
             , coalesce(su.LINKED_GUID, a.USER_GUID) AS merged_guid
             , a.actv_dt
-            , a.platform
+            , coalesce(product.platform, a.platform) as platform
             , a.context_id
             , case when actv_user_type = 'student' then 'Student' else 'Instructor' end as user_type
             , a.actv_trial_purchase
@@ -99,8 +99,7 @@ view: courseware_users {
             , u.context_id
             , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND hs.SUBSCRIPTION_ID is not null and coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flg
             , COURSE_START_DATE as csd
-            , LEAST(COALESCE(actv_dt, enrollment_date, course_start_date)
-            , COALESCE(enrollment_date, actv_dt, course_start_date))::date AS csm
+            , LEAST(COALESCE(actv_dt, enrollment_date, course_start_date), COALESCE(enrollment_date, actv_dt, course_start_date))::date AS csm
             , COURSE_END_DATE as ced
             , datediff(w,csd,ced) + 1 as cl
             , datediff(w,csm,ced) + 1 as clm

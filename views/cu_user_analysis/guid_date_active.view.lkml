@@ -2,6 +2,7 @@ explore: guid_date_active {}
 view: guid_date_active {
   derived_table: {
     create_process: {
+      sql_step: drop table LOOKER_SCRATCH.guid_date_active;;
 
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.guid_date_active
@@ -30,7 +31,16 @@ view: guid_date_active {
         )
 
         ,events AS (
-          SELECT DISTINCT e.user_sso_guid, e.event_time::DATE AS date, e.product_platform, COALESCE(e.event_data:course_key, e.event_data:courseKey) AS course_key
+          SELECT DISTINCT
+            e.user_sso_guid
+            , e.event_time::DATE AS date
+            , case
+              when e.product_platform ilike 'aplia%' then 'Aplia'
+              when e.product_platform in ('cnow','CNOWV7') then 'CNOW'
+              when e.product_platform in ('MINDTAP','mindtap','MT3','MT4') then 'MindTap'
+              when e.product_platform in ('WEBASSIGN','WA RESPONSES') then 'WebAssign'
+            end as product_platform
+            , COALESCE(e.event_data:course_key, e.event_data:courseKey) AS course_key
           FROM prod.cu_user_analysis.all_sessions s
           INNER JOIN prod.cu_user_analysis.all_events e USING(session_id)
           INNER JOIN dates d ON s.session_start::DATE = d.datevalue
@@ -39,7 +49,7 @@ view: guid_date_active {
         SELECT DISTINCT
         a.date
         , COALESCE(su.linked_guid,a.user_sso_guid) AS user_sso_guid
-        , COALESCE(p.platform, a.product_platform, 'Other') AS platform
+        , COALESCE(CASE WHEN u.context_id LIKE 'GWMTP%' THEN 'Middle Product' END, p.platform, a.product_platform, 'Other') AS platform
         , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
         , CASE WHEN e.mkt_seg_maj_cd = 'PSE' AND e.mkt_seg_min_cd in ('056','060') THEN 'Career'
                WHEN e.mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
@@ -48,10 +58,10 @@ view: guid_date_active {
         FROM events a
         LEFT JOIN prod.cu_user_analysis.user_courses u ON a.course_key = u.course_key AND a.user_sso_guid = u.user_sso_guid
         LEFT JOIN prod.datavault.hub_user hu ON a.user_sso_guid = hu.UID
-        INNER JOIN prod.datavault.SAT_USER_V2 su ON hu.hub_user_key = su.hub_user_key AND su._LATEST
-        INNER JOIN prod.datavault.link_user_institution lui ON hu.hub_user_key = lui.hub_user_key
-        INNER JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key and sui.active
-        INNER JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
+        LEFT JOIN prod.datavault.SAT_USER_V2 su ON hu.hub_user_key = su.hub_user_key AND su._LATEST
+        LEFT JOIN prod.datavault.link_user_institution lui ON hu.hub_user_key = lui.hub_user_key
+        LEFT JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key and sui.active
+        LEFT JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
         LEFT JOIN prod.STG_CLTS.ENTITIES e ON hi.institution_id = e.ENTITY_NO
         LEFT JOIN prod.stg_clts.products p ON u.isbn = p.isbn13
         LEFT JOIN prod.datavault.sat_user_internal ui on hu.hub_user_key = ui.hub_user_key and ui.active and ui.internal

@@ -21,6 +21,8 @@ view: kpi_user_counts_filter_combinations {
 
   derived_table: {
     create_process: {
+
+
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.kpi_user_counts_filter_combinations
         (
