@@ -9,7 +9,6 @@ view: courseware_users {
             , coalesce(wa_users.sso_guid, wa_email_guid) as wa_guid  --first take sso_guid listed in webassign users table, then take guid associated with email from Pete's match to IAM.user_mutation table
           from WebAssign.wa_app_v4net.users wa_users
           left join strategy.graded_analysis.wa_match wa_emails on wa_users.email = wa_emails.email --may want to update to a more official place - from Pete
-
         )
         , activations_non_olr AS (
           SELECT DISTINCT

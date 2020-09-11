@@ -29,7 +29,6 @@ view: kpi_user_counts {
         ,organization STRING
         ,platform STRING
         ,user_type STRING
-
         ,userbase_digital_user_guid STRING comment ''
         ,userbase_paid_user_guid STRING comment ''
         ,userbase_paid_courseware_guid STRING comment ''

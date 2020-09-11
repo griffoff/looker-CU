@@ -2,8 +2,6 @@ explore: guid_date_active {}
 view: guid_date_active {
   derived_table: {
     create_process: {
-      sql_step: drop table LOOKER_SCRATCH.guid_date_active;;
-
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.guid_date_active
         (
