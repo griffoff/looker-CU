@@ -29,9 +29,9 @@ view: user_courses_activations {
     WHERE datevalue between '2018-08-01' and current_date()
     )
     ,courses as (
-    Select user_sso_guid, course_key, activation_date, course_end_date
-    , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
-    from prod.cu_user_analysis.user_courses
+    Select user_sso_guid, course_key, activation_date, course_end_date, cu_flag
+    --, (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL') OR cui_flag = 'Y' as cu_flag
+    from ${user_courses.SQL_TABLE_NAME}
     )
 
     ,users as (
