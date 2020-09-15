@@ -1,4 +1,4 @@
-explore: above_the_course_usage_buckets {}
+explore: above_the_course_usage_buckets {hidden:yes}
 view: above_the_course_usage_buckets {
 
   derived_table: {
