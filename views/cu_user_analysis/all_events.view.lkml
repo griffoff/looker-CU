@@ -162,6 +162,12 @@ view: all_events_base {
     description: "Host platform from client activity events"
   }
 
+  dimension: product_platform_lower {
+    type: string
+    sql: LOWER(${product_platform});;
+    hidden: yes
+  }
+
   dimension: campaign_msg_id{
     type: string
     sql: CASE WHEN ${event_name} ilike 'IPM%'
