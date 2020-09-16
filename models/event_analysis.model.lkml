@@ -9,8 +9,9 @@ explore: conversion_analysis {
       initial_events_filter: ""
       , conversion_events_filter: ""
       , initial_date_range_filter: "after 30 days ago"
-      , time_period: ""
-      , number_period: ""
+      , time_period: "1"
+      , number_period: "5"
+      , show_total: "show"
       ]
     }
 }

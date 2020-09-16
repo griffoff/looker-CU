@@ -1,7 +1,8 @@
 view: conversion_analysis {
 
+  view_label: "** USER EVENT CONVERSION **"
+
   filter: initial_events_filter {
-    view_label: "** USER EVENT CONVERSION **"
     label: "Choose 1st (initial) event"
     description: "Select the starting event(s) that you want to analyze conversion for"
     type: string
@@ -11,7 +12,6 @@ view: conversion_analysis {
   }
 
   filter: conversion_events_filter {
-    view_label: "** USER EVENT CONVERSION **"
     label: "Choose 2nd (conversion) event"
     description: "Select the conversion event(s) that you want to analyze following the initial event"
     type: string
@@ -21,7 +21,6 @@ view: conversion_analysis {
   }
 
   filter: initial_date_range_filter {
-    view_label: "** USER EVENT CONVERSION **"
     label: "Choose initial event date range"
     description: "Select a date range for the initial event to occur within"
     type: date
@@ -29,41 +28,53 @@ view: conversion_analysis {
   }
 
   parameter: time_period {
-    view_label: "** USER EVENT CONVERSION **"
     label: "Conversion period"
      description: "Analyze conversion occuring in this time period. Leave blank for all conversions up to current date."
-    type: unquoted
+    type: number
     allowed_value: {
       label: "Minute(s)"
-      value: "minute"
+      value: "0.01"
     }
     allowed_value: {
       label: "Hour(s)"
-      value: "hour"
+      value: "0.1"
     }
     allowed_value: {
       label: "Day(s)"
-      value: "day"
+      value: "1"
     }
     allowed_value: {
       label: "Week(s)"
-      value: "week"
+      value: "7"
     }
     allowed_value: {
       label: "Month(s)"
-      value: "month"
+      value: "30"
     }
     allowed_value: {
       label: "Year(s)"
-      value: "year"
+      value: "365"
     }
   }
 
   parameter: number_period {
-    view_label: "** USER EVENT CONVERSION **"
     label: "Number of periods after initial event to look for conversions"
      description: "Leave blank for all periods up to current date."
     type: number
+  }
+
+  parameter: show_total {
+    label: "Show a 'Total' period"
+    type: string
+    default_value: "hide"
+    allowed_value: {
+      label: "Show total period"
+      value: "show"
+    }
+    allowed_value: {
+      label: "Only show conversion periods"
+      value: "hide"
+    }
   }
 
 
@@ -96,20 +107,50 @@ view: conversion_analysis {
 
         , coalesce(
             greatest(1
-              , datediff({{ time_period._parameter_value }},initial_time_min, conversion_time_min)
+              , datediff(
+                {% if time_period._parameter_value == '0.01' %}
+                  minute
+                {% elsif time_period._parameter_value == '0.1' %}
+                  hour
+                {% elsif time_period._parameter_value == '1' %}
+                  day
+                {% elsif time_period._parameter_value == '7' %}
+                  week
+                {% elsif time_period._parameter_value == '30' %}
+                  month
+                {% elsif time_period._parameter_value == '365' %}
+                  year
+                {% endif %}
+                ,initial_time_min, conversion_time_min)
               )
             ,1) as period_number
 
-        , concat(InitCap('{{ time_period._parameter_value }}'),' ',period_number) as conversion_period
+        , concat(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
+                  ,' ',period_number) as conversion_period
       from initial i
       inner join ${all_events.SQL_TABLE_NAME} e
 
       on i.user_sso_guid = e.user_sso_guid
           and e.event_time > i.initial_time_min
-          and e.event_time <= dateadd({{ time_period._parameter_value }},{{ number_period._parameter_value }}, initial_time_min)
+          and e.event_time <= dateadd(
+          {% if time_period._parameter_value == '0.01' %}
+            minute
+          {% elsif time_period._parameter_value == '0.1' %}
+            hour
+          {% elsif time_period._parameter_value == '1' %}
+            day
+          {% elsif time_period._parameter_value == '7' %}
+            week
+          {% elsif time_period._parameter_value == '30' %}
+            month
+          {% elsif time_period._parameter_value == '365' %}
+            year
+          {% endif %}
+          ,{{ number_period._parameter_value }}, initial_time_min)
 
-          AND {% condition conversion_events_filter %} event_name {% endcondition %}
+      where {% condition conversion_events_filter %} event_name {% endcondition %}
       group by 1,2,3,4,5
+      {% if show_total._parameter_value == 'show' %}
       union all
       select
         i.user_sso_guid
@@ -125,6 +166,7 @@ view: conversion_analysis {
 
         , 'Total Users' as conversion_period
       from initial i
+      {% endif %}
 
       ;;
   }
