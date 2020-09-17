@@ -14,6 +14,7 @@ include: "/views/shared/*.view"
 
 explore: user_courses {
   extension: required
+  hidden: no
 
   join: guid_latest_course_activity {
     view_label: "Course / Section Details by User"
@@ -32,6 +33,7 @@ explore: user_courses {
 
 explore: all_events {
   extension: required
+  hidden: no
   label: "all events prod"
 
   join: event_groups {
@@ -43,6 +45,7 @@ explore: all_events {
 
 explore: all_sessions {
   extension: required
+  hidden:  no
   extends: [all_events, dim_course]
   always_filter: {
     filters: [all_sessions.session_start_date: "Last 7 days"]
@@ -98,8 +101,8 @@ explore: all_sessions {
 }
 
 explore: live_subscription_status {
+  label: "Live Subscription Status"
   extends: [dim_course, user_courses]
-  #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
   view_label: "Learner Profile"
@@ -175,6 +178,7 @@ explore: live_subscription_status {
 
 explore: learner_profile_cohorts {
   extension: required
+  hidden: no
   from: learner_profile
   view_name: learner_profile
 
@@ -409,7 +413,6 @@ explore: learner_profile {
   from: learner_profile
   label: "Learner Profile"
 
-#   extension: required
   join: merged_cu_user_info {
     view_label: "Learner Profile"
     sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
