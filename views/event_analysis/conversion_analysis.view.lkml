@@ -65,7 +65,7 @@ view: conversion_analysis {
 
   parameter: show_total {
     label: "Show a 'Total' period"
-    type: string
+    type: unquoted
     default_value: "hide"
     allowed_value: {
       label: "Show total period"
@@ -150,6 +150,7 @@ view: conversion_analysis {
 
       where {% condition conversion_events_filter %} event_name {% endcondition %}
       group by 1,2,3,4,5
+      --{{ show_total._parameter_value }}
       {% if show_total._parameter_value == 'show' %}
       union all
       select
