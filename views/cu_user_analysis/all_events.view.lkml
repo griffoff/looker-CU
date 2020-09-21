@@ -72,10 +72,21 @@ view: all_events_base {
     sql: COALESCE(
             ${event_data}:courseKey
             ,${event_data}:course_key
-            ,REGEXP_SUBSTR(${event_data}:courseUri, '.*course-key:(.+)$', 1, 1, 'e')
+            ,${event_data}:"course key"
+            ,${event_data}:courseId
+            ,REGEXP_SUBSTR(${event_data}:"courseUri", '.*course-key:(.+)$', 1, 1, 'e')
+            ,REGEXP_SUBSTR(${event_data}:"courseUri", '.*prod:course:(.+)$', 1, 1, 'e')
+            ,REGEXP_SUBSTR(${event_data}:"course uri", '.*course-key:(.+)$', 1, 1, 'e')
+            ,${event_data}:contextId
           )::STRING  ;;
     label: "Course key"
     description: "Event data"
+  }
+
+  dimension: has_event_course_key {
+    type: yesno
+    sql: ${event_data_course_key} is not null ;;
+    hidden: yes
   }
 
   dimension: event_data_reader_type {
@@ -380,7 +391,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:courseKey::string ;;
     description: "Event data"
-    hidden: no
+    hidden: yes
   }
 
 
@@ -915,6 +926,8 @@ view: all_events_base {
     sql: ${TABLE}."LOAD_METADATA":source::string ;;
   }
 
+
+
   dimension_group: local_est {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
@@ -940,6 +953,13 @@ view: all_events_base {
     description: "Which page did the student come from to get here?"
     sql: ${event_data}:"referral path"::STRING ;;
   }
+
+  dimension: subscription_start {
+    sql: ${event_data}:"subscription_start" ;;
+    type: date
+    hidden: yes
+  }
+
 
 
 

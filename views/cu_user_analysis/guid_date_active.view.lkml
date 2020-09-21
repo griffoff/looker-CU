@@ -33,10 +33,12 @@ view: guid_date_active {
             e.user_sso_guid
             , e.event_time::DATE AS date
             , case
+              when e.event_data:host_platform = 'lite' then 'Middle Product'
               when e.product_platform ilike 'aplia%' then 'Aplia'
               when e.product_platform in ('cnow','CNOWV7') then 'CNOW'
               when e.product_platform in ('MINDTAP','mindtap','MT3','MT4') then 'MindTap'
               when e.product_platform in ('WEBASSIGN','WA RESPONSES') then 'WebAssign'
+              else e.product_platform
             end as product_platform
             , COALESCE(e.event_data:course_key, e.event_data:courseKey) AS course_key
           FROM prod.cu_user_analysis.all_sessions s
