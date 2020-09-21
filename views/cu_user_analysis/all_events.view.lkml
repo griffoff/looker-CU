@@ -173,6 +173,12 @@ view: all_events_base {
     description: "Host platform from client activity events"
   }
 
+  dimension: product_platform_lower {
+    type: string
+    sql: LOWER(${product_platform});;
+    hidden: yes
+  }
+
   dimension: campaign_msg_id{
     type: string
     sql: CASE WHEN ${event_name} ilike 'IPM%'
@@ -1170,7 +1176,7 @@ view: all_events_base {
   }
 
   measure: event_duration_total {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Total Time Active"
     type: sum
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
@@ -1178,26 +1184,162 @@ view: all_events_base {
   }
 
   measure: event_duration_average {
-    group_label: "Time spent"
-    label: "Average Time Per Event"
+    group_label: "Active Time"
+    label: "Event Duration (Avg)"
     type: average
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m]:ss \m\i\n\s"
   }
 
+  measure: event_duration_min {
+    group_label: "Active Time"
+    label: "Event Duration (Min)"
+    type: min
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p05 {
+    group_label: "Active Time"
+    label: "Event Duration ( 5th Percentile)"
+    type: percentile
+    percentile: 5
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p25 {
+    group_label: "Active Time"
+    label: "Event Duration (25th Percentile)"
+    type: percentile
+    percentile: 25
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p50 {
+    group_label: "Active Time"
+    label: "Event Duration (50th Percentile)"
+    type: percentile
+    percentile: 50
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p75 {
+    group_label: "Active Time"
+    label: "Event Duration (75th Percentile)"
+    type: percentile
+    percentile: 75
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p95 {
+    group_label: "Active Time"
+    label: "Event Duration (95th Percentile)"
+    type: percentile
+    percentile: 95
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_max {
+    group_label: "Active Time"
+    label: "Event Duration (Max)"
+    type: max
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
 
   measure: event_duration_time_to_next_event {
-    group_label: "Time spent"
-    label: "Total Time Active (time_to_next_event)"
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Sum)"
     type: sum
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
-    hidden: yes
+  }
+
+  measure: event_duration_time_to_next_event_mean {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Avg)"
+    type: average
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_min {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Min)"
+    type: min
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p05 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event ( 5th Percentile)"
+    type: percentile
+    percentile: 5
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p25 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (25th Percentile)"
+    type: percentile
+    percentile: 25
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p50 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (50th Percentile)"
+    type: percentile
+    percentile: 50
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p75 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (75th Percentile)"
+    type: percentile
+    percentile: 75
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p95 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (95th Percentile)"
+    type: percentile
+    percentile: 95
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_max {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Max)"
+    type: max
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: average_time_to_next_event_spent_per_student {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time to next event per student"
     description: "Slice this metric by different dimensions"
     type: number
@@ -1206,7 +1348,7 @@ view: all_events_base {
   }
 
   measure: average_time_spent_per_student {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student"
     description: "Slice this metric by different dimensions"
     type: number
@@ -1215,7 +1357,7 @@ view: all_events_base {
   }
 
   measure: average_time_spent_per_student_per_week {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student per week"
     type: number
     sql: ${event_duration_total} / ${user_week_count};;
@@ -1231,7 +1373,7 @@ view: all_events_base {
   }
 
   measure: average_time_spent_per_student_per_month {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student per month"
     type: number
     sql: ${event_duration_total} / ${user_month_count} ;;
@@ -1239,7 +1381,7 @@ view: all_events_base {
   }
 
   measure: event_duration_per_day {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student per day"
     type: number
     sql: ${event_duration_total} / ${user_day_count} ;;
