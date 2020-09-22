@@ -41,6 +41,10 @@ explore: all_events {
     sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
     relationship: many_to_one
   }
+
+  join: all_events_tags {
+    sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
+  }
 }
 
 explore: all_sessions {

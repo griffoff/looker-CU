@@ -1,6 +1,12 @@
 include: "//core/common.lkml"
 include: "all_sessions.view.lkml"
 
+view: all_events_tags {
+  view_label: "Events"
+  dimension: key {group_label: "Event Tags"}
+  dimension: value {group_label: "Event Tags"}
+}
+
 view: all_events {
   extends: [all_events_base]
 
