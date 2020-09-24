@@ -16,6 +16,8 @@ include: "/views/kpi_dashboards/*.view.lkml"
 include: "/views/uploads/covid19_trial_shutoff_schedule.view"
 include: "/views/uploads/ehp_tweets.view"
 include: "/views/uploads/parsed_ehp_tweets.view"
+include: "/views/uploads/ehp_cases.view"
+include: "/views/uploads/parsed_ehp_cases.view"
 
 include: "/models/shared_explores.lkml"
 
@@ -459,10 +461,19 @@ explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
 # **************************************** EHP Data *************************************
 
 explore: ehp_tweets {
-  label: "EHP"
+  label: "EHP Tweets"
   from: ehp_tweets
   join: parsed_ehp_tweets {
     sql_on: ${ehp_tweets._row} = ${parsed_ehp_tweets._row} ;;
+    relationship: one_to_many
+  }
+}
+
+explore: ehp_cases {
+  label: "EHP Cases"
+  from: ehp_cases
+  join: parsed_ehp_cases {
+    sql_on: ${ehp_cases._row} = ${parsed_ehp_cases._row} ;;
     relationship: one_to_many
   }
 }
