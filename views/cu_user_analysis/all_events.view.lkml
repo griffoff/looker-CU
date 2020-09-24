@@ -1,5 +1,50 @@
 include: "//core/common.lkml"
 include: "all_sessions.view.lkml"
+named_value_format: minutes {
+  value_format: "[m]:ss \m\i\n\s"
+}
+
+view: all_events_user_day {
+  sql_table_name: prod.cu_user_analysis.all_events_user_day ;;
+
+  dimension: user_sso_guid {primary_key:yes hidden:yes}
+  dimension: activve_time_per_day  {hidden:yes}
+  measure: active_time_per_day_p05 {
+    type: percentile
+    percentile: 5
+    sql: ${activve_time_per_day} ;;
+    value_format_name: minutes
+  }
+
+  measure: active_time_per_day_p25 {
+    type: percentile
+    percentile: 25
+    sql: ${activve_time_per_day} ;;
+    value_format_name: minutes
+  }
+
+  measure: active_time_per_day_p50 {
+    type: percentile
+    percentile: 50
+    sql: ${activve_time_per_day} ;;
+    value_format_name: minutes
+  }
+
+  measure: active_time_per_day_p75 {
+    type: percentile
+    percentile: 75
+    sql: ${activve_time_per_day} ;;
+    value_format_name: minutes
+  }
+
+  measure: active_time_per_day_p95 {
+    type: percentile
+    percentile: 95
+    sql: ${activve_time_per_day} ;;
+    value_format_name: minutes
+  }
+
+}
 
 view: all_events_tags {
   view_label: "Events"
@@ -13,7 +58,7 @@ view: all_events {
   dimension_group: time_since_session_start {
     label: "Time between start of session and event"
     type: duration
-    intervals: [second, minute, hour, day, week]
+    intervals: [hour, day, week, month]
     sql_start: ${all_sessions.session_start_raw} ;;
     sql_end: ${event_date_raw} ;;
 
@@ -22,7 +67,7 @@ view: all_events {
   dimension_group: time_since_enrollment {
     label: "Time between enrollment and event"
     type: duration
-    intervals: [second, minute, hour, day, week]
+    intervals: [hour, day, week, month]
     sql_start: ${user_courses.enrollment_raw} ;;
     sql_end: ${event_date_raw} ;;
 
@@ -31,7 +76,7 @@ view: all_events {
   dimension_group: time_since_course_start {
     label: "Time between course start and event"
     type: duration
-    intervals: [second, minute, hour, day, week]
+    intervals: [hour, day, week, month]
     sql_start: ${user_courses.course_start_raw} ;;
     sql_end: ${event_date_raw} ;;
 
@@ -1382,7 +1427,7 @@ view: all_events_base {
     group_label: "Active Time"
     label: "Average time spent per student per week"
     type: number
-    sql: ${event_duration_total} / ${user_week_count};;
+    sql: ${event_duration_total} / NULLIF(${user_week_count}, 0);;
     value_format: "[m]:ss \m\i\n\s"
 
     description:
