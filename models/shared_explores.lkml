@@ -3,6 +3,7 @@ include: "//cube/dim_course.view"
 
 include: "/views/cu_user_analysis/*.view"
 include: "/views/cu_user_analysis/cohorts/*.view"
+include: "/views/event_analysis/*.view"
 include: "/views/discounts/*.view"
 include: "/views/strategy/*.view"
 include: "/views/uploads/*.view"
@@ -13,6 +14,7 @@ include: "/views/shared/*.view"
 
 explore: user_courses {
   extension: required
+  hidden: no
 
   join: guid_latest_course_activity {
     view_label: "Course / Section Details by User"
@@ -31,6 +33,7 @@ explore: user_courses {
 
 explore: all_events {
   extension: required
+  hidden: no
   label: "all events prod"
 
   join: event_groups {
@@ -38,11 +41,19 @@ explore: all_events {
     sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
     relationship: many_to_one
   }
+
+  join: all_events_tags {
+    sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
+  }
 }
 
 explore: all_sessions {
   extension: required
+  hidden:  no
   extends: [all_events, dim_course]
+  always_filter: {
+    filters: [all_sessions.session_start_date: "Last 7 days"]
+  }
 
   join: all_events {
 #        from:  all_events_dev
@@ -59,9 +70,9 @@ explore: all_sessions {
     type: inner
   }
 
+
   join: dim_course {
-     sql_on: COALESCE(${all_sessions.course_keys}[0], ${all_events.event_data_course_key}) = ${dim_course.coursekey} ;;
-    #sql_on:  ${all_events.event_data_course_key} = ${dim_course.coursekey} ;;
+    sql_on: COALESCE(${all_sessions.course_keys}[0], ${all_events.event_data_course_key}) = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
@@ -94,8 +105,8 @@ explore: all_sessions {
 }
 
 explore: live_subscription_status {
+  label: "Live Subscription Status"
   extends: [dim_course, user_courses]
-  #extension: required
   from: live_subscription_status
   view_name: live_subscription_status
   view_label: "Learner Profile"
@@ -171,8 +182,11 @@ explore: live_subscription_status {
 
 explore: learner_profile_cohorts {
   extension: required
+  hidden: no
   from: learner_profile
   view_name: learner_profile
+
+  always_filter: {filters:[merged_cu_user_info.real_user_flag: "Yes"]}
 
   join: cohorts_platforms_used {
     view_label: "Learner Profile"
@@ -402,7 +416,7 @@ explore: learner_profile {
   view_name: learner_profile
   from: learner_profile
   label: "Learner Profile"
-#   extension: required
+
   join: merged_cu_user_info {
     view_label: "Learner Profile"
     sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
@@ -538,15 +552,15 @@ explore: session_analysis {
 }
 
 
-explore: cohort_analysis {
-  extends: [learner_profile]
-  from: cohort_selection
-  view_name: cohort_selection
-
-  always_filter: {filters:[cohort_events_filter: "", flow_events_filter: "-UNLOAD UNLOAD", cohort_date_range_filter: "after 21 days ago", time_period: "30", ignore_duplicates: "exclude", before_or_after: "before"]}
-
-  join: learner_profile {
-    sql_on: ${cohort_selection.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+explore: ebook_sessions {
+  join: ebook_sessions_weekly {
+    sql_on: ${ebook_sessions.merged_guid} = ${ebook_sessions_weekly.merged_guid}
+      and ${ebook_sessions.session_start_time_week} = ${ebook_sessions_weekly.session_start_time_week} ;;
+    type: inner
+    relationship: many_to_one
+  }
+  join: cu_user_info {
+    sql_on: ${ebook_sessions.merged_guid} = ${cu_user_info.merged_guid} ;;
     relationship: many_to_one
   }
 }

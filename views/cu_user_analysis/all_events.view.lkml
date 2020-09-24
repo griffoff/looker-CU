@@ -1,6 +1,12 @@
 include: "//core/common.lkml"
 include: "all_sessions.view.lkml"
 
+view: all_events_tags {
+  view_label: "Events"
+  dimension: key {group_label: "Event Tags"}
+  dimension: value {group_label: "Event Tags"}
+}
+
 view: all_events {
   extends: [all_events_base]
 
@@ -17,7 +23,16 @@ view: all_events {
     label: "Time between enrollment and event"
     type: duration
     intervals: [second, minute, hour, day, week]
-    sql_start: ${user_courses.enrollment_date} ;;
+    sql_start: ${user_courses.enrollment_raw} ;;
+    sql_end: ${event_date_raw} ;;
+
+  }
+
+  dimension_group: time_since_course_start {
+    label: "Time between course start and event"
+    type: duration
+    intervals: [second, minute, hour, day, week]
+    sql_start: ${user_courses.course_start_raw} ;;
     sql_end: ${event_date_raw} ;;
 
   }
@@ -69,9 +84,24 @@ view: all_events_base {
   dimension: event_data_course_key {
     group_label: "CAFE Tags"
     type: string
-    sql: COALESCE(${TABLE}."EVENT_DATA":courseKey,${TABLE}."EVENT_DATA":course_key)::STRING  ;;
+    sql: COALESCE(
+            ${event_data}:courseKey
+            ,${event_data}:course_key
+            ,${event_data}:"course key"
+            ,${event_data}:courseId
+            ,REGEXP_SUBSTR(${event_data}:"courseUri", '.*course-key:(.+)$', 1, 1, 'e')
+            ,REGEXP_SUBSTR(${event_data}:"courseUri", '.*prod:course:(.+)$', 1, 1, 'e')
+            ,REGEXP_SUBSTR(${event_data}:"course uri", '.*course-key:(.+)$', 1, 1, 'e')
+            ,${event_data}:contextId
+          )::STRING  ;;
     label: "Course key"
     description: "Event data"
+  }
+
+  dimension: has_event_course_key {
+    type: yesno
+    sql: ${event_data_course_key} is not null ;;
+    hidden: yes
   }
 
   dimension: event_data_reader_type {
@@ -156,6 +186,12 @@ view: all_events_base {
     sql: TRIM(${event_data}:host_platform) ;;
     label: "Host platform (CAFe)"
     description: "Host platform from client activity events"
+  }
+
+  dimension: product_platform_lower {
+    type: string
+    sql: LOWER(${product_platform});;
+    hidden: yes
   }
 
   dimension: campaign_msg_id{
@@ -376,7 +412,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:courseKey::string ;;
     description: "Event data"
-    hidden: no
+    hidden: yes
   }
 
 
@@ -573,8 +609,8 @@ view: all_events_base {
   dimension: tags_cla_page_number {
     group_label: "CAFE Tags"
     label: "CLA Page Number"
-    type: string
-    sql: ${event_data}:claPageNumber::string ;;
+    type: number
+    sql: ${event_data}:claPageNumber::number ;;
     description: "Event data - Compound Learning Activity"
     hidden: no
   }
@@ -582,8 +618,8 @@ view: all_events_base {
   dimension: tags_number_of_pages {
     group_label: "CAFE Tags"
     label: "Number of Pages"
-    type: string
-    sql: ${event_data}:numberOfPages::string ;;
+    type: number
+    sql: ${event_data}:numberOfPages::number ;;
     description: "Event data"
     hidden: no
   }
@@ -625,6 +661,123 @@ view: all_events_base {
     hidden: no
   }
 
+  dimension: tags_activityType {
+    group_label: "CAFE Tags"
+    label: "Activity Type"
+    type: string
+    sql: ${event_data}:activityType::string  ;;
+    description: "activityType (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_activityLaunchSource {
+    group_label: "CAFE Tags"
+    label: "Activity Launch Source"
+    type: string
+    sql: ${event_data}:activityLaunchSource::string  ;;
+    description: "activityLaunchSourcee (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_grade {
+    group_label: "CAFE Tags"
+    label: "Grade"
+    type: string
+    sql: ${event_data}:grade::string ;;
+    description: "grade (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_searchTerm {
+    group_label: "CAFE Tags"
+    label: "Search Term"
+    type: string
+    sql: ${event_data}:searchTerm::string  ;;
+    description: "searchTerm (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_resultsCount {
+    group_label: "CAFE Tags"
+    label: "Results Count"
+    type: number
+    sql: ${event_data}:resultsCount::number  ;;
+    description: "resultsCount (Event data tags)"
+    hidden: no
+  }
+
+
+  dimension: tags_reportType {
+    group_label: "CAFE Tags"
+    label: "Report Type"
+    type: string
+    sql: ${event_data}:reportType::string  ;;
+    description: "reportType (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_cloneStatus {
+    group_label: "CAFE Tags"
+    label: "Clone Status"
+    type: string
+    sql: ${event_data}:cloneStatus::string  ;;
+    description: "cloneStatus (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_assignmentStart {
+    group_label: "CAFE Tags"
+    label: "Assignment Start"
+    type: date_time
+    sql: ${event_data}:assignmentStart::datetime  ;;
+    description: "assignmentStart (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_assignmentDue {
+    group_label: "CAFE Tags"
+    label: "Assignment Due"
+    type: date_time
+    sql: ${event_data}:assignmentDue::datetime  ;;
+    description: "assignmentDue (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_numberAttempts {
+    group_label: "CAFE Tags"
+    label: "Number Attempts"
+    type: number
+    sql: ${event_data}:numberAttempts::number  ;;
+    description: "numberAttempts (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_gradebookCategory {
+    group_label: "CAFE Tags"
+    label: "Gradebook Category"
+    type: string
+    sql: ${event_data}:gradebookCategory::string  ;;
+    description: "gradebookCategory (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_studentCount {
+    group_label: "CAFE Tags"
+    label: "Student Count"
+    type: number
+    sql: ${event_data}:studentCount::number  ;;
+    description: "studentCount (Event data tags)"
+    hidden: no
+  }
+
+  dimension: tags_itemID {
+    group_label: "CAFE Tags"
+    label: "Item ID"
+    type: string
+    sql: ${event_data}:itemID::string  ;;
+    description: "itemID (Event data tags)"
+    hidden: no
+  }
 
 
 
@@ -699,6 +852,13 @@ view: all_events_base {
     "
     hidden: no
 
+  }
+
+  dimension: event_name_new {
+    group_label: "Event Classification"
+    type: string
+    sql: prod.cu_user_analysis.event_name(${event_action}, ${event_type}) ;;
+    hidden: yes
   }
 
   dimension: event_name {
@@ -794,6 +954,8 @@ view: all_events_base {
     sql: ${TABLE}."LOAD_METADATA":source::string ;;
   }
 
+
+
   dimension_group: local_est {
     type: time
     timeframes: [raw, time,  date, week, month, quarter, year, day_of_week, hour_of_day, hour]
@@ -819,6 +981,13 @@ view: all_events_base {
     description: "Which page did the student come from to get here?"
     sql: ${event_data}:"referral path"::STRING ;;
   }
+
+  dimension: subscription_start {
+    sql: ${event_data}:"subscription_start" ;;
+    type: date
+    hidden: yes
+  }
+
 
 
 
@@ -1029,56 +1198,192 @@ view: all_events_base {
   }
 
   measure: event_duration_total {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Total Time Active"
     type: sum
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: event_duration_average {
-    group_label: "Time spent"
-    label: "Average Time Per Event"
+    group_label: "Active Time"
+    label: "Event Duration (Avg)"
     type: average
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
-    value_format: "[m] \m\i\n\s s \s\e\c\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
+  measure: event_duration_min {
+    group_label: "Active Time"
+    label: "Event Duration (Min)"
+    type: min
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p05 {
+    group_label: "Active Time"
+    label: "Event Duration ( 5th Percentile)"
+    type: percentile
+    percentile: 5
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p25 {
+    group_label: "Active Time"
+    label: "Event Duration (25th Percentile)"
+    type: percentile
+    percentile: 25
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p50 {
+    group_label: "Active Time"
+    label: "Event Duration (50th Percentile)"
+    type: percentile
+    percentile: 50
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p75 {
+    group_label: "Active Time"
+    label: "Event Duration (75th Percentile)"
+    type: percentile
+    percentile: 75
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_p95 {
+    group_label: "Active Time"
+    label: "Event Duration (95th Percentile)"
+    type: percentile
+    percentile: 95
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_max {
+    group_label: "Active Time"
+    label: "Event Duration (Max)"
+    type: max
+    sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
+    value_format: "[m]:ss \m\i\n\s"
+  }
 
   measure: event_duration_time_to_next_event {
-    group_label: "Time spent"
-    label: "Total Time Active (time_to_next_event)"
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Sum)"
     type: sum
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
-    value_format: "[m] \m\i\n\s"
-    hidden: yes
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_mean {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Avg)"
+    type: average
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_min {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Min)"
+    type: min
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p05 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event ( 5th Percentile)"
+    type: percentile
+    percentile: 5
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p25 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (25th Percentile)"
+    type: percentile
+    percentile: 25
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p50 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (50th Percentile)"
+    type: percentile
+    percentile: 50
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p75 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (75th Percentile)"
+    type: percentile
+    percentile: 75
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_p95 {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (95th Percentile)"
+    type: percentile
+    percentile: 95
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
+  }
+
+  measure: event_duration_time_to_next_event_max {
+    group_label: "Time To Next Event"
+    label: "Time to Next Event (Max)"
+    type: max
+    sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
+    # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: average_time_to_next_event_spent_per_student {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time to next event per student"
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_time_to_next_event} / NULLIF(${user_count}, 0)  ;;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: average_time_spent_per_student {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student"
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_total} / NULLIF(${user_count}, 0)  ;;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: average_time_spent_per_student_per_week {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student per week"
     type: number
     sql: ${event_duration_total} / ${user_week_count};;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
 
     description:
     "DEFINITION: The average amount of time a student is active per week.
@@ -1090,7 +1395,7 @@ view: all_events_base {
   }
 
   measure: average_time_spent_per_student_per_month {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student per month"
     type: number
     sql: ${event_duration_total} / ${user_month_count} ;;
@@ -1098,7 +1403,7 @@ view: all_events_base {
   }
 
   measure: event_duration_per_day {
-    group_label: "Time spent"
+    group_label: "Active Time"
     label: "Average time spent per student per day"
     type: number
     sql: ${event_duration_total} / ${user_day_count} ;;

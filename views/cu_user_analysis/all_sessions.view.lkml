@@ -252,6 +252,12 @@ view: all_sessions {
     hidden: yes
   }
 
+  measure: user_month_count {
+    type: count_distinct
+    sql: HASH(${user_sso_guid}, ${session_start_month}) ;;
+    hidden: yes
+  }
+
   measure: sessions_per_user_per_week {
     group_label: "Time in product"
     label: "Average sessions per user per week"
@@ -295,6 +301,15 @@ view: all_sessions {
     label: "Average time in product per user per day"
     type: number
     sql: ${session_length_total} / ${user_day_count}  ;;
+    value_format: "[m] \m\i\n\s"
+  }
+
+  measure: session_length_average_per_student_per_month {
+    group_label: "Time in product"
+    description: "Average total session time per user per active month in minutes"
+    label: "Average time in product per user per month"
+    type: number
+    sql: ${session_length_total} / ${user_month_count}  ;;
     value_format: "[m] \m\i\n\s"
   }
 

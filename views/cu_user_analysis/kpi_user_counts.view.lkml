@@ -18,6 +18,8 @@ view: kpi_user_counts {
 
   derived_table: {
     create_process: {
+      sql_step: use warehouse heavyduty ;;
+
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.kpi_user_counts
         (
@@ -27,7 +29,6 @@ view: kpi_user_counts {
         ,organization STRING
         ,platform STRING
         ,user_type STRING
-
         ,userbase_digital_user_guid STRING comment ''
         ,userbase_paid_user_guid STRING comment ''
         ,userbase_paid_courseware_guid STRING comment ''
@@ -36,7 +37,6 @@ view: kpi_user_counts {
         ,userbase_trial_access_cu_only_guid STRING comment ''
         ,userbase_full_access_cu_etextbook_only_guid STRING comment ''
         ,userbase_trial_access_cu_etextbook_only_guid STRING comment ''
-
         ,all_instructors_active_course_guid STRING comment ''
         ,all_courseware_guid STRING comment ''
         ,all_ebook_guid STRING comment ''
@@ -53,19 +53,22 @@ view: kpi_user_counts {
         )
       ;;
 
-
-
       sql_step:
       DELETE FROM LOOKER_SCRATCH.kpi_user_counts WHERE date > dateadd(d,-3, current_date())
+      ;;
+
+      sql_step:
+      SET max_date = (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts)
       ;;
 
 # guid date course
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
         (
-        SELECT DISTINCT date, user_sso_guid, region, organization, platform, user_type
+        SELECT date, user_sso_guid, region, organization, platform, user_type, max(paid_flag) as paid_flag
         FROM ${guid_date_course.SQL_TABLE_NAME} WHERE expired_access_flag = FALSE
-        AND date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts)
+        AND date < current_date() and date > $max_date
+        GROUP BY date, user_sso_guid, region, organization, platform, user_type
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform AND k.user_type = c.user_type
         WHEN MATCHED THEN UPDATE
@@ -73,6 +76,8 @@ view: kpi_user_counts {
             k.userbase_digital_user_guid = CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
             ,k.all_instructors_active_course_guid = CASE WHEN c.user_type = 'Instructor' THEN c.user_sso_guid END
             ,k.all_courseware_guid = CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
+            ,k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+            ,k.userbase_paid_courseware_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -84,6 +89,8 @@ view: kpi_user_counts {
           ,all_instructors_active_course_guid
           ,userbase_digital_user_guid
           ,all_courseware_guid
+          ,userbase_paid_user_guid
+          ,userbase_paid_courseware_guid
         )
         VALUES
         (
@@ -96,8 +103,15 @@ view: kpi_user_counts {
           ,CASE WHEN c.user_type = 'Instructor' THEN c.user_sso_guid END
           ,CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
           ,CASE WHEN c.user_type = 'Student' THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         )
         ;;
+
+#         sql_step:
+#         CREATE OR REPLACE TABLE prod.looker_scratch.kpi_test_1
+#         CLONE LOOKER_SCRATCH.kpi_user_counts
+#         ;;
 
 #   guid date ebook
         sql_step:
@@ -105,7 +119,7 @@ view: kpi_user_counts {
         (
         SELECT date, user_sso_guid, region, organization, platform, MAX(paid_flag) AS paid_flag
         FROM ${guid_date_ebook.SQL_TABLE_NAME}
-        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_ebook_guid IS NOT NULL)
+        WHERE date < current_date() and date > $max_date
         GROUP BY date, user_sso_guid, region, organization, platform
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
@@ -113,7 +127,8 @@ view: kpi_user_counts {
         SET
           k.userbase_digital_user_guid = c.user_sso_guid
           ,k.all_ebook_guid = c.user_sso_guid
-          ,k.all_paid_ebook_guid = CASE WHEN c.paid_flag IS NOT NULL THEN c.user_sso_guid END
+          ,k.all_paid_ebook_guid = COALESCE(CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END, k.all_paid_ebook_guid)
+          ,k.userbase_paid_user_guid = COALESCE(CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END, k.userbase_paid_user_guid)
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -125,6 +140,7 @@ view: kpi_user_counts {
           ,userbase_digital_user_guid
           ,all_ebook_guid
           ,all_paid_ebook_guid
+          ,userbase_paid_user_guid
         )
         VALUES
         (
@@ -136,36 +152,126 @@ view: kpi_user_counts {
           ,'Student'
           ,c.user_sso_guid
           ,c.user_sso_guid
-          ,CASE WHEN c.paid_flag IS NOT NULL THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
         )
         ;;
+
+#       sql_step:
+#       CREATE OR REPLACE TABLE prod.looker_scratch.kpi_test_2
+#       CLONE LOOKER_SCRATCH.kpi_user_counts
+#       ;;
 
           #   guid date subscription
         sql_step:
         MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
         (
-        SELECT date, user_sso_guid, region, organization, platform, user_type, MIN(content_type) AS content_type
-        FROM ${guid_date_subscription.SQL_TABLE_NAME}
-        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_full_access_cu_guid IS NOT NULL)
-        GROUP BY date, user_sso_guid, region, organization, platform, user_type
+        SELECT DISTINCT s.date, s.user_sso_guid, s.region, s.organization, s.platform, s.user_type
+          , last_value(s.content_type) over (partition by s.date, s.user_sso_guid, s.region, s.organization, s.platform, s.user_type order by (CASE WHEN s.content_type = 'CU Full Access' THEN 1 WHEN s.content_type = 'CU eTextbook Full Access' THEN 2 WHEN s.content_type = 'CU Trial' THEN 3 WHEN s.content_type = 'CU eTextbook Trial' THEN 4 END) desc) AS content_type
+        FROM ${guid_date_subscription.SQL_TABLE_NAME} s
+        WHERE s.date < current_date() and s.date > $max_date
+        ) c
+        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type
+        WHEN MATCHED THEN UPDATE
+          SET
+            k.userbase_digital_user_guid = c.user_sso_guid
+            ,k.all_full_access_cu_guid = COALESCE(CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END,k.all_full_access_cu_guid)
+            ,k.all_trial_access_cu_guid = COALESCE(CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END,k.all_trial_access_cu_guid)
+            ,k.all_full_access_cu_etextbook_guid = COALESCE(CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END,k.all_full_access_cu_etextbook_guid)
+            ,k.all_trial_access_cu_etextbook_guid = COALESCE(CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END,k.all_trial_access_cu_etextbook_guid)
+            ,k.userbase_paid_user_guid = COALESCE(CASE WHEN c.content_type IN ('CU Full Access','CU eTextbook Full Access') THEN c.user_sso_guid END,k.userbase_paid_user_guid)
+
+            ,k.userbase_paid_courseware_guid = COALESCE(CASE WHEN c.content_type = 'CU Full Access' THEN k.all_courseware_guid END,k.userbase_paid_courseware_guid)
+            ,k.all_paid_ebook_guid = COALESCE(CASE WHEN c.content_type IN ('CU Full Access','CU eTextbook Full Access') THEN k.all_ebook_guid END,k.all_paid_ebook_guid)
+        WHEN NOT MATCHED THEN INSERT
+        (
+          date
+          ,user_sso_guid
+          ,region
+          ,organization
+          ,platform
+          ,user_type
+
+          ,userbase_digital_user_guid
+          ,all_full_access_cu_guid
+          ,all_trial_access_cu_guid
+          ,all_full_access_cu_etextbook_guid
+          ,all_trial_access_cu_etextbook_guid
+          ,userbase_paid_user_guid
+        )
+        VALUES
+        (
+          c.date
+          ,c.user_sso_guid
+          ,c.region
+          ,c.organization
+          ,c.platform
+          ,c.user_type
+
+          ,c.user_sso_guid
+          ,CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type IN ('CU Full Access','CU eTextbook Full Access') THEN c.user_sso_guid END
+        )
+        ;;
+
+#       sql_step:
+#       CREATE OR REPLACE TABLE prod.looker_scratch.kpi_test_3
+#       CLONE LOOKER_SCRATCH.kpi_user_counts
+#       ;;
+
+
+            #   guid date paid
+        sql_step:
+        MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
+        (
+        SELECT *
+        FROM ${guid_date_paid.SQL_TABLE_NAME}
+        WHERE date < current_date() and date > $max_date
+        AND paid_content_rank = 1
         ) c
         ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
           SET
             k.userbase_digital_user_guid = c.user_sso_guid
-            ,k.all_full_access_cu_guid = CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
-            ,k.all_trial_access_cu_guid = CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
-            ,k.all_full_access_cu_etextbook_guid = CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
-            ,k.all_trial_access_cu_etextbook_guid = CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
+            ,k.userbase_paid_user_guid = COALESCE(CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END,k.userbase_paid_user_guid)
+            ,k.userbase_paid_courseware_guid = COALESCE(CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END,k.userbase_paid_courseware_guid)
+            ,k.userbase_paid_ebook_only_guid = COALESCE(CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END,k.userbase_paid_ebook_only_guid)
+            ,k.userbase_full_access_cu_only_guid = COALESCE(CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END,k.userbase_full_access_cu_only_guid)
+            ,k.userbase_trial_access_cu_only_guid = COALESCE(CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END,k.userbase_trial_access_cu_only_guid)
+            ,k.userbase_full_access_cu_etextbook_only_guid = COALESCE(CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END,k.userbase_full_access_cu_etextbook_only_guid)
+            ,k.userbase_trial_access_cu_etextbook_only_guid = COALESCE(CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END,k.userbase_trial_access_cu_etextbook_only_guid)
+
+            ,k.all_courseware_guid = COALESCE(CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END,k.all_courseware_guid)
+            ,k.all_ebook_guid = COALESCE(CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END,k.all_ebook_guid)
+            ,k.all_paid_ebook_guid = COALESCE(CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END,k.all_paid_ebook_guid)
+            ,k.all_full_access_cu_guid = COALESCE(CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END,k.all_full_access_cu_guid)
+            ,k.all_trial_access_cu_guid = COALESCE(CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END,k.all_trial_access_cu_guid)
+            ,k.all_full_access_cu_etextbook_guid = COALESCE(CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END,k.all_full_access_cu_etextbook_guid)
+            ,k.all_trial_access_cu_etextbook_guid  = COALESCE(CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END,k.all_trial_access_cu_etextbook_guid)
+
         WHEN NOT MATCHED THEN INSERT
         (
-        date
+          date
           ,user_sso_guid
           ,region
           ,organization
           ,platform
           ,user_type
           ,userbase_digital_user_guid
+          ,userbase_paid_user_guid
+          ,userbase_paid_courseware_guid
+          ,userbase_paid_ebook_only_guid
+          ,userbase_full_access_cu_only_guid
+          ,userbase_trial_access_cu_only_guid
+          ,userbase_full_access_cu_etextbook_only_guid
+          ,userbase_trial_access_cu_etextbook_only_guid
+
+          ,all_courseware_guid
+          ,all_ebook_guid
+          ,all_paid_ebook_guid
           ,all_full_access_cu_guid
           ,all_trial_access_cu_guid
           ,all_full_access_cu_etextbook_guid
@@ -180,59 +286,16 @@ view: kpi_user_counts {
           ,c.platform
           ,'Student'
           ,c.user_sso_guid
+          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
-        )
-        ;;
 
-
-            #   guid date paid
-        sql_step:
-        MERGE INTO LOOKER_SCRATCH.kpi_user_counts k USING
-        (
-        SELECT *
-        FROM ${guid_date_paid.SQL_TABLE_NAME}
-        WHERE date < current_date() and date > (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE userbase_paid_user_guid IS NOT NULL)
-        AND paid_content_rank = 1
-        ) c
-        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
-        WHEN MATCHED THEN UPDATE
-          SET
-            k.userbase_paid_user_guid = CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
-            ,k.userbase_paid_courseware_guid = CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
-            ,k.userbase_paid_ebook_only_guid = CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
-            ,k.userbase_full_access_cu_only_guid = CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
-            ,k.userbase_trial_access_cu_only_guid = CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
-            ,k.userbase_full_access_cu_etextbook_only_guid = CASE WHEN c.content_type = 'CU eTextbook Full Access' THEN c.user_sso_guid END
-            ,k.userbase_trial_access_cu_etextbook_only_guid = CASE WHEN c.content_type = 'CU eTextbook Trial' THEN c.user_sso_guid END
-        WHEN NOT MATCHED THEN INSERT
-        (
-          date
-          ,user_sso_guid
-          ,region
-          ,organization
-          ,platform
-          ,user_type
-          ,userbase_paid_user_guid
-          ,userbase_paid_courseware_guid
-          ,userbase_paid_ebook_only_guid
-          ,userbase_full_access_cu_only_guid
-          ,userbase_trial_access_cu_only_guid
-          ,userbase_full_access_cu_etextbook_only_guid
-          ,userbase_trial_access_cu_etextbook_only_guid
-        )
-        VALUES
-        (
-          c.date
-          ,c.user_sso_guid
-          ,c.region
-          ,c.organization
-          ,c.platform
-          ,'Student'
-          ,CASE WHEN c.paid_flag = TRUE THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'Courseware' THEN c.user_sso_guid END
+          ,CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'eBook' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU Full Access' THEN c.user_sso_guid END
           ,CASE WHEN c.content_type = 'CU Trial' THEN c.user_sso_guid END
@@ -241,26 +304,29 @@ view: kpi_user_counts {
         )
         ;;
 
+#       sql_step:
+#       CREATE OR REPLACE TABLE prod.looker_scratch.kpi_test_4
+#       CLONE LOOKER_SCRATCH.kpi_user_counts
+#       ;;
+
 # guid date active
 
 # update everything with a match
 # then insert 'other' records where there wasnt a match
-      sql_step:
-      SET max_date = (SELECT COALESCE(MAX(date),'2018-08-01') FROM LOOKER_SCRATCH.kpi_user_counts WHERE all_active_user_guid IS NOT NULL)
-      ;;
+
 
 # update
       sql_step:
       UPDATE LOOKER_SCRATCH.kpi_user_counts k
           SET
               k.all_active_user_guid = c.user_sso_guid
-              ,k.all_paid_active_user_guid = CASE WHEN k.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
+              ,k.all_paid_active_user_guid = COALESCE(CASE WHEN k.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END,k.all_paid_active_user_guid)
           FROM (
               SELECT *
               FROM ${guid_date_active.SQL_TABLE_NAME} g
               WHERE g.date < current_date() and g.date > $max_date
               ) c
-          WHERE k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
+          WHERE k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type AND k.platform = c.platform
         ;;
 
 #         insert
@@ -327,11 +393,11 @@ view: kpi_user_counts {
             AND g.date > $max_date
             AND k.ALL_ACTIVE_USER_GUID IS NULL
         ) c
-        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.platform = c.platform
+        ON k.date = c.date AND k.user_sso_guid = c.user_sso_guid AND k.region = c.region AND k.organization = c.organization AND k.user_type = c.user_type AND k.platform = c.platform
         WHEN MATCHED THEN UPDATE
           SET
             k.all_active_user_guid = c.user_sso_guid
-            ,k.all_paid_active_user_guid = CASE WHEN c.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
+            ,k.all_paid_active_user_guid = COALESCE(CASE WHEN c.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END,k.all_paid_active_user_guid)
         WHEN NOT MATCHED THEN INSERT
         (
           date
@@ -360,7 +426,7 @@ view: kpi_user_counts {
           ,c.user_sso_guid
           ,c.region
           ,c.organization
-          ,c.platform
+          ,'Other'
           ,c.user_type
           ,c.userbase_digital_user_guid
           ,c.userbase_paid_user_guid
@@ -377,6 +443,11 @@ view: kpi_user_counts {
           ,CASE WHEN c.userbase_paid_user_guid IS NOT NULL THEN c.user_sso_guid END
         )
          ;;
+
+#       sql_step:
+#       CREATE OR REPLACE TABLE prod.looker_scratch.kpi_test_5
+#       CLONE LOOKER_SCRATCH.kpi_user_counts
+#       ;;
 
       sql_step:
         ALTER TABLE LOOKER_SCRATCH.kpi_user_counts CLUSTER BY (date);;
@@ -488,6 +559,11 @@ view: kpi_user_counts {
       sql_step:
         ALTER TABLE looker_scratch.kpi_user_counts_monthly RECLUSTER
       ;;
+
+      sql_step: alter warehouse heavyduty suspend ;;
+
+      sql_step: use warehouse analysis ;;
+
        }
 
       datagroup_trigger: daily_refresh
@@ -513,11 +589,52 @@ dimension: user_sso_guid {hidden: yes}
 measure: userbase_digital_user_guid  {type:count_distinct label: "# Digital Student Users"}
 measure: userbase_paid_user_guid  {type:count_distinct label: "# Paid Digital Student Users"}
 measure: userbase_paid_courseware_guid  {type:count_distinct label: "# Paid Courseware Student Users"}
-measure: userbase_paid_ebook_only_guid  {type:count_distinct label: "# Paid eBook ONLY Student Users"}
-measure: userbase_full_access_cu_only_guid  {type:count_distinct label: "# Paid CU ONLY Student Users (no provisions)"}
-measure: userbase_trial_access_cu_only_guid  {type:count_distinct label: "# Trial CU ONLY Student Users"}
-measure: userbase_full_access_cu_etextbook_only_guid  {type:count_distinct label: "# Paid CU eTextbook ONLY Student Users (no provisions)"}
-measure: userbase_trial_access_cu_etextbook_only_guid  {type:count_distinct label: "# Trial CU eTextbook ONLY Student Users"}
+
+measure: userbase_paid_ebook_only_guid  {
+  type:count_distinct
+  sql: case when ${TABLE}.userbase_paid_courseware_guid is null
+            then ${TABLE}.userbase_paid_ebook_only_guid end  ;;
+  label: "# Paid eBook ONLY Student Users"
+  }
+
+measure: userbase_full_access_cu_only_guid  {
+  type:count_distinct
+  sql:  case when ${TABLE}.userbase_paid_courseware_guid is null
+              and ${TABLE}.all_paid_ebook_guid is null
+              then ${TABLE}.userbase_full_access_cu_only_guid end;;
+  label: "# Paid CU ONLY Student Users (no provisions)"
+  }
+
+measure: userbase_full_access_cu_etextbook_only_guid  {
+  type:count_distinct
+  sql:  case when ${TABLE}.userbase_paid_courseware_guid is null
+              and ${TABLE}.all_paid_ebook_guid is null
+              and ${TABLE}.all_full_access_cu_guid is null
+              then ${TABLE}.userbase_full_access_cu_etextbook_only_guid end;;
+  label: "# Paid CU eTextbook ONLY Student Users (no provisions)"
+  }
+
+measure: userbase_trial_access_cu_only_guid  {
+  type:count_distinct
+  sql:  case when ${TABLE}.userbase_paid_courseware_guid is null
+              and ${TABLE}.all_paid_ebook_guid is null
+              and ${TABLE}.all_full_access_cu_guid is null
+              and ${TABLE}.all_full_access_cu_etextbook_guid IS NULL
+              then ${TABLE}.userbase_trial_access_cu_only_guid end;;
+  label: "# Trial CU ONLY Student Users"
+  }
+
+
+measure: userbase_trial_access_cu_etextbook_only_guid  {
+  type:count_distinct
+  sql:  case when ${TABLE}.userbase_paid_courseware_guid is null
+              and ${TABLE}.all_paid_ebook_guid is null
+              and ${TABLE}.all_full_access_cu_guid is null
+              and ${TABLE}.all_full_access_cu_etextbook_guid IS NULL
+              and ${TABLE}.all_trial_access_cu_guid is null
+              then ${TABLE}.userbase_trial_access_cu_etextbook_only_guid end;;
+  label: "# Trial CU eTextbook ONLY Student Users"
+  }
 
 measure: all_courseware_guid  {type:count_distinct label: "# Total Courseware Student Users"}
 measure: all_ebook_guid  {type:count_distinct label: "# Total eBook Student Users"}
@@ -537,27 +654,46 @@ measure: all_paid_active_user_guid {
 
   measure: all_active_instructor_with_active_course_guid {
     type: count_distinct
-    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.all_instructors_active_course_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
+    sql: CASE WHEN ${TABLE}.all_instructors_active_course_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
     label: "# Total Active Instructors (Active Course)"
   }
 
 
   measure: all_active_instructor {
     type: count_distinct
-    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.user_type = 'Instructor' THEN ${TABLE}.all_active_user_guid END;;
+    sql: CASE WHEN ${TABLE}.user_type = 'Instructor' THEN ${TABLE}.all_active_user_guid END;;
     label: "# Total Active Instructors"
   }
 
   measure: all_active_student {
     type: count_distinct
-    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.user_type = 'Student' THEN ${TABLE}.all_active_user_guid END;;
+    sql: CASE WHEN ${TABLE}.user_type = 'Student' THEN ${TABLE}.all_active_user_guid END;;
     label: "# Total Active Student Users"
   }
 
   measure: paid_active_courseware_student {
     type: count_distinct
-    sql: CASE WHEN ${TABLE}.all_active_user_guid IS NOT NULL AND ${TABLE}.userbase_paid_courseware_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
+    sql: CASE WHEN ${TABLE}.userbase_paid_courseware_guid IS NOT NULL THEN ${TABLE}.all_active_user_guid END;;
     label: "# Total Paid Active Courseware Student Users"
+  }
+
+  measure: paid_a_la_carte_courseware_users {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_full_access_cu_guid IS NULL
+                AND ${TABLE}.all_full_access_cu_etextbook_guid IS NULL
+              THEN ${TABLE}.userbase_paid_courseware_guid END;;
+    label: "# Total Paid a la carte Courseware Student Users"
+    description: "Paid courseware users with no CU or CUe subscription"
+  }
+
+  measure: paid_a_la_carte_ebook_users {
+    type: count_distinct
+    sql: CASE WHEN ${TABLE}.all_full_access_cu_guid IS NULL
+                AND ${TABLE}.all_full_access_cu_etextbook_guid IS NULL
+                AND ${TABLE}.userbase_paid_courseware_guid IS NULL
+              THEN ${TABLE}.userbase_paid_ebook_only_guid END;;
+    label: "# Total Paid a la carte eBook Student Users"
+    description: "Paid ebook users with no courseware access and no CU or CUe subscription"
   }
 
 

@@ -94,7 +94,7 @@ view: guid_date_subscription {
   }
 
   dimension: user_type {
-    hidden: yes
+    hidden: no
     type: string
   }
 

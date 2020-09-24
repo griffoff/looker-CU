@@ -95,6 +95,12 @@ persist_for: "1 hour"
     drill_fields: [detail*]
   }
 
+  measure: users {
+    type: count_distinct
+    sql: merged_guid ;;
+    label: "# Users"
+  }
+
   dimension: subscription_state {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;

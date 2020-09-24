@@ -25,6 +25,8 @@ connection: "snowflake_prod"
 
 case_sensitive: no
 
+persist_for: "16 hours"
+
 ######################### Start of PROD Explores #########################################################################
 
 view: current_date {
@@ -37,10 +39,52 @@ view: current_date {
   dimension: current_week_of_year {type: number hidden:yes}
 }
 
+explore: instructor_provisioned_products {
+  from: raw_olr_provisioned_product
+  view_name: raw_olr_provisioned_product
+  sql_always_where: ${user_type} = 'instructor' ;;
+  label: "instructor Provisioned Products"
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+}
+
+explore: raw_olr_provisioned_product {
+  extends: [instructor_provisioned_products]
+  sql_always_where: ${user_type} = 'student' ;;
+  label: "Student Provisioned Products"
+
+  join: live_subscription_status {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${live_subscription_status.user_sso_guid} ;;
+  }
+
+  join: merged_cu_user_info {
+    relationship: one_to_one
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${merged_cu_user_info.user_sso_guid} ;;
+  }
+
+  join: uploads_cu_sidebar_cohort {
+    view_label: "CU sidebar cohort"
+    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${uploads_cu_sidebar_cohort.merged} ;;
+    relationship: many_to_one
+  }
+}
+
 explore: course_sections {
   extends: [dim_course, learner_profile_cohorts]
   from: dim_course
   view_name: dim_course
+
+  always_filter: {
+    filters:[
+      merged_cu_user_info.real_user_flag: "Yes"
+      ,dim_filter.is_external: "Yes"
+    ]
+  }
 
   label: "Course Sections"
 
@@ -200,9 +244,11 @@ explore: provisioned_product {
 }
 
 explore: raw_subscription_event {
+  extends: [dim_course]
   label: "Raw Subscription Events"
   view_name: raw_subscription_event
   view_label: "Subscription Status"
+
   join: raw_olr_provisioned_product {
     sql_on: ${raw_olr_provisioned_product.merged_guid} = ${raw_subscription_event.merged_guid};;
     relationship: many_to_one
@@ -212,6 +258,7 @@ explore: raw_subscription_event {
     relationship: many_to_one
   }
   join: dim_date {
+    view_label: "Subscription Start"
     sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
     relationship: many_to_one
   }
@@ -221,6 +268,11 @@ explore: raw_subscription_event {
     sql_on: ${date_active.datevalue_raw} between ${raw_subscription_event.subscription_start_raw}::date and ${raw_subscription_event.subscription_end_raw}::date;;
     relationship: many_to_many
     type: inner
+  }
+  join: dim_course {
+    sql: cross join lateral flatten(${raw_olr_provisioned_product.context_id}, outer=>True)  courses
+        left join ${dim_course.SQL_TABLE_NAME} dim_course ON courses.value = ${dim_course.context_id} ;;
+    relationship: many_to_one
   }
 #   join: sub_actv {
 #     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
@@ -671,8 +723,9 @@ explore: kpi_user_stats {
   }
 
 join: date_to_date_filter {
-  sql_on: ${kpi_user_stats.datevalue_raw} between ${date_to_date_filter.begin_date} and ${date_to_date_filter.end_date} ;;
+  sql_on: ${kpi_user_stats.datevalue_raw} = ${date_to_date_filter.middle_date_raw}  ;;
   relationship: one_to_many
+  type: inner
 }
 
 join: guid_first_last_date_seen {
@@ -682,8 +735,9 @@ join: guid_first_last_date_seen {
 }
 
   join: past_x_days_filter {
-    sql_on: ${kpi_user_stats.datevalue_raw} between ${past_x_days_filter.begin_date} and ${past_x_days_filter.end_date} ;;
+    sql_on: ${kpi_user_stats.datevalue_raw} = ${past_x_days_filter.middle_date_raw} ;;
     relationship: one_to_many
+    type: inner
   }
 
 
@@ -691,13 +745,7 @@ join: guid_first_last_date_seen {
 
 explore: guid_date_subscription {
   join: date_to_date_filter {
-    sql_on: ${guid_date_subscription.date_raw} between ${date_to_date_filter.begin_date} and ${date_to_date_filter.end_date} ;;
+    sql_on: ${guid_date_subscription.date_raw} = ${date_to_date_filter.middle_date_raw} ;;
     relationship: one_to_many
   }
 }
-
-
-# access_grant: access_grant_test {
-#   user_attribute: test_attribute
-#   allowed_values: [ "yes" ]
-# }

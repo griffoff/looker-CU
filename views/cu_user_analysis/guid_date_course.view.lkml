@@ -15,6 +15,7 @@ view: guid_date_course {
       ORDER BY date
 
       ;;
+
       sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;
 
       sql_step: ALTER TABLE ${SQL_TABLE_NAME} RECLUSTER ;;

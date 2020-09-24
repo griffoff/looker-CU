@@ -20,12 +20,24 @@ view: date_to_date_filter {
 
 
     )
-    select * from b cross join e
+    select b.begin_date, e2.end_date as middle_date, e1.end_date
+    from b
+    cross join e e1
+    inner join e e2 on e2.end_date between b.begin_date and e1.end_date
+
     ;;
 
   }
 
   dimension: begin_date {hidden: yes
+  }
+
+# dimension: middle_date_raw {type:date hidden:yes sql:middle_date;;}
+
+  dimension_group: middle_date {
+    type:time
+    timeframes: [raw]
+    hidden: yes
   }
 
   dimension: end_date {type: date

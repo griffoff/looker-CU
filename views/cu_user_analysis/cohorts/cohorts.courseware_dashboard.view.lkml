@@ -14,7 +14,7 @@ include: "cohorts.base.view"
               ,governmentdefinedacademicterm
               ,subscription_state
               ,pp.context_id
-          FROM prod.cu_user_analysis_dev.subscription_event_merged s
+          FROM prod.cu_user_analysis.subscription_merged_new s
 --           LEFT JOIN term_dates_five_most_recent
             LEFT JOIN ${date_latest_5_terms.SQL_TABLE_NAME} d
             ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)

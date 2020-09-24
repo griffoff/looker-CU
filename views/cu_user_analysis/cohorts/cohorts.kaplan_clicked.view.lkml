@@ -56,7 +56,7 @@ view: cohorts_kaplan_clicked_old {
                 ,governmentdefinedacademicterm
                 ,s.subscription_state
                 ,CASE WHEN event_name = 'Clicked on Kaplan' THEN 1 END AS clicked_career_center
-            FROM prod.cu_user_analysis_dev.subscription_event_merged s
+            FROM prod.cu_user_analysis.subscription_merged_new s
             LEFT JOIN term_dates_five_most_recent d
               ON (s.subscription_end::DATE > d.end_date AND s.subscription_start < d.start_date)
               OR (s.subscription_start::DATE > d.start_date AND s.subscription_start::DATE < d.end_date)
@@ -64,7 +64,7 @@ view: cohorts_kaplan_clicked_old {
               ON s.user_sso_guid_merged = e.user_sso_guid
               AND d.start_date < e.event_time
               AND d.end_date > e.event_time
-            LEFT JOIN prod.cu_user_analysis_dev.user_courses u
+            LEFT JOIN prod.cu_user_analysis.user_courses u
               ON s.user_sso_guid_merged = u.user_sso_guid
             WHERE s.subscription_state = 'full_access'
            )

@@ -11,7 +11,7 @@ view: guid_date_ebook {
         , actv_dt AS course_start
         , DATEADD(W,16,actv_dt) AS course_end
         , actv_dt AS activation_date
-        , a.platform
+        , coalesce(product.platform, a.platform, 'Other eBook') as platform
         , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
         , CASE WHEN e.mkt_seg_maj_cd = 'PSE' AND e.mkt_seg_min_cd in ('056','060') THEN 'Career'
                 WHEN e.mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
@@ -57,7 +57,7 @@ view: guid_date_ebook {
         , 'Full Access' AS subscription_type
         , 'Serial Number Consumed' AS source
         , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
-        , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other eBook' END AS platform
+        , coalesce(p.platform, 'Other eBook') AS platform
         , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
                 WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
                 ELSE 'Other' END AS organization
@@ -84,7 +84,7 @@ view: guid_date_ebook {
         , CASE WHEN ss.subscription_start IS NOT NULL THEN ss.subscription_plan_id WHEN bp.subscription_start IS NOT NULL THEN bp.subscription_state END AS subscription_type
         , 'Provisioned Product' AS source
         , CASE WHEN e.country_cd = 'US' THEN 'USA' WHEN e.country_cd IS NOT NULL THEN e.country_cd ELSE 'Other' END AS region
-        , CASE WHEN p.platform IS NOT NULL THEN p.platform ELSE 'Other eBook' END AS platform
+        , coalesce(p.platform, 'Other eBook') AS platformm
         , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
                 WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
                 ELSE 'Other' END AS organization
@@ -111,7 +111,6 @@ view: guid_date_ebook {
         AND dim_date.datevalue BETWEEN subscription_start AND subscription_end
       WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
       ORDER BY 1
-
       ;;
 
       sql_step: ALTER TABLE ${SQL_TABLE_NAME} CLUSTER BY (date) ;;

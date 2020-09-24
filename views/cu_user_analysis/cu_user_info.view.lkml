@@ -1,7 +1,11 @@
 include: "//core/access_grants_file.view"
-explore: cu_user_info {label: "CU User Info"}
+explore: cu_user_info {
+  label: "CU User Info" hidden:yes
+}
 
 view: cu_user_info {
+
+  label: "User Information"
 
 #   filter: internal_user_flag_filter {
 #     default_value: "No"
@@ -58,7 +62,7 @@ view: cu_user_info {
       SELECT DISTINCT
              hs.*
            ,hubin.institution_id
-
+           ,satin.name AS institution_name
            ,usint.internal
            ,COALESCE(bl.flag,FALSE) AS entity_flag
       FROM hub_sat_latest hs
@@ -67,6 +71,9 @@ view: cu_user_info {
                        AND linkins.latest
            LEFT JOIN prod.datavault.hub_institution hubin
                      ON linkins.hub_institution_key = hubin.hub_institution_key
+           LEFT JOIN prod.datavault.sat_institution_saws satin
+                     ON hubin.hub_institution_key = satin.hub_institution_key
+                    AND satin._latest
            LEFT JOIN prod.datavault.sat_user_internal usint ON hs.hub_user_key = usint.hub_user_key
         AND usint.active
            LEFT JOIN (select entity_id,CAST(flag AS BOOLEAN) as flag, ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY _fivetran_synced DESC) = 1 as latest  from UPLOADS.CU.ENTITY_BLACKLIST) bl
@@ -314,8 +321,10 @@ view: cu_user_info {
   dimension: entity_id {
     type: string
     sql: ${TABLE}."INSTITUTION_ID" ;;
-    hidden: yes
+    hidden: no
   }
+
+  dimension: institution_name {}
 
   dimension: tl_institution_name {
     type: string
@@ -352,6 +361,7 @@ view: cu_user_info {
       first_name,
       last_name,
       entity_id,
+      institution_name,
       tl_institution_name,
       latest,
       user_sso_guid,

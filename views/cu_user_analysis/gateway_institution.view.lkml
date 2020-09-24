@@ -1,24 +1,50 @@
 view: gateway_institution {
   derived_table: {
     sql:
-    select school_entity_id as entity_no
-      , listagg(distinct lms_type, ', ') within group (order by lms_type) as lms_type
-      , listagg(distinct concat(lms_type,' ',lms_version), ', ') within group (order by concat(lms_type,' ',lms_version)) as lms_version
-    from ${gateway_lms_course_sections.SQL_TABLE_NAME}
-    group by entity_no
+    with i as (
+      select
+        hi.institution_id as entity_no
+        ,CASE WHEN sig.hub_institutiongateway_key IS NOT NULL THEN 'Gateway' WHEN wpa.school_id IS NOT NULL THEN 'Webassign' ELSE 'N/A' END as source
+        ,COALESCE(sig.lms_type, wpa.kind) as lms_type_base
+        ,UPPER(DECODE(lms_type_base, 'BB', 'Blackboard', lms_type_base)) as lms_type
+        , 'v' || NULLIF(sig.lms_version, '') AS lms_version
+        ,ROW_NUMBER() OVER (PARTITION BY hi.institution_id ORDER BY COALESCE(sig.created_at, wpa.created_at) DESC) = 1 as latest
+      from prod.datavault.hub_institution hi
+      left join prod.datavault.link_institutiongateway_institution ligi on hi.hub_institution_key = ligi.hub_institution_key
+      left join prod.datavault.sat_institution_gateway sig on ligi.hub_institutiongateway_key = sig.hub_institutiongateway_key and sig._latest
+      left join webassign.wa_app_v4net.schools ws ON hi.institution_id = ws.cl_entity_number
+      left join webassign.wa_app_v4net.partner_applications wpa on ws.id = wpa.school_id
+    )
+    SELECT *
+    FROM i
+    WHERE latest
+    AND lms_type IS NOT NULL
     ;;
+
+    persist_for: "24 hours"
   }
 
   set: marketing_fields {fields:[lms_type]}
 
   dimension: lms_type {
+    group_label: "LMS Integration"
     label: "LMS Type"
-     description: "Type of learning management system the institution uses i.e. Canvas, Blackboard, etc."
+    description: "Type of learning management system the institution uses i.e. Canvas, Blackboard, etc."
+    sql: COALESCE(${TABLE}.lms_type, 'NOT LMS INTEGRATED') ;;
   }
 
   dimension: lms_version {
+    group_label: "LMS Integration"
     label: "LMS Version"
     description: "The release version of the LMS software i.e. 1.1"
+  }
+
+  dimension: is_lms_integrated {
+    group_label: "LMS Integration"
+    description: "Is this a Gateway course?"
+    label: "LMS Integrated"
+    type: yesno
+    sql: ${lms_type}!='NOT LMS INTEGRATED' ;;
   }
 
   dimension: entity_no {
