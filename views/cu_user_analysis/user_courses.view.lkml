@@ -628,6 +628,7 @@ derived_table: {
     description: "Date on which user enrolled into a course"
     type: time
     timeframes: [raw, date, week, month, year]
+    sql: ${TABLE}.enrollment_date ;;
   }
 
   measure: user_course_count {
