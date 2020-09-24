@@ -89,10 +89,10 @@ derived_table: {
   dimension_group: week_in_course {
     label: "Time in course"
     type: duration
-    sql_start: ${course_start_date} ;;
-    sql_end: CURRENT_DATE() ;;
+    sql_start: ${course_start_raw} ;;
+    sql_end: CASE WHEN ${course_end_raw} < CURRENT_DATE() THEN ${course_end_raw} ELSE CURRENT_DATE() END ;;
     intervals: [week]
-    description: "The difference in weeks from the course start date to the current date."
+    description: "The difference in weeks from the course start date to the current date or the course end date for completed courses."
   }
 
   dimension: user_sso_guid {
@@ -125,7 +125,7 @@ derived_table: {
 
   dimension: date_paid {
     type: date
-    sql: case when ${paid} then coalesce(${activation_date},${enrollment_date},${course_start_date}) end ;;
+    sql: case when ${paid} then coalesce(${activation_raw},${enrollment_raw},${course_start_raw}) end ;;
     group_label: "Payment Information"
     label: "Date paid (approximate)"
     description: "Activation date or enrollment date / course start date when paid flag is true"
@@ -133,7 +133,7 @@ derived_table: {
 
   dimension: paid_current {
     type: yesno
-    sql:(${paid}) and ${course_end_date} > CURRENT_DATE();;
+    sql:(${paid}) and ${course_end_raw} > CURRENT_DATE();;
     group_label: "Payment Information"
     label: "Paid Current"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
@@ -141,7 +141,7 @@ derived_table: {
 
   dimension: unpaid_current {
     type: yesno
-    sql:(NOT ${paid}) and ${course_end_date} > CURRENT_DATE();;
+    sql:(NOT ${paid}) and ${course_end_raw} > CURRENT_DATE();;
     group_label: "Payment Information"
     label: "Unaid Current"
     description: "No paid flag or activation AND course has future end date"
@@ -155,9 +155,6 @@ derived_table: {
     drill_fields: [marketing_fields*]
     description: "Count of distinct paid user courses (guid+coursekey combo) that have not yet ended"
   }
-
-
-
 
   dimension: paid_in_full {
     type: yesno
@@ -211,14 +208,38 @@ derived_table: {
     description: "Course end date is in the future"
   }
 
-  dimension: course_start_date {
-    type: date_raw
+  dimension_group: course_start {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      month_name,
+      year,
+      day_of_week,
+      week_of_year,
+      day_of_year
+      ]
     sql: ${TABLE}."COURSE_START_DATE"
     ;;
   }
 
-  dimension: course_end_date {
-    type: date_raw
+  dimension_group: course_end {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      month_name,
+      year,
+      day_of_week,
+      week_of_year,
+      day_of_year
+      ]
+    sql: ${TABLE}."COURSE_END_DATE"
+      ;;
   }
 
   dimension_group: activation {
@@ -227,6 +248,7 @@ derived_table: {
     description: "Date on which user activated course"
     type: time
     timeframes: [
+      raw,
       date,
       week,
       month,
@@ -579,8 +601,8 @@ derived_table: {
     sql: CASE
           WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
           ELSE
-          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END, ', ')
-            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_date}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_date}, 'mon-yy') || ')' END)
+          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_raw}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_raw}, 'mon-yy') || ')' END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_raw}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_raw}, 'mon-yy') || ')' END)
           END ;;
     description: "List of student courses (including dates)"
   }
@@ -601,10 +623,12 @@ derived_table: {
     description: "List of student non-CU course ISBNs"
   }
 
-  dimension: enrollment_date {
-    label: "Enrollment Date"
+  dimension_group: enrollment {
+    label: "Enrollment"
     description: "Date on which user enrolled into a course"
-    type: date
+    type: time
+    timeframes: [raw, date, week, month, year]
+    sql: ${TABLE}.enrollment_date ;;
   }
 
   measure: user_course_count {

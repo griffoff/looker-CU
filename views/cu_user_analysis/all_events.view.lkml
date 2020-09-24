@@ -23,7 +23,16 @@ view: all_events {
     label: "Time between enrollment and event"
     type: duration
     intervals: [second, minute, hour, day, week]
-    sql_start: ${user_courses.enrollment_date} ;;
+    sql_start: ${user_courses.enrollment_raw} ;;
+    sql_end: ${event_date_raw} ;;
+
+  }
+
+  dimension_group: time_since_course_start {
+    label: "Time between course start and event"
+    type: duration
+    intervals: [second, minute, hour, day, week]
+    sql_start: ${user_courses.course_start_raw} ;;
     sql_end: ${event_date_raw} ;;
 
   }
@@ -843,6 +852,13 @@ view: all_events_base {
     "
     hidden: no
 
+  }
+
+  dimension: event_name_new {
+    group_label: "Event Classification"
+    type: string
+    sql: prod.cu_user_analysis.event_name(${event_action}, ${event_type}) ;;
+    hidden: yes
   }
 
   dimension: event_name {
