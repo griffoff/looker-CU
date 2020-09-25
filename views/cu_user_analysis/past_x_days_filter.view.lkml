@@ -21,7 +21,7 @@ view: past_x_days_filter {
             , dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) as begin_date
             , d2.datevalue as middle_date
           from ${dim_date.SQL_TABLE_NAME} d1
-          inner join ${dim_date.SQL_TABLE_NAME} d2 on d2.datevalue between dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) and d1.datevalue
+          inner join ${dim_date.SQL_TABLE_NAME} d2 on d2.datevalue >= dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) and d2.datevalue < d1.datevalue
           where {% condition date_range %} d1.datevalue {% endcondition %}
           ;;
 
@@ -34,11 +34,12 @@ view: past_x_days_filter {
 
       dimension_group: middle_date {
         type:time
-        timeframes: [raw]
+        timeframes: [raw,date]
         hidden: yes
         }
 
       dimension: end_date {type: date
+        description: "Aggregates measures over the past X days (defined by the filter) relative to the End Date, not including the End Date itself"
       }
 
 
