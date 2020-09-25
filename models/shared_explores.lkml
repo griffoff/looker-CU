@@ -45,6 +45,7 @@ explore: all_events {
   join: all_events_tags {
     sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
   }
+
 }
 
 explore: all_sessions {
@@ -464,6 +465,12 @@ explore: learner_profile {
     sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
     relationship: one_to_many
   }
+
+#   join: all_events_user_course_day {
+#     view_label: "Course / Section Details by User"
+#     sql_on: ${user_courses.user_sso_guid} = ${all_events_user_course_day.user_sso_guid}
+#       and ${user_courses.olr_course_key} = ${all_events_user_course_day.olr_course_key};;
+#   }
 
   join: dim_course {
     sql_on: ${user_courses.olr_course_key} = ${dim_course.coursekey} ;;

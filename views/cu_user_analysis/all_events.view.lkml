@@ -1,50 +1,86 @@
 include: "//core/common.lkml"
 include: "all_sessions.view.lkml"
-named_value_format: minutes {
-  value_format: "[m]:ss \m\i\n\s"
-}
 
-view: all_events_user_day {
-  sql_table_name: prod.cu_user_analysis.all_events_user_day ;;
-
-  dimension: user_sso_guid {primary_key:yes hidden:yes}
-  dimension: activve_time_per_day  {hidden:yes}
-  measure: active_time_per_day_p05 {
-    type: percentile
-    percentile: 5
-    sql: ${activve_time_per_day} ;;
-    value_format_name: minutes
-  }
-
-  measure: active_time_per_day_p25 {
-    type: percentile
-    percentile: 25
-    sql: ${activve_time_per_day} ;;
-    value_format_name: minutes
-  }
-
-  measure: active_time_per_day_p50 {
-    type: percentile
-    percentile: 50
-    sql: ${activve_time_per_day} ;;
-    value_format_name: minutes
-  }
-
-  measure: active_time_per_day_p75 {
-    type: percentile
-    percentile: 75
-    sql: ${activve_time_per_day} ;;
-    value_format_name: minutes
-  }
-
-  measure: active_time_per_day_p95 {
-    type: percentile
-    percentile: 95
-    sql: ${activve_time_per_day} ;;
-    value_format_name: minutes
-  }
-
-}
+# view: all_events_user_course_day {
+#
+#   derived_table: {
+#     explore_source: course_sections {
+#       column: active_time_per_day { field: all_events.event_duration_total }
+#       column: user_sso_guid { field: learner_profile.user_sso_guid }
+#       column: olr_course_key { field: user_courses.olr_course_key }
+#       column: event_date { field: all_events.local_est_date }
+#     }
+#     persist_for: "24 hours"
+#   }
+#   dimension: active_time_per_day {
+#     label: "Total Time Active per day"
+#     value_format_name:  minutes
+#     type: number
+#     hidden: yes
+#   }
+#   dimension: user_sso_guid {
+#     hidden: yes
+#   }
+#   dimension: olr_course_key {
+#     hidden: yes
+#   }
+#   dimension: event_date_raw {
+#     type: date_raw
+#     hidden: yes
+#     sql: ${TABLE}.event_date ;;
+#   }
+#
+#   measure: active_time_per_day_p05 {
+#     type: percentile
+#     percentile: 5
+#     sql: ${active_time_per_day} ;;
+#     value_format: "[m]:ss \m\i\n\s"
+#   }
+#
+#   dimension_group: time_since_course_start {
+#     label: "Time between course start and event"
+#     type: duration
+#     intervals: [hour, day, week, month]
+#     sql_start: ${user_courses.course_start_raw} ;;
+#     sql_end: ${event_date_raw} ;;
+#
+#   }
+#
+#   measure: active_time_per_day_avg {
+#     type: average
+#     sql: ${active_time_per_day} ;;
+#     value_format: "[m]:ss \m\i\n\s"
+#   }
+#
+#   measure: active_time_per_day_p25 {
+#     type: percentile
+#     percentile: 25
+#     sql: ${active_time_per_day} ;;
+#     value_format: "[m]:ss \m\i\n\s"
+#   }
+#
+#   measure: active_time_per_day_p50 {
+#     type: percentile
+#     percentile: 50
+#     sql: ${active_time_per_day} ;;
+#     value_format: "[m]:ss \m\i\n\s"
+#   }
+#
+#   measure: active_time_per_day_p75 {
+#     type: percentile
+#     percentile: 75
+#     sql: ${active_time_per_day} ;;
+#     value_format: "[m]:ss \m\i\n\s"
+#   }
+#
+#   measure: active_time_per_day_p95 {
+#     type: percentile
+#     percentile: 95
+#     sql: ${active_time_per_day} ;;
+#     value_format: "[m]:ss \m\i\n\s"
+#   }
+#
+# }
 
 view: all_events_tags {
   view_label: "Events"
@@ -901,9 +937,10 @@ view: all_events_base {
 
   dimension: event_name_new {
     group_label: "Event Classification"
+    label: "New event name (Testing)"
     type: string
     sql: prod.cu_user_analysis.event_name(${event_action}, ${event_type}) ;;
-    hidden: yes
+    hidden: no
   }
 
   dimension: event_name {
@@ -1452,7 +1489,7 @@ view: all_events_base {
     label: "Average time spent per student per day"
     type: number
     sql: ${event_duration_total} / ${user_day_count} ;;
-    value_format: "[m] \m\i\n\s"
+    value_format: "[m]:ss \m\i\n\s"
   }
 
   measure: days_active_avg {
