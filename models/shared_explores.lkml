@@ -82,7 +82,7 @@ explore: all_sessions {
 
 
   join: dim_course {
-    sql_on: COALESCE(${all_sessions.course_keys}[0], ${all_events.event_data_course_key}) = ${dim_course.coursekey} ;;
+    sql_on: ${all_events.course_key} = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
@@ -98,8 +98,8 @@ explore: all_sessions {
 
   join: user_courses {
     view_label: "Course / Section Details by User"
-    sql_on: ${all_sessions.user_sso_guid} = ${user_courses.user_sso_guid}
-      and ${all_sessions.course_keys}[0] = ${user_courses.olr_course_key} ;;
+    sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
+      and ${all_events.course_key} = ${user_courses.olr_course_key} ;;
 
     relationship: one_to_many
   }
