@@ -71,6 +71,15 @@ explore: all_sessions {
     type: inner
   }
 
+  join: context_id_test {
+    from: dim_course
+    sql_on: ${all_events.tags_ContextID} = ${context_id_test.context_id} ;;
+    fields: [context_id_test.has_olr_context_id]
+    view_label: "Events"
+    relationship: many_to_many
+    type: left_outer
+  }
+
 
   join: dim_course {
     sql_on: COALESCE(${all_sessions.course_keys}[0], ${all_events.event_data_course_key}) = ${dim_course.coursekey} ;;
