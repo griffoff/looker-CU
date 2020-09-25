@@ -1,4 +1,4 @@
-explore: guid_first_last_date_seen {}
+explore: guid_first_last_date_seen {hidden:yes}
 view: guid_first_last_date_seen {
   derived_table: {
     create_process: {
