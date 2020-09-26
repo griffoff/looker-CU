@@ -1587,31 +1587,23 @@ OR (event_action = 'JUMP' AND event_type IN (
           ))) ) THEN event_id END;;
   }
 
+dimension: course_key {
+  type: string
+  description: "Course key associated with the event identified through TAGS. If an event's tags don't contain a course key identifier, the course key from the previous or next event in the same session is given instead."
+  label: "Event Course Key"
+}
 
-#   dimension: above_the_course {
-#     hidden:  yes
-#     type:  yesno
-#     label:"Above the course usage - no ebook"
-#     sql:(event_name IN (
-#       'Rent From Chegg Clicked',
-#       'Flashcards Launched',
-#       'Test Prep Launched',
-#       'Partner Chegg Modal Continue',
-#       'Partner Dashlane12 Modal Continue',
-#       'Partner Dashlane6 Modal Continue',
-#       'Partner Evernote Modal Continue',
-#       'Partner Kaplan Modal Continue',
-#       'Partner Quizlet Modal Continue',
-#       'Launch Career Center Material',
-#       'Launch College Success Material',
-#       'Launch Quick Lesson'
-#               ) )
-#               OR  (event_action = 'LAUNCH' AND  event_type IN ('STUDY_TOOLS_PAGE', 'MY_RENTALS', 'MY_ACCOUNT', 'MY_ORDERS', 'CAREER_CENTER', 'PARTNER_OFFERS', 'SIDEBAR', 'FULL_COURSE_MATERIAL'
-#               ,'PRINT_OPTIONS', 'CAREER_CENTER_MATERIAL', 'COLLEGE_SUCCESS_CENTER', 'QUICK_LESSON', 'COURSES', 'STUDY_PACK_MATERIAL', 'BILLING_AND_SHIPPING', 'COLLEGE_SUCCESS_MATERIAL', 'SUBSCRIBE_NOW'
-#               ,'LEARN_MORE') )
-#               OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS', 'EXPLORE_CAREERS', 'GET_THE_JOB', 'TOPICAL_CAROUSEL') );;
-#     description: "Event identified as Above The Course Y/N"
-#   }
+dimension: isbn {
+  type: string
+  description: "ISBN associated with the event identified through TAGS. If an event's tags don't contain an ISBN identifier, the ISBN from the previous or next event in the same session is given instead."
+  label: "Event ISBN"
+}
+
+dimension: platform {
+  type: string
+  description: "Platform associated with the event identified through TAGS. If an event's tags don't contain a platform identifier, the platform from the previous or next event in the same session is identified instead."
+  label: "Event Platform"
+}
 
 
 
