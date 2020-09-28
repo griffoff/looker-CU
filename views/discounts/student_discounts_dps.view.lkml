@@ -68,6 +68,7 @@ view: student_discounts_dps {
   measure: count_users {
     type: count_distinct
     sql: ${user_sso_guid} ;;
+    hidden: yes
   }
 
   dimension: user_sso_guid {
