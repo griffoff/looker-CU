@@ -939,7 +939,8 @@ view: all_events_base {
     group_label: "Event Classification"
     label: "New event name (Testing)"
     type: string
-    sql: prod.cu_user_analysis.event_name(${event_action}, ${event_type}) ;;
+    #sql: prod.cu_user_analysis.event_name(${event_action}, ${event_type}) ;;
+    sql:  zandbox.pgriffiths.event_name_from_source(${load_metadata_source}, ${host_platform}, ${event_type}, ${event_action}, ${event_data}) ;;
     hidden: no
   }
 
