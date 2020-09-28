@@ -34,7 +34,7 @@ view: guid_date_subscription {
             END AS content_type
         , CASE WHEN (instructor = false OR instructor IS NULL) THEN 'Student' ELSE 'Instructor' END as user_type
         , CASE WHEN COUNTRY_CD = 'US' THEN 'USA' WHEN COUNTRY_CD IS NOT NULL THEN COUNTRY_CD ELSE 'Other' END AS region
-        , 'CU Subscription' AS platform
+        , 'Cengage Unlimited' AS platform
         , CASE WHEN mkt_seg_maj_cd = 'PSE' AND mkt_seg_min_cd in ('056','060') THEN 'Career'
           WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
           ELSE 'Other' END AS organization
