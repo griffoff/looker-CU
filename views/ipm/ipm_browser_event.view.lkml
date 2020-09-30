@@ -11,7 +11,7 @@ view: ipm_browser_event_and_outcome {
       FROM ${ipm_campaign_to_outcome.SQL_TABLE_NAME}
       ;;
 
-      persist_for: "60 minute"
+      datagroup_trigger: daily_refresh
   }
 }
 view: ipm_browser_event {

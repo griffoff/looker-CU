@@ -1,6 +1,7 @@
 connection: "snowflake_prod"
 
 include: "/views/ipm/*.view.lkml"
+include: "/datagroups.lkml"
 
 explore: ipm_campaign {
   label: "IPM Campaign"

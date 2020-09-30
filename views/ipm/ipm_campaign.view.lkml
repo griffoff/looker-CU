@@ -28,7 +28,7 @@ view: ipm_campaign {
     AND campaign_start_date > '2018-09-21'
     ;;
 
-    persist_for: "60 minute"
+    datagroup_trigger: daily_refresh
   }
 
   dimension:pk {
