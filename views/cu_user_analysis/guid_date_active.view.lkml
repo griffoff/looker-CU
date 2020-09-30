@@ -27,14 +27,27 @@ view: guid_date_active {
           WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.guid_date_active)
           AND d.datevalue < CURRENT_DATE()
         )
-
         ,events AS (
           SELECT DISTINCT
             e.user_sso_guid
             , e.event_time::DATE AS date
+            , CASE e.product_platform
+              WHEN 'WEBASSIGN' THEN 'WebAssign'
+              WHEN 'MT3' THEN 'MindTap'
+              WHEN 'WA RESPONSES' THEN 'WebAssign'
+              WHEN 'CNOW' THEN 'CNOW'
+              WHEN 'APLIA' THEN 'Aplia'
+              WHEN 'MINDTAP' THEN 'MindTap'
+              WHEN 'CNOWV7' THEN 'CNOW'
+              WHEN 'CAS-MTS' THEN 'MindTap'
+              WHEN 'MT4' THEN 'MindTap'
+              WHEN 'GRADEBOOK-MT' THEN 'MindTap'
+              WHEN 'CAS-MT' THEN 'MindTap'
+              WHEN 'MTS' THEN 'MindTap'
+            END AS product_platform_old
             , case
               when e.event_data:host_platform = 'lite' then 'Middle Product'
-              else e.platform
+              else COALESCE(e.platform, product_platform_old)
             end as product_platform
             , e.course_key
           FROM prod.cu_user_analysis.all_sessions s
@@ -81,7 +94,7 @@ view: guid_date_active {
   dimension_group: date {
     label: "Calendar"
     type:time
-    timeframes: [raw,date,week,month,year]
+    timeframes: [raw,date,week,month,year,week_of_year]
   }
 
   dimension: user_sso_guid {}
