@@ -1243,26 +1243,26 @@ view: all_events_base {
   measure: user_month_count {
     hidden: yes
     type: count_distinct
-    sql: HASH(${user_sso_guid}, ${local_month}) ;;
+    sql: ${user_sso_guid}, DATE_TRUNC('month', ${local_raw}) ;;
   }
 
   measure: user_day_count {
     hidden: yes
     type: count_distinct
-    sql: HASH(${user_sso_guid}, ${local_date}) ;;
+    sql: ${user_sso_guid}, ${local_raw}::DATE ;;
   }
 
   measure: user_week_count {
     label: "# of User Weeks"
     description: "Distinct count of all user SSO guid + week where an event occurred combinations"
     type: count_distinct
-    sql: HASH(${user_sso_guid}, ${local_week}) ;;
+    sql: ${user_sso_guid}, DATE_TRUNC('week', ${local_raw}) ;;
     hidden: no
   }
 
   measure: day_count {
     type: count_distinct
-    sql: ${local_date} ;;
+    sql: ${local_raw}::DATE ;;
     hidden: yes
   }
 
