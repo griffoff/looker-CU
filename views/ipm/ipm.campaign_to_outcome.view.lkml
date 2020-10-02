@@ -49,7 +49,7 @@ view: ipm_campaign_to_outcome {
      GROUP BY 1, 2, 3, 4, 5, 6, 7
      ;;
 
-      persist_for: "24 hours"
+      datagroup_trigger: daily_refresh
   }
 
   dimension: campaign_title { hidden:yes}

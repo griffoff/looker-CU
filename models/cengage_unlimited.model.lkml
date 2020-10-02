@@ -145,7 +145,7 @@ explore: course_sections {
   }
 
   join: all_events {
-    sql_on: (${user_courses.user_sso_guid}, ${user_courses.olr_course_key}) = (${all_events.user_sso_guid}, ${all_events.event_data_course_key}) ;;
+    sql_on: (${user_courses.user_sso_guid}, ${user_courses.olr_course_key}) = (${all_events.user_sso_guid}, ${all_events.course_key}) ;;
     relationship: one_to_many
   }
 
@@ -754,3 +754,35 @@ explore: guid_date_subscription {
     relationship: one_to_many
   }
 }
+
+# explore: provisioned_product_v2 {
+#   from: sat_provisioned_product_v2
+#   fields: [ALL_FIELDS*,-dim_productplatform.productplatform]
+#
+#   join: learner_profile {
+#     sql_on: ${provisioned_product_v2.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: live_subscription_status {
+#     sql_on: ${provisioned_product_v2.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+#
+#   join: dim_product {
+#     relationship: many_to_one
+#     sql_on: ${provisioned_product_v2.product_id} = ${dim_product.productid} ;;
+#   }
+#
+#   join: products {
+#     view_label: "Product"
+#     sql_on: ${dim_product.isbn13} = ${products.isbn13};;
+#     relationship:  one_to_one
+#     fields: [products.prod_family_cd, products.available_dt*, products.copyright_yr, products.prod_family_cd_edition]
+#   }
+#
+#   join: dim_productplatform {
+#     relationship: many_to_one
+#     sql_on: ${products.platform} = ${dim_productplatform.productplatformkey} ;;
+#   }
+# }

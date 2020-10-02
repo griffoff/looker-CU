@@ -233,6 +233,14 @@ view: all_events_base {
     description: "Event data"
   }
 
+  dimension: userInput {
+    type: string
+    sql: ${TABLE}."EVENT_DATA":userInput::string ;;
+    label: "User Input"
+    group_label: "CAFE Tags"
+    description: "UserInput from event tags"
+  }
+
   dimension: code_type {
     label: "Activation Code Type"
     sql:  ${event_data}:code_type::string ;;

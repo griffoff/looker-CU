@@ -172,7 +172,12 @@ view: conversion_analysis {
       ;;
   }
 
-  dimension: user_sso_guid {view_label: "** USER EVENT CONVERSION **" hidden:yes}
+  dimension: user_sso_guid {
+    view_label: "** USER EVENT CONVERSION **"
+    hidden: no
+    description: "User sso guid in potential conversion population"
+    }
+
   dimension: initial_event {view_label: "** USER EVENT CONVERSION **" hidden:yes}
   dimension: initial_time_max {view_label: "** USER EVENT CONVERSION **" type:date hidden:yes}
   dimension: initial_time_min {view_label: "** USER EVENT CONVERSION **" type:date hidden:yes}
