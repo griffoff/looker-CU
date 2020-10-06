@@ -1608,9 +1608,26 @@ dimension: isbn {
 }
 
 dimension: platform {
+  hidden: yes
   type: string
   description: "Platform associated with the event identified through TAGS. If an event's tags don't contain a platform identifier, the platform from the previous or next event in the same session is identified instead."
   label: "Event Platform"
+  sql: COALESCE(${TABLE}.platform,
+    CASE ${TABLE}.product_platform
+      WHEN 'WEBASSIGN' THEN 'WebAssign'
+      WHEN 'MT3' THEN 'MindTap'
+      WHEN 'WA RESPONSES' THEN 'WebAssign'
+      WHEN 'CNOW' THEN 'CNOW'
+      WHEN 'APLIA' THEN 'Aplia'
+      WHEN 'MINDTAP' THEN 'MindTap'
+      WHEN 'CNOWV7' THEN 'CNOW'
+      WHEN 'CAS-MTS' THEN 'MindTap'
+      WHEN 'MT4' THEN 'MindTap'
+      WHEN 'GRADEBOOK-MT' THEN 'MindTap'
+      WHEN 'CAS-MT' THEN 'MindTap'
+      WHEN 'MTS' THEN 'MindTap'
+    END
+  ) ;;
 }
 
 

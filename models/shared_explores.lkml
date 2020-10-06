@@ -86,6 +86,11 @@ explore: all_sessions {
     relationship: many_to_many
   }
 
+  # join: dim_product {
+  #   from: stg_clts_products
+  #   sql_on: ${dim_product.isbn13} = ${dim_course.isbn} ;;
+  # }
+
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
     relationship: one_to_one
