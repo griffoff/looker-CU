@@ -86,6 +86,7 @@ view: conversion_analysis {
         , array_agg(event_name) as initial_event
         , max(event_time) as initial_time_max
         , min(event_time) as initial_time_min
+        -- get all initial event times instead of just min and max
         , COUNT(*) OVER() as total_user_count
       from ${all_sessions.SQL_TABLE_NAME} s
       INNER JOIN ${all_events.SQL_TABLE_NAME} e USING(session_id)

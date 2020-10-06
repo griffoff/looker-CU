@@ -84,7 +84,7 @@ explore: all_sessions {
 
 
   join: dim_course {
-    sql_on: ${all_events.course_key} = ${dim_course.coursekey} ;;
+    sql_on: ${all_events.course_key} = REGEXP_REPLACE(${dim_course.olr_course_key},'WA-production-','',1,0,'i') ;;
     relationship: many_to_many
   }
 
@@ -106,7 +106,7 @@ explore: all_sessions {
   join: user_courses {
     view_label: "Course / Section Details by User"
     sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
-      and ${all_events.course_key} = ${user_courses.olr_course_key} ;;
+      and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
 
     relationship: one_to_many
   }
