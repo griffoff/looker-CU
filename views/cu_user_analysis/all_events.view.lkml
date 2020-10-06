@@ -1608,11 +1608,11 @@ dimension: isbn {
 }
 
 dimension: platform {
-  hidden: yes
+  hidden: no
   type: string
   description: "Platform associated with the event identified through TAGS. If an event's tags don't contain a platform identifier, the platform from the previous or next event in the same session is identified instead."
   label: "Event Platform"
-  sql: COALESCE(${TABLE}.platform,
+  sql: COALESCE(${TABLE}.course_key_platform,${TABLE}.isbn_platform,
     CASE ${TABLE}.product_platform
       WHEN 'WEBASSIGN' THEN 'WebAssign'
       WHEN 'MT3' THEN 'MindTap'
