@@ -8,6 +8,8 @@ include: "/views/discounts/*.view"
 include: "/views/strategy/*.view"
 include: "/views/uploads/*.view"
 
+include: "/testing/*.view"
+
 include: "/views/cu_user_analysis/filter_caches/*.view"
 
 include: "/views/shared/*.view"
@@ -523,6 +525,11 @@ explore: session_analysis {
   from: learner_profile
   view_name: learner_profile
   #fields: [-]
+
+  join: event_cohort_selector {
+    sql_on: ${learner_profile.user_sso_guid} = ${event_cohort_selector.user_sso_guid} ;;
+    relationship: one_to_one
+  }
 
   join: all_sessions {
     #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;

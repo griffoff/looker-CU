@@ -242,19 +242,19 @@ view: all_sessions {
 
   measure: user_day_count {
     type: count_distinct
-    sql: HASH(${user_sso_guid}, ${session_start_date}) ;;
+    sql: ${user_sso_guid}, ${session_start_raw}::DATE ;;
     hidden: yes
   }
 
   measure: user_week_count {
     type: count_distinct
-    sql: HASH(${user_sso_guid}, ${session_start_week}) ;;
+    sql: ${user_sso_guid}, DATE_TRUNC('week', ${session_start_raw}) ;;
     hidden: yes
   }
 
   measure: user_month_count {
     type: count_distinct
-    sql: HASH(${user_sso_guid}, ${session_start_month}) ;;
+    sql: ${user_sso_guid}, DATE_TRUNC('month', ${session_start_raw}) ;;
     hidden: yes
   }
 
