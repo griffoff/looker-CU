@@ -21,15 +21,35 @@ view: conversion_analysis {
   }
 
   filter: initial_date_range_filter {
-    label: "Choose initial event date range"
-    description: "Select a date range for the initial event to occur within"
+    label: "Choose date range"
+    description: "Select a date range within which the events will occur. Conversions/Retention outside of this date range will not be counted."
     type: date
     datatype: date
   }
 
+  parameter: analysis_type {
+    type: unquoted
+    default_value: ""
+    description: "First time conversion looks ONLY for the first time a user has performed the second action after the first.
+    All conversions looks for EVERY time a user has performed the first AND THEN the second action.
+    Retention looks for EVERY time a user has performed the second action after the first."
+    allowed_value: {
+      label: "First time conversions"
+      value: ""
+    }
+    allowed_value: {
+      label: "All conversions"
+      value: "all_conversons"
+    }
+    allowed_value: {
+      label: "Retention"
+      value: "retention"
+    }
+  }
+
   parameter: time_period {
     label: "Conversion period"
-     description: "Analyze conversion occuring in this time period. Leave blank for all conversions up to current date."
+    description: "Time frames for bucketing results"
     type: number
     allowed_value: {
       label: "Minute(s)"
@@ -58,8 +78,8 @@ view: conversion_analysis {
   }
 
   parameter: number_period {
-    label: "Number of periods after initial event to look for conversions"
-     description: "Leave blank for all periods up to current date."
+    label: "Number of periods to show"
+    description: "Leave blank for all periods up to current date."
     type: number
   }
 
@@ -80,60 +100,84 @@ view: conversion_analysis {
 
   derived_table: {
     sql:
-    with initial as (
-      select distinct
-        user_sso_guid
-        , array_agg(event_name) as initial_event
-        , max(event_time) as initial_time_max
-        , min(event_time) as initial_time_min
-        -- get all initial event times instead of just min and max
-        , COUNT(*) OVER() as total_user_count
-      from ${all_sessions.SQL_TABLE_NAME} s
-      INNER JOIN ${all_events.SQL_TABLE_NAME} e USING(session_id)
-      WHERE (DATEADD(day, 1, session_start::DATE) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-      AND (DATEADD(day, -1, session_start::DATE) < {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
-      AND {% condition initial_events_filter %} event_name {% endcondition %}
-      group by user_sso_guid
-      )
-    --, conversion as (
-      select
-        i.user_sso_guid
-        , initial_event
-        , initial_time_max
-        , initial_time_min
-        , total_user_count
-        , array_agg(event_name) as conversion_event
-        , max(event_time) as conversion_time_max
-        , min(event_time) as conversion_time_min
-
-        , coalesce(
-            greatest(1
-              , datediff(
-                {% if time_period._parameter_value == '0.01' %}
-                  minute
-                {% elsif time_period._parameter_value == '0.1' %}
-                  hour
-                {% elsif time_period._parameter_value == '1' %}
-                  day
-                {% elsif time_period._parameter_value == '7' %}
-                  week
-                {% elsif time_period._parameter_value == '30' %}
-                  month
-                {% elsif time_period._parameter_value == '365' %}
-                  year
-                {% endif %}
-                ,initial_time_min, conversion_time_min)
-              )
-            ,1) as period_number
-
-        , concat(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
-                  ,' ',period_number) as conversion_period
-      from initial i
-      inner join ${all_events.SQL_TABLE_NAME} e
-
-      on i.user_sso_guid = e.user_sso_guid
-          and e.event_time > i.initial_time_min
-          and e.event_time <= dateadd(
+    WITH all_relevant_events_base AS (
+      SELECT distinct
+          user_sso_guid
+          , event_time
+          , event_name
+          , CASE WHEN {% condition initial_events_filter %} event_name {% endcondition %}
+              THEN 'initial'
+              ELSE 'conversion'
+              END AS event_type
+        FROM ${all_sessions.SQL_TABLE_NAME} s
+        INNER JOIN ${all_events.SQL_TABLE_NAME} e USING(session_id)
+        WHERE (DATEADD(day, 1, session_start::DATE) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
+        AND (DATEADD(day, -1, session_start::DATE) < {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
+        AND (
+          {% condition initial_events_filter %} event_name {% endcondition %}
+          OR
+          {% condition conversion_events_filter %} event_name {% endcondition %}
+        )
+    )
+    ,all_relevant_events AS (
+      SELECT
+        *
+        , COALESCE(LAG(event_type) OVER (PARTITION BY user_sso_guid ORDER BY event_time), '') = event_type AS same_type_as_previous
+      FROM all_relevant_events_base
+    )
+    ,simplify_events AS (
+      SELECT
+        *
+        ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time)   AS sequence_number
+        {% if analysis_type._parameter_value == 'retention' %}
+        ,MIN(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
+        {% else %}
+        ,LAG(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
+        {% endif %}
+        AS reference_event_time
+      FROM all_relevant_events
+      {% if analysis_type._parameter_value == 'retention' %}
+      -- if retention keep the first "initial event" and all subsequent conversion events
+      WHERE (NOT same_type_as_previous OR event_type = 'conversion')
+      {% else  %}
+      -- if conversion analysis remove repeated events of the same type
+      WHERE NOT same_type_as_previous
+      {% endif %}
+    )
+    ,adjust_first_event AS (
+      --if the first event is a conversion event we want to ignore it
+      SELECT user_sso_guid, CASE WHEN event_type = 'conversion' THEN -1 ELSE 0 END as modifier
+      FROM simplify_events
+      WHERE sequence_number = 1
+    )
+    ,final_events AS (
+      SELECT *
+      FROM simplify_events
+      INNER JOIN adjust_first_event USING(user_sso_guid)
+      WHERE sequence_number + modifier > 0
+      {% if analysis_type._parameter_value == '' %}
+      AND sequence_number + modifier <= 2
+      {% endif %}
+    )
+    {% if show_total._parameter_value == 'show' %}
+    SELECT DISTINCT
+      user_sso_guid
+      ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
+      ,-1 as period_number
+      ,'Total Users' as period_label
+      ,NULL as initial_time_min
+      ,NULL as initial_time_max
+      ,NULL as conversion_time_min
+      ,NULL as conversion_time_max
+      ,NULL AS conversion_event
+      ,NULL AS conversion_event_count
+    FROM simplify_events
+    UNION ALL
+    {% endif %}
+    SELECT
+      user_sso_guid
+      ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
+      ,COALESCE(GREATEST(1, DATEDIFF(
           {% if time_period._parameter_value == '0.01' %}
             minute
           {% elsif time_period._parameter_value == '0.1' %}
@@ -147,28 +191,26 @@ view: conversion_analysis {
           {% elsif time_period._parameter_value == '365' %}
             year
           {% endif %}
-          ,{{ number_period._parameter_value }}, initial_time_min)
-
-      where {% condition conversion_events_filter %} event_name {% endcondition %}
-      group by 1,2,3,4,5
-      --{{ show_total._parameter_value }}
-      {% if show_total._parameter_value == 'show' %}
-      union all
-      select
-        i.user_sso_guid
-        , initial_event
-        , initial_time_max
-        , initial_time_min
-        , total_user_count
-        , NULL as conversion_event
-        , NULL as conversion_time_max
-        , NULL as conversion_time_min
-
-        , 0 as period_number
-
-        , 'Total Users' as conversion_period
-      from initial i
-      {% endif %}
+          ,reference_event_time
+          ,event_time
+        )), 1) as period_number
+      , CONCAT(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
+                  ,' ',period_number) AS period_label
+      , MIN(reference_event_time) AS initial_time_min
+      , MAX(reference_event_time) AS initial_time_max
+      , MIN(event_time) as conversion_time_min
+      , MAX(event_time) as conversion_time_max
+      , CASE WHEN COUNT(DISTINCT event_name) > 10
+          THEN ARRAY_CONSTRUCT('Too many events to list...')
+          ELSE ARRAY_AGG(DISTINCT event_name)
+        END AS conversion_event
+      , COUNT(*) AS conversion_event_count
+    FROM final_events
+    WHERE event_type = 'conversion'
+    {% if number_period._parameter_value != '' %}
+    AND period_number <= {{ number_period._parameter_value }}
+    {% endif %}
+    GROUP BY 1, 2, 3, 4
 
       ;;
   }
@@ -193,12 +235,13 @@ view: conversion_analysis {
     view_label: "** USER EVENT CONVERSION **"
     order_by_field: period_number
     description: "Conversion occurred during this period after the initial event"
+    sql: ${TABLE}.period_label ;;
     }
 
 
   dimension: user_converted {
     view_label: "** USER EVENT CONVERSION **"
-    sql: case when ${conversion_time_max} is not null then true else false end ;;
+    sql: ${conversion_time_max} IS NOT NULL ;;
     type: yesno
     description: "User converted according the specified filter parameters"
     }
@@ -218,12 +261,12 @@ view: conversion_analysis {
   }
 
   measure: conversion_user_count {
+    label: "# Converted Users"
     type: count_distinct
     sql: ${user_sso_guid} ;;
     view_label: "** USER EVENT CONVERSION **"
     description: "Number of users who converted (did one of the initial event(s) followed by one of the conversion event(s))"
   }
-
 
   measure: conversion_rate {
     type: number
@@ -232,7 +275,6 @@ view: conversion_analysis {
     value_format_name: percent_2
     description: "Ratio of number of users who converted over number that did one of the initial event(s)"
   }
-
 
   measure: first_conversion_duration_average {
     type: average
