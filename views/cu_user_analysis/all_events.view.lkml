@@ -971,6 +971,15 @@ view: all_events_base {
   suggest_dimension: filter_cache_all_events_event_name.event_name
   }
 
+  dimension: event_name_raw {
+    group_label: "Event Classification - Raw"
+    label: "Raw event name"
+    description: "Event Category + Event Action"
+    type: string
+    sql: CONCAT(${event_type},' ',${event_action});;
+    hidden: no
+  }
+
 
   dimension_group: local {
     type: time

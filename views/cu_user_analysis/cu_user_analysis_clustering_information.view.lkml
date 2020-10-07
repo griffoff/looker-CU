@@ -16,7 +16,7 @@ view: cu_user_analysis_clustering_information {
     ;;
   }
 
-  dimension: refresh_time {type:date_time}
+  dimension: refresh_time {label: "Refresh Time EST" type:date_time}
 
   dimension:  unique_values_partition {}
 
