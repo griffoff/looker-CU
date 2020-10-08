@@ -4,7 +4,11 @@ view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
 derived_table: {
-  sql:
+  create_process: {
+    sql_step:
+    create or replace transient table ${SQL_TABLE_NAME}
+    cluster by (user_sso_guid)
+    as
     select u.*
       , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND hs.SUBSCRIPTION_ID is not null and coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
       , coalesce(try_cast(paid as boolean),false) as paid_bool
@@ -21,7 +25,10 @@ derived_table: {
     from prod.cu_user_analysis.user_courses u
     left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
     left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
-  ;;
+    order by user_sso_guid
+    ;;
+
+  }
   datagroup_trigger: daily_refresh
 }
 

@@ -106,10 +106,9 @@ view: cohort_selection {
                 ELSE
                   DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
                 END as boundary_event_time
-            FROM ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
-            INNER JOIN ${all_events.SQL_TABLE_NAME} all_events USING (session_id)
-            WHERE (DATEADD(day, 1, session_start::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-            AND (DATEADD(day, -1, session_start::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+            FROM ${all_events.SQL_TABLE_NAME} all_events SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
+            WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+            AND (TO_TIMESTAMP(session_id::INT) <= {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
             AND {% condition cohort_events_filter %} event_name {% endcondition %}
             GROUP BY 1, 2
             ) starting_events
@@ -134,10 +133,9 @@ view: cohort_selection {
                     LAG(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
                 {% endif %}
                   AS is_duplicate
-              FROM ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
-              INNER JOIN ${all_events.SQL_TABLE_NAME} all_events USING (session_id)
-              WHERE (DATEADD(day, 1, session_start::DATE) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-              AND (DATEADD(day, -1, session_start::DATE) < {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+             FROM ${all_events.SQL_TABLE_NAME} all_events SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
+             WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+             AND (TO_TIMESTAMP(session_id::INT) <= {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
               {% if bucket_other_events._parameter_value != 'bucket' %}
                 AND {% condition flow_events_filter %} event_name {% endcondition %}
               {% endif %}
