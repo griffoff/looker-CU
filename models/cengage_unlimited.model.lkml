@@ -145,7 +145,7 @@ explore: course_sections {
   }
 
   join: all_events {
-    sql_on: (${user_courses.user_sso_guid}, ${user_courses.olr_course_key}) = (${all_events.user_sso_guid}, ${all_events.course_key}) ;;
+    sql_on: (${user_courses.user_sso_guid}, REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')) = (${all_events.user_sso_guid}, ${all_events.course_key}) ;;
     relationship: one_to_many
   }
 
