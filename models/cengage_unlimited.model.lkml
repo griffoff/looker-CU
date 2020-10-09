@@ -412,13 +412,13 @@ explore: raw_olr_enrollment {
 # MT Mobile Data
 
 explore: mobiledata {
-  from: dim_course
-  view_name: dim_course
+  from: ga_mobiledata
+  view_name: ga_mobiledata
   label: "MT Mobile GA Data"
   extends: [dim_course]
 
-  join: ga_mobiledata {
-    sql_on: ${dim_course.coursekey} = ${ga_mobiledata.coursekey};;
+  join: dim_course {
+    sql_on:  ${ga_mobiledata.coursekey} = ${dim_course.coursekey};;
     relationship: many_to_one
   }
 
