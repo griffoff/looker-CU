@@ -216,8 +216,6 @@ view: learner_profile {
     sql: coalesce(${TABLE}.subscription_status, 'Never tried CU');;
     description: "Current CU subscription state"
     hidden: no
-    html: <a href="https://docs.google.com/spreadsheets/d/1iHN8itxekXF_EvrF5J2h6dUgEXbSRYQA3BLNG4ctLaU/edit#gid=1846176976">{{ value }}</a>
-    ;;
   }
 
   dimension: is_cu_subscriber {
@@ -361,6 +359,16 @@ view: learner_profile {
     sql:  ${TABLE}.courseware_ebooks_net_price_value ;;
     alias: [courseware_ebooks_net_price_value]
     hidden: yes
+  }
+
+  dimension: all_products_net_value {
+    group_label: "Provisioned Products"
+    type: number
+    label: "All products net value"
+    description: "Total net price of all courseware and ebooks provisioned to this users dashboard"
+    value_format_name: usd_0
+    sql:  ${TABLE}.courseware_ebooks_net_price_value + ${TABLE}.non_courseware_ebooks_net_price_value;;
+    hidden: no
   }
 
   dimension: non_courseware_user {
