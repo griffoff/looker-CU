@@ -976,7 +976,7 @@ view: all_events_base {
     label: "Raw event name"
     description: "Event Category + Event Action"
     type: string
-    sql: CONCAT(${event_type},' ',${event_action});;
+    sql: CONCAT(UPPER(${event_type}),'-',UPPER(${event_action}));;
     hidden: no
   }
 
