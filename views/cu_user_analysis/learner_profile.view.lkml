@@ -216,8 +216,6 @@ view: learner_profile {
     sql: coalesce(${TABLE}.subscription_status, 'Never tried CU');;
     description: "Current CU subscription state"
     hidden: no
-    html: <a href="https://docs.google.com/spreadsheets/d/1iHN8itxekXF_EvrF5J2h6dUgEXbSRYQA3BLNG4ctLaU/edit#gid=1846176976">{{ value }}</a>
-    ;;
   }
 
   dimension: is_cu_subscriber {
