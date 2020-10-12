@@ -9,7 +9,11 @@ explore: cu_user_analysis_clustering_information_history {
 }
 
 view: partition_depth_histogram {
-  dimension: unique_values_partition {type: number sql:${TABLE}.key;; value_format:"00000"}
+  dimension: unique_values_partition {
+    type: number
+    sql:${TABLE}.key::INT;;
+    value_format:"00000"
+    }
 
   dimension: partition_count {type: number sql: ${TABLE}.value;;}
 
@@ -18,6 +22,14 @@ view: partition_depth_histogram {
 
 view: clustering_information_fields {
   dimension: refresh_time {label: "Refresh Time EST" type:date_time sql: convert_timezone('America/New_York', ${TABLE}.refresh_time) ;;}
+
+  dimension_group: refresh_age {
+    label: "Since Refresh"
+    type: duration
+    intervals: [minute, hour, day, week]
+    sql_start: ${refresh_est_raw} ;;
+    sql_end: CURRENT_TIMESTAMP() ;;
+  }
 
   dimension_group: refresh_est {label: "Refresh Date EST"
     type:time
