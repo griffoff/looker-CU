@@ -1019,7 +1019,7 @@ view: all_events_base {
 
   dimension: event_date_raw {
     hidden: yes
-    type: date
+    type: date_raw
     sql: ${TABLE}.event_time::date ;;
 
   }
@@ -1240,14 +1240,14 @@ view: all_events_base {
     group_label: "# Events"
     type: string
     description: "Since when have we been tracking this event?"
-    sql: MIN(${event_date_raw}) ;;
+    sql: TO_CHAR(MIN(${local_est_raw}), 'YYYY-MM-DD HH24:MI:SS') ;;
   }
 
   measure: event_last_captured {
     group_label: "# Events"
     type: string
     description: "When was the last time we caught this event?"
-    sql: MAX(${event_date_raw}) ;;
+    sql: TO_CHAR(MAX(${local_est_raw}), 'YYYY-MM-DD HH24:MI:SS') ;;
   }
 
   measure: month_count {

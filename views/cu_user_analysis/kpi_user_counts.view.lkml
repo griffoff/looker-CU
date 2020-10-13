@@ -1,3 +1,9 @@
+explore: kpi_user_counts {}
+explore: kpi_user_counts_agg {
+  from: kpi_user_counts
+  view_name: kpi_user_counts
+}
+
 view: kpi_user_counts_agg {
   extends: [kpi_user_counts]
   #hidden:yes
@@ -7,6 +13,8 @@ view: kpi_user_counts_agg {
     {% elsif kpi_user_stats.datevalue_week._in_query %}
     LOOKER_SCRATCH.kpi_user_counts_weekly
     {% elsif kpi_user_stats.datevalue_month._in_query %}
+    LOOKER_SCRATCH.kpi_user_counts_monthly
+    {% elsif kpi_user_stats.datevalue_year._in_query %}
     LOOKER_SCRATCH.kpi_user_counts_monthly
     {% else %}
     ${kpi_user_counts.SQL_TABLE_NAME}
