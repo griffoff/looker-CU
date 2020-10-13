@@ -1,9 +1,12 @@
 view: sat_provisioned_product_v2 {
   derived_table: {
     sql:
-    select *
-    from prod.datavault.sat_provisioned_product_v2
-    where _latest
+    select coalesce(su.linked_guid, spp.USER_SSO_GUID) as merged_guid, p.net_price, sum(p.net_price) over(partition by merged_guid) as total_user_product_value, spp.*
+    from prod.datavault.sat_provisioned_product_v2 spp
+    left join prod.datavault.hub_user hu on spp.USER_SSO_GUID = hu.uid
+    left join prod.datavault.sat_user_v2 su on su.hub_user_key = hu.hub_user_key and su._latest
+    left join prod.STG_CLTS.PRODUCTS p on p.ISBN13 = spp.iac_isbn
+    where spp._latest
     ;;
   }
 
@@ -73,16 +76,20 @@ view: sat_provisioned_product_v2 {
   }
 
   dimension: context_id {
+    hidden: yes
+    description: "Context ID of provisioned product"
     type: string
     sql: ${TABLE}."CONTEXT_ID" ;;
   }
 
   dimension: core_text_isbn {
+    hidden: yes
     type: string
     sql: ${TABLE}."CORE_TEXT_ISBN" ;;
   }
 
   dimension_group: date_added {
+    description: "Provisioned product added date"
     type: time
     timeframes: [
       raw,
@@ -103,6 +110,8 @@ view: sat_provisioned_product_v2 {
   }
 
   dimension_group: expiration {
+    hidden: yes
+    description: "Provisioned product expiration date"
     type: time
     timeframes: [
       raw,
@@ -130,11 +139,14 @@ view: sat_provisioned_product_v2 {
   }
 
   dimension: iac_isbn {
+    hidden: yes
+    description: "IAC ISBN of provisioned product"
     type: string
     sql: ${TABLE}."IAC_ISBN" ;;
   }
 
   dimension: institution_id {
+    hidden: yes
     type: string
     sql: ${TABLE}."INSTITUTION_ID" ;;
   }
@@ -185,6 +197,7 @@ view: sat_provisioned_product_v2 {
   }
 
   dimension: region {
+    hidden: yes
     type: string
     sql: ${TABLE}."REGION" ;;
   }
@@ -246,7 +259,39 @@ view: sat_provisioned_product_v2 {
     sql: ${TABLE}."USER_TYPE" ;;
   }
 
+  dimension: merged_guid {
+    hidden: yes
+    type: string
+  }
+
+  dimension: net_price {
+    hidden: yes
+    type: number
+    value_format: "$#.00;($#.00)"
+    sql: ${TABLE}.net_price ;;
+    description: "Net price of provisioned product"
+  }
+
+  dimension: total_user_product_value  {
+    description: "Sum of net price for all of a users provisioned products"
+    hidden: no
+    type: number
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: average_total_product_value_per_user {
+    type: number
+    sql: sum(${net_price}) / nullif(count(distinct ${merged_guid}),0)  ;;
+    value_format: "$#.00;($#.00)"
+  }
+
+  measure: provisioned_products_per_user {
+    type: number
+    sql: count(distinct ${hub_provisioned_product_key}) / nullif(count(distinct ${merged_guid}),0)  ;;
+  }
+
   measure: count {
+    hidden: yes
     type: count
     drill_fields: []
   }

@@ -755,6 +755,12 @@ view: learner_profile {
     value_format_name: percent_1
   }
 
+  measure: average_user_product_value {
+    type: number
+    sql: sum(${all_products_net_value})/nullif(count(distinct ${user_sso_guid}),0) ;;
+    description: "Average value total provisioned products, per user"
+  }
+
   dimension: activations_after_subscription_start {
     group_label: "A la carte purchases"
     label: "# of a la carte purchases after subscription start"

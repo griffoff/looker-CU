@@ -469,6 +469,13 @@ explore: learner_profile {
     relationship: many_to_many
   }
 
+  join: sat_provisioned_product_v2 {
+    fields: [sat_provisioned_product_v2.net_price,sat_provisioned_product_v2.total_user_product_value,sat_provisioned_product_v2.average_total_product_value_per_user,sat_provisioned_product_v2.provisioned_products_per_user]
+    view_label: "Provisioned Products"
+    sql_on: ${sat_provisioned_product_v2.merged_guid} = ${learner_profile.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
   join: products_v {
     fields: []
     view_label: "Provisioned Products - Info"
