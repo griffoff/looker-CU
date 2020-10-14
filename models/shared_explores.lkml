@@ -73,25 +73,10 @@ explore: all_sessions {
     type: inner
   }
 
-  join: context_id_test {
-    from: dim_course
-    sql_on: ${all_events.tags_ContextID} = ${context_id_test.context_id} ;;
-    fields: [context_id_test.has_olr_context_id]
-    view_label: "Events"
-    relationship: many_to_many
-    type: left_outer
-  }
-
-
   join: dim_course {
     sql_on: ${all_events.course_key} = REGEXP_REPLACE(${dim_course.olr_course_key},'WA-production-','',1,0,'i') ;;
     relationship: many_to_many
   }
-
-  # join: dim_product {
-  #   from: stg_clts_products
-  #   sql_on: ${dim_product.isbn13} = ${dim_course.isbn} ;;
-  # }
 
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;

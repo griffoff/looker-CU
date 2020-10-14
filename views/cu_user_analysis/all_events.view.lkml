@@ -943,30 +943,11 @@ view: all_events_base {
 
   }
 
-  dimension: event_name_new {
-    group_label: "Event Classification"
-    label: "New event name (Testing)"
-    type: string
-    #sql: prod.cu_user_analysis.event_name(${event_action}, ${event_type}) ;;
-    sql:  zandbox.pgriffiths.event_name_from_source(${load_metadata_source}, ${host_platform}, ${event_type}, ${event_action}, ${event_data}) ;;
-    hidden: no
-  }
-
   dimension: event_name {
     group_label: "Event Classification"
     type: string
-    #sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."EVENT_TYPE" || ' ' || ${event_action} ELSE ${TABLE}."EVENT_NAME" END ;;
-  sql:
-     CASE WHEN ${product_platform} = 'PERFORMANCE-REPORT-UI' THEN TRIM(INITCAP(LOWER(${product_platform})) || ' ' || INITCAP(LOWER(${event_type})) || ' ' || INITCAP(LOWER(${event_action})))
-          ELSE COALESCE(TRIM(${TABLE}."EVENT_NAME"), '** ' || UPPER(${event_type} || ': ' || ${event_action}) || ' **') END
-          ;;
     label: "Event name"
-    description: "The lowest level in hierarchy of event classification below event action.
-    Can be associated with describing a user action in plain english i.e. 'Buy Now Button Click'
-    n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
-    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **"
-    link: {label: " n.b. These names come from a mapping table to make them friendlier than the raw names from the event stream.
-    If no mapping is found the upper case raw name is used with asterisks to signify the difference - e.g. ** EVENT TYPE: EVENT ACTION **" url: "javascript:void"}
+    description: "Visually friendly event name, generally event action + event category with duplicate words removed and improved capitalization and spacing"
   suggest_explore: filter_cache_all_events_event_name
   suggest_dimension: filter_cache_all_events_event_name.event_name
   }
@@ -974,9 +955,8 @@ view: all_events_base {
   dimension: event_name_raw {
     group_label: "Event Classification - Raw"
     label: "Raw event name"
-    description: "Event Category + Event Action"
+    description: "Event Category - Event Action"
     type: string
-    sql: CONCAT(UPPER(${event_type}),'-',UPPER(${event_action}));;
     hidden: no
   }
 
@@ -1638,16 +1618,4 @@ dimension: platform {
     END
   ) ;;
 }
-
-
-
-
-
-#   measure: session_count {
-#     label: "# sessions"
-#     type: count_distinct
-#     sql: ${session_id} ;;
-# #     drill_fields: [event_time, system_category, product_platform, event_type, event_action, event_data, count]
-#     description: "Measure for counting unique sessions (drill fields)"
-#   }
 }
