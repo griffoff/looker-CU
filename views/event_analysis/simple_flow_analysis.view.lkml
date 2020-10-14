@@ -21,19 +21,24 @@ view: simple_flow_analysis {
 
   derived_table: {
     sql:
-    WITH event_sequence AS (
+    WITH events AS (
       SELECT
         user_sso_guid
         ,event_id
         --,zandbox.delderfield.event_name_from_source(load_metadata:source, TRIM(event_data:host_platform), event_type, event_action, event_data) AS event_name
+        ,event_time
         ,event_name
-        ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time) AS sequence
-        --,event_time
-        --,LEAD(event_time) OVER (PARTITION BY user_sso_guid ORDER BY event_time) AS next_event_time
-        --,DATEDIFF(second, event_time, next_event_time) / (3600 * 24) AS duration
+        ,LAG(event_name) OVER (PARTITION BY user_sso_guid ORDER BY event_time) = event_name AS duplicate
       FROM ${all_events.SQL_TABLE_NAME}
       WHERE {% condition date_range_filter %} TO_TIMESTAMP(session_id::INT) {% endcondition%}
       AND {% condition flow_events_filter %} event_name {% endcondition %}
+    )
+    ,event_sequence AS (
+      SELECT
+        *
+        ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time) AS sequence
+      FROM events
+      WHERE NOT duplicate
     )
     SELECT
       user_sso_guid
