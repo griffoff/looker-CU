@@ -9,10 +9,15 @@ explore: cu_user_analysis_clustering_information_history {
 }
 
 view: partition_depth_histogram {
-  dimension: unique_values_partition {
+  dimension: unique_values_partition_sort {
     type: number
     sql:${TABLE}.key::INT;;
-    value_format:"00000"
+    hidden: yes
+  }
+  dimension: unique_values_partition {
+    type: string
+    sql:${TABLE}.key::STRING;;
+    order_by_field: unique_values_partition_sort
     }
 
   dimension: partition_count {type: number sql: ${TABLE}.value;;}
