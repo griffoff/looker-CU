@@ -1,4 +1,4 @@
-explore: fiscal_year_user_growth  {}
+explore: fiscal_year_user_growth  {hidden:yes}
 view: fiscal_year_user_growth {
   derived_table: {
     sql:
@@ -39,8 +39,9 @@ view: fiscal_year_user_growth {
           , coalesce(su.LINKED_GUID,hu.uid) as user_guid
           , su.INSTRUCTOR
         from el_keys sel
-        inner join prod.DATAVAULT.LINK_EL_TO_SECTION_MAPPING les on sel.HUB_ENTERPRISELICENSE_KEY = les.HUB_ENTERPRISELICENSE_KEY
-        inner join prod.DATAVAULT.LINK_USER_COURSESECTION luc on luc.HUB_COURSESECTION_KEY = les.HUB_COURSESECTION_KEY
+        inner join prod.DATAVAULT.LINK_ENTERPRISELICENSE_ELTOSECTIONMAPPING lee on lee.HUB_ENTERPRISELICENSE_KEY = sel.HUB_ENTERPRISELICENSE_KEY
+        inner join prod.DATAVAULT.LINK_COURSESECTION_ELTOSECTIONMAPPING lce on lce.HUB_ELTOSECTIONMAPPING_KEY = lee.HUB_ELTOSECTIONMAPPING_KEY
+        inner join prod.DATAVAULT.LINK_USER_COURSESECTION luc on luc.HUB_COURSESECTION_KEY = lce.HUB_COURSESECTION_KEY
         inner join prod.DATAVAULT.SAT_ENROLLMENT se on luc.HUB_ENROLLMENT_KEY = se.HUB_ENROLLMENT_KEY and se._latest
         inner join prod.DATAVAULT.hub_user hu on luc.HUB_USER_KEY = hu.HUB_USER_KEY
         inner join prod.DATAVAULT.SAT_USER_V2 su on hu.HUB_USER_KEY = su.HUB_USER_KEY and su._LATEST
@@ -59,8 +60,9 @@ view: fiscal_year_user_growth {
           , coalesce(su.LINKED_GUID,hu.uid) as user_guid
           , su.INSTRUCTOR
         from el_keys sel
-        inner join prod.DATAVAULT.LINK_EL_TO_SECTION_MAPPING les on sel.HUB_ENTERPRISELICENSE_KEY = les.HUB_ENTERPRISELICENSE_KEY
-        inner join prod.DATAVAULT.LINK_USER_COURSESECTION luc on luc.HUB_COURSESECTION_KEY = les.HUB_COURSESECTION_KEY
+        inner join prod.DATAVAULT.LINK_ENTERPRISELICENSE_ELTOSECTIONMAPPING lee on lee.HUB_ENTERPRISELICENSE_KEY = sel.HUB_ENTERPRISELICENSE_KEY
+        inner join prod.DATAVAULT.LINK_COURSESECTION_ELTOSECTIONMAPPING lce on lce.HUB_ELTOSECTIONMAPPING_KEY = lee.HUB_ELTOSECTIONMAPPING_KEY
+        inner join prod.DATAVAULT.LINK_USER_COURSESECTION luc on luc.HUB_COURSESECTION_KEY = lce.HUB_COURSESECTION_KEY
         inner join prod.datavault.hub_coursesection hc on hc.HUB_COURSESECTION_KEY = luc.HUB_COURSESECTION_KEY
         inner join prod.DATAVAULT.hub_user hu on luc.HUB_USER_KEY = hu.HUB_USER_KEY
         inner join prod.DATAVAULT.SAT_USER_V2 su on hu.HUB_USER_KEY = su.HUB_USER_KEY and su._LATEST
