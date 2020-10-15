@@ -329,24 +329,6 @@ view: live_subscription_status {
     sql:  ;;
   }
 
-  dimension: user_full_access_subscriptions_count {
-    type: number
-    description: "The user's number of distinct full access subscriptions, all time. Use to identify new and returning subscribers."
-    hidden: yes
-  }
-
-  dimension: previous_full_access_subscriptions {
-    sql: CASE WHEN ${subscription_plan_id} ILIKE 'Full-Access%' THEN ${TABLE}.user_full_access_subscriptions_count - 1 ELSE ${TABLE}.user_full_access_subscriptions_count END ;;
-    hidden: yes
-  }
-
-  dimension: returning_full_access_subscriber {
-    type: yesno
-    sql: CASE WHEN ${previous_full_access_subscriptions} > 0 then true else false end ;;
-    description: "User has had a full access subscription before their current subscription. Use to identify new or returning subscribers."
-  }
-
-
   measure: student_count {
     hidden: no
     label: "# Subscribers (All types inc. trial)"

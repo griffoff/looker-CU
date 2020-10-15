@@ -67,7 +67,6 @@ view: raw_subscription_event_sap {
         (
           SELECT
             *
-            ,COUNT(DISTINCT CASE WHEN subscription_plan_id ILIKE 'full-access%' THEN subscription_id END) OVER (PARTITION BY merged_guid) AS user_full_access_subscriptions_count
             ,LAG(subscription_start) over(partition by merged_guid order by subscription_start, local_time) as prior_start
             ,LEAD(subscription_start) OVER (PARTITION BY merged_guid ORDER BY subscription_start, local_time) as next_subscription_start
             ,subscription_start AS effective_from
@@ -282,13 +281,6 @@ persist_for: "1 hour"
     sql: ${TABLE}."SUBSCRIPTION_STATUS" ;;
     description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
   }
-
-  dimension: user_full_access_subscriptions_count {
-    type: number
-    description: "The user's number of distinct full access subscriptions, all time. Use to identify new and returning subscribers."
-    hidden: yes
-  }
-
 
   set: detail {
     fields: [

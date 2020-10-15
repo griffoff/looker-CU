@@ -65,13 +65,13 @@ explore: all_sessions {
     relationship: one_to_many
   }
 
-  join: all_events_diff {
-    sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
-    view_label: "Event Path (preceding and following events)"
-    sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
-    relationship: many_to_one
-    type: inner
-  }
+  # join: all_events_diff {
+  #   sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
+  #   view_label: "Event Path (preceding and following events)"
+  #   sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
+  #   relationship: many_to_one
+  #   type: inner
+  # }
 
   join: dim_course {
     sql_on: ${all_events.course_key} = REGEXP_REPLACE(${dim_course.olr_course_key},'WA-production-','',1,0,'i') ;;
@@ -554,12 +554,11 @@ explore: session_analysis {
     relationship: one_to_one
   }
 
-  join: above_the_course_usage_buckets {
-    view_label: "Above the course usage buckets"
-    sql_on:  ${learner_profile.user_sso_guid} = ${above_the_course_usage_buckets.user_sso_guid} ;;
-    relationship:  one_to_many
-
-  }
+  # join: above_the_course_usage_buckets {
+  #   view_label: "Above the course usage buckets"
+  #   sql_on:  ${learner_profile.user_sso_guid} = ${above_the_course_usage_buckets.user_sso_guid} ;;
+  #   relationship:  one_to_many
+  # }
 
   join: strategy_cui_pricing {
     view_label: "Institution"
