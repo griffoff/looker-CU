@@ -190,84 +190,66 @@ view: cohort_selection {
     sql: ${user_sso_guid} ;;
     link: {
       label: "Conversion Rate to {{ event_1._value }}"
-      url: "
-      {% assign vis_config = '{\"type\":\"looker_funnel\"}' %}
+      url: "{% assign vis_config = '{\"type\": \"looker_funnel\"}' %}
       https://cengage.looker.com/explore/event_analysis/conversion_analysis?
-      vis_config={{ vis_config | encode_uri }}
-      &toggle=dat,pik
-      &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
-      &f[conversion_analysis.time_period]=1
-      &f[conversion_analysis.number_period]=5
+      f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+      &f[conversion_analysis.time_period]=0.01
+      &f[conversion_analysis.number_period]=30
       &f[conversion_analysis.initial_events_filter]={{start_events._value | url_encode}}
       &f[conversion_analysis.conversion_events_filter]={{event_1._value | url_encode}}
-      &fields=conversion_analysis.conversion_user_count,conversion_analysis.conversion_period"
+      &fields=conversion_analysis.conversion_period,conversion_analysis.conversion_user_count&vis_config={{ vis_config | url_encode }}
+      &toggle=dat,vis"
     }
 
     link: {
       label: "Conversion Rate to {{ event_2._value }}"
-      url: "
-      {% assign vis_config = '{
-      \"type\":\"looker_column\",
-      \"y_axes\":[{\"maxValue\":1}]
-      }' %}
+     url: "{% assign vis_config = '{\"type\": \"looker_funnel\"}' %}
       https://cengage.looker.com/explore/event_analysis/conversion_analysis?
-      vis_config={{ vis_config | encode_uri }}
-      &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
-      &f[conversion_analysis.time_period]=1
-      &f[conversion_analysis.number_period]=5
+      f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+      &f[conversion_analysis.time_period]=0.01
+      &f[conversion_analysis.number_period]=30
       &f[conversion_analysis.initial_events_filter]={{start_events._value | url_encode}}
       &f[conversion_analysis.conversion_events_filter]={{event_2._value | url_encode}}
-      &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
+      &fields=conversion_analysis.conversion_period,conversion_analysis.conversion_user_count&vis_config={{ vis_config | url_encode }}
+      &toggle=dat,vis"
     }
 
     link: {
       label: "Conversion Rate to {{ event_3._value }}"
-      url: "
-      {% assign vis_config = '{
-      \"type\":\"looker_column\",
-      \"y_axes\":[{\"maxValue\":1}]
-      }' %}
+     url: "{% assign vis_config = '{\"type\": \"looker_funnel\"}' %}
       https://cengage.looker.com/explore/event_analysis/conversion_analysis?
-      vis_config={{ vis_config | encode_uri }}
-      &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
-      &f[conversion_analysis.time_period]=1
-      &f[conversion_analysis.number_period]=5
+      f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+      &f[conversion_analysis.time_period]=0.01
+      &f[conversion_analysis.number_period]=30
       &f[conversion_analysis.initial_events_filter]={{start_events._value | url_encode}}
       &f[conversion_analysis.conversion_events_filter]={{event_3._value | url_encode}}
-      &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
+      &fields=conversion_analysis.conversion_period,conversion_analysis.conversion_user_count&vis_config={{ vis_config | url_encode }}
+      &toggle=dat,vis"
     }
     link: {
       label: "Conversion Rate to {{ event_4._value }}"
-      url: "
-      {% assign vis_config = '{
-      \"type\":\"looker_column\",
-      \"y_axes\":[{\"maxValue\":1}]
-      }' %}
+      url: "{% assign vis_config = '{\"type\": \"looker_funnel\"}' %}
       https://cengage.looker.com/explore/event_analysis/conversion_analysis?
-      vis_config={{ vis_config | encode_uri }}
-      &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
-      &f[conversion_analysis.time_period]=1
-      &f[conversion_analysis.number_period]=5
+      f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+      &f[conversion_analysis.time_period]=0.01
+      &f[conversion_analysis.number_period]=30
       &f[conversion_analysis.initial_events_filter]={{start_events._value | url_encode}}
       &f[conversion_analysis.conversion_events_filter]={{event_4._value | url_encode}}
-      &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
+      &fields=conversion_analysis.conversion_period,conversion_analysis.conversion_user_count&vis_config={{ vis_config | url_encode }}
+      &toggle=dat,vis"
     }
 
     link: {
       label: "Conversion Rate to {{ event_5._value }}"
-      url: "
-      {% assign vis_config = '{
-      \"type\":\"looker_column\",
-      \"y_axes\":[{\"maxValue\":1}]
-      }' %}
+      url: "{% assign vis_config = '{\"type\": \"looker_funnel\"}' %}
       https://cengage.looker.com/explore/event_analysis/conversion_analysis?
-      vis_config={{ vis_config | encode_uri }}
-      &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
-      &f[conversion_analysis.time_period]=1
-      &f[conversion_analysis.number_period]=5
+      f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
+      &f[conversion_analysis.time_period]=0.01
+      &f[conversion_analysis.number_period]=30
       &f[conversion_analysis.initial_events_filter]={{start_events._value | url_encode}}
       &f[conversion_analysis.conversion_events_filter]={{event_5._value | url_encode}}
-      &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
+      &fields=conversion_analysis.conversion_period,conversion_analysis.conversion_user_count&vis_config={{ vis_config | url_encode }}
+      &toggle=dat,vis"
     }
 
   }
