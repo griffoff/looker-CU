@@ -191,18 +191,16 @@ view: cohort_selection {
     link: {
       label: "Conversion Rate to {{ event_1._value }}"
       url: "
-      {% assign vis_config = '{
-      \"type\":\"looker_column\",
-      \"y_axes\":[{\"maxValue\":1}]
-      }' %}
+      {% assign vis_config = '{\"type\":\"looker_funnel\"}' %}
       https://cengage.looker.com/explore/event_analysis/conversion_analysis?
       vis_config={{ vis_config | encode_uri }}
+      &toggle=dat,pik
       &f[conversion_analysis.initial_date_range_filter]={{_filters['cohort_date_range_filter'] | url_encode}}
       &f[conversion_analysis.time_period]=1
       &f[conversion_analysis.number_period]=5
       &f[conversion_analysis.initial_events_filter]={{start_events._value | url_encode}}
       &f[conversion_analysis.conversion_events_filter]={{event_1._value | url_encode}}
-      &fields=conversion_analysis.conversion_rate,conversion_analysis.conversion_period"
+      &fields=conversion_analysis.conversion_user_count,conversion_analysis.conversion_period"
     }
 
     link: {

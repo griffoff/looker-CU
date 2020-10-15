@@ -16,69 +16,100 @@ view: cu_user_info {
   derived_table: {
     publish_as_db_view: yes
     sql:
-        WITH hub_sat_latest
-        AS (
-             SELECT
-               h.hub_user_key,h._ldts, sa.rsrc_timestamp
-                  ,h.uid as user_sso_guid,sa.linked_guid,coalesce(sa.linked_guid,h.uid) as merged_guid
-                  ,COALESCE(p.email, merged_guid) as party_identifier
-                  ,p.email
-                  ,p.first_name
-                  ,p.last_name
-                  ,MAX(
-                     IFF(TRY_CAST(p.birth_year AS INT) < 1900 OR TRY_CAST(p.birth_year AS INT) >= YEAR(DATEADD(YEAR, -4, CURRENT_DATE()))
-                       ,NULL
-                       ,NULLIF(TRY_CAST(p.birth_year AS INT), 0)
-                       )
-               ) OVER (PARTITION BY party_identifier) AS birth_year
-                  ,sa.instructor,sa.k12, sa.region
-                  ,COUNT(NULLIF(sa.instructor, 0)) OVER (PARTITION BY party_identifier) >= 1 AS instructor_by_party
-                  ,LAST_VALUE(sa.k12) OVER (PARTITION BY party_identifier ORDER BY sa.rsrc_timestamp) AS k12_latest
-                  ,COUNT(NULLIF(sa.k12, 0)) OVER (PARTITION BY party_identifier) >= 1 as k12_by_party
-                  ,COUNT(CASE WHEN sa.region = 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
-               AND COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') = 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS usa_by_party
-                  ,COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END ) OVER (PARTITION BY party_identifier) >= 1
-               OR COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') != 'US' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 AS non_usa_by_party
-                  --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
-                  ,COALESCE(usmar.opt_out, 'true') AS marketing_opt_out
-                  ,COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1 as opt_out_by_party
-                  --found multiple linked accounts - use this to take only the latest one
-                  ,LEAD(p.rsrc_timestamp) OVER (PARTITION BY merged_guid ORDER BY sa._effective_from) IS NULL as latest_linked_account
-             FROM prod.datavault.hub_user h
-                  INNER JOIN prod.datavault.SAT_USER_V2 sa
-                             ON h.hub_user_key = sa.hub_user_key
-                               AND sa._latest
-                  LEFT JOIN prod.datavault.sat_user_pii p
-                            ON h.hub_user_key = p.hub_user_key
-                              AND p.active
-                  LEFT JOIN prod.datavault.sat_user_marketing usmar
-                            ON h.hub_user_key = usmar.hub_user_key
-                              AND usmar.active
-           )
-         ,latest_institution as (
-                                  SELECT linkins.hub_user_key, linkins.hub_institution_key, ROW_NUMBER() OVER (PARTITION BY linkins.hub_user_key ORDER BY _ldts DESC ) = 1 as latest
-                                  FROM prod.datavault.link_user_institution linkins
-                                )
-      SELECT DISTINCT
-             hs.*
-           ,hubin.institution_id
-           ,satin.name AS institution_name
-           ,usint.internal
-           ,COALESCE(bl.flag,FALSE) AS entity_flag
+      WITH party AS (
+          SELECT hu.hub_user_key
+               , COALESCE(su.linked_guid, hu.uid) AS merged_guid
+               , CASE
+                     WHEN COUNT(DISTINCT sup.email) OVER (PARTITION BY merged_guid) = 1
+                         THEN LAST_VALUE(sup.email)
+                                         OVER (PARTITION BY merged_guid ORDER BY CASE WHEN sup.email IS NOT NULL THEN 0 ELSE 1 END, sup._effective_from)
+                     ELSE merged_guid END         AS party_identifier
+          FROM prod.datavault.hub_user hu
+                   LEFT JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
+                   LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON hu.hub_user_key = sup.hub_user_key AND sup._latest
+      )
+         , hub_sat_latest AS (
+          SELECT h.hub_user_key
+               , h._ldts
+               , sa.rsrc_timestamp
+               , h.uid                                                                                                                     AS user_sso_guid
+               , sa.linked_guid
+               , coalesce(sa.linked_guid, h.uid)                                                                                           AS merged_guid
+               , party.party_identifier
+               , p.email
+               , p.first_name
+               , p.last_name
+               , MAX(
+                  IFF(TRY_CAST(p.birth_year AS INT) < 1900 OR
+                      TRY_CAST(p.birth_year AS INT) >= YEAR(DATEADD(YEAR, -4, CURRENT_DATE()))
+                      , NULL
+                      , NULLIF(TRY_CAST(p.birth_year AS INT), 0)
+                      )
+              )
+                  OVER (PARTITION BY party_identifier)                                                                                     AS birth_year
+               , sa.instructor
+               , sa.k12
+               , sa.region
+               , COUNT(NULLIF(sa.instructor, 0)) OVER (PARTITION BY party_identifier) >=
+                 1                                                                                                                         AS instructor_by_party
+               , LAST_VALUE(sa.k12)
+                            OVER (PARTITION BY party_identifier ORDER BY sa.rsrc_timestamp)                                                AS k12_latest
+               , COUNT(NULLIF(sa.k12, 0)) OVER (PARTITION BY party_identifier) >= 1                                                        AS k12_by_party
+               , COUNT(CASE WHEN sa.region = 'USA' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1
+              AND COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') = 'US' THEN 1 END)
+                        OVER (PARTITION BY party_identifier) >=
+                  1                                                                                                                        AS usa_by_party
+               , COUNT(CASE WHEN COALESCE(sa.region, '') != 'USA' THEN 1 END) OVER (PARTITION BY party_identifier) >= 1
+              OR COUNT(CASE WHEN COALESCE(sa.country, LEFT(sa.region, 2), '') != 'US' THEN 1 END)
+                       OVER (PARTITION BY party_identifier) >=
+                 1                                                                                                                         AS non_usa_by_party
+               --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
+               , COALESCE(usmar.opt_out, 'true')                                                                                           AS marketing_opt_out
+               , COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >=
+                 1                                                                                                                         AS opt_out_by_party
+               --found multiple linked accounts - use this to take only the latest one
+               , LEAD(p.rsrc_timestamp)
+                      OVER (PARTITION BY merged_guid ORDER BY CASE WHEN linked_guid IS NULL THEN 0 ELSE 1 END, sa._effective_from) IS NULL AS latest_linked_account
+          FROM prod.datavault.hub_user h
+                   INNER JOIN party ON h.hub_user_key = party.hub_user_key
+                   INNER JOIN prod.datavault.sat_user_v2 sa
+                              ON h.hub_user_key = sa.hub_user_key
+                                  AND sa._latest
+                   LEFT JOIN prod.datavault.sat_user_pii_v2 p
+                             ON h.hub_user_key = p.hub_user_key
+                                 AND p._latest
+                   LEFT JOIN prod.datavault.sat_user_marketing_v2 usmar
+                             ON h.hub_user_key = usmar.hub_user_key
+                                 AND usmar._latest
+      )
+         , latest_institution AS (
+          SELECT linkins.hub_user_key,
+                 linkins.hub_institution_key,
+                 ROW_NUMBER() OVER (PARTITION BY linkins.hub_user_key ORDER BY _ldts DESC ) = 1 AS latest
+          FROM prod.datavault.link_user_institution linkins
+      )
+      SELECT hs.*
+           , hubin.institution_id
+           , satin.name               AS institution_name
+           , usint.internal
+           , COALESCE(bl.flag, FALSE) AS entity_flag
       FROM hub_sat_latest hs
-           LEFT JOIN latest_institution linkins
-                     ON hs.hub_user_key = linkins.hub_user_key -- 2486955
-                       AND linkins.latest
-           LEFT JOIN prod.datavault.hub_institution hubin
-                     ON linkins.hub_institution_key = hubin.hub_institution_key
-           LEFT JOIN prod.datavault.sat_institution_saws satin
-                     ON hubin.hub_institution_key = satin.hub_institution_key
-                    AND satin._latest
-           LEFT JOIN prod.datavault.sat_user_internal usint ON hs.hub_user_key = usint.hub_user_key
-        AND usint.active
-           LEFT JOIN (select entity_id,CAST(flag AS BOOLEAN) as flag, ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY _fivetran_synced DESC) = 1 as latest  from UPLOADS.CU.ENTITY_BLACKLIST) bl
-                     ON hubin.institution_id::STRING = bl.entity_id
-                    AND bl.latest
+               LEFT JOIN latest_institution linkins
+                         ON hs.hub_user_key = linkins.hub_user_key -- 2486955
+                             AND linkins.latest
+               LEFT JOIN prod.datavault.hub_institution hubin
+                         ON linkins.hub_institution_key = hubin.hub_institution_key
+               LEFT JOIN prod.datavault.sat_institution_saws satin
+                         ON hubin.hub_institution_key = satin.hub_institution_key
+                             AND satin._latest
+               LEFT JOIN prod.datavault.sat_user_internal usint ON hs.hub_user_key = usint.hub_user_key
+          AND usint.active
+               LEFT JOIN (SELECT entity_id,
+                                 CAST(flag AS BOOLEAN)                                                         AS flag,
+                                 ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY _fivetran_synced DESC) = 1 AS latest
+                          FROM uploads.cu.entity_blacklist) bl
+                         ON hubin.institution_id::STRING = bl.entity_id
+                             AND bl.latest
       WHERE hs.latest_linked_account
   ;;
 
