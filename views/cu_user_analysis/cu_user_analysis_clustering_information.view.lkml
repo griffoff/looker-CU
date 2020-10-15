@@ -60,6 +60,9 @@ view: clustering_information_fields {
       when: {
         label: "ALL_SESSIONS" sql:${TABLE}.table_info:TABLE_NAME = 'ALL_SESSIONS';;
       }
+      when: {
+        label: "CLIENT_ACTIVITY_EVENT" sql:${TABLE}.table_info:TABLE_NAME = 'CLIENT_ACTIVITY_EVENT';;
+      }
     }
    # sql:${TABLE}.table_info:TABLE_NAME::STRING ;;
   }
@@ -99,6 +102,13 @@ view: cu_user_analysis_clustering_information_history {
           ('PROD', 'CU_USER_ANALYSIS', 'ALL_EVENTS', system$clustering_information('prod.cu_user_analysis.all_events'))
           ,('PROD', 'CU_USER_ANALYSIS', 'ALL_SESSIONS', system$clustering_information('prod.cu_user_analysis.all_sessions')) v
           INNER JOIN prod.information_schema.tables t ON (v.$1, v.$2, v.$3) = (t.table_catalog, t.table_schema, t.table_name)
+          UNION ALL
+          SELECT
+              OBJECT_CONSTRUCT(t.*) as table_info
+              ,PARSE_JSON(v.$4::VARIANT) as clustering_information
+          FROM values
+          ('CAP_EVENTING', 'PROD', 'CLIENT_ACTIVITY_EVENT', system$clustering_information('cap_eventing.prod.client_activity_event')) v
+          INNER JOIN cap_eventing.information_schema.tables t ON (v.$1, v.$2, v.$3) = (t.table_catalog, t.table_schema, t.table_name)
         ) n ON o.table_info:TABLE_NAME = n.table_info:TABLE_NAME
             and o._latest
             and hash(o.clustering_information) = hash(n.clustering_information)
