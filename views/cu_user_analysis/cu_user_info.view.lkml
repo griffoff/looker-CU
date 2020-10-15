@@ -16,14 +16,19 @@ view: cu_user_info {
   derived_table: {
     publish_as_db_view: yes
     sql:
-      WITH party AS (
+     WITH party AS (
           SELECT hu.hub_user_key
                , COALESCE(su.linked_guid, hu.uid) AS merged_guid
+               , COUNT(DISTINCT sup.email) OVER (PARTITION BY merged_guid) = 1 as single_email
                , CASE
-                     WHEN COUNT(DISTINCT sup.email) OVER (PARTITION BY merged_guid) = 1
+                     WHEN single_email
                          THEN LAST_VALUE(sup.email)
                                          OVER (PARTITION BY merged_guid ORDER BY CASE WHEN sup.email IS NOT NULL THEN 0 ELSE 1 END, sup._effective_from)
                      ELSE merged_guid END         AS party_identifier
+               , CASE
+                     WHEN NOT single_email THEN email
+                     ElSE MAX(email) OVER(PARTITION BY merged_guid)
+                    END                           AS merged_guid_email
           FROM prod.datavault.hub_user hu
                    LEFT JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
                    LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON hu.hub_user_key = sup.hub_user_key AND sup._latest
@@ -36,7 +41,7 @@ view: cu_user_info {
                , sa.linked_guid
                , coalesce(sa.linked_guid, h.uid)                                                                                           AS merged_guid
                , party.party_identifier
-               , p.email
+               , party.merged_guid_email                                                                                                   AS email
                , p.first_name
                , p.last_name
                , MAX(
@@ -50,6 +55,7 @@ view: cu_user_info {
                , sa.instructor
                , sa.k12
                , sa.region
+               , CASE WHEN sa.account_type = 'linkedgateway' THEN 'false' ELSE COALESCE(usmar.opt_out, 'true') END                         AS marketing_opt_out
                , COUNT(NULLIF(sa.instructor, 0)) OVER (PARTITION BY party_identifier) >=
                  1                                                                                                                         AS instructor_by_party
                , LAST_VALUE(sa.k12)
@@ -64,7 +70,6 @@ view: cu_user_info {
                        OVER (PARTITION BY party_identifier) >=
                  1                                                                                                                         AS non_usa_by_party
                --,ARRAY_AGG(DISTINCT NULLIF(sa.region, '')) WITHIN GROUP (ORDER BY NULLIF(sa.region, '')) OVER (PARTITION BY party_identifier) AS all_regions_by_party
-               , COALESCE(usmar.opt_out, 'true')                                                                                           AS marketing_opt_out
                , COUNT(CASE WHEN marketing_opt_out = 'true' THEN 1 END) OVER (PARTITION BY party_identifier) >=
                  1                                                                                                                         AS opt_out_by_party
                --found multiple linked accounts - use this to take only the latest one
