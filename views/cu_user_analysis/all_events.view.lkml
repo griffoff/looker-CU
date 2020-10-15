@@ -158,7 +158,7 @@ view: all_events_base {
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
-    label: "Event data"
+    label: "Event Data"
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
@@ -177,6 +177,7 @@ view: all_events_base {
           )::STRING  ;;
     label: "Course key"
     description: "Event data"
+    hidden: yes
   }
 
   dimension: has_event_course_key {
@@ -245,6 +246,7 @@ view: all_events_base {
     label: "Activation Code Type"
     sql:  ${event_data}:code_type::string ;;
     description: "OLR activation/provisioned code type"
+    hidden: yes
   }
 
   dimension: time_to_next_event {
@@ -264,6 +266,7 @@ view: all_events_base {
   }
 
   dimension: role {
+    group_label: "CAFE Tags"
     type: string
     sql: TRIM(${event_data}:role) ;;
     label: "Webassign role"
@@ -271,6 +274,7 @@ view: all_events_base {
   }
 
   dimension: host_platform {
+    group_label: "CAFE Tags"
     type: string
     sql: TRIM(${event_data}:host_platform) ;;
     label: "Host platform (CAFe)"
@@ -284,6 +288,7 @@ view: all_events_base {
   }
 
   dimension: campaign_msg_id{
+    label: "IPM Campaign Message ID"
     type: string
     sql: CASE WHEN ${event_name} ilike 'IPM%'
           THEN ${event_data}:message_id
@@ -890,6 +895,7 @@ view: all_events_base {
   }
 
   dimension: search_flag {
+    hidden: yes
     label: "Dashboard Search Flags"
     sql: CASE WHEN ${event_name} ilike 'Dashboard Search%' THEN 'Dashboard Search' ELSE 'No Dashboard Search' END ;;
     description: "Dashboard Search / No Dashboard Search"
@@ -980,6 +986,7 @@ view: all_events_base {
   }
 
   dimension: semester {
+    hidden:  yes
     type: string
     sql:REPLACE(REPLACE(REPLACE(
             '#s #y/#n'
@@ -1118,11 +1125,13 @@ view: all_events_base {
   }
 
   dimension: grace_period_flag {
+    group_label: "Grace Period"
     type: yesno
     description: "Event occurred before course activation up to midpoint of course or 60 days after start. Event occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
   }
 
   dimension: day_of_grace_period {
+    group_label: "Grace Period"
     type: number
     sql: ${event_data}:day_of_grace_period ;;
     description: "Day grace period event occurred relative to course start date."
@@ -1254,7 +1263,7 @@ view: all_events_base {
     description: "Distinct count of all user SSO guid + week where an event occurred combinations"
     type: count_distinct
     sql: ${user_sso_guid}, DATE_TRUNC('week', ${local_raw}) ;;
-    hidden: no
+    hidden: yes
   }
 
   measure: day_count {
@@ -1505,6 +1514,7 @@ view: all_events_base {
   }
 
   dimension: cu_resource_open {
+    hidden: yes
     type:  yesno
     sql:
     (event_name IN ('One month Free Chegg Clicked',  'Clicked on Quizlet', 'Clicked on Kaplan', 'Clicked on Evernote', 'Clicked on Dashlane',  'Study Resources Page Visited'
@@ -1517,6 +1527,7 @@ view: all_events_base {
   }
 
   measure: cu_resource_opens {
+    hidden: yes
     label: "# of CU resource opens"
     description: "Number of times an Extra-courseware resource was used"
     type: count_distinct
@@ -1529,60 +1540,60 @@ view: all_events_base {
   }
 
 
-  dimension: ATC_usage {
-    hidden: yes
-    label: "ATC Event"
-    description: "Above The Course event Y/N"
-    type:  yesno
-    sql:
-    (event_name IN (
-  'Study Tools Launched',
-  'Flashcards Launched',
-  'Test Prep Launched')
-OR  (event_action = 'LAUNCH' AND  event_type IN (
-    'STUDY_TOOLS_PAGE',
-    'CAREER_CENTER',
-    'CAREER_CENTER_MATERIAL',
-    'COLLEGE_SUCCESS_CENTER',
-    'COLLEGE_SUCCESS_MATERIAL',
-    'QUICK_LESSON',
-    'COURSES',
-    'STUDY_PACK_MATERIAL'))
-OR (event_action='modalContinue') --partner offers by continue for each offer
-OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
-OR (event_action = 'JUMP' AND event_type IN (
-    'GAIN_THE_SKILLS',
-    'EXPLORE_CAREERS',
-    'GET_THE_JOB'
-    ))) ;;
-  }
+#   dimension: ATC_usage {
+#     hidden: yes
+#     label: "ATC Event"
+#     description: "Above The Course event Y/N"
+#     type:  yesno
+#     sql:
+#     (event_name IN (
+#   'Study Tools Launched',
+#   'Flashcards Launched',
+#   'Test Prep Launched')
+# OR  (event_action = 'LAUNCH' AND  event_type IN (
+#     'STUDY_TOOLS_PAGE',
+#     'CAREER_CENTER',
+#     'CAREER_CENTER_MATERIAL',
+#     'COLLEGE_SUCCESS_CENTER',
+#     'COLLEGE_SUCCESS_MATERIAL',
+#     'QUICK_LESSON',
+#     'COURSES',
+#     'STUDY_PACK_MATERIAL'))
+# OR (event_action='modalContinue') --partner offers by continue for each offer
+# OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
+# OR (event_action = 'JUMP' AND event_type IN (
+#     'GAIN_THE_SKILLS',
+#     'EXPLORE_CAREERS',
+#     'GET_THE_JOB'
+#     ))) ;;
+#   }
 
-  measure: above_the_courses{
-    hidden:  yes
-    label:"# of ATC usages - no ebook"
-    description: "Number of times an Above The Course event occurred"
-    type: count_distinct
-    sql:CASE WHEN((event_name IN (
-        'Study Tools Launched',
-        'Flashcards Launched',
-        'Test Prep Launched')
-      OR  (event_action = 'LAUNCH' AND  event_type IN (
-          'STUDY_TOOLS_PAGE',
-          'CAREER_CENTER',
-          'CAREER_CENTER_MATERIAL',
-          'COLLEGE_SUCCESS_CENTER',
-          'COLLEGE_SUCCESS_MATERIAL',
-          'QUICK_LESSON',
-          'COURSES',
-          'STUDY_PACK_MATERIAL'))
-      OR (event_action='modalContinue') --partner offers by continue for each offer
-      OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
-      OR (event_action = 'JUMP' AND event_type IN (
-          'GAIN_THE_SKILLS',
-          'EXPLORE_CAREERS',
-          'GET_THE_JOB'
-          ))) ) THEN event_id END;;
-  }
+  # measure: above_the_courses{
+  #   hidden:  yes
+  #   label:"# of ATC usages - no ebook"
+  #   description: "Number of times an Above The Course event occurred"
+  #   type: count_distinct
+  #   sql:CASE WHEN((event_name IN (
+  #       'Study Tools Launched',
+  #       'Flashcards Launched',
+  #       'Test Prep Launched')
+  #     OR  (event_action = 'LAUNCH' AND  event_type IN (
+  #         'STUDY_TOOLS_PAGE',
+  #         'CAREER_CENTER',
+  #         'CAREER_CENTER_MATERIAL',
+  #         'COLLEGE_SUCCESS_CENTER',
+  #         'COLLEGE_SUCCESS_MATERIAL',
+  #         'QUICK_LESSON',
+  #         'COURSES',
+  #         'STUDY_PACK_MATERIAL'))
+  #     OR (event_action='modalContinue') --partner offers by continue for each offer
+  #     OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
+  #     OR (event_action = 'JUMP' AND event_type IN (
+  #         'GAIN_THE_SKILLS',
+  #         'EXPLORE_CAREERS',
+  #         'GET_THE_JOB'
+  #         ))) ) THEN event_id END;;
+  # }
 
 dimension: course_key {
   type: string
