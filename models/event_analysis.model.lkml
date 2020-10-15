@@ -36,7 +36,7 @@ explore: cohort_analysis {
   always_filter: {
     filters:[
       cohort_events_filter: ""
-      , flow_events_filter: "-UNLOAD UNLOAD"
+      , flow_events_filter: "-Unload"
       , cohort_date_range_filter: "after 21 days ago"
       , time_period: "30"
       , bucket_other_events: "exclude"
