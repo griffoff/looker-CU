@@ -1,34 +1,43 @@
 explore: all_events_quarantine {}
 
-explore: event_counts_per_source_per_day {}
+explore: event_counts_per_day {
+  join: event_quarantined_counts_per_day {
+    sql_on: (${event_counts_per_day.event_raw}, ${event_counts_per_day.load_source}, ${event_counts_per_day.event_type}, ${event_counts_per_day.event_action})
+                            = (${event_quarantined_counts_per_day.event_raw}, ${event_quarantined_counts_per_day.load_source}, ${event_quarantined_counts_per_day.event_type}, ${event_quarantined_counts_per_day.event_action}) ;;
+    relationship: one_to_many
+  }
 
-view: event_counts_per_source_per_day {
+}
+
+view: event_counts_per_day {
   derived_table: {
     sql:
     with events as (
-    select event_time::DATE as event_date
-          ,load_metadata:source::STRING as load_source
-          ,event_type
-          ,event_action
-          ,count(*) as event_count
-    from ${all_events.SQL_TABLE_NAME}
-    where to_timestamp(session_id)::DATE >= CURRENT_DATE() - 120
-    group by 1, 2, 3, 4
+      select event_time::DATE as event_date
+            ,load_metadata:source::STRING as load_source
+            ,event_type
+            ,event_action
+            ,hash(event_date, load_source, event_type, event_action) as pk
+            ,count(*) as event_count
+      from ${all_events.SQL_TABLE_NAME}
+      where to_timestamp(session_id)::DATE >= CURRENT_DATE() - 120
+      group by 1, 2, 3, 4
     )
     ,quarantine as (
-    select event_time::DATE as event_date
-          ,load_metadata:source::STRING as load_source
-          ,event_type
-          ,event_action
-          ,count(*) as event_count
-    from ${all_events_quarantine.SQL_TABLE_NAME}
-    where event_time::DATE >= CURRENT_DATE() - 120
-    group by 1, 2, 3, 4
+      select event_time::DATE as event_date
+            ,load_metadata:source::STRING as load_source
+            ,event_type
+            ,event_action
+            ,hash(event_date, load_source, event_type, event_action) as pk
+            ,count(*) as event_count
+      from ${all_events_quarantine.SQL_TABLE_NAME}
+      where event_time::DATE >= CURRENT_DATE() - 120
+      group by 1, 2, 3, 4
     )
-    select e.*, e.event_count + coalesce(q.event_count, 0) as total_event_count, q.event_count as quarantined_event_count
+    select e.*, e.event_count + coalesce(q.event_count, 0) as event_count_received
     from events e
-    left join quarantine q on (e.event_date, e.load_source, e.event_type, e.event_action)
-                            = (q.event_date, q.load_source, q.event_type, q.event_action)  ;;
+    left join quarantine q on e.pk = q.pk
+    ;;
 
     persist_for: "24 hours"
   }
@@ -46,14 +55,43 @@ view: event_counts_per_source_per_day {
     ]
     sql: ${TABLE}.event_date;;
   }
+  dimension: pk {primary_key: yes hidden:yes}
   dimension: load_source {}
   dimension: event_type {}
   dimension: event_action {}
-  measure: event_count {type:sum}
-  measure: total_event_count {type:sum}
-  measure: quarantined_event_count {type:sum}
-  measure: percent_quarantined {type:number sql: ${quarantined_event_count} / ${total_event_count};; value_format_name:percent_1}
-  measure: percent_kept {type:number sql: ${event_count} / ${total_event_count};; value_format_name:percent_1}
+  measure: event_count {type:sum label: "Events Persisted"}
+  measure: event_count_received {type:sum label: "Events Received"}
+  measure: percent_kept {type:number sql: ${event_count} / ${event_count_received};;
+    value_format_name:percent_1}
+
+}
+
+view: event_quarantined_counts_per_day {
+  extends: [event_counts_per_day]
+
+  derived_table: {
+    sql:
+    select event_time::DATE as event_date
+          ,load_metadata:source::STRING as load_source
+          ,event_type
+          ,event_action
+          ,reason
+          ,hash(event_date, load_source, event_type, event_action, reason) as pk
+          ,count(*) as event_count
+    from ${all_events_quarantine.SQL_TABLE_NAME}
+    where event_time::DATE >= CURRENT_DATE() - 120
+    group by 1, 2, 3, 4, 5
+    ;;
+
+    persist_for: "24 hours"
+  }
+
+  dimension: reason {}
+  measure: event_count_received {hidden:yes}
+  measure: event_count {label: "Events Quarantined"}
+  measure: percent_quarantined {type:number sql: ${event_count} / ${event_counts_per_day.event_count_received};;
+    required_fields: [event_counts_per_day.event_count_received] value_format_name:percent_1}
+
 }
 
 view: all_events_quarantine {

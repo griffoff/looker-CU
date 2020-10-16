@@ -42,6 +42,7 @@ explore: cohort_analysis {
       , bucket_other_events: "exclude"
       , ignore_duplicates: "exclude"
       , before_or_after: "after"
+      , cohort_selection.sample_size: "50"
       ]
     }
 

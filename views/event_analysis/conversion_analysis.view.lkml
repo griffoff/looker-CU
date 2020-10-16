@@ -296,7 +296,7 @@ view: conversion_analysis {
 
   measure: conversion_rate {
     type: number
-    sql: CASE WHEN ${period_number} >= 0 THEN ${conversion_user_count} / nullif(${total_user_count},0) END;;
+    sql: COUNT(DISTINCT CASE WHEN ${period_number} >= 0 THEN ${user_sso_guid} END) / nullif(${total_user_count},0);;
     view_label: "** USER EVENT CONVERSION **"
     value_format_name: percent_2
     description: "Ratio of number of users who converted over number that did one of the initial event(s).  NOTE: this does not work if you add other dimensions to the result"
