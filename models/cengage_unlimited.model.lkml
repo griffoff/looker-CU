@@ -86,8 +86,7 @@ explore: course_sections {
 
   always_filter: {
     filters:[
-      merged_cu_user_info.real_user_flag: "Yes"
-      ,dim_filter.is_external: "Yes"
+      dim_filter.is_external: "Yes"
     ]
   }
 
