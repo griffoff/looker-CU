@@ -18,6 +18,7 @@ explore: event_cohort_selector {
 
   join: all_sessions {
     sql: right join ${all_sessions.SQL_TABLE_NAME} all_sessions ON ${event_cohort_selector.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
+    relationship: one_to_many
   }
 
   join: all_events {

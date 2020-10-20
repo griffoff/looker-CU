@@ -3,6 +3,28 @@ explore: cu_user_info {
   label: "CU User Info" hidden:yes
 }
 
+test: check_user_type_proprtions {
+  explore_source: cu_user_info {
+    column: count_instructor {}
+    column: count_k12 {}
+    column: count_opt_out {}
+    column: count_internal {}
+    column: count {}
+  }
+  assert: instructor_less_than_5_percent {
+    expression: ${cu_user_info.count_instructor} / ${cu_user_info.count} < 0.05 ;;
+  }
+  assert: k12_less_than_20_percent {
+    expression: ${cu_user_info.count_k12} / ${cu_user_info.count} < 0.2 ;;
+  }
+  assert: opt_out_less_than_50_percent {
+    expression: ${cu_user_info.count_opt_out} / ${cu_user_info.count} < 0.5 ;;
+  }
+  assert: internal_less_than_2_percent {
+    expression: ${cu_user_info.count_internal} / ${cu_user_info.count} < 0.02 ;;
+  }
+}
+
 view: cu_user_info {
 
   label: "User Information"
@@ -121,6 +143,30 @@ view: cu_user_info {
   ;;
 
   sql_trigger_value: select count(*) from prod.datavault.sat_user_v2 ;;
+  }
+
+  measure: count_opt_out {
+    hidden: yes
+    type: number
+    sql: SUM(${opt_out_by_party}::INT) ;;
+  }
+
+  measure: count_k12 {
+    hidden: yes
+    type: number
+    sql: SUM(${k12_latest}::INT) ;;
+  }
+
+  measure: count_instructor {
+    hidden: yes
+    type: number
+    sql: SUM(${instructor_by_party}::INT) ;;
+  }
+
+  measure: count_internal {
+    hidden: yes
+    type: number
+    sql: SUM(${internal_user_flag}::INT) ;;
   }
 
   measure: count {
