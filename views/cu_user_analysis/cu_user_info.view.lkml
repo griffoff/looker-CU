@@ -20,11 +20,13 @@ view: cu_user_info {
           SELECT hu.hub_user_key
                , COALESCE(su.linked_guid, hu.uid) AS merged_guid
                , COUNT(DISTINCT sup.email) OVER (PARTITION BY merged_guid) = 1 as single_email
-               , CASE
+               , COALESCE(
+                  CASE
                      WHEN single_email
                          THEN LAST_VALUE(sup.email)
-                                         OVER (PARTITION BY merged_guid ORDER BY CASE WHEN sup.email IS NOT NULL THEN 0 ELSE 1 END, sup._effective_from)
-                     ELSE merged_guid END         AS party_identifier
+                                         OVER (PARTITION BY merged_guid ORDER BY CASE WHEN sup.email IS NULL THEN 0 ELSE 1 END, sup._effective_from)
+                     ELSE merged_guid END
+                    ,merged_guid) AS party_identifier
                , CASE
                      WHEN NOT single_email THEN email
                      ElSE MAX(email) OVER(PARTITION BY merged_guid)
