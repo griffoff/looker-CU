@@ -101,12 +101,14 @@ view: conversion_analysis {
 
   derived_table: {
     create_process: {
+      #sql_step: use warehouse heavyduty ;;
       sql_step: use schema looker_scratch ;;
       sql_step:
         create or replace temporary table initial_events AS (
         SELECT distinct user_sso_guid
             , event_time
             , event_name
+            , event_data:event_duration as event_duration
             ,'initial' as event_type
         FROM ${all_events.SQL_TABLE_NAME} e
         WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
@@ -120,6 +122,7 @@ view: conversion_analysis {
         SELECT distinct user_sso_guid
           , event_time
           , event_name
+          , event_data:event_duration as event_duration
           ,'conversion' as event_type
         FROM ${all_events.SQL_TABLE_NAME} e
         WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
@@ -136,6 +139,7 @@ view: conversion_analysis {
             , event_time
             , event_name
             , event_type
+            , event_duration
             , COALESCE(LAG(event_type) OVER (PARTITION BY user_sso_guid ORDER BY event_time), '') = event_type AS same_type_as_previous
           FROM (
             SELECT *
@@ -187,15 +191,22 @@ view: conversion_analysis {
       sql_step:
       create or replace temporary table user_info AS (
         --if the first event is a conversion event we want to ignore it
-        SELECT user_sso_guid
+        SELECT
+            user_sso_guid
             ,MIN(CASE WHEN event_type = 'conversion' AND sequence_number = 1 THEN -1 ELSE 0 END) as modifier
             ,COUNT(DISTINCT CASE WHEN event_type = 'conversion' THEN period_number END) as period_count
+            ,MAX(d.total_event_duration) as total_event_duration
         FROM simplify_events
-        --WHERE sequence_number = 1
+        INNER JOIN (
+          SELECT user_sso_guid, SUM(event_duration) AS total_event_duration
+          FROM conversion_events
+          GROUP BY 1
+          ) d USING(user_sso_guid)
         GROUP BY user_sso_guid
         )
         ;;
       sql_step:
+        /* if the first event is a conversion event, exclude it */
         create or replace temporary table final_events AS (
         SELECT *
         FROM simplify_events
@@ -212,6 +223,7 @@ view: conversion_analysis {
           user_sso_guid
           ,NULL AS conversion_periods_count
           ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
+          ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events WHERE event_type = 'conversion' ) AS total_converted_user_count
           ,-1 as period_number
           ,'Total Users' as period_label
           ,NULL AS initial_time_min
@@ -220,13 +232,15 @@ view: conversion_analysis {
           ,NULL AS conversion_time_max
           ,NULL AS conversion_event
           ,NULL AS conversion_event_count
-        FROM simplify_events
+          ,total_event_duration AS conversion_event_duration
+        FROM user_info
         UNION ALL
         {% endif %}
         SELECT
           user_sso_guid
           ,period_count AS conversion_periods_count
           ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
+          ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events WHERE event_type = 'conversion' ) AS total_converted_user_count
           , period_number
           , CONCAT(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
                       ,' ',period_number) AS period_label
@@ -239,14 +253,17 @@ view: conversion_analysis {
               ELSE ARRAY_AGG(DISTINCT event_name)
             END AS conversion_event
           , COUNT(*) AS conversion_event_count
+          , MAX(total_event_duration) as conversion_event_duration
         FROM final_events
         WHERE event_type = 'conversion'
         AND (
           period_number <= {{ number_period._parameter_value }}
           OR {{ number_period._parameter_value }} IS NULL
           )
-        GROUP BY 1, 2, 3, 4, 5
+        GROUP BY user_sso_guid, period_count, period_number, period_label
         ;;
+      # sql_step: alter warehouse heavyduty suspend ;;
+      # sql_step: use warehouse looker ;;
     }
 
     persist_for: "1 second"
@@ -301,15 +318,33 @@ view: conversion_analysis {
     type: number
     sql: MAX(${TABLE}.total_user_count);;
     view_label: "** USER EVENT CONVERSION **"
-    description: "Total number of users who did one of the initial event(s)"
+    description: "Total number of users who did at least one of the initial event(s)"
+  }
+
+  measure: total_converted_user_count {
+    type: number
+    sql: MAX(${TABLE}.total_converted_user_count);;
+    view_label: "** USER EVENT CONVERSION **"
+    description: "Total number of users who did at least one of the initial events and at least one of the conversion event(s)"
   }
 
   measure: conversion_user_count {
     label: "# Converted Users"
+    #required_fields: [conversion_period]
     type: count_distinct
     sql: ${user_sso_guid} ;;
     view_label: "** USER EVENT CONVERSION **"
     description: "Number of users who converted (did one of the initial event(s) followed by one of the conversion event(s))"
+  }
+
+  dimension: conversion_event_duration {
+    label: "Total minutes spent on conversion events"
+    type: tier
+    style: relational
+    tiers: [5, 10, 15, 50, 60, 120]
+    sql: ${TABLE}.conversion_event_duration / 60 ;;
+    value_format: "0 \m\i\n\s"
+    view_label: "** USER EVENT CONVERSION **"
   }
 
   measure: conversion_rate {
