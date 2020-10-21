@@ -1543,7 +1543,7 @@ view: all_events_base {
   dimension: ATC_usage {
     hidden: no
     label: "Above The Course Event"
-    description: "Events identifies with above the course value (study tools, flashcards, test prep, career center, college success, "
+    description: "Events identified with above the course value (Launch of study tools, flashcards, test prep, career center, college success, quick lesson, courses, study pack, partner offers, study guides)"
     type:  yesno
     sql:
     (
