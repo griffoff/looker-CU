@@ -100,138 +100,156 @@ view: conversion_analysis {
 
 
   derived_table: {
-    sql:
-    WITH initial_events AS (
-      SELECT user_sso_guid
-          , event_time
-          , event_name
-          ,'initial' as event_type
-      FROM ${all_events.SQL_TABLE_NAME} e
-      WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-      AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
-      AND {% condition initial_events_filter %} event_name {% endcondition %}
-      )
-    ,conversion_events AS (
-      SELECT user_sso_guid
-        , event_time
-        , event_name
-        ,'conversion' as event_type
-      FROM ${all_events.SQL_TABLE_NAME} e
-      WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-      AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
-      AND {% condition conversion_events_filter %} event_name {% endcondition %}
-      AND user_sso_guid IN (SELECT user_sso_guid FROM initial_events)
-      )
-    ,all_relevant_events AS (
-      SELECT distinct
-          user_sso_guid
-          , event_time
-          , event_name
-          , event_type
-          , COALESCE(LAG(event_type) OVER (PARTITION BY user_sso_guid ORDER BY event_time), '') = event_type AS same_type_as_previous
-        FROM (
-          SELECT *
-          FROM initial_events
-          UNION ALL
-          SELECT *
-          FROM conversion_events
-              )
+    create_process: {
+      sql_step: use schema looker_scratch ;;
+      sql_step:
+        create or replace temporary table initial_events AS (
+        SELECT distinct user_sso_guid
+            , event_time
+            , event_name
+            ,'initial' as event_type
+        FROM ${all_events.SQL_TABLE_NAME} e
+        WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
+        AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
+        AND {% condition initial_events_filter %} event_name {% endcondition %}
         )
-    ,simplify_events AS (
-      SELECT
-        *
-        {% if analysis_type._parameter_value == 'retention' %}
-        ,MIN(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
-        {% else %}
-        ,LAG(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
-        {% endif %}
-        AS reference_event_time
-        ,COALESCE(GREATEST(1, DATEDIFF(
-          {% if time_period._parameter_value == '0.01' %}
-            minute
-          {% elsif time_period._parameter_value == '0.1' %}
-            hour
-          {% elsif time_period._parameter_value == '1' %}
-            day
-          {% elsif time_period._parameter_value == '7' %}
-            week
-          {% elsif time_period._parameter_value == '30' %}
-            month
-          {% elsif time_period._parameter_value == '365' %}
-            year
-          {% endif %}
-          ,reference_event_time
-          ,event_time
-        )), 1) as period_number
-        ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time)   AS sequence_number
-      FROM all_relevant_events
-      {% if analysis_type._parameter_value == 'retention' %}
-      -- if retention keep the first "initial event" and all subsequent conversion events
-      WHERE (NOT same_type_as_previous OR event_type = 'conversion')
-      {% else  %}
-      -- if conversion analysis remove repeated events of the same type
-      WHERE NOT same_type_as_previous
-      {% endif %}
-    )
-    ,user_info AS (
-      --if the first event is a conversion event we want to ignore it
-      SELECT user_sso_guid
-          ,MIN(CASE WHEN event_type = 'conversion' AND sequence_number = 1 THEN -1 ELSE 0 END) as modifier
-          ,COUNT(DISTINCT CASE WHEN event_type = 'conversion' THEN period_number END) as period_count
-      FROM simplify_events
-      --WHERE sequence_number = 1
-      GROUP BY user_sso_guid
-    )
-    ,final_events AS (
-      SELECT *
-      FROM simplify_events
-      INNER JOIN user_info USING(user_sso_guid)
-      WHERE sequence_number + modifier > 0
-      {% if analysis_type._parameter_value == '' %}
-      AND sequence_number + modifier <= 2
-      {% endif %}
-    )
-    {% if show_total._parameter_value == 'show' %}
-    SELECT DISTINCT
-      user_sso_guid
-      ,NULL AS conversion_periods_count
-      ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
-      ,-1 as period_number
-      ,'Total Users' as period_label
-      ,NULL AS initial_time_min
-      ,NULL AS initial_time_max
-      ,NULL AS conversion_time_min
-      ,NULL AS conversion_time_max
-      ,NULL AS conversion_event
-      ,NULL AS conversion_event_count
-    FROM simplify_events
-    UNION ALL
-    {% endif %}
-    SELECT
-      user_sso_guid
-      ,period_count AS conversion_periods_count
-      ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
-      , period_number
-      , CONCAT(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
-                  ,' ',period_number) AS period_label
-      , MIN(reference_event_time) AS initial_time_min
-      , MAX(reference_event_time) AS initial_time_max
-      , MIN(event_time) AS conversion_time_min
-      , MAX(event_time) AS conversion_time_max
-      , CASE WHEN COUNT(DISTINCT event_name) > 10
-          THEN ARRAY_CONSTRUCT('Too many events to list...')
-          ELSE ARRAY_AGG(DISTINCT event_name)
-        END AS conversion_event
-      , COUNT(*) AS conversion_event_count
-    FROM final_events
-    WHERE event_type = 'conversion'
-    AND (
-      period_number <= {{ number_period._parameter_value }}
-      OR {{ number_period._parameter_value }} IS NULL
-      )
-    GROUP BY 1, 2, 3, 4, 5
+        ;;
 
-      ;;
+      sql_step:
+        create or replace temporary table conversion_events AS (
+        SELECT distinct user_sso_guid
+          , event_time
+          , event_name
+          ,'conversion' as event_type
+        FROM ${all_events.SQL_TABLE_NAME} e
+        WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
+        AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
+        AND {% condition conversion_events_filter %} event_name {% endcondition %}
+        AND user_sso_guid IN (SELECT user_sso_guid FROM initial_events)
+        )
+        ;;
+
+      sql_step:
+        create or replace temporary table all_relevant_events AS (
+        SELECT
+            user_sso_guid
+            , event_time
+            , event_name
+            , event_type
+            , COALESCE(LAG(event_type) OVER (PARTITION BY user_sso_guid ORDER BY event_time), '') = event_type AS same_type_as_previous
+          FROM (
+            SELECT *
+            FROM initial_events
+            UNION ALL
+            SELECT *
+            FROM conversion_events
+                )
+          )
+          ;;
+      sql_step:
+        create or replace temporary table simplify_events AS (
+        SELECT
+          *
+          {% if analysis_type._parameter_value == 'retention' %}
+          ,MIN(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
+          {% else %}
+          ,LAG(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
+          {% endif %}
+          AS reference_event_time
+          ,COALESCE(GREATEST(1, DATEDIFF(
+            {% if time_period._parameter_value == '0.01' %}
+              minute
+            {% elsif time_period._parameter_value == '0.1' %}
+              hour
+            {% elsif time_period._parameter_value == '1' %}
+              day
+            {% elsif time_period._parameter_value == '7' %}
+              week
+            {% elsif time_period._parameter_value == '30' %}
+              month
+            {% elsif time_period._parameter_value == '365' %}
+              year
+            {% endif %}
+            ,reference_event_time
+            ,event_time
+          )), 1) as period_number
+          ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time)   AS sequence_number
+        FROM all_relevant_events
+        {% if analysis_type._parameter_value == 'retention' %}
+        -- if retention keep the first "initial event" and all subsequent conversion events
+        WHERE (NOT same_type_as_previous OR event_type = 'conversion')
+        {% else  %}
+        -- if conversion analysis remove repeated events of the same type
+        WHERE NOT same_type_as_previous
+        {% endif %}
+        )
+        ;;
+      sql_step:
+      create or replace temporary table user_info AS (
+        --if the first event is a conversion event we want to ignore it
+        SELECT user_sso_guid
+            ,MIN(CASE WHEN event_type = 'conversion' AND sequence_number = 1 THEN -1 ELSE 0 END) as modifier
+            ,COUNT(DISTINCT CASE WHEN event_type = 'conversion' THEN period_number END) as period_count
+        FROM simplify_events
+        --WHERE sequence_number = 1
+        GROUP BY user_sso_guid
+        )
+        ;;
+      sql_step:
+        create or replace temporary table final_events AS (
+        SELECT *
+        FROM simplify_events
+        INNER JOIN user_info USING(user_sso_guid)
+        WHERE sequence_number + modifier > 0
+        {% if analysis_type._parameter_value == '' %}
+        AND sequence_number + modifier <= 2
+        {% endif %}
+        );;
+      sql_step:
+        create or replace transient table ${SQL_TABLE_NAME} AS
+        {% if show_total._parameter_value == 'show' %}
+        SELECT DISTINCT
+          user_sso_guid
+          ,NULL AS conversion_periods_count
+          ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
+          ,-1 as period_number
+          ,'Total Users' as period_label
+          ,NULL AS initial_time_min
+          ,NULL AS initial_time_max
+          ,NULL AS conversion_time_min
+          ,NULL AS conversion_time_max
+          ,NULL AS conversion_event
+          ,NULL AS conversion_event_count
+        FROM simplify_events
+        UNION ALL
+        {% endif %}
+        SELECT
+          user_sso_guid
+          ,period_count AS conversion_periods_count
+          ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
+          , period_number
+          , CONCAT(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
+                      ,' ',period_number) AS period_label
+          , MIN(reference_event_time) AS initial_time_min
+          , MAX(reference_event_time) AS initial_time_max
+          , MIN(event_time) AS conversion_time_min
+          , MAX(event_time) AS conversion_time_max
+          , CASE WHEN COUNT(DISTINCT event_name) > 10
+              THEN ARRAY_CONSTRUCT('Too many events to list...')
+              ELSE ARRAY_AGG(DISTINCT event_name)
+            END AS conversion_event
+          , COUNT(*) AS conversion_event_count
+        FROM final_events
+        WHERE event_type = 'conversion'
+        AND (
+          period_number <= {{ number_period._parameter_value }}
+          OR {{ number_period._parameter_value }} IS NULL
+          )
+        GROUP BY 1, 2, 3, 4, 5
+        ;;
+    }
+
+    persist_for: "1 second"
   }
 
   dimension: user_sso_guid {

@@ -46,6 +46,7 @@ explore: all_events {
 
   join: all_events_tags {
     sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
+    relationship: many_to_many
   }
 
 }

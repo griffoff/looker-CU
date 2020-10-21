@@ -103,61 +103,6 @@ explore: marketing_analysis {
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
   extends: [session_analysis]
 
-  fields: [
-    learner_profile.marketing_fields*
-    ,all_events.marketing_fields*
-    ,live_subscription_status.marketing_fields*
-    ,merged_cu_user_info.marketing_fields*
-    ,dim_institution.marketing_fields*
-    ,dim_product.marketing_fields*
-    ,dim_productplatform.productplatform
-    ,dim_course.marketing_fields*
-    ,instiution_star_rating.marketing_fields*
-    ,course_section_facts.total_noofactivations
-    ,courseinstructor.marketing_fields*
-    ,dim_start_date.marketing_fields*
-    ,olr_courses.instructor_name
-    ,subscription_term_products_value.marketing_fields*
-    ,subscription_term_cost.marketing_fields*
-    ,user_courses.marketing_fields*
-#     ,user_courses_dev.marketing_fields*
-    ,full_access_cohort.marketing_fields*
-    ,subscription_term_careercenter_clicks.marketing_fields*
-    ,cohorts_chegg_clicked.marketing_fields*
-    ,cohorts_courseware_dashboard.marketing_fields*
-    ,cohorts_evernote_clicked.marketing_fields*
-    ,cohorts_flashcards_dashboard.marketing_fields*
-    ,cohorts_kaplan_clicked.marketing_fields*
-    ,cohorts_print_clicked.marketing_fields*
-    ,cohorts_quizlet_clicked.marketing_fields*
-    ,cohorts_studyguide_dashboard.marketing_fields*
-    ,subscription_term_cost.marketing_fields*
-    ,subscription_term_products_value.marketing_fields*
-    ,subscription_term_savings.marketing_fields*
-    ,cohorts_testprep_dashboard.marketing_fields*
-    ,TrialAccess_cohorts.marketing_fields*
-    ,csat_survey.marketing_fields*
-    ,cohorts_subscription_term_savings_user.marketing_fields*
-    ,subscription_term_courseware_value_users.marketing_fields*
-    ,gateway_institution.marketing_fields*
-    ,cohorts_term_courses.marketing_fields*
-    ,cohorts_time_in_platform.marketing_fields*
-    ,cohorts_number_of_logins.marketing_fields*
-    ,cohorts_number_of_ebooks_added_dash.marketing_fields*
-    ,cohorts_subscription_term_cost_user.marketing_fields*
-    ,cohorts_platforms_used.marketing_fields*
-    ,cohorts_number_of_courseware_added_to_dash.marketing_fields*
-    ,magellan_instructor_setup_status.marketing_fields*
-    ,magellan_ipeds_details*
-    ,cu_enterprise_licenses*
-    ,student_discounts_dps.marketing_fields*
-    ,institutional_savings.marketing_fields*
-    ,ipm_260_email_list.marketing_fields*
-    ,ipm_guids_impressions_past_7_days.marketing_fields*
-#     ,ipm_ff_20190830.marketing_fields*
-    ]
-
-
 # This method only works if everyone has a mapping (i.e. there is no override to see all)
 #   access_filter: {
 #     field: magellan_lc_mapping.email

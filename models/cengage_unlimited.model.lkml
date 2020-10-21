@@ -86,8 +86,7 @@ explore: course_sections {
 
   always_filter: {
     filters:[
-      merged_cu_user_info.real_user_flag: "Yes"
-      ,dim_filter.is_external: "Yes"
+      dim_filter.is_external: "Yes"
     ]
   }
 
@@ -209,24 +208,6 @@ explore: customer_support_cases {
     sql_on: ${learner_profile.user_sso_guid} = ${customer_support_all.sso_guid}::STRING ;;
     relationship: one_to_many
   }
-  fields: [
-    learner_profile.marketing_fields*
-    ,all_events.marketing_fields*
-    ,live_subscription_status.marketing_fields*
-    ,merged_cu_user_info.marketing_fields*
-    ,dim_institution.marketing_fields*
-    ,dim_product.marketing_fields*
-    ,dim_productplatform.productplatform
-    ,dim_course.marketing_fields*
-#     ,instiution_star_rating.marketing_fields*
-    ,course_section_facts.total_noofactivations
-    ,courseinstructor.marketing_fields*
-    ,dim_start_date.marketing_fields*
-    ,olr_courses.instructor_name
-#     ,subscription_term_products_value.marketing_fields*
-#     ,subscription_term_cost.marketing_fields*
-    ,user_courses.marketing_fields*
-    ,customer_support_all.detail*]
 }
 
 

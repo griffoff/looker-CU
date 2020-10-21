@@ -5,6 +5,7 @@ explore: cu_user_analysis_clustering_information_history {
   view_name: cu_user_analysis_clustering_information
   join: partition_depth_histogram {
     sql: cross join lateral flatten(clustering_information:partition_depth_histogram) AS partition_depth_histogram;;
+    relationship: many_to_many
   }
 }
 
