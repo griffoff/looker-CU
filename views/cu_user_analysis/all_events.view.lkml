@@ -1540,33 +1540,20 @@ view: all_events_base {
   }
 
 
-#   dimension: ATC_usage {
-#     hidden: yes
-#     label: "ATC Event"
-#     description: "Above The Course event Y/N"
-#     type:  yesno
-#     sql:
-#     (event_name IN (
-#   'Study Tools Launched',
-#   'Flashcards Launched',
-#   'Test Prep Launched')
-# OR  (event_action = 'LAUNCH' AND  event_type IN (
-#     'STUDY_TOOLS_PAGE',
-#     'CAREER_CENTER',
-#     'CAREER_CENTER_MATERIAL',
-#     'COLLEGE_SUCCESS_CENTER',
-#     'COLLEGE_SUCCESS_MATERIAL',
-#     'QUICK_LESSON',
-#     'COURSES',
-#     'STUDY_PACK_MATERIAL'))
-# OR (event_action='modalContinue') --partner offers by continue for each offer
-# OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
-# OR (event_action = 'JUMP' AND event_type IN (
-#     'GAIN_THE_SKILLS',
-#     'EXPLORE_CAREERS',
-#     'GET_THE_JOB'
-#     ))) ;;
-#   }
+  dimension: ATC_usage {
+    hidden: no
+    label: "Above The Course Event"
+    description: "Events identifies with above the course value (study tools, flashcards, test prep, career center, college success, "
+    type:  yesno
+    sql:
+    (
+    event_name IN ('Study Tools Launched','Flashcards Launched','Test Prep Launched')
+    OR  (upper(event_action) = 'LAUNCH' AND  upper(event_type) IN ('STUDY_TOOLS_PAGE','STUDY_TOOLS','FLASHCARDS','CAREER_CENTER','CAREER_CENTER_MATERIAL','COLLEGE_SUCCESS_CENTER','COLLEGE_SUCCESS_MATERIAL','QUICK_LESSON','COURSES','STUDY_PACK_MATERIAL'))
+    OR (event_action='modalContinue') --partner offers by continue for each offer
+    OR (event_action = 'LAUNCH' and ${title} ilike '%study guide%')
+    OR (event_action = 'JUMP' AND event_type IN ('GAIN_THE_SKILLS','EXPLORE_CAREERS','GET_THE_JOB'))
+    ) ;;
+  }
 
   # measure: above_the_courses{
   #   hidden:  yes

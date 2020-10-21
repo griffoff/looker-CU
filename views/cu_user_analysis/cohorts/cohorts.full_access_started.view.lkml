@@ -1,6 +1,6 @@
 include: "cohorts.base.view"
 
-view: full_access_cohort {
+view: full_access_started_cohort {
   extends: [cohorts_base_binary]
 
   derived_table: {
@@ -12,7 +12,7 @@ view: full_access_cohort {
           , MAX(CASE WHEN terms_chron_order_desc = 4 THEN 1 END) AS "4"
           , MAX(CASE WHEN terms_chron_order_desc = 5 THEN 1 END) AS "5"
        FROM ${cohorts_user_term_subscriptions.SQL_TABLE_NAME} s
-       WHERE s.subscription_state = 'full_access'
+       WHERE s.subscription_state = 'full_access' and s.subscription_start between s.start_date and s.end_date
        GROUP BY 1
       /*
       ,subscription_terms_pivoted AS
@@ -36,14 +36,14 @@ view: full_access_cohort {
       ;;
   }
 
-  dimension: current { group_label: "Full Access" description: "Student with full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: current { group_label: "Full Access Started" description: "Student with full access CU subscription started this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_1 { group_label: "Full Access" description: "Student with full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_1 { group_label: "Full Access Started" description: "Student with full access CU subscription started this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_2 { group_label: "Full Access" description: "Student with full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_2 { group_label: "Full Access Started" description: "Student with full access CU subscription started this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_3 { group_label: "Full Access" description: "Student with full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_3 { group_label: "Full Access Started" description: "Student with full access CU subscription started this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
-  dimension: minus_4 { group_label: "Full Access" description: "Student with full access CU subscription this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
+  dimension: minus_4 { group_label: "Full Access Started" description: "Student with full access CU subscription started this semester (Terms: Spr Jan-Jun, Sum Jul, Fall Aug-Dec)"}
 
 }

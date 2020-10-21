@@ -202,6 +202,12 @@ explore: learner_profile_cohorts {
     relationship:  one_to_many
   }
 
+  join: full_access_started_cohort {
+    view_label: "Learner Profile"
+    sql_on: ${learner_profile.user_sso_guid} = ${full_access_started_cohort.user_sso_guid_merged} ;;
+    relationship:  one_to_many
+  }
+
   join: TrialAccess_cohorts {
     view_label: "Learner Profile"
     sql_on: ${learner_profile.user_sso_guid} = ${TrialAccess_cohorts.user_sso_guid_merged} ;;
@@ -581,5 +587,18 @@ explore: ebook_sessions {
   join: cu_user_info {
     sql_on: ${ebook_sessions.merged_guid} = ${cu_user_info.merged_guid} ;;
     relationship: many_to_one
+  }
+}
+
+explore: cas_cafe_activity_sessions_ext {
+  label: "CAS CAFE SESSIONS"
+  hidden: no
+  extends: [cas_cafe_activity_sessions, dim_course]
+  from: cas_cafe_activity_sessions
+  view_name: cas_cafe_activity_sessions
+
+  join: dim_course {
+    sql_on: ${cas_cafe_activity_sessions.course_key} = ${dim_course.olr_course_key} ;;
+    relationship: many_to_many
   }
 }
