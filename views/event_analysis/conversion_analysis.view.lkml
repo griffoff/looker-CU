@@ -101,7 +101,7 @@ view: conversion_analysis {
 
   derived_table: {
     create_process: {
-      sql_step: use warehouse heavyduty ;;
+      # sql_step: use warehouse heavyduty ;;
       sql_step: use schema looker_scratch ;;
       sql_step:
         create or replace temporary table initial_events AS (
@@ -219,7 +219,8 @@ view: conversion_analysis {
         {% if analysis_type._parameter_value == '' %}
         AND sequence_number + modifier <= 2
         {% endif %}
-        );;
+        )
+        ;;
       sql_step:
         create or replace transient table ${SQL_TABLE_NAME} AS
         {% if show_total._parameter_value == 'show' %}
@@ -266,8 +267,8 @@ view: conversion_analysis {
           )
         GROUP BY user_sso_guid, period_count, period_number, period_label
         ;;
-      sql_step: alter warehouse heavyduty suspend ;;
-      sql_step: use warehouse looker ;;
+      # sql_step: alter warehouse heavyduty suspend ;;
+      # sql_step: use warehouse looker ;;
     }
 
     persist_for: "1 second"
