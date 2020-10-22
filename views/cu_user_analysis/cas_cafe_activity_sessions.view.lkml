@@ -45,8 +45,8 @@ view: cas_cafe_activity_sessions {
   dimension: duration {
     type: number
     sql: case when
-          ${event_action} not in ('UNLOAD','ASSESSMENTCOMPLETEDMODALEXIT','CLACOMPLETEDMODALEXIT','CLACOMPLETED','ASSESSMENTCOMPLETED','SUBMITASSIGNMENT','CLACOMPLETEDMODALCLOSE')
-        then least(7200,${time_to_next_user_event_seconds})
+          upper(${event_action}) not in ('UNLOAD','ASSESSMENTCOMPLETEDMODALEXIT','CLACOMPLETEDMODALEXIT','CLACOMPLETED','ASSESSMENTCOMPLETED','SUBMITASSIGNMENT','CLACOMPLETEDMODALCLOSE')
+        then least(7200,${time_to_next_session_event_seconds})
         else 0
         end ;;
     }
