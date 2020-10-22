@@ -101,10 +101,10 @@ view: conversion_analysis {
 
   derived_table: {
     create_process: {
-      # sql_step: use warehouse heavyduty ;;
+      sql_step: use warehouse analysis ;;
       sql_step: use schema looker_scratch ;;
       sql_step:
-        create or replace temporary table initial_events AS (
+        create or replace temporary table all_events AS (
         SELECT DISTINCT
             user_sso_guid
             ,DATE_TRUNC(
@@ -122,42 +122,37 @@ view: conversion_analysis {
               year
             {% endif %}
             ,event_time) AS event_time
-            ,'initial' as event_type
+            ,event_name
         FROM ${all_events.SQL_TABLE_NAME} e
-        --WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-        --AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
         WHERE (session_id >= DATE_PART(epoch, {% date_start initial_date_range_filter %}::TIMESTAMP) OR {% date_start initial_date_range_filter %} IS NULL)
         AND (session_id <= DATE_PART(epoch, {% date_end initial_date_range_filter %}::TIMESTAMP) OR {% date_end initial_date_range_filter %} IS NULL)
-        AND {% condition initial_events_filter %} event_name {% endcondition %}
+        AND (
+          {% condition initial_events_filter %} event_name {% endcondition %}
+          OR
+          {% condition conversion_events_filter %} event_name {% endcondition %}
+          )
         )
         ;;
+
+      sql_step:
+        create or replace temporary table initial_events AS (
+        SELECT DISTINCT
+          user_sso_guid
+          ,event_time
+          ,'initial' as event_type
+        FROM all_events
+        WHERE {% condition initial_events_filter %} event_name {% endcondition %}
+      )
+      ;;
 
       sql_step:
         create or replace temporary table conversion_events AS (
         SELECT DISTINCT
           user_sso_guid
-          ,DATE_TRUNC(
-          {% if time_period._parameter_value == '0.01' %}
-              minute
-            {% elsif time_period._parameter_value == '0.1' %}
-              hour
-            {% elsif time_period._parameter_value == '1' %}
-              day
-            {% elsif time_period._parameter_value == '7' %}
-              week
-            {% elsif time_period._parameter_value == '30' %}
-              month
-            {% elsif time_period._parameter_value == '365' %}
-              year
-            {% endif %}
-            ,event_time) AS event_time
+          ,event_time
           ,'conversion' as event_type
-        FROM ${all_events.SQL_TABLE_NAME} e
-        --WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-        --AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
-        WHERE (session_id >= DATE_PART(epoch, {% date_start initial_date_range_filter %}::TIMESTAMP) OR {% date_start initial_date_range_filter %} IS NULL)
-        AND (session_id <= DATE_PART(epoch, {% date_end initial_date_range_filter %}::TIMESTAMP) OR {% date_end initial_date_range_filter %} IS NULL)
-        AND {% condition conversion_events_filter %} event_name {% endcondition %}
+        FROM all_events
+        WHERE {% condition conversion_events_filter %} event_name {% endcondition %}
         AND user_sso_guid IN (SELECT DISTINCT user_sso_guid FROM initial_events)
         )
         ;;
@@ -281,8 +276,8 @@ view: conversion_analysis {
           )
         GROUP BY user_sso_guid, period_count, period_number, period_label
         ;;
-      # sql_step: alter warehouse heavyduty suspend ;;
-      # sql_step: use warehouse looker ;;
+      sql_step: alter warehouse analysis suspend ;;
+      sql_step: use warehouse looker ;;
     }
 
     persist_for: "1 second"
