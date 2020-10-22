@@ -27,7 +27,7 @@ explore: conversion_analysis {
   }
 }
 
-explore: cohort_analysis {
+explore: flow_analysis {
   label: "Flow Analysis"
   extends: [learner_profile]
   from: cohort_selection
