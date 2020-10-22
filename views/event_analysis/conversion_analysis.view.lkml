@@ -105,10 +105,25 @@ view: conversion_analysis {
       sql_step: use schema looker_scratch ;;
       sql_step:
         create or replace temporary table initial_events AS (
-        SELECT user_sso_guid
-            , event_time
+        SELECT
+            user_sso_guid
+            ,DATE_TRUNC(
+            {% if time_period._parameter_value == '0.01' %}
+              minute
+            {% elsif time_period._parameter_value == '0.1' %}
+              hour
+            {% elsif time_period._parameter_value == '1' %}
+              day
+            {% elsif time_period._parameter_value == '7' %}
+              week
+            {% elsif time_period._parameter_value == '30' %}
+              month
+            {% elsif time_period._parameter_value == '365' %}
+              year
+            {% endif %}
+            ,event_time) AS event_time
             , event_name
-            , event_data:event_duration as event_duration
+            , SUM(event_data:event_duration) as event_duration
             ,'initial' as event_type
         FROM ${all_events.SQL_TABLE_NAME} e
         --WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
@@ -116,15 +131,31 @@ view: conversion_analysis {
         WHERE (session_id >= DATE_PART(epoch, {% date_start initial_date_range_filter %}::TIMESTAMP) OR {% date_start initial_date_range_filter %} IS NULL)
         AND (session_id <= DATE_PART(epoch, {% date_end initial_date_range_filter %}::TIMESTAMP) OR {% date_end initial_date_range_filter %} IS NULL)
         AND {% condition initial_events_filter %} event_name {% endcondition %}
+        GROUP BY 1, 2, 3
         )
         ;;
 
       sql_step:
         create or replace temporary table conversion_events AS (
-        SELECT user_sso_guid
-          , event_time
+        SELECT
+          user_sso_guid
+          ,DATE_TRUNC(
+          {% if time_period._parameter_value == '0.01' %}
+              minute
+            {% elsif time_period._parameter_value == '0.1' %}
+              hour
+            {% elsif time_period._parameter_value == '1' %}
+              day
+            {% elsif time_period._parameter_value == '7' %}
+              week
+            {% elsif time_period._parameter_value == '30' %}
+              month
+            {% elsif time_period._parameter_value == '365' %}
+              year
+            {% endif %}
+            ,event_time) AS event_time
           , event_name
-          , event_data:event_duration as event_duration
+          , SUM(event_data:event_duration) as event_duration
           ,'conversion' as event_type
         FROM ${all_events.SQL_TABLE_NAME} e
         --WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
@@ -132,7 +163,8 @@ view: conversion_analysis {
         WHERE (session_id >= DATE_PART(epoch, {% date_start initial_date_range_filter %}::TIMESTAMP) OR {% date_start initial_date_range_filter %} IS NULL)
         AND (session_id <= DATE_PART(epoch, {% date_end initial_date_range_filter %}::TIMESTAMP) OR {% date_end initial_date_range_filter %} IS NULL)
         AND {% condition conversion_events_filter %} event_name {% endcondition %}
-        AND user_sso_guid IN (SELECT user_sso_guid FROM initial_events)
+        AND user_sso_guid IN (SELECT DISTINCT user_sso_guid FROM initial_events)
+        GROUP BY 1, 2, 3
         )
         ;;
 
