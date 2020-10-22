@@ -197,7 +197,7 @@ view: conversion_analysis {
             ,COUNT(DISTINCT CASE WHEN event_type = 'conversion' THEN period_number END) as period_count
             ,MAX(d.total_event_duration) as total_event_duration
         FROM simplify_events
-        INNER JOIN (
+        LEFT JOIN (
           SELECT user_sso_guid, SUM(event_duration) AS total_event_duration
           FROM conversion_events
           GROUP BY 1
