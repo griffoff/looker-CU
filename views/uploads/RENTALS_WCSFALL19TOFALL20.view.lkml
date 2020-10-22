@@ -6,8 +6,8 @@ view: rentals_wcsfall19tofall20 {
         coalesce(su.LINKED_GUID, hu.UID) as merged_guid
         , r._file
         , r._line
-        , r.orderid
-        , r.isbn
+        , r.orderid::string as orderid
+        , r.isbn::string as isbn
         , r.duration
         , r.date_of_purchase
         , r.logonid
@@ -24,8 +24,8 @@ view: rentals_wcsfall19tofall20 {
         , p.date_added
         , p.expiration_DATE
         , p.product_id
-        , p.order_number
-        , hisbn.isbn13
+        , p.order_number::string as order_number
+        , hisbn.isbn13::string as isbn13
         , pr.short_title
         , pr.title
         , si.name
@@ -86,9 +86,12 @@ view: rentals_wcsfall19tofall20 {
 
   dimension: _line {label:"_line" view_label:"Rentals"}
 
-  dimension: orderid {view_label:"Rentals"}
+  dimension: orderid {type: string view_label:"Rentals"}
 
-  dimension: isbn {view_label:"Rentals"}
+  dimension: isbn {
+    type: string
+    view_label:"Rentals"
+  }
 
   dimension: duration {view_label:"Rentals"}
 
@@ -152,9 +155,12 @@ view: rentals_wcsfall19tofall20 {
 
   dimension: product_id {view_label:"Provisioned Products"}
 
-  dimension: order_number {view_label:"Provisioned Products"}
+  dimension: order_number {type: string view_label:"Provisioned Products"}
 
-  dimension: isbn13 {view_label:"Provisioned Products"}
+  dimension: isbn13 {
+    type: string
+    view_label:"Provisioned Products"
+  }
 
   dimension: short_title {view_label:"Provisioned Products"}
 
@@ -170,7 +176,7 @@ view: rentals_wcsfall19tofall20 {
     view_label:"Institution"
   }
 
-  dimension: institution_id {view_label:"Institution"}
+  dimension: institution_id {type: string view_label:"Institution"}
 
 
 
