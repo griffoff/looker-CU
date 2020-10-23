@@ -178,7 +178,23 @@ view: rentals_wcsfall19tofall20 {
 
   dimension: institution_id {type: string view_label:"Institution"}
 
+  measure: renters {
+    type: count_distinct
+    sql: ${merged_guid} ;;
+    label: "# of Rental Users"
+  }
 
+  measure: provisioned_products {
+    type: count_distinct
+    sql: concat(${merged_guid}, ${isbn13}) ;;
+    label: "# of Products Provisioned"
+  }
+
+  measure: rentals {
+    type: count_distinct
+    sql: concat(${merged_guid},${isbn},${orderid}) ;;
+    label: "# of Products Rented"
+  }
 
 
 
