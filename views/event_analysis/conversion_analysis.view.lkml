@@ -101,11 +101,11 @@ view: conversion_analysis {
 
   derived_table: {
     create_process: {
-      # sql_step: use warehouse heavyduty ;;
+      sql_step: use warehouse analysis ;;
       sql_step: use schema looker_scratch ;;
       sql_step:
-        create or replace temporary table initial_events AS (
-        SELECT
+        create or replace temporary table all_events AS (
+        SELECT DISTINCT
             user_sso_guid
             ,DATE_TRUNC(
             {% if time_period._parameter_value == '0.01' %}
@@ -122,78 +122,67 @@ view: conversion_analysis {
               year
             {% endif %}
             ,event_time) AS event_time
-            , event_name
-            , SUM(event_data:event_duration) as event_duration
-            ,'initial' as event_type
+            ,event_name
         FROM ${all_events.SQL_TABLE_NAME} e
-        --WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-        --AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
         WHERE (session_id >= DATE_PART(epoch, {% date_start initial_date_range_filter %}::TIMESTAMP) OR {% date_start initial_date_range_filter %} IS NULL)
         AND (session_id <= DATE_PART(epoch, {% date_end initial_date_range_filter %}::TIMESTAMP) OR {% date_end initial_date_range_filter %} IS NULL)
-        AND {% condition initial_events_filter %} event_name {% endcondition %}
-        GROUP BY 1, 2, 3
+        AND (
+          {% condition initial_events_filter %} event_name {% endcondition %}
+          OR
+          {% condition conversion_events_filter %} event_name {% endcondition %}
+          )
         )
         ;;
 
       sql_step:
-        create or replace temporary table conversion_events AS (
-        SELECT
+        create or replace temporary table initial_events AS (
+        SELECT DISTINCT
           user_sso_guid
-          ,DATE_TRUNC(
-          {% if time_period._parameter_value == '0.01' %}
-              minute
-            {% elsif time_period._parameter_value == '0.1' %}
-              hour
-            {% elsif time_period._parameter_value == '1' %}
-              day
-            {% elsif time_period._parameter_value == '7' %}
-              week
-            {% elsif time_period._parameter_value == '30' %}
-              month
-            {% elsif time_period._parameter_value == '365' %}
-              year
-            {% endif %}
-            ,event_time) AS event_time
-          , event_name
-          , SUM(event_data:event_duration) as event_duration
+          ,event_time
+          ,'initial' as event_type
+        FROM all_events
+        WHERE {% condition initial_events_filter %} event_name {% endcondition %}
+      )
+      ;;
+
+      sql_step:
+        create or replace temporary table conversion_events AS (
+        SELECT DISTINCT
+          user_sso_guid
+          ,event_time
           ,'conversion' as event_type
-        FROM ${all_events.SQL_TABLE_NAME} e
-        --WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start initial_date_range_filter %} OR {% date_start initial_date_range_filter %} IS NULL)
-        --AND (TO_TIMESTAMP(session_id::INT) <= {% date_end initial_date_range_filter %} OR {% date_end initial_date_range_filter %} IS NULL)
-        WHERE (session_id >= DATE_PART(epoch, {% date_start initial_date_range_filter %}::TIMESTAMP) OR {% date_start initial_date_range_filter %} IS NULL)
-        AND (session_id <= DATE_PART(epoch, {% date_end initial_date_range_filter %}::TIMESTAMP) OR {% date_end initial_date_range_filter %} IS NULL)
-        AND {% condition conversion_events_filter %} event_name {% endcondition %}
+        FROM all_events
+        WHERE {% condition conversion_events_filter %} event_name {% endcondition %}
         AND user_sso_guid IN (SELECT DISTINCT user_sso_guid FROM initial_events)
-        GROUP BY 1, 2, 3
         )
         ;;
 
       sql_step:
         create or replace temporary table all_relevant_events AS (
         SELECT
-            user_sso_guid
-            , event_time
-            , event_name
-            , event_type
-            , event_duration
-            , COALESCE(LAG(event_type) OVER (PARTITION BY user_sso_guid ORDER BY event_time), '') = event_type AS same_type_as_previous
-          FROM (
-            SELECT *
-            FROM initial_events
-            UNION ALL
-            SELECT *
-            FROM conversion_events
-                )
+          user_sso_guid
+          , event_time
+          , event_type
+          , COALESCE(LAG(event_type) OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_type desc), '') = event_type AS same_type_as_previous
+        FROM (
+          SELECT *
+          FROM initial_events
+          UNION ALL
+          SELECT *
+          FROM conversion_events
+          ORDER BY user_sso_guid, event_time, event_type desc
           )
-          ;;
+
+        )
+        ;;
       sql_step:
         create or replace temporary table simplify_events AS (
         SELECT
           *
           {% if analysis_type._parameter_value == 'retention' %}
-          ,MIN(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
+          ,MIN(event_time) OVER(PARTITION BY user_sso_guid)
           {% else %}
-          ,LAG(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time)
+          ,LAG(event_time) OVER(PARTITION BY user_sso_guid ORDER BY event_time, event_type desc)
           {% endif %}
           AS reference_event_time
           ,COALESCE(GREATEST(1, DATEDIFF(
@@ -213,7 +202,7 @@ view: conversion_analysis {
             ,reference_event_time
             ,event_time
           )), 1) as period_number
-          ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time)   AS sequence_number
+          ,ROW_NUMBER() OVER (PARTITION BY user_sso_guid ORDER BY event_time, event_type desc)   AS sequence_number
         FROM all_relevant_events
         {% if analysis_type._parameter_value == 'retention' %}
         -- if retention keep the first "initial event" and all subsequent conversion events
@@ -222,6 +211,7 @@ view: conversion_analysis {
         -- if conversion analysis remove repeated events of the same type
         WHERE NOT same_type_as_previous
         {% endif %}
+
         )
         ;;
       sql_step:
@@ -231,13 +221,7 @@ view: conversion_analysis {
             user_sso_guid
             ,MIN(CASE WHEN event_type = 'conversion' AND sequence_number = 1 THEN -1 ELSE 0 END) as modifier
             ,COUNT(DISTINCT CASE WHEN event_type = 'conversion' THEN period_number END) as period_count
-            ,MAX(d.total_event_duration) as total_event_duration
         FROM simplify_events
-        LEFT JOIN (
-          SELECT user_sso_guid, SUM(event_duration) AS total_event_duration
-          FROM conversion_events
-          GROUP BY 1
-          ) d USING(user_sso_guid)
         GROUP BY user_sso_guid
         )
         ;;
@@ -267,9 +251,7 @@ view: conversion_analysis {
           ,NULL AS initial_time_max
           ,NULL AS conversion_time_min
           ,NULL AS conversion_time_max
-          ,NULL AS conversion_event
           ,NULL AS conversion_event_count
-          ,total_event_duration AS conversion_event_duration
         FROM user_info
         UNION ALL
         {% endif %}
@@ -285,12 +267,7 @@ view: conversion_analysis {
           , MAX(reference_event_time) AS initial_time_max
           , MIN(event_time) AS conversion_time_min
           , MAX(event_time) AS conversion_time_max
-          , CASE WHEN COUNT(DISTINCT event_name) > 10
-              THEN ARRAY_CONSTRUCT('Too many events to list...')
-              ELSE ARRAY_AGG(DISTINCT event_name)
-            END AS conversion_event
           , COUNT(*) AS conversion_event_count
-          , MAX(total_event_duration) as conversion_event_duration
         FROM final_events
         WHERE event_type = 'conversion'
         AND (
@@ -299,8 +276,8 @@ view: conversion_analysis {
           )
         GROUP BY user_sso_guid, period_count, period_number, period_label
         ;;
-      # sql_step: alter warehouse heavyduty suspend ;;
-      # sql_step: use warehouse looker ;;
+      sql_step: alter warehouse analysis suspend ;;
+      sql_step: use warehouse looker ;;
     }
 
     persist_for: "1 second"
@@ -393,8 +370,8 @@ view: conversion_analysis {
   }
 
   measure: first_conversion_duration_average {
-    type: average
-    sql: datediff(seconds,${initial_time_min},${conversion_time_min})/24/60/60;;
+    type: number
+    sql: AVG(datediff(seconds,${initial_time_min},${conversion_time_min}))/24/60/60;;
     view_label: "** USER EVENT CONVERSION **"
     value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
@@ -402,8 +379,8 @@ view: conversion_analysis {
   }
 
   measure: first_conversion_duration_max {
-    type: max
-    sql: datediff(seconds,${initial_time_min},${conversion_time_min})/24/60/60;;
+    type: number
+    sql: MAX(datediff(seconds,${initial_time_min},${conversion_time_min}))/24/60/60;;
     view_label: "** USER EVENT CONVERSION **"
     value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
@@ -411,8 +388,8 @@ view: conversion_analysis {
   }
 
   measure: first_conversion_duration_min {
-    type: min
-    sql: datediff(seconds,${initial_time_min},${conversion_time_min})/24/60/60;;
+    type: number
+    sql: MIN(datediff(seconds,${initial_time_min},${conversion_time_min}))/24/60/60;;
     view_label: "** USER EVENT CONVERSION **"
     value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
