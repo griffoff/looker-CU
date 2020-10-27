@@ -565,10 +565,11 @@ view: raw_subscription_event {
 
   measure: count_subscription {
     description: "A count of the unique user guids which represents the number of unique subscribers"
-    label: "# Subscribers"
+    label: "# Subscribers (unmerged guids)"
     type: count_distinct
     sql: ${TABLE}.user_sso_guid ;;
     drill_fields: [detail*]
+    hidden: no
   }
 
   measure: count_subscriptions_all {
@@ -580,12 +581,12 @@ view: raw_subscription_event {
 
   # source of raw_subscription_event is SSO - all guids are good
   measure: count_subscription_merged {
-    description: "A count of the unique user guids which represents the number of unique subscriptions"
-    label: "# Subscriptions (after merge)"
+    description: "A count of the unique merged user guids which represents the number of unique subscriptions"
+    label: "# Subscribers"
     type: count_distinct
     sql: ${TABLE}.merged_guid ;;
     drill_fields: [detail*]
-    hidden: yes
+    hidden: no
   }
 
   measure: count_subscription_state{

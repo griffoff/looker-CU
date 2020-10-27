@@ -828,6 +828,15 @@ view: all_events_base {
     hidden: no
   }
 
+  dimension: tags_subscription_state {
+    group_label: "CAFE Tags"
+    label: "Subscription State"
+    type: string
+    sql: ${event_data}:subscription_state::string  ;;
+    description: "Subscription State from subscription service events"
+    hidden: no
+  }
+
   dimension: tags_assignmentDue {
     group_label: "CAFE Tags"
     label: "Assignment Due"

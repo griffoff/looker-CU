@@ -19,7 +19,7 @@ view: partition_depth_histogram {
     type: string
     sql:${TABLE}.key::STRING;;
     order_by_field: unique_values_partition_sort
-    }
+  }
 
   dimension: partition_count {type: number sql: ${TABLE}.value;;}
 
@@ -57,7 +57,7 @@ view: clustering_information_fields {
     case: {
       when: {
         label: "ALL_EVENTS" sql:${TABLE}.table_info:TABLE_NAME = 'ALL_EVENTS';;
-        }
+      }
       when: {
         label: "ALL_SESSIONS" sql:${TABLE}.table_info:TABLE_NAME = 'ALL_SESSIONS';;
       }
@@ -65,7 +65,7 @@ view: clustering_information_fields {
         label: "CLIENT_ACTIVITY_EVENT" sql:${TABLE}.table_info:TABLE_NAME = 'CLIENT_ACTIVITY_EVENT';;
       }
     }
-   # sql:${TABLE}.table_info:TABLE_NAME::STRING ;;
+    # sql:${TABLE}.table_info:TABLE_NAME::STRING ;;
   }
 
   dimension: clustering_key {
@@ -118,39 +118,39 @@ view: cu_user_analysis_clustering_information_history {
           VALUES (n.table_info, n.clustering_information)
         ;;
 
-      sql_step:
-      MERGE INTO LOOKER_SCRATCH.clustering_information o
-      USING (
-          SELECT table_info:TABLE_NAME as table_name, MAX(refresh_time) as latest_time
-          FROM LOOKER_SCRATCH.clustering_information
-          GROUP BY 1
-      ) l ON o.table_info:TABLE_NAME = l.table_name AND o._latest
-      WHEN MATCHED AND o.refresh_time != l.latest_time THEN
-          UPDATE SET _latest = FALSE
-      ;;
+        sql_step:
+              MERGE INTO LOOKER_SCRATCH.clustering_information o
+              USING (
+                  SELECT table_info:TABLE_NAME as table_name, MAX(refresh_time) as latest_time
+                  FROM LOOKER_SCRATCH.clustering_information
+                  GROUP BY 1
+              ) l ON o.table_info:TABLE_NAME = l.table_name AND o._latest
+              WHEN MATCHED AND o.refresh_time != l.latest_time THEN
+                  UPDATE SET _latest = FALSE
+              ;;
 
-      sql_step:
-        CREATE OR REPLACE TRANSIENT TABLE ${SQL_TABLE_NAME} CLONE LOOKER_SCRATCH.clustering_information;;
+          sql_step:
+                  CREATE OR REPLACE TRANSIENT TABLE ${SQL_TABLE_NAME} CLONE LOOKER_SCRATCH.clustering_information;;
+        }
+
+        sql_trigger_value: SELECT CURRENT_TIMESTAMP() ;;
+      }
+
     }
 
-    sql_trigger_value: SELECT CURRENT_TIMESTAMP() ;;
-  }
+    view: cu_user_analysis_clustering_information {
+      extends: [clustering_information_fields, partition_depth_histogram]
 
-}
+      derived_table: {
+        sql:
+              select
+                h.*
+                , c.key
+                , c.value
+              from ${cu_user_analysis_clustering_information_history.SQL_TABLE_NAME} h
+              cross join lateral flatten (h.clustering_information:partition_depth_histogram) c
+              where h._latest
+              ;;
+      }
 
-view: cu_user_analysis_clustering_information {
-  extends: [clustering_information_fields, partition_depth_histogram]
-
-  derived_table: {
-    sql:
-      select
-        h.*
-        , c.key
-        , c.value
-      from ${cu_user_analysis_clustering_information_history.SQL_TABLE_NAME} h
-      cross join lateral flatten (h.clustering_information:partition_depth_histogram) c
-      where h._latest
-      ;;
-  }
-
-}
+    }
