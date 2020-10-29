@@ -4,30 +4,24 @@ view: rentals_wcsfall19tofall20 {
     sql:
       with rentals as (
         select
-          orderid:: string as orderid
-          , isbn::string as isbn
-          , date_of_purchase
+          isbn::string as isbn
+          , date_of_purchase::date as date_of_purchase
           , uid as customer_guid
-          , status
         from "UPLOADS"."RENTALS"."WCSFALL19TOFALL20" r
         left join prod.DATAVAULT.SAT_USER_PII_V2 sp on sp.EMAIL = r.LOGONID
         left join prod.DATAVAULT.HUB_USER hu on hu.HUB_USER_KEY = sp.HUB_USER_KEY
         union
         select
-          rental_contract_id::string
-          , rental_isbn::string
-          , placed_on_date_time
+          rental_isbn::string
+          , placed_on_date_time::date
           , customer_guid
-          , current_rental_status
         from "UPLOADS"."RENTALS"."SAPRENTALSFALL20"
       )
       , rentals_plus as (
       select distinct
         coalesce(su.LINKED_GUID, hu.UID) as merged_guid
-        , r.orderid::string as orderid
         , r.isbn::string as isbn
         , r.date_of_purchase
-        , r.status
         , ss.subscription_start
         , ss.subscription_end
         , ss.cancelled_time
@@ -76,9 +70,15 @@ view: rentals_wcsfall19tofall20 {
 -- join to institution info on product institution, else user institution
       left join prod.DATAVAULT.SAT_INSTITUTION_SAWS si on si.HUB_INSTITUTION_KEY = hi.HUB_INSTITUTION_KEY and si._LATEST
     )
+    , rentals_plus_plus as (
+      select *
+        , lag(date_of_purchase) over(partition by merged_guid, isbn order by date_of_purchase) as last_purchase_date_isbn
+        , iff(date_of_purchase >= '2020-08-01' and coalesce(datediff(d,last_purchase_date_isbn,date_of_purchase),2) > 1,1,0) as new_rental_fall_2020
+      from rentals_plus
+    )
     select *
-      , count(iff(date_of_purchase >= '2020-08-01', concat(merged_guid, orderid, isbn),null)) over(partition by merged_guid, subscription_plan_id) as user_rentals_sub_plan_fall_2020
-    from rentals_plus
+      , sum(new_rental_fall_2020) over(partition by merged_guid, subscription_plan_id) as user_rentals_sub_plan_fall_2020
+    from rentals_plus_plus
     ;;
     persist_for: "8 hours"
   }
@@ -90,7 +90,7 @@ view: rentals_wcsfall19tofall20 {
 
   # dimension: _line {label:"_line" view_label:"Rentals"}
 
-  dimension: orderid {type: string view_label:"Rentals"}
+  # dimension: orderid {type: string view_label:"Rentals"}
 
   dimension: isbn {
     type: string
@@ -117,7 +117,7 @@ view: rentals_wcsfall19tofall20 {
 
   # dimension: promocode {view_label:"Rentals"}
 
-  dimension: status {view_label:"Rentals"}
+  # dimension: status {view_label:"Rentals"}
 
   # dimension: _fivetran_synced {label:"_fivetran_synced" type:date_time view_label:"Rentals"}
 
@@ -240,14 +240,14 @@ view: rentals_wcsfall19tofall20 {
 
   measure: rentals {
     type: count_distinct
-    sql: concat(${merged_guid},${isbn},${orderid}) ;;
+    sql: concat(${merged_guid},${isbn}) ;;
     label: "# of Products Rented"
     view_label:"Rentals"
   }
 
   measure: rentals_per_student {
     type: number
-    sql: count(distinct concat(${merged_guid},${isbn},${orderid})) / nullif(count(distinct ${merged_guid}),0) ;;
+    sql: count(distinct concat(${merged_guid},${isbn})) / nullif(count(distinct ${merged_guid}),0) ;;
     label: "# of Rentals Per User"
     view_label:"Rentals"
   }
