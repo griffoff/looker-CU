@@ -5,8 +5,9 @@ view: rentals_wcsfall19tofall20 {
       with rentals as (
         select
           isbn::string as isbn
-          , date_of_purchase::date as date_of_purchase
+          , date_of_purchase as date_of_purchase
           , uid as customer_guid
+          , rental_plan
         from "UPLOADS"."RENTALS"."WCSFALL19TOFALL20" r
         left join prod.DATAVAULT.SAT_USER_PII_V2 sp on sp.EMAIL = r.LOGONID
         left join prod.DATAVAULT.HUB_USER hu on hu.HUB_USER_KEY = sp.HUB_USER_KEY
@@ -15,6 +16,7 @@ view: rentals_wcsfall19tofall20 {
           rental_isbn::string
           , placed_on_date_time::date
           , customer_guid
+          , rental_plan
         from "UPLOADS"."RENTALS"."SAPRENTALSFALL20"
       )
       , rentals_plus as (
@@ -22,6 +24,7 @@ view: rentals_wcsfall19tofall20 {
         coalesce(su.LINKED_GUID, hu.UID) as merged_guid
         , r.isbn::string as isbn
         , r.date_of_purchase
+        , r.rental_plan
         , ss.subscription_start
         , ss.subscription_end
         , ss.cancelled_time
@@ -51,7 +54,7 @@ view: rentals_wcsfall19tofall20 {
         left join prod.datavault.hub_user hu on hu.uid = ss.current_guid
         left join prod.DATAVAULT.SAT_USER_V2 su on su.HUB_USER_KEY = hu.HUB_USER_KEY and su._LATEST
         where ss._latest and ss.SUBSCRIPTION_PLAN_ID <> 'Read-Only'
-      ) ss on ss.merged_guid = coalesce(su.LINKED_GUID, hu.UID) and r.date_of_purchase between ss.SUBSCRIPTION_START and coalesce(ss.cancelled_time, ss.SUBSCRIPTION_END)
+      ) ss on ss.merged_guid = coalesce(su.LINKED_GUID, hu.UID) and r.date_of_purchase::date between ss.SUBSCRIPTION_START::date and coalesce(ss.cancelled_time::date, ss.SUBSCRIPTION_END::date)
 -- get product info joined on rental isbn
       left join prod.STG_CLTS.PRODUCTS pr on pr.ISBN13 = r.isbn
 -- get user institution
@@ -123,6 +126,11 @@ view: rentals_wcsfall19tofall20 {
 
   dimension: user_rentals_sub_plan_fall_2020 {
     type: number
+    view_label: "Rentals"
+  }
+
+  dimension: rental_plan {
+    type: string
     view_label: "Rentals"
   }
 
