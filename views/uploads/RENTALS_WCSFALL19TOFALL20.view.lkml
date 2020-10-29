@@ -21,6 +21,7 @@ view: rentals_wcsfall19tofall20 {
           , current_rental_status
         from "UPLOADS"."RENTALS"."SAPRENTALSFALL20"
       )
+      , rentals_plus as (
       select distinct
         coalesce(su.LINKED_GUID, hu.UID) as merged_guid
         , r.orderid::string as orderid
@@ -29,6 +30,7 @@ view: rentals_wcsfall19tofall20 {
         , r.status
         , ss.subscription_start
         , ss.subscription_end
+        , ss.cancelled_time
         , ss.subscription_state
         , ss.subscription_plan_id
         , pr.ISBN13 as isbn13
@@ -41,7 +43,7 @@ view: rentals_wcsfall19tofall20 {
         , si.name
         , si."TYPE"
         , si.iso_country
-        , coalesce(p.INSTITUTION_ID, hi.institution_id) as institution_id
+        , hi.institution_id
       from rentals r
 -- get merged guid
       left join prod.DATAVAULT.HUB_USER hu on r.customer_guid = hu.uid
@@ -54,155 +56,29 @@ view: rentals_wcsfall19tofall20 {
         from prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss
         left join prod.datavault.hub_user hu on hu.uid = ss.current_guid
         left join prod.DATAVAULT.SAT_USER_V2 su on su.HUB_USER_KEY = hu.HUB_USER_KEY and su._LATEST
-        where ss.SUBSCRIPTION_STATE in ('Active')
-      ) ss on ss.merged_guid = coalesce(su.LINKED_GUID, hu.UID) and r.date_of_purchase::date between ss.SUBSCRIPTION_START::date and ss.SUBSCRIPTION_END::date
+        where ss._latest and ss.SUBSCRIPTION_PLAN_ID <> 'Read-Only'
+      ) ss on ss.merged_guid = coalesce(su.LINKED_GUID, hu.UID) and r.date_of_purchase between ss.SUBSCRIPTION_START and coalesce(ss.cancelled_time, ss.SUBSCRIPTION_END)
 -- get product info joined on rental isbn
       left join prod.STG_CLTS.PRODUCTS pr on pr.ISBN13 = r.isbn
--- try to join to provisioned products on rental isbn and merged_guid
-      left join (
-        select sp._rsrc,
-          sp._EFFECTIVE_FROM,
-          sp._EFFECTIVE_TO,
-          sp._LATEST,
-          coalesce(su.LINKED_GUID, hu.UID) as merged_guid,
-          sp.DATE_ADDED,
-          sp.EXPIRATION_DATE,
-          sp.INSTITUTION_ID,
-          sp.PRODUCT_ID,
-          sp.ORDER_NUMBER,
-          lpp.HUB_PRODUCT_KEY,
-          hisbn.ISBN13,
-          hi.HUB_INSTITUTION_KEY
-        from prod.DATAVAULT.SAT_PROVISIONED_PRODUCT_V2 sp
-        left join prod.datavault.hub_user hu on hu.uid = sp.user_sso_guid
-        left join prod.DATAVAULT.SAT_USER_V2 su on su.HUB_USER_KEY = hu.HUB_USER_KEY and su._LATEST
-        left join prod.DATAVAULT.LINK_PRODUCT_PROVISIONEDPRODUCT lpp on lpp.HUB_PROVISIONED_PRODUCT_KEY = sp.HUB_PROVISIONED_PRODUCT_KEY
-        left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_PRODUCT_KEY = lpp.HUB_PRODUCT_KEY
-        left join prod.DATAVAULT.HUB_ISBN hisbn on hisbn.HUB_ISBN_KEY = lpi.HUB_ISBN_KEY
-        left join prod.DATAVAULT.HUB_INSTITUTION hi on sp.INSTITUTION_ID = hi.INSTITUTION_ID
-        union
-        select sn._rsrc,
-          sn._EFFECTIVE_FROM,
-          sn._EFFECTIVE_TO,
-          sn._LATEST,
-          coalesce(su.LINKED_GUID, hu.UID) as merged_guid,
-          sn.REGISTRATION_DATE,
-          dateadd(d, sn.SUBSCRIPTION_LENGTH_IN_DAYS, sn.REGISTRATION_DATE),
-          sn.INSTITUTION_ID,
-          sn.PRODUCT_ID,
-          sn.ORDER_NUMBER,
-          lsp.HUB_PRODUCT_KEY,
-          hisbn.ISBN13,
-          hi.HUB_INSTITUTION_KEY
-        from prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED sn
-        left join prod.datavault.hub_user hu on hu.uid = sn.user_sso_guid
-        left join prod.DATAVAULT.SAT_USER_V2 su on su.HUB_USER_KEY = hu.HUB_USER_KEY and su._LATEST
-        left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lsp.HUB_SERIALNUMBER_KEY = sn.HUB_SERIALNUMBER_KEY
-        left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_PRODUCT_KEY = lsp.HUB_PRODUCT_KEY
-        left join prod.DATAVAULT.HUB_ISBN hisbn on hisbn.HUB_ISBN_KEY = lpi.HUB_ISBN_KEY
-        left join prod.DATAVAULT.HUB_INSTITUTION hi on sn.INSTITUTION_ID = hi.INSTITUTION_ID
-      ) p on p.merged_guid = coalesce(su.LINKED_GUID, hu.UID) and r.isbn = p.isbn13
 -- get user institution
-      left join prod.DATAVAULT.LINK_USER_INSTITUTION lui on lui.HUB_USER_KEY = hu.HUB_USER_KEY
+      left join (
+        select distinct
+          coalesce(su.LINKED_GUID, hu.UID) as merged_guid
+          , lui.hub_institution_key
+          , sui._ldts as _effective_from
+          , lead(sui._ldts) over(partition by merged_guid order by sui._ldts) as _effective_to
+        from prod.DATAVAULT.LINK_USER_INSTITUTION lui
+        inner join prod.DATAVAULT.SAT_USER_INSTITUTION sui on lui.LINK_USER_INSTITUTION_KEY = sui.LINK_USER_INSTITUTION_KEY
+        inner join prod.datavault.hub_user hu on hu.hub_user_key = lui.hub_user_key
+        inner join prod.DATAVAULT.SAT_USER_V2 su on su.HUB_USER_KEY = hu.HUB_USER_KEY and su._LATEST
+      ) lui on lui.merged_guid = coalesce(su.LINKED_GUID, hu.UID) and (r.date_of_purchase between lui._effective_from and coalesce(lui._effective_to,current_date))
       left join prod.DATAVAULT.HUB_INSTITUTION hi on hi.HUB_INSTITUTION_KEY = lui.HUB_INSTITUTION_KEY
 -- join to institution info on product institution, else user institution
-      left join prod.DATAVAULT.SAT_INSTITUTION_SAWS si on si.HUB_INSTITUTION_KEY = coalesce(p.hub_institution_key, hi.HUB_INSTITUTION_KEY) and si._LATEST
-
-    /*
-      with rentals as (
-        select
-          orderid
-          , isbn
-          , date_of_purchase
-          , logonid
-          , uid as customer_guid
-          , status
-        from "UPLOADS"."RENTALS"."WCSFALL19TOFALL20" r
-        left join prod.DATAVAULT.SAT_USER_PII_V2 sp on sp.EMAIL = r.LOGONID and sp._LATEST
-        left join prod.DATAVAULT.HUB_USER hu on hu.HUB_USER_KEY = sp.HUB_USER_KEY
-        union all
-        select
-          rental_contract_id
-          , rental_isbn
-          , placed_on_date_time
-          , null as logonid
-          , customer_guid
-          , current_rental_status
-        from "UPLOADS"."RENTALS"."SAPRENTALSFALL20"
-      )
-      select distinct
-        coalesce(su.LINKED_GUID, hu.UID) as merged_guid
-        --, r._file
-        --, r._line
-        , r.orderid::string as orderid
-        , r.isbn::string as isbn
-        --, r.duration
-        , r.date_of_purchase
-        , r.logonid
-        --, r.total
-        --, r.discount
-        --, r.rental_plan
-        --, r.promocode
-        , r.status
-        --, r._fivetran_synced
-        , ss.subscription_start
-        , ss.subscription_end
-        , ss.subscription_state
-        , ss.subscription_plan_id
-        , p.date_added
-        , p.expiration_DATE
-        , p.product_id
-        , p.order_number::string as order_number
-        , hisbn.isbn13::string as isbn13
-        , pr.short_title
-        , pr.title
-        , si.name
-        , si."TYPE"
-        , si.iso_country
-        , hi.institution_id
-      from rentals r
-      left join prod.DATAVAULT.HUB_USER hu on r.customer_guid = hu.uid
-      left join prod.DATAVAULT.SAT_USER_V2 su on su.HUB_USER_KEY = hu.HUB_USER_KEY and su._LATEST
-      left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.CURRENT_GUID = coalesce(su.LINKED_GUID, hu.UID) and r.date_of_purchase::date between ss.SUBSCRIPTION_START::date and ss.SUBSCRIPTION_END::date
-        and r.date_of_purchase::date between ss._EFFECTIVE_FROM::date and coalesce(ss._EFFECTIVE_TO::date, current_date)
-        AND ss.SUBSCRIPTION_STATE <> 'Cancelled'
-      left join (
-        select sp._rsrc,
-          sp._EFFECTIVE_FROM,
-          sp._EFFECTIVE_TO,
-          sp._LATEST,
-          sp.USER_SSO_GUID,
-          sp.DATE_ADDED,
-          sp.EXPIRATION_DATE,
-          sp.INSTITUTION_ID,
-          sp.PRODUCT_ID,
-          sp.ORDER_NUMBER,
-          lpp.HUB_PRODUCT_KEY
-        from prod.DATAVAULT.SAT_PROVISIONED_PRODUCT_V2 sp
-        left join prod.DATAVAULT.LINK_PRODUCT_PROVISIONEDPRODUCT lpp on lpp.HUB_PROVISIONED_PRODUCT_KEY = sp.HUB_PROVISIONED_PRODUCT_KEY
-        union all
-        select sn._rsrc,
-          sn._EFFECTIVE_FROM,
-          sn._EFFECTIVE_TO,
-          sn._LATEST,
-          sn.USER_SSO_GUID,
-          sn.REGISTRATION_DATE,
-          dateadd(d, sn.SUBSCRIPTION_LENGTH_IN_DAYS, sn.REGISTRATION_DATE),
-          sn.INSTITUTION_ID,
-          sn.PRODUCT_ID,
-          sn.ORDER_NUMBER,
-          lsp.HUB_PRODUCT_KEY
-        from prod.DATAVAULT.SAT_SERIAL_NUMBER_CONSUMED sn
-        left join prod.DATAVAULT.LINK_SERIALNUMBER_PRODUCT lsp on lsp.HUB_SERIALNUMBER_KEY = sn.HUB_SERIALNUMBER_KEY
-      ) p on p.USER_SSO_GUID = coalesce(su.LINKED_GUID, hu.UID) and r.date_of_purchase::date between p.DATE_ADDED::date and p.EXPIRATION_DATE::date
-        and r.date_of_purchase::date between p._EFFECTIVE_FROM::date and coalesce(p._EFFECTIVE_TO, current_date)::date
-      left join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_PRODUCT_KEY = p.HUB_PRODUCT_KEY
-      left join prod.DATAVAULT.HUB_ISBN hisbn on hisbn.HUB_ISBN_KEY = lpi.HUB_ISBN_KEY
-      left join prod.STG_CLTS.PRODUCTS pr on pr.ISBN13 = hisbn.ISBN13
-      left join prod.DATAVAULT.HUB_INSTITUTION hi on p.INSTITUTION_ID = hi.INSTITUTION_ID
-      left join prod.DATAVAULT.LINK_USER_INSTITUTION lui on lui.HUB_USER_KEY = hu.HUB_USER_KEY
-      left join prod.DATAVAULT.SAT_INSTITUTION_SAWS si on si.HUB_INSTITUTION_KEY = coalesce(hi.HUB_INSTITUTION_KEY,lui.HUB_INSTITUTION_KEY) and si._LATEST
-      */
+      left join prod.DATAVAULT.SAT_INSTITUTION_SAWS si on si.HUB_INSTITUTION_KEY = hi.HUB_INSTITUTION_KEY and si._LATEST
+    )
+    select *
+      , count(iff(date_of_purchase >= '2020-08-01', concat(merged_guid, orderid, isbn),null)) over(partition by merged_guid, subscription_plan_id) as user_rentals_sub_plan_fall_2020
+    from rentals_plus
     ;;
     persist_for: "8 hours"
   }
@@ -244,6 +120,11 @@ view: rentals_wcsfall19tofall20 {
   dimension: status {view_label:"Rentals"}
 
   # dimension: _fivetran_synced {label:"_fivetran_synced" type:date_time view_label:"Rentals"}
+
+  dimension: user_rentals_sub_plan_fall_2020 {
+    type: number
+    view_label: "Rentals"
+  }
 
   # subscription
   dimension_group: subscription_start {
@@ -332,7 +213,8 @@ view: rentals_wcsfall19tofall20 {
       , '4084', '31471380', '221762', '6743', '99993239', '6751', '225061', '5207', '6090', '4086', '4656', '144888', '218791', '224516', '144890', '218838', '218784', '25584046', '144891', '144892', '6438'
       , '5209', '225051', '175467', '6093', '5039', '4026', '6015', '164158', '148104', '5897', '164112', '5210', '213268', '5378', '6538', '6022', '157914', '4356', '33457061', '4274', '197262', '5224', '6426'
       , '218322', '5275', '5277', '5279', '5276', '5310', '6132', '5382', '6149', '6350', '6354', '5909', '6228', '7328', '218031', '6845', '6645', '4874', '27299594', '4842', '5713', '6144', '28002121')
-      then 'CUI Institution' else 'Non-CUI Institution' end
+      then 'CUI Institution'
+      else 'Non-CUI Institution' end
       ;;
   }
 
