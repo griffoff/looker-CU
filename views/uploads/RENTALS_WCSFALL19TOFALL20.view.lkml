@@ -72,7 +72,7 @@ view: rentals_wcsfall19tofall20 {
     )
     , rentals_plus_plus as (
       select *
-        , lag(date_of_purchase) over(partition by merged_guid, isbn order by date_of_purchase) as last_purchase_date_isbn
+        , lag(date_of_purchase) over(partition by merged_guid, isbn, subscription_plan_id order by date_of_purchase) as last_purchase_date_isbn
         , iff(date_of_purchase >= '2020-08-01' and coalesce(datediff(d,last_purchase_date_isbn,date_of_purchase),2) > 1,1,0) as new_rental_fall_2020
       from rentals_plus
     )
@@ -147,6 +147,11 @@ view: rentals_wcsfall19tofall20 {
     view_label:"Subscription"
     sql: coalesce(${TABLE}.subscription_plan_id, 'No Active Subscription') ;;
     }
+
+  dimension: cancelled_time {
+    type: date_time
+    view_label:"Subscription"
+  }
 
   # # products
   # dimension_group: added {
