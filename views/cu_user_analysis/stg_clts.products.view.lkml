@@ -1,6 +1,4 @@
-explore: stg_clts_products {
-
-}
+explore: stg_clts_products {hidden:yes}
 view: stg_clts_products {
   view_label: "Products New"
   sql_table_name: prod.STG_CLTS.PRODUCTS  ;;
@@ -228,6 +226,7 @@ view: stg_clts_products {
     label: "ISBN13"
     group_label: "ISBN"
     sql: ${TABLE}.ISBN13 ;;
+    primary_key: yes
   }
 
   # dimension: mindtap_isbn {
