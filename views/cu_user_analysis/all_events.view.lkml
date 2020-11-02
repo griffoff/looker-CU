@@ -965,6 +965,7 @@ view: all_events_base {
     description: "Visually friendly event name, generally event action + event category with duplicate words removed and improved capitalization and spacing"
     suggest_explore: filter_cache_all_events_event_name
     suggest_dimension: filter_cache_all_events_event_name.event_name
+    alias: [event_name_new]
   }
 
   dimension: event_name_raw {
