@@ -180,7 +180,7 @@ view: cu_user_info {
   measure: users {
     label: "# Students"
     type: count_distinct
-    sql: case when ${instructor_by_party}=false then ${merged_guid} end ;;
+    sql: case when ${TABLE}.instructor_by_party=false then ${merged_guid} end ;;
     drill_fields: [detail*]
     description: "Count of primary student user accounts"
   }
@@ -188,7 +188,7 @@ view: cu_user_info {
   measure: instructor_count {
     label: "# Instructors"
     type: count_distinct
-    sql: case when ${instructor_by_party}=true then ${merged_guid} end ;;
+    sql: case when ${TABLE}.instructor_by_party=true then ${merged_guid} end ;;
     drill_fields: [detail*]
     description: "Count of primary instructor user accounts"
   }
