@@ -7,6 +7,7 @@ view: date_to_date_filter {
   filter: date_range {
     type: date
     datatype: date
+    description: "Date range for cumulative daily user counts. Use in combination with 'End Date' dimension to count total users in the range from the beginning date of this filter to the 'End Date'."
   }
 
   derived_table: {
@@ -40,7 +41,9 @@ view: date_to_date_filter {
     hidden: yes
   }
 
-  dimension: end_date {type: date
+  dimension: end_date {
+    type: date
+    description: "Use in combination with 'Date Range' filter to count total users in the range from the beginning date of the 'Date Range' to the 'End Date'."
   }
 
 

@@ -603,3 +603,16 @@ explore: cas_cafe_activity_sessions_ext {
     relationship: many_to_many
   }
 }
+
+explore: cas_cafe_student_activity_duration_ext {
+  label: "CAS CAFE ACTIVITY DURATION"
+  hidden: no
+  extends: [cas_cafe_student_activity_duration, dim_course]
+  from: cas_cafe_student_activity_duration
+  view_name: cas_cafe_student_activity_duration
+
+  join: dim_course {
+    sql_on: ${cas_cafe_student_activity_duration.course_key} = ${dim_course.olr_course_key} ;;
+    relationship: many_to_many
+  }
+}

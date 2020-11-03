@@ -136,6 +136,26 @@ derived_table: {
     group_label: "Payment Information"
     label: "Date paid (approximate)"
     description: "Activation date or enrollment date / course start date when paid flag is true"
+    hidden: yes
+  }
+
+  dimension_group: paid {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      month_name,
+      year,
+      day_of_week,
+      week_of_year,
+      day_of_year
+    ]
+    sql: ${date_paid}
+      ;;
+    group_label: "Payment Information"
+    description: "Activation date or enrollment date / course start date when paid flag is true"
   }
 
   dimension: paid_current {
