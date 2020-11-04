@@ -132,7 +132,7 @@ derived_table: {
 
   dimension: date_paid {
     type: date
-    sql: case when ${paid} then coalesce(${activation_raw},${enrollment_raw},${course_start_raw}) end ;;
+    sql: case when ${paid} then coalesce(${TABLE}.activation_date,${TABLE}.enrollment_date,${TABLE}.course_start_date)::date end ;;
     group_label: "Payment Information"
     label: "Date paid (approximate)"
     description: "Activation date or enrollment date / course start date when paid flag is true"
@@ -152,9 +152,9 @@ derived_table: {
       week_of_year,
       day_of_year
     ]
-    sql: ${date_paid}
-      ;;
-    group_label: "Payment Information"
+    sql: case when ${paid} then coalesce(${TABLE}.activation_date,${TABLE}.enrollment_date,${TABLE}.course_start_date)::date end ;;
+     label: "Approximate Paid"
+    # group_label: "Payment Information"
     description: "Activation date or enrollment date / course start date when paid flag is true"
   }
 
