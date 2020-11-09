@@ -127,6 +127,7 @@ view: cas_cafe_student_activity_duration_aggregate {
 
   dimension: merged_guid {}
   dimension: course_key {}
+
   dimension: due_date {
     type:date
     sql:{% if group_by_due_date._parameter_value == 'day' or group_by_due_date._parameter_value == 'week' or group_by_due_date._parameter_value == 'month' %} ${TABLE}.due_date
@@ -171,39 +172,39 @@ view: cas_cafe_student_activity_duration_aggregate {
   measure: total_duration  {
     type: sum
     sql: ${user_duration}  ;;
-    value_format: "[m]:ss \m\i\n\s"
+    value_format_name: duration_minutes
   }
 
   measure: duration_p10 {
-    group_label: "Total Duration"
+    group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.1) WITHIN GROUP (ORDER BY ${user_duration}) ;;
     value_format_name: duration_minutes
   }
 
   measure: duration_p25 {
-    group_label: "Total Duration"
+    group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY ${user_duration}) ;;
     value_format_name: duration_minutes
   }
 
   measure: duration_p50 {
-    group_label: "Total Duration"
+    group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY ${user_duration}) ;;
     value_format_name: duration_minutes
   }
 
   measure: duration_p75 {
-    group_label: "Total Duration"
+    group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY ${user_duration}) ;;
     value_format_name: duration_minutes
   }
 
   measure: duration_p90 {
-    group_label: "Total Duration"
+    group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY ${user_duration}) ;;
     value_format_name: duration_minutes
