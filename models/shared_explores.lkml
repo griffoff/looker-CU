@@ -591,28 +591,26 @@ explore: ebook_sessions {
   }
 }
 
-explore: cas_cafe_activity_sessions_ext {
-  label: "CAS CAFE SESSIONS"
+explore: cas_cafe_student_activity_duration_aggregate_ext {
+  label: "CAS CAFE ACTIVITY DURATION AGGREGATE"
   hidden: no
-  extends: [cas_cafe_activity_sessions, dim_course]
-  from: cas_cafe_activity_sessions
-  view_name: cas_cafe_activity_sessions
+  extends: [cas_cafe_student_activity_duration_aggregate, dim_course]
+  from: cas_cafe_student_activity_duration_aggregate
+  view_name: cas_cafe_student_activity_duration_aggregate
 
   join: dim_course {
-    sql_on: ${cas_cafe_activity_sessions.course_key} = ${dim_course.olr_course_key} ;;
+    sql_on: ${cas_cafe_student_activity_duration_aggregate.course_key} = ${dim_course.olr_course_key} ;;
     relationship: many_to_many
   }
-}
 
-explore: cas_cafe_student_activity_duration_ext {
-  label: "CAS CAFE ACTIVITY DURATION"
-  hidden: no
-  extends: [cas_cafe_student_activity_duration, dim_course]
-  from: cas_cafe_student_activity_duration
-  view_name: cas_cafe_student_activity_duration
-
-  join: dim_course {
-    sql_on: ${cas_cafe_student_activity_duration.course_key} = ${dim_course.olr_course_key} ;;
-    relationship: many_to_many
+  always_filter: {
+    filters:[
+      cas_cafe_student_activity_duration_aggregate.group_by_due_date_range: ""
+      , cas_cafe_student_activity_duration_aggregate.group_by_activity_name: "No"
+      , cas_cafe_student_activity_duration_aggregate.group_by_due_date: "none"
+      , cas_cafe_student_activity_duration_aggregate.group_by_group_name: "No"
+      , cas_cafe_student_activity_duration_aggregate.group_by_learning_unit_name: "No"
+      , cas_cafe_student_activity_duration_aggregate.group_by_learning_path_name: "No"
+    ]
   }
 }
