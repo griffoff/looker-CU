@@ -28,6 +28,20 @@ view: cas_cafe_student_activity_duration_aggregate {
     description: ""
   }
 
+  parameter: only_gradable_activities {
+    label: "Only Include 'Gradable' Activities"
+    type: yesno
+    default_value: "No"
+    description: ""
+  }
+
+  parameter: only_assigned_activities {
+    label: "Only Include Activities With Due Date"
+    type: yesno
+    default_value: "No"
+    description: ""
+  }
+
   parameter: group_by_due_date {
     label: "Group By Due Date"
     type: unquoted
@@ -96,10 +110,15 @@ view: cas_cafe_student_activity_duration_aggregate {
               {% endif %}
           ) as pk
         , sum(activity_session_duration) as user_duration
-
       from ${cas_cafe_student_activity_duration.SQL_TABLE_NAME} d
       where (due_date >= {% date_start group_by_due_date_range %} OR {% date_start group_by_due_date_range %} IS NULL)
         AND (due_date <= {% date_end group_by_due_date_range %} OR {% date_end group_by_due_date_range %} IS NULL)
+        {% if only_gradable_activities._parameter_value == 'true' %}
+            AND coalesce(d.is_gradable,false)
+        {% endif %}
+        {% if only_assigned_activities._parameter_value == 'true' %}
+            AND d.due_date IS NOT NULL
+        {% endif %}
       group by merged_guid, course_key
         {% if group_by_due_date._parameter_value == 'day' or group_by_due_date._parameter_value == 'week' or group_by_due_date._parameter_value == 'month' %}
               , due_date
@@ -116,7 +135,23 @@ view: cas_cafe_student_activity_duration_aggregate {
         {% if group_by_learning_path_name._parameter_value == 'true' %}
               , learning_path_name
         {% endif %}
-        , pk
+        , hash(merged_guid, course_key
+              {% if group_by_due_date._parameter_value == 'day' or group_by_due_date._parameter_value == 'week' or group_by_due_date._parameter_value == 'month' %}
+              , due_date
+              {% endif %}
+              {% if group_by_activity_name._parameter_value == 'true' %}
+                  , activity_name
+              {% endif %}
+              {% if group_by_group_name._parameter_value == 'true' %}
+                  , group_name
+              {% endif %}
+              {% if group_by_learning_unit_name._parameter_value == 'true' %}
+                  , learning_unit_name
+              {% endif %}
+              {% if group_by_learning_path_name._parameter_value == 'true' %}
+                  , learning_path_name
+              {% endif %}
+          )
       ;;
   }
 
@@ -154,7 +189,7 @@ view: cas_cafe_student_activity_duration_aggregate {
   dimension: user_duration {
     type: number
     sql: ${TABLE}.user_duration / 60 / 60 / 24 ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: number_users {
@@ -166,48 +201,48 @@ view: cas_cafe_student_activity_duration_aggregate {
   measure: average_duration {
     type: number
     sql: avg(${user_duration});;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: total_duration  {
     type: sum
     sql: ${user_duration}  ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: duration_p10 {
     group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.1) WITHIN GROUP (ORDER BY ${user_duration}) ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: duration_p25 {
     group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY ${user_duration}) ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: duration_p50 {
     group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY ${user_duration}) ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: duration_p75 {
     group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY ${user_duration}) ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: duration_p90 {
     group_label: "Duration Percentiles"
     type: number
     sql: PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY ${user_duration}) ;;
-    value_format_name: duration_minutes
+    value_format_name: duration_days
   }
 
   measure: count {

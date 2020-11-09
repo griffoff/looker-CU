@@ -2,6 +2,10 @@ named_value_format: duration_minutes {
   value_format: "[m]:ss \m\i\n\s"
 }
 
+named_value_format: duration_days {
+  value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
+}
+
 explore: session_events {}
 
 explore: sessions  {
