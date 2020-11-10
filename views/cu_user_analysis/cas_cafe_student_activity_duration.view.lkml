@@ -62,6 +62,8 @@ view: cas_cafe_student_activity_duration {
             , a.ref_id
             , a.is_gradable
             , to_timestamp(n.end_date, 3) as due_date
+            , to_timestamp(n.created_date, 3) as effective_from
+            , lead(effective_from) over (partition by course_key,a.ref_id order by effective_from) as effective_to
             , coalesce(al.activity_name, n.name) as activity_name
             , al.learning_unit_name
             , al.group_name
@@ -124,6 +126,7 @@ view: cas_cafe_student_activity_duration {
           LEFT JOIN prod.datavault.sat_user_internal sui ON hu.hub_user_key = sui.hub_user_key AND sui.active AND sui.internal
           LEFT JOIN activities a ON a.ref_id = REGEXP_SUBSTR(event_tags:"activityUri", '.*ref-id:(.+)$', 1, 1, 'e')
             AND a.course_key = REGEXP_SUBSTR(event_tags:"courseUri", '.*course-key:(.+)$', 1, 1, 'e')
+            AND se.event_time BETWEEN a.effective_from AND COALESCE(a.effective_to,CURRENT_DATE)
           WHERE hp.environment = 'production'
             AND hp.platform = 'cas-mt'
             AND sui.internal IS NULL               --exclude internal users
