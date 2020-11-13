@@ -188,6 +188,15 @@ view: all_sessions {
     hidden: yes
   }
 
+  dimension: lat_lon {
+    hidden: yes
+    type: location
+    sql_latitude: ${TABLE}."LOCATIONS"[0]:lat ;;
+    sql_longitude: ${TABLE}."LOCATIONS"[0]:lon ;;
+    label: "Longitute and latitude coordinates"
+    description: "The longitude and latitude coordinates from the first event in the session based on an IP lookup via extreme-ip-lookup.com which can be used for geo mapping"
+  }
+
   measure:  average_courseware_events{
     #potential hide for clean up
     group_label: "Event Counts"

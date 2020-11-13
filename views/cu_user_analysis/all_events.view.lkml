@@ -1237,14 +1237,14 @@ view: all_events_base {
 
   measure: event_first_captured {
     group_label: "# Events"
-    type: string
+    type: date
     description: "Since when have we been tracking this event?"
     sql: TO_CHAR(MIN(${local_est_raw}), 'YYYY-MM-DD HH24:MI:SS') ;;
   }
 
   measure: event_last_captured {
     group_label: "# Events"
-    type: string
+    type: date
     description: "When was the last time we caught this event?"
     sql: TO_CHAR(MAX(${local_est_raw}), 'YYYY-MM-DD HH24:MI:SS') ;;
   }
