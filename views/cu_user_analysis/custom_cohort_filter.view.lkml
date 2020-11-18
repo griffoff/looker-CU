@@ -20,7 +20,7 @@ view: custom_cohort_filter {
              metadata$filename as filename
             , replace(REGEXP_SUBSTR(FILENAME, 'cohorts/(.+)_\\d{4}-\\d{2}-\\d{2}[T]\\d{4}', 1, 1, 'e'),'_',' ') as cohort_name
             , TO_TIMESTAMP(REGEXP_SUBSTR(FILENAME, '\\d{4}-\\d{2}-\\d{2}[T]\\d{4}', 1, 1),'YYYY-MM-DDTHHMI') as refresh_time
-            , $2 as user_sso_guid
+            , $1 as user_sso_guid
             , concat(filename,user_sso_guid) as pk
           from (@zandbox.delderfield.looker_cohorts_stage)
         )
