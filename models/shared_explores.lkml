@@ -437,6 +437,13 @@ explore: learner_profile {
     relationship: one_to_one
   }
 
+  join: custom_cohort_filter {
+    view_label: "** Custom Cohort Filter **"
+    sql_on: ${learner_profile.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
+    # type: left_outer
+    relationship: one_to_many
+  }
+
   join: guid_latest_activity {
     view_label: "Learner Profile"
     fields: [guid_latest_activity.active, guid_latest_activity.active_desc]
@@ -529,6 +536,13 @@ explore: session_analysis {
     sql_on: ${learner_profile.user_sso_guid} = ${event_cohort_selector.user_sso_guid} ;;
     relationship: one_to_one
   }
+
+  # join: custom_cohort_filter {
+  #   view_label: "** Custom Cohort Filter **"
+  #   sql_on: ${learner_profile.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
+  #   # type: left_outer
+  #   relationship: one_to_many
+  # }
 
   join: all_sessions {
     #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
