@@ -75,7 +75,8 @@ view: custom_cohort_filter {
       ;;
 
     }
-    sql_trigger_value: select count(*) from (@zandbox.delderfield.looker_cohorts_stage) ;;
+    # sql_trigger_value: select count(*) from (@zandbox.delderfield.looker_cohorts_stage) ;;
+    sql_trigger_value: select current_timestamp ;;
   }
 
 
