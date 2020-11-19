@@ -537,13 +537,6 @@ explore: session_analysis {
     relationship: one_to_one
   }
 
-  # join: custom_cohort_filter {
-  #   view_label: "** Custom Cohort Filter **"
-  #   sql_on: ${learner_profile.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
-  #   # type: left_outer
-  #   relationship: one_to_many
-  # }
-
   join: all_sessions {
     #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
