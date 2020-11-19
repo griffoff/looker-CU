@@ -83,6 +83,8 @@ view: custom_cohort_filter {
 
   dimension: user_sso_guid {hidden:yes}
 
+  dimension: refresh_time {}
+
   dimension: pk {
     primary_key: yes
     hidden: yes
