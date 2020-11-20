@@ -620,6 +620,7 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
       , cas_cafe_student_activity_duration_aggregate.group_by_learning_path_name: "No"
       , cas_cafe_student_activity_duration_aggregate.only_gradable_activities: "No"
       , cas_cafe_student_activity_duration_aggregate.only_assigned_activities: "No"
+      , cas_cafe_student_activity_duration_aggregate.only_attempted_activities: "No"
     ]
   }
 }
