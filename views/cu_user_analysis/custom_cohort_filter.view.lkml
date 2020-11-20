@@ -22,7 +22,7 @@ view: custom_cohort_filter {
             , TO_TIMESTAMP(REGEXP_SUBSTR(FILENAME, '\\d{4}-\\d{2}-\\d{2}[T]\\d{4}', 1, 1),'YYYY-MM-DDTHHMI') as refresh_time
             , $1 as user_sso_guid
             , concat(filename,user_sso_guid) as pk
-          from (@zandbox.delderfield.looker_cohorts_stage)
+          from (@prod.looker_scratch.looker_cohorts_stage)
         )
       ;;
 
@@ -75,7 +75,7 @@ view: custom_cohort_filter {
       ;;
 
     }
-    sql_trigger_value: select count(*) from (@zandbox.delderfield.looker_cohorts_stage) ;;
+    sql_trigger_value: select count(*) from (@prod.looker_scratch.looker_cohorts_stage) ;;
   }
 
 
