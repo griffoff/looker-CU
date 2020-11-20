@@ -1,5 +1,11 @@
+include: "/views/cu_user_analysis/custom_cohort_filter.view"
 explore: simple_flow_analysis{
   always_filter: {filters: [simple_flow_analysis.date_range_filter: "after 7 days ago", simple_flow_analysis.flow_events_filter: "", flow_platform_filter: ""]}
+
+  join: custom_cohort_filter {
+    sql_on: ${simple_flow_analysis.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
+    relationship: many_to_many
+  }
 }
 
 view: simple_flow_analysis {
@@ -70,7 +76,9 @@ view: simple_flow_analysis {
 
   dimension: user_sso_guid {primary_key:yes hidden:yes}
 
-  measure: count {type:count}
+  measure: count {label: "# Events" type:count}
+
+  measure: user_count {label: "# Users" sql:COUNT(DISTINCT ${user_sso_guid});;}
 
   dimension: event_1 {}
   dimension: event_2 {}
