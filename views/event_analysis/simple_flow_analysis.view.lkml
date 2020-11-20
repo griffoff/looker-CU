@@ -1,5 +1,5 @@
 explore: simple_flow_analysis{
-  always_filter: {filters: [simple_flow_analysis.date_range_filter: "after 7 days ago", simple_flow_analysis.flow_events_filter: ""]}
+  always_filter: {filters: [simple_flow_analysis.date_range_filter: "after 7 days ago", simple_flow_analysis.flow_events_filter: "", flow_platform_filter: ""]}
 }
 
 view: simple_flow_analysis {
@@ -19,6 +19,15 @@ view: simple_flow_analysis {
     suggest_dimension: filter_cache_all_events_event_name.event_name
   }
 
+  filter: flow_platform_filter {
+    label: "Platform to include / exclude in the flow"
+    description: "Select the platforms you want to include or exclude in your flow"
+    type: string
+    default_value: ""
+    suggest_explore: all_events
+    suggest_dimension: all_events.product_platform
+  }
+
   derived_table: {
     sql:
     WITH events AS (
@@ -32,6 +41,7 @@ view: simple_flow_analysis {
       FROM ${all_events.SQL_TABLE_NAME}
       WHERE {% condition date_range_filter %} TO_TIMESTAMP(session_id::INT) {% endcondition%}
       AND {% condition flow_events_filter %} event_name {% endcondition %}
+      AND {% condition flow_platform_filter %} product_platform {% endcondition %}
     )
     ,event_sequence AS (
       SELECT
