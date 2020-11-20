@@ -78,7 +78,7 @@ view: simple_flow_analysis {
 
   measure: count {label: "# Events" type:count}
 
-  measure: user_count {label: "# Users" sql:COUNT(DISTINCT ${user_sso_guid});;}
+  measure: user_count {type:number label: "# Users" sql:COUNT(DISTINCT ${user_sso_guid});;}
 
   dimension: event_1 {}
   dimension: event_2 {}
