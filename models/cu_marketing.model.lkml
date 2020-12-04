@@ -99,6 +99,7 @@ explore: magellan_instructor_setup_status {
 }
 
 explore: marketing_analysis {
+  hidden: yes
   label: "CU User Analysis Marketing"
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
   extends: [session_analysis]
@@ -185,5 +186,6 @@ explore: marketing_analysis {
 
 explore: marketing_learner_profile {
   extends: [learner_profile]
+  hidden: yes
 
 }
