@@ -1,5 +1,11 @@
+include: "/views/cu_user_analysis/custom_cohort_filter.view"
 explore: simple_flow_analysis{
-  always_filter: {filters: [simple_flow_analysis.date_range_filter: "after 7 days ago", simple_flow_analysis.flow_events_filter: ""]}
+  always_filter: {filters: [simple_flow_analysis.date_range_filter: "after 7 days ago", simple_flow_analysis.flow_events_filter: "", flow_platform_filter: ""]}
+
+  join: custom_cohort_filter {
+    sql_on: ${simple_flow_analysis.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
+    relationship: many_to_many
+  }
 }
 
 view: simple_flow_analysis {
@@ -19,6 +25,15 @@ view: simple_flow_analysis {
     suggest_dimension: filter_cache_all_events_event_name.event_name
   }
 
+  filter: flow_platform_filter {
+    label: "Platform to include / exclude in the flow"
+    description: "Select the platforms you want to include or exclude in your flow"
+    type: string
+    default_value: ""
+    suggest_explore: all_events
+    suggest_dimension: all_events.product_platform
+  }
+
   derived_table: {
     sql:
     WITH events AS (
@@ -32,6 +47,7 @@ view: simple_flow_analysis {
       FROM ${all_events.SQL_TABLE_NAME}
       WHERE {% condition date_range_filter %} TO_TIMESTAMP(session_id::INT) {% endcondition%}
       AND {% condition flow_events_filter %} event_name {% endcondition %}
+      AND {% condition flow_platform_filter %} product_platform {% endcondition %}
     )
     ,event_sequence AS (
       SELECT
@@ -60,7 +76,9 @@ view: simple_flow_analysis {
 
   dimension: user_sso_guid {primary_key:yes hidden:yes}
 
-  measure: count {type:count}
+  measure: count {label: "# Events" type:count}
+
+  measure: user_count {type:number label: "# Users" sql:COUNT(DISTINCT ${user_sso_guid});;}
 
   dimension: event_1 {}
   dimension: event_2 {}

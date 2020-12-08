@@ -79,11 +79,6 @@ explore: course_sections {
   from: dim_course
   view_name: dim_course
 
-  join: event_cohort_selector {
-    sql_on: ${learner_profile.user_sso_guid} = ${event_cohort_selector.user_sso_guid} ;;
-    relationship: one_to_one
-  }
-
   always_filter: {
     filters:[
       dim_filter.is_external: "Yes"

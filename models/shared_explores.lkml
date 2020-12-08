@@ -34,8 +34,7 @@ explore: user_courses {
 }
 
 explore: all_events {
-  extension: required
-  hidden: no
+  hidden: yes
   label: "all events prod"
 
   join: event_groups {
@@ -47,6 +46,24 @@ explore: all_events {
   join: all_events_tags {
     sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
     relationship: many_to_many
+  }
+
+  join: user_courses {
+    view_label: "Course / Section Details by User"
+    sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
+      and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
+
+    relationship: one_to_many
+  }
+
+  join: dim_course {
+    sql_on: ${user_courses.olr_course_key} = ${dim_course.olr_course_key} ;;
+    relationship: many_to_one
+  }
+
+  join: all_sessions {
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
+    relationship: many_to_one
   }
 
 }
@@ -89,13 +106,6 @@ explore: all_sessions {
     relationship: one_to_one
   }
 
-  join: user_courses {
-    view_label: "Course / Section Details by User"
-    sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
-      and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
-
-    relationship: one_to_many
-  }
 
   join: dim_institution {
     fields: [dim_institution.CU_fields*]
@@ -532,11 +542,6 @@ explore: session_analysis {
   view_name: learner_profile
   #fields: [-]
 
-  join: event_cohort_selector {
-    sql_on: ${learner_profile.user_sso_guid} = ${event_cohort_selector.user_sso_guid} ;;
-    relationship: one_to_one
-  }
-
   join: all_sessions {
     #sql: LEFT JOIN ${all_sessions.SQL_TABLE_NAME} all_sessions SAMPLE({% parameter all_sessions.session_sampling %}) ON ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     sql_on: ${learner_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
@@ -620,6 +625,7 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
       , cas_cafe_student_activity_duration_aggregate.group_by_learning_path_name: "No"
       , cas_cafe_student_activity_duration_aggregate.only_gradable_activities: "No"
       , cas_cafe_student_activity_duration_aggregate.only_assigned_activities: "No"
+      , cas_cafe_student_activity_duration_aggregate.only_attempted_activities: "No"
     ]
   }
 }

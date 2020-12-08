@@ -42,6 +42,13 @@ view: cas_cafe_student_activity_duration_aggregate {
     description: ""
   }
 
+  parameter: only_attempted_activities {
+    label: "Only Include Attempted Activities"
+    type: yesno
+    default_value: "No"
+    description: ""
+  }
+
   parameter: group_by_due_date {
     label: "Group By Due Date"
     type: unquoted
@@ -118,6 +125,9 @@ view: cas_cafe_student_activity_duration_aggregate {
         {% endif %}
         {% if only_assigned_activities._parameter_value == 'true' %}
             AND d.due_date IS NOT NULL
+        {% endif %}
+        {% if only_attempted_activities._parameter_value == 'true' %}
+            AND d.activity_attempted
         {% endif %}
       group by merged_guid, course_key
         {% if group_by_due_date._parameter_value == 'day' or group_by_due_date._parameter_value == 'week' or group_by_due_date._parameter_value == 'month' %}

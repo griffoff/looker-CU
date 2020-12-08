@@ -50,6 +50,7 @@ explore: courseware_launches_fa{
 }
 
 explore: strategy_analysis {
+  hidden: yes
   label: "CU User Analysis Strategy"
   description: "Strategy explore for executing repeatable business strategy
   analysis i.e. take-rate, revenue canibalization and student savings"

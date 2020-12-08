@@ -10,6 +10,10 @@ derived_table: {
     cluster by (user_sso_guid)
     as
     select u.*
+      , sg.lms_user_id
+      , sg.canvas_user_id
+      , sg.lis_person_source_id
+      , sg.deleted
       , (cu_subscription_id IS NOT NULL AND cu_subscription_id <> 'TRIAL' AND hs.SUBSCRIPTION_ID is not null and coalesce(ss.subscription_plan_id,'') not ilike '%trial%') OR coalesce(cui_flag,'N') = 'Y' as cu_flag
       , coalesce(try_cast(paid as boolean),false) as paid_bool
       , coalesce(try_cast(activated as boolean),false) as activated_bool
@@ -25,6 +29,8 @@ derived_table: {
     from prod.cu_user_analysis.user_courses u
     left join prod.DATAVAULT.HUB_SUBSCRIPTION hs on hs.SUBSCRIPTION_ID = u.CU_SUBSCRIPTION_ID
     left join prod.DATAVAULT.SAT_SUBSCRIPTION_SAP ss on ss.HUB_SUBSCRIPTION_KEY = hs.HUB_SUBSCRIPTION_KEY and ss._LATEST
+    left join PROD.DATAVAULT.HUB_USER_GATEWAY hg on hg.UID = u.USER_SSO_GUID
+    left join PROD.DATAVAULT.SAT_USER_GATEWAY sg on sg.HUB_USERGATEWAY_KEY = hg.HUB_USERGATEWAY_KEY
     order by user_sso_guid
     ;;
 
@@ -106,6 +112,34 @@ derived_table: {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
     hidden: yes
+  }
+
+  dimension: canvas_user_id {
+    label: "Canvas User ID"
+    type: string
+    sql: ${TABLE}.canvas_user_id ;;
+    hidden: no
+  }
+
+  dimension: lms_user_id {
+    label: "lms User ID"
+    type: string
+    sql: ${TABLE}.lms_user_id ;;
+    hidden: no
+  }
+
+  dimension: sis_user_id {
+    label: "SIS User ID"
+    type: string
+    sql: ${TABLE}.lis_person_source_id ;;
+    hidden: no
+  }
+
+  dimension: deleted {
+    label: "Severed"
+    type: yesno
+    sql: ${TABLE}.deleted ;;
+    hidden: no
   }
 
   dimension: instructor_guid {

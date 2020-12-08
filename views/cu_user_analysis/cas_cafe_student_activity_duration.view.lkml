@@ -57,22 +57,28 @@ view: cas_cafe_student_activity_duration {
       sql_step:
         CREATE OR REPLACE TRANSIENT TABLE looker_scratch.session_event_durations AS (
           WITH activities AS (
-          select distinct
-            o.external_id as course_key
-            , a.ref_id
-            , a.is_gradable
-            , to_timestamp(n.end_date, 3) as due_date
-            , to_timestamp(n.created_date, 3) as effective_from
-            , lead(effective_from) over (partition by course_key,a.ref_id order by effective_from) as effective_to
-            , coalesce(al.activity_name, n.name) as activity_name
-            , al.learning_unit_name
-            , al.group_name
-            , al.learning_path_name
-          from mindtap.prod_nb.activity a
-          inner join mindtap.prod_nb.node n on n.id = a.id
-          left join looker_scratch.activity_labels al on n.origin_id = al.activity_id
-          inner join mindtap.prod_nb.snapshot s on s.id = n.snapshot_id
-          inner join mindtap.prod_nb.org o on s.org_id = o.id
+            select distinct
+              coalesce(su.linked_guid, u.source_id) as merged_guid
+              , o.external_id as course_key
+              , a.ref_id
+              , a.is_gradable
+              , ao.attempts
+              , to_timestamp(n.end_date, 3) as due_date
+              , to_timestamp(n.created_date, 3) as effective_from
+              , lead(effective_from) over (partition by merged_guid,course_key,a.ref_id order by effective_from) as effective_to
+              , coalesce(al.activity_name, n.name) as activity_name
+              , al.learning_unit_name
+              , al.group_name
+              , al.learning_path_name
+            from mindtap.prod_nb.activity_outcome ao
+            inner join mindtap.prod_nb.activity a on ao.activity_id = a.id
+            inner join mindtap.prod_nb.node n on n.id = a.id
+            left join prod.looker_scratch.activity_labels al on n.origin_id = al.activity_id
+            inner join mindtap.prod_nb.snapshot s on s.id = n.snapshot_id
+            inner join mindtap.prod_nb.org o on s.org_id = o.id
+            inner join mindtap.prod_nb.user u on ao.user_id = u.id
+            INNER JOIN prod.datavault.hub_user hu ON hu.uid = u.source_id
+            INNER JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
           )
           SELECT *
             , lag(event_time) OVER (PARTITION BY merged_guid, session_partition ORDER BY event_time) AS prev_event_time
@@ -81,10 +87,8 @@ view: cas_cafe_student_activity_duration {
             , datediff(MILLISECOND, prev_event_time, event_time) / 1000.000 AS time_from_prev_event_seconds         --used to find long gaps in order to split sessions
             , datediff(MILLISECOND, event_time, next_event_time) / 1000.000 AS time_to_next_session_event_seconds   --used to calculate time spent within the session
             , datediff(MILLISECOND, event_time, next_event_time_user) / 1000.000 AS time_to_next_user_event_seconds --to see how long until the user does something else (could be days)
-            , CASE
-                WHEN LEAST(time_to_next_session_event_seconds, time_to_next_user_event_seconds) > $max_duration_minutes * 60 THEN 0
-                ELSE LEAST(time_to_next_session_event_seconds, time_to_next_user_event_seconds)
-            END AS duration
+            , LEAST(time_to_next_session_event_seconds, time_to_next_user_event_seconds, $max_duration_minutes * 60) AS duration
+            , LEAST(time_to_next_session_event_seconds, time_to_next_user_event_seconds, 60 * 60) AS duration_max_60
           FROM (
             select distinct
               event_time
@@ -110,6 +114,7 @@ view: cas_cafe_student_activity_duration {
               , event_tags:activityUri::string AS activity_uri
               , event_tags:claPageNumber AS cla_page_number
               , event_tags:numberOfPages AS number_of_pages
+              , coalesce(a.attempts > 0, false) as activity_attempted
               , a.is_gradable
               , a.due_date
               , a.activity_name
@@ -126,6 +131,7 @@ view: cas_cafe_student_activity_duration {
           LEFT JOIN prod.datavault.sat_user_internal sui ON hu.hub_user_key = sui.hub_user_key AND sui.active AND sui.internal
           LEFT JOIN activities a ON a.ref_id = REGEXP_SUBSTR(event_tags:"activityUri", '.*ref-id:(.+)$', 1, 1, 'e')
             AND a.course_key = REGEXP_SUBSTR(event_tags:"courseUri", '.*course-key:(.+)$', 1, 1, 'e')
+            AND coalesce(su.linked_guid, hu.uid) = a.merged_guid
             AND se.event_time BETWEEN a.effective_from AND COALESCE(a.effective_to,CURRENT_DATE)
           WHERE hp.environment = 'production'
             AND hp.platform = 'cas-mt'
@@ -143,6 +149,7 @@ view: cas_cafe_student_activity_duration {
           merged_guid
           , activity_id::string as activity_id
           , active_time_partition as activity_session_id
+          , activity_attempted
           , is_gradable
           , due_date
           , activity_name
@@ -154,8 +161,11 @@ view: cas_cafe_student_activity_duration {
           , min(event_time) as activity_session_start
           , max(dateadd(seconds,duration,event_time)) as activity_session_complete
           , sum(duration) as activity_session_duration
+          , sum(duration_max_60) as activity_session_duration_max_60
+          , sum(time_to_next_user_event_seconds) as activity_session_time_to_next_user_event_seconds
+          , sum(time_to_next_session_event_seconds) as activity_session_time_to_next_session_event_seconds
         from looker_scratch.session_event_durations
-        group by 1,2,3,4,5,6,7,8,9,10,11
+        group by 1,2,3,4,5,6,7,8,9,10,11,12
       )
       ;;
       sql_step:
