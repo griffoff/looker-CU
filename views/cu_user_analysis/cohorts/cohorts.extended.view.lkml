@@ -1,4 +1,4 @@
-explore: cohorts_extended {}
+explore: cohorts_extended {hidden:yes}
 
 include: "cohorts.base.view"
 

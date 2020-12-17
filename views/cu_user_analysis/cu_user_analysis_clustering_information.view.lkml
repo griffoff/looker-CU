@@ -1,6 +1,7 @@
-explore: cu_user_analysis_clustering_information {}
+explore: cu_user_analysis_clustering_information {hidden:yes}
 
 explore: cu_user_analysis_clustering_information_history {
+  hidden: yes
   from: cu_user_analysis_clustering_information_history
   view_name: cu_user_analysis_clustering_information
   join: partition_depth_histogram {

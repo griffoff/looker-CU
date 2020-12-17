@@ -405,10 +405,10 @@ view: cu_user_info {
   dimension: entity_id {
     type: string
     sql: ${TABLE}."INSTITUTION_ID" ;;
-    hidden: no
+    hidden: yes
   }
 
-  dimension: institution_name {}
+  dimension: institution_name {hidden:yes}
 
   dimension: tl_institution_name {
     type: string

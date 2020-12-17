@@ -1,4 +1,4 @@
-explore: cohorts_full_access_50 {}
+explore: cohorts_full_access_50 {hidden:yes}
 
 include: "cohorts.base.view"
 

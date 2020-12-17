@@ -93,6 +93,13 @@ explore: course_sections {
     relationship: one_to_many
   }
 
+  join: custom_course_key_cohort_filter {
+    view_label: "** Custom Course Key Cohort Filter **"
+    sql_on: ${dim_course.olr_course_key} = ${custom_course_key_cohort_filter.course_key} ;;
+    # type: left_outer
+    relationship: many_to_many
+  }
+
   join: merged_cu_user_info {
     view_label: "Course / Section Students"
     sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
