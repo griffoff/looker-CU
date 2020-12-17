@@ -12,7 +12,7 @@ explore: salesforce_support_calls {
   }
   join: user_products {
     view_label: "User Products"
-    sql_on: ${user_products.merged_guid} = ${salesforce_support_calls.merged_guid} and ${salesforce_support_calls.created_raw}::date between ${user_products.added_raw}::date and coalesce(${user_products.expiration_raw},current_date)::date;;
+    sql_on: ${user_products.merged_guid} = ${salesforce_support_calls.merged_guid} and ${salesforce_support_calls.created_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp);;
     relationship: many_to_many
   }
   join: stg_clts_products {

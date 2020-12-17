@@ -41,7 +41,7 @@ view: gateway_institution {
 
   dimension: is_lms_integrated {
     group_label: "LMS Integration"
-    description: "Is this a Gateway course?"
+    description: "Institution uses LMS integration"
     label: "LMS Integrated"
     type: yesno
     sql: ${lms_type}!='NOT LMS INTEGRATED' ;;

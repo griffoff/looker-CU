@@ -1,6 +1,6 @@
-explore: custom_cohort_filter_summary {hidden:yes}
-view: custom_cohort_filter_summary {
-  sql_table_name: prod.looker_scratch.looker_cohort_summary ;;
+explore: custom_course_key_cohort_filter_summary {hidden:yes}
+view: custom_course_key_cohort_filter_summary {
+  sql_table_name: prod.looker_scratch.looker_course_key_cohort_summary ;;
 
   dimension: filename {}
   dimension: cohort_name {}
@@ -19,4 +19,4 @@ view: custom_cohort_filter_summary {
     sql: ${cohort_size} ;;
     value_format_name: decimal_0
   }
- }
+}

@@ -1018,7 +1018,12 @@ view: all_events_base {
     hidden: yes
     type: date_raw
     sql: ${TABLE}.event_time::date ;;
+  }
 
+  dimension_group: event_time {
+    hidden: yes
+    type: time
+    timeframes: [raw,date,time]
   }
 
 

@@ -1,4 +1,4 @@
-explore:  course_link_page_clicks_trial {}
+explore:  course_link_page_clicks_trial {hidden:yes}
 
 view: course_link_page_clicks_trial {
   derived_table: {

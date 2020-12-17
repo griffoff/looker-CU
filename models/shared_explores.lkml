@@ -509,6 +509,13 @@ explore: learner_profile {
     relationship: many_to_many
   }
 
+  join: custom_course_key_cohort_filter {
+    view_label: "** Custom Course Key Cohort Filter **"
+    sql_on: ${user_courses.olr_course_key} = ${custom_course_key_cohort_filter.course_key} ;;
+    # type: left_outer
+    relationship: many_to_many
+  }
+
   join: course_section_facts {
     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
     relationship: one_to_one
@@ -634,3 +641,45 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
     ]
   }
 }
+
+# explore: product_analysis {
+#   view_name: all_sessions
+
+#   always_filter: {
+#     filters: [all_sessions.session_start_date: "Last 7 days"]
+#   }
+
+#   join: all_events {
+#     view_label: "Events"
+#     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
+#     relationship: one_to_many
+#     type: inner
+#   }
+
+#   join: user_info_merged_new {
+#     view_label: "User Details"
+#     sql_on: ${all_events.user_sso_guid} = ${user_info_merged_new.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+
+#   join: parent_child_product_isbn {
+#     sql_on: ${parent_child_product_isbn.child_isbn} = ${all_events.isbn} ;;
+#     relationship: many_to_many
+#   }
+
+#   join: user_products {
+#     view_label: "Product Details By User"
+#     sql_on: ${user_products.merged_guid} = ${user_info_merged_new.merged_guid}
+#       and ${user_products.isbn13} = ${parent_child_product_isbn.parent_isbn}
+#       and ${all_events.event_time_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp)
+#       ;;
+#     relationship: many_to_many
+#   }
+
+#   join: user_courses_new {
+#     view_label: "Course / Section Details By User"
+#     sql_on: ${user_courses_new.user_sso_guid} = ${user_products.merged_guid} and ${user_courses_new.isbn} = ${user_products.isbn13}
+#       and ${user_courses_new.academic_term} = ${user_products.academic_term};;
+#     relationship: one_to_one
+#   }
+# }

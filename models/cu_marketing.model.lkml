@@ -110,9 +110,9 @@ explore: marketing_analysis {
 #   }
 #  Use this code to filter results for individuals
   sql_always_where:
-           UPPER(${magellan_entity_user_mapping.email}) = UPPER('{{ _user_attributes['saml_user_id'] }}')
-           OR UPPER(${magellan_entity_user_mapping.email}) = UPPER('{{ _user_attributes['email'] }}')
-           OR '{{ _user_attributes['view_all_institutions'] }}' = 'yes'
+          UPPER(${magellan_entity_user_mapping.email}) = UPPER('{{ _user_attributes['saml_user_id'] }}')
+          OR UPPER(${magellan_entity_user_mapping.email}) = UPPER('{{ _user_attributes['email'] }}')
+          OR '{{ _user_attributes['view_all_institutions'] }}' = 'yes'
           ;;
 
   join: magellan_entity_user_mapping {
