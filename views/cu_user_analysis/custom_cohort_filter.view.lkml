@@ -1,3 +1,5 @@
+explore: custom_cohort_filter {hidden: yes}
+
 view: custom_cohort_filter {
   derived_table: {
     create_process: {
