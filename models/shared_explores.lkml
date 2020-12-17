@@ -441,6 +441,13 @@ explore: learner_profile {
     sql_on:  ${learner_profile.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
     relationship: one_to_one
   }
+
+  join: institution_info {
+    view_label: "Learner Profile"
+    sql_on: ${merged_cu_user_info.entity_id} = ${institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+
   join: live_subscription_status {
     view_label: "Learner Profile - Live Subscription Status"
     sql_on:  ${learner_profile.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
