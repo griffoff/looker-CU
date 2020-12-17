@@ -331,6 +331,40 @@ view: all_sessions {
     description: "Total session length in minutes divided by number of distinct user"
   }
 
+  measure: session_length_percentile_05 {
+    group_label: "Time in product"
+    type: number
+    sql: APPROX_PERCENTILE(${session_length_mins}, 0.05)  ;;
+    value_format: "#,##0 \m\i\n\s"
+  }
+
+  measure: session_length_percentile_25 {
+    group_label: "Time in product"
+    type: number
+    sql: APPROX_PERCENTILE(${session_length_mins}, 0.25)  ;;
+    value_format: "#,##0 \m\i\n\s"
+  }
+
+  measure: session_length_percentile_50 {
+    group_label: "Time in product"
+    type: number
+    sql: APPROX_PERCENTILE(${session_length_mins}, 0.5)  ;;
+    value_format: "#,##0 \m\i\n\s"
+  }
+
+  measure: session_length_percentile_75 {
+    group_label: "Time in product"
+    type: number
+    sql: APPROX_PERCENTILE(${session_length_mins}, 0.75)  ;;
+    value_format: "#,##0 \m\i\n\s"
+  }
+
+  measure: session_length_percentile_95 {
+    group_label: "Time in product"
+    type: number
+    sql: APPROX_PERCENTILE(${session_length_mins}, 0.95)  ;;
+    value_format: "#,##0 \m\i\n\s"
+  }
 
   measure: count {
     label: "# Sessions"
