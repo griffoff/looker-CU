@@ -229,6 +229,8 @@ view: cas_cafe_student_activity_duration {
     value_format_name: duration_minutes
   }
 
+  dimension: activity_attempted {type:yesno}
+
   measure: number_users {
     type: count_distinct
     sql: ${merged_guid};;

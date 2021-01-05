@@ -21,6 +21,9 @@ view: user_products {
           _effective_to                   timestamp_ntz
           )
       ;;
+      sql_step:
+      SET max_date = (SELECT max(greatest(up.ACTIVATION_DATE,up.ENROLLMENT_DATE,up.PROVISION_DATE,up.SERIAL_NUMBER_CONSUMED_DATE,to_timestamp(0))) FROM LOOKER_SCRATCH.zandbox.delderfield.user_products)
+      ;;
       # merge from enrollments
       sql_step:
         merge into zandbox.delderfield.user_products uc
@@ -54,6 +57,7 @@ view: user_products {
             left join prod.datavault.hub_isbn hi on hi.hub_isbn_key = coalesce(lci.hub_isbn_key,lpi.HUB_ISBN_KEY)
             left join prod.datavault.hub_enterpriselicense el on el.enterprise_license = hc.context_id
             where se._LATEST
+              and se._ldts > $max_date
               and el.enterprise_license is null
             group by 1,2,3,4
           ) pp
@@ -132,6 +136,7 @@ view: user_products {
           left join prod.DATAVAULT.SAT_SUBSCRIPTION_BP ssb on ssb.HUB_SUBSCRIPTION_KEY = lps.HUB_SUBSCRIPTION_KEY and ssb._LATEST
           left join prod.datavault.hub_enterpriselicense el on el.enterprise_license = spp.context_id
           where spp._LATEST
+            and spp._ldts > $max_date
             and el.enterprise_license is null
           group by 1,2,3,4
           ) pp
@@ -211,6 +216,7 @@ view: user_products {
             left join prod.DATAVAULT.SAT_SUBSCRIPTION_BP ssb on ssb.HUB_SUBSCRIPTION_KEY = lsa.HUB_SUBSCRIPTION_KEY and ssb._LATEST
             left join prod.datavault.hub_enterpriselicense el on el.enterprise_license = lca.context_id
             where sa._LATEST
+              and sa._ldts > $max_date
               and el.HUB_ENTERPRISELICENSE_KEY is null
             group by 1,2,3,4
           ) pp
@@ -278,6 +284,7 @@ view: user_products {
             ) lpi on lpi.HUB_PRODUCT_KEY = coalesce(hp1.HUB_PRODUCT_KEY, lsp.HUB_PRODUCT_KEY)
             inner join prod.DATAVAULT.HUB_ISBN hi on hi.HUB_ISBN_KEY = lpi.HUB_ISBN_KEY
             where ssn._LATEST
+              and ssn._ldts > $max_date
             group by 1,2,3,4
           ) pp
         on uc.user_sso_guid = pp.merged_guid and uc.isbn = pp.ISBN13 and uc.institution_id = pp.INSTITUTION_ID and uc.academic_term = pp.academic_term
