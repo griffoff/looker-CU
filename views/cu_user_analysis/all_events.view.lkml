@@ -722,7 +722,7 @@ view: all_events_base {
     group_label: "CAFE Tags"
     label: "Title ISBN"
     type: string
-    sql: ${event_data}:titleIsbn::string ;;
+    sql: COALESCE(${event_data}:titleISBN, ${event_data}:titleIsbn)::string ;;
     description: "Event data"
     hidden: no
   }
