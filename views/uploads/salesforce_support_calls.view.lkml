@@ -15,9 +15,9 @@ explore: salesforce_support_calls {
     sql_on: ${user_products.merged_guid} = ${salesforce_support_calls.merged_guid} and ${salesforce_support_calls.created_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp);;
     relationship: many_to_many
   }
-  join: stg_clts_products {
+  join: product_info {
     view_label: "Product Details"
-    sql_on: ${stg_clts_products.isbn13} = ${user_products.isbn13} ;;
+    sql_on: ${product_info.isbn13} = ${user_products.isbn13} ;;
     relationship: many_to_one
   }
   join: sap_subscriptions {

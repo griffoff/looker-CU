@@ -100,23 +100,23 @@ view: all_events {
 
   }
 
-  dimension_group: time_since_enrollment {
-    label: "Time between enrollment and event"
-    type: duration
-    intervals: [hour, day, week, month]
-    sql_start: ${user_courses.enrollment_raw} ;;
-    sql_end: ${event_date_raw} ;;
+  # dimension_group: time_since_enrollment {
+  #   label: "Time between enrollment and event"
+  #   type: duration
+  #   intervals: [hour, day, week, month]
+  #   sql_start: ${user_courses.enrollment_raw} ;;
+  #   sql_end: ${event_date_raw} ;;
 
-  }
+  # }
 
-  dimension_group: time_since_course_start {
-    label: "Time between course start and event"
-    type: duration
-    intervals: [hour, day, week, month]
-    sql_start: ${user_courses.course_start_raw} ;;
-    sql_end: ${event_date_raw} ;;
+  # dimension_group: time_since_course_start {
+  #   label: "Time between course start and event"
+  #   type: duration
+  #   intervals: [hour, day, week, month]
+  #   sql_start: ${user_courses.course_start_raw} ;;
+  #   sql_end: ${event_date_raw} ;;
 
-  }
+  # }
 }
 
 view: all_events_base {
@@ -731,7 +731,7 @@ view: all_events_base {
     group_label: "CAFE Tags"
     label: "eISBN"
     type: string
-    sql: ${event_data}:eISBN::string ;;
+    sql: coalesce(${event_data}:eISBN::string,${event_data}:eIsbn::string) ;;
     description: "Event data"
     hidden: no
   }
@@ -1599,14 +1599,26 @@ view: all_events_base {
 
 dimension: course_key {
   type: string
-  description: "Course key associated with the event identified through TAGS. If an event's tags don't contain a course key identifier, the course key from the previous or next event in the same session is given instead."
+  description: "Course key associated with the event identified through event tags. If an event's tags don't contain a course key identifier, the course key from the previous or next event in the same session is given instead."
   label: "Event Course Key"
 }
 
-dimension: isbn {
+dimension: user_products_isbn {
   type: string
-  description: "ISBN associated with the event identified through TAGS. If an event's tags don't contain an ISBN identifier, the ISBN from the previous or next event in the same session is given instead."
-  label: "Event ISBN"
+  description: "ISBN associated with the event identified through event tags and cross referenced with User Products table. If an event's tags don't contain an ISBN identifier, the ISBN from the previous or next event in the same session is given instead."
+  label: "Event User Products ISBN"
+  hidden: yes
+}
+
+dimension: course_key_isbn {
+  label: "Event Course Key ISBN"
+  description: "Product ISBN associated with Event Course Key"
+}
+
+dimension: product_isbn {
+  label: "Event Product ISBN"
+  description: "ISBN associated with the event identified through event tags. If an event's tags don't contain an ISBN identifier, the ISBN from the previous or next event in the same session is given instead."
+
 }
 
 dimension: platform {

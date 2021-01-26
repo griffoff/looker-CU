@@ -1,5 +1,5 @@
-explore: stg_clts_products {hidden:yes}
-view: stg_clts_products {
+explore: product_info {hidden:yes}
+view: product_info {
   view_label: "Products New"
   sql_table_name: prod.STG_CLTS.PRODUCTS  ;;
 

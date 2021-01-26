@@ -644,44 +644,82 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
   }
 }
 
-# explore: product_analysis {
-#   view_name: all_sessions
+explore: product_analysis {
+  label: "Product Analysis (beta)"
+  view_name: all_sessions
 
-#   always_filter: {
-#     filters: [all_sessions.session_start_date: "Last 7 days"]
-#   }
+  always_filter: {
+    filters: [all_sessions.session_start_date: "Last 7 days"]
+  }
 
-#   join: all_events {
-#     view_label: "Events"
-#     sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
-#     relationship: one_to_many
-#     type: inner
-#   }
+  join: session_products {
+    sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;
+    relationship: one_to_many
+    type: inner
+  }
 
-#   join: user_info_merged_new {
-#     view_label: "User Details"
-#     sql_on: ${all_events.user_sso_guid} = ${user_info_merged_new.user_sso_guid} ;;
-#     relationship: many_to_one
-#   }
+  join: custom_course_key_cohort_filter {
+    view_label: "** Custom Course Key Cohort Filter **"
+    sql_on: ${session_products.course_key} = ${custom_course_key_cohort_filter.course_key} ;;
+    relationship: many_to_many
+  }
 
-#   join: parent_child_product_isbn {
-#     sql_on: ${parent_child_product_isbn.child_isbn} = ${all_events.isbn} ;;
-#     relationship: many_to_many
-#   }
+  join: all_events {
+    view_label: "Events"
+    sql_on: ${session_products.session_id} = ${all_events.session_id}
+      and coalesce(${session_products.course_key},'') = coalesce(${all_events.course_key},'')
+      and coalesce(${session_products.user_products_isbn},'') = coalesce(${all_events.user_products_isbn},'')
+      ;;
+    relationship: one_to_many
+    type: inner
+  }
 
-#   join: user_products {
-#     view_label: "Product Details By User"
-#     sql_on: ${user_products.merged_guid} = ${user_info_merged_new.merged_guid}
-#       and ${user_products.isbn13} = ${parent_child_product_isbn.parent_isbn}
-#       and ${all_events.event_time_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp)
-#       ;;
-#     relationship: many_to_many
-#   }
+  join: user_profile {
+    view_label: "User Details"
+    sql_on: ${all_sessions.user_sso_guid} = ${user_profile.user_sso_guid} ;;
+    relationship: many_to_one
+  }
 
-#   join: user_courses_new {
-#     view_label: "Course / Section Details By User"
-#     sql_on: ${user_courses_new.user_sso_guid} = ${user_products.merged_guid} and ${user_courses_new.isbn} = ${user_products.isbn13}
-#       and ${user_courses_new.academic_term} = ${user_products.academic_term};;
-#     relationship: one_to_one
-#   }
-# }
+  join: live_subscription_status {
+    view_label: "Learner Profile - Live Subscription Status"
+    sql_on:  ${all_sessions.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
+    relationship: one_to_one
+  }
+
+  join: custom_cohort_filter {
+    view_label: "** Custom Cohort Filter **"
+    sql_on: ${all_sessions.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
+  join: user_institution_info {
+    from: institution_info
+    view_label: "User Institution"
+    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+
+  join: user_products {
+    view_label: "Product Details By User"
+    sql_on: ${session_products.user_sso_guid} = ${user_products.merged_guid}
+      and coalesce(${session_products.user_products_isbn} = ${user_products.isbn13},true)
+      and coalesce(${session_products.course_key} = ${user_products.course_key},true)
+      and (${session_products.user_products_isbn} = ${user_products.isbn13} or ${session_products.course_key} = ${user_products.course_key})
+      and ${session_products.session_start_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp)
+      ;;
+    relationship: many_to_many
+  }
+
+  join: product_info {
+    view_label: "Product"
+    sql_on: ${user_products.isbn13} = ${product_info.isbn13} ;;
+    relationship: many_to_one
+  }
+
+  join: product_institution_info {
+    from: institution_info
+    view_label: "Product Institution"
+    sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+}
