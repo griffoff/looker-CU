@@ -667,9 +667,9 @@ explore: product_analysis {
   join: all_events {
     view_label: "Events"
     sql_on: ${session_products.session_id} = ${all_events.session_id}
-      and coalesce(${session_products.course_key},'') = coalesce(${all_events.course_key},'')
-      and coalesce(${session_products.user_products_isbn},'') = coalesce(${all_events.user_products_isbn},'')
-      ;;
+    and coalesce(${session_products.course_key},'') = coalesce(${all_events.course_key},'')
+    and coalesce(${session_products.user_products_isbn},'') = coalesce(${all_events.user_products_isbn},'')
+    ;;
     relationship: one_to_many
     type: inner
   }
@@ -704,7 +704,7 @@ explore: product_analysis {
     sql_on: ${session_products.user_sso_guid} = ${user_products.merged_guid}
       and coalesce(${session_products.user_products_isbn} = ${user_products.isbn13},true)
       and coalesce(${session_products.course_key} = ${user_products.course_key},true)
-      and (${session_products.user_products_isbn} = ${user_products.isbn13} or ${session_products.course_key} = ${user_products.course_key})
+      and coalesce(nullif(${session_products.user_products_isbn} = ${user_products.isbn13},false),nullif(${session_products.course_key} = ${user_products.course_key},false))
       and ${session_products.session_start_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp)
       ;;
     relationship: many_to_many

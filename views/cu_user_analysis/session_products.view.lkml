@@ -1,4 +1,4 @@
-explore: session_products {}
+explore: session_products {hidden:yes}
 view: session_products {
   sql_table_name: prod.cu_user_analysis.session_products ;;
 
