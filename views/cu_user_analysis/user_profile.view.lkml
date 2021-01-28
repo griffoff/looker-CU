@@ -273,6 +273,7 @@ view: user_profile {
     label: "# Users"
     type: count
     description: "Count of primary user accounts, instructors and students"
+    drill_fields: [detail*]
   }
 
   measure: student_count {
@@ -280,6 +281,7 @@ view: user_profile {
     type: count_distinct
     sql: case when not ${TABLE}.instructor_by_party then ${TABLE}.user_sso_guid end;;
     description: "Count of primary student user accounts"
+    drill_fields: [detail*]
   }
 
   measure: instructor_count {
@@ -287,5 +289,20 @@ view: user_profile {
     type: count_distinct
     sql: case when ${TABLE}.instructor_by_party then ${TABLE}.user_sso_guid end;;
     description: "Count of primary instructor user accounts"
+    drill_fields: [detail*]
   }
+
+  set: detail {
+    fields: [
+      user_sso_guid,
+      instructor,
+      k12_flag,
+      country,
+      user_region,
+      institution_id,
+      first_session_time,
+      latest_session_time
+    ]
+  }
+
 }
