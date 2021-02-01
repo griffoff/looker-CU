@@ -27,6 +27,8 @@ case_sensitive: no
 
 persist_for: "16 hours"
 
+fiscal_month_offset: 3
+
 ######################### Start of PROD Explores #########################################################################
 
 view: current_date {

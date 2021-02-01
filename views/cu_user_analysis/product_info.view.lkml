@@ -22,6 +22,7 @@ view: product_info {
     group_label: "Product Details"
     type: string
     sql: ${TABLE}.PT_COURSE ;;
+    hidden: yes
   }
 
   dimension: authors {
@@ -29,6 +30,7 @@ view: product_info {
     label: "Authors"
     group_label: "Product Details"
     sql: ${TABLE}.ALL_AUTHORS_NM ;;
+    hidden: yes
   }
 
   dimension: edition {
@@ -50,6 +52,7 @@ view: product_info {
     group_label: "Subject Matter"
     sql: ${TABLE}.SUB_MATTER_MAJ_DE ;;
     description: "Subject matter (math, economics, science, etc.)"
+    hidden: yes
   }
 
   dimension: minorsubjectmatter {
@@ -58,6 +61,7 @@ view: product_info {
     description: "Brand Discipline"
     group_label: "Subject Matter"
     sql: ${TABLE}.SUB_MATTER_MIN_DE ;;
+    hidden: yes
   }
 
   dimension: mediatype {
@@ -112,6 +116,7 @@ view: product_info {
     label: "Course Area"
     sql: ${TABLE}.PT_COURSE_AREA ;;
     description: "Subject matter: Building Trade, Clinical Psychology, Personal Finance, etc."
+    hidden: yes
   }
 
   dimension: publicationseries {
@@ -119,6 +124,7 @@ view: product_info {
     label: "Publication Series"
     group_label: "Publication Categories"
     sql: ${TABLE}.PUB_SERIES_DE ;;
+    hidden: yes
   }
   dimension: discipline {
     description: "Subject matter: Art, Philosophy, Criminal Justice, etc."
@@ -175,6 +181,7 @@ view: product_info {
     type: string
     sql: ${TABLE}.DIVISION_CD ;;
     description: "Sales division code"
+    hidden: yes
   }
 
   dimension: division_de {
@@ -183,6 +190,7 @@ view: product_info {
     group_label: "Sales Division"
     sql: ${TABLE}.DIVISION_DE ;;
     description: "Sales division description (STM, Skills, K12, etc.)"
+    hidden: yes
   }
 
   # dimension: dw_ldid {
@@ -217,16 +225,16 @@ view: product_info {
     label: "ISBN10"
     group_label: "ISBN"
     sql: ${TABLE}.ISBN10 ;;
+    hidden: yes
   }
 
   dimension: isbn13 {
-    description: "ISBN13 can be used for ISBN-level analysis if necessary.  IAC ISBN is preferred, but due to some limited gaps in IAC ISBN data,
-    ISBN13 may be required as a substitute.  No ISBN13 gaps have been found as of July 2017."
     type: string
     label: "ISBN13"
-    group_label: "ISBN"
+    # group_label: "ISBN"
     sql: ${TABLE}.ISBN13 ;;
     primary_key: yes
+    description: "Product ISBN13"
   }
 
   # dimension: mindtap_isbn {
@@ -320,6 +328,7 @@ view: product_info {
     type: count_distinct
     sql: ${discipline} ;;
     description: "Count of distinct disciplines shown in a given view"
+    hidden: yes
   }
 
   measure: count_product_family {
@@ -327,6 +336,7 @@ view: product_info {
     type: count_distinct
     sql: ${productfamily} ;;
     description: "Count of distinct product families shown in a given view"
+    hidden: yes
   }
 
   measure: count {

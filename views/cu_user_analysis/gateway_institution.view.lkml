@@ -1,3 +1,4 @@
+explore: gateway_institution {hidden:yes}
 view: gateway_institution {
   derived_table: {
     sql:

@@ -97,6 +97,7 @@ view: all_events {
     intervals: [hour, day, week, month]
     sql_start: ${all_sessions.session_start_raw} ;;
     sql_end: ${event_date_raw} ;;
+    hidden: yes
 
   }
 
@@ -158,25 +159,16 @@ view: all_events_base {
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
-    label: "Event Data"
+    label: "From event tags."
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
   dimension: event_data_course_key {
     group_label: "CAFE Tags"
     type: string
-    sql: COALESCE(
-            ${event_data}:courseKey
-            ,${event_data}:course_key
-            ,${event_data}:"course key"
-            ,${event_data}:courseId
-            ,REGEXP_SUBSTR(${event_data}:"courseUri", '.*course-key:(.+)$', 1, 1, 'e')
-            ,REGEXP_SUBSTR(${event_data}:"courseUri", '.*prod:course:(.+)$', 1, 1, 'e')
-            ,REGEXP_SUBSTR(${event_data}:"course uri", '.*course-key:(.+)$', 1, 1, 'e')
-            ,${event_data}:contextId
-          )::STRING  ;;
+    sql: ${event_data}:event_course_key::STRING  ;;
     label: "Course key"
-    description: "Event data"
+    description: "From event tags."
     hidden: yes
   }
 
@@ -190,8 +182,9 @@ view: all_events_base {
     type: string
     group_label: "CAFE Tags"
     sql: ${TABLE}."EVENT_DATA":reader_type::STRING  ;;
-    label: "Reader type (event data)"
-    description: "Reader type (Gutenberg, Tribble, etc.)"
+    label: "Reader type"
+    description: "Reader type (Gutenberg, Tribble, etc.) from event tags."
+    hidden: yes
   }
 
   dimension: reader_mode {
@@ -200,6 +193,7 @@ view: all_events_base {
     label: "Reader Mode Type (Mindtap only)"
     required_fields: [product_platform]
     sql: CASE WHEN ${event_data_course_key} IS NULL THEN 'Unknown' WHEN ${event_data_course_key} = 'reader-mode' THEN 'Reader Mode' ELSE 'Course Mode' END ;;
+    hidden: yes
   }
 
   dimension: filter {
@@ -207,7 +201,8 @@ view: all_events_base {
     sql: ${TABLE}."EVENT_DATA":filter::string ;;
     label: "Filter"
     group_label: "CAFE Tags"
-    description: "Event data"
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: title {
@@ -215,7 +210,8 @@ view: all_events_base {
     sql: ${TABLE}."EVENT_DATA":title::string ;;
     label: "Title"
     group_label: "CAFE Tags"
-    description: "Event data"
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: filterGroup {
@@ -223,7 +219,8 @@ view: all_events_base {
     sql: ${TABLE}."EVENT_DATA":filterGroup::string ;;
     label: "Filter Group"
     group_label: "CAFE Tags"
-    description: "Event data"
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: sortFunction {
@@ -231,7 +228,8 @@ view: all_events_base {
     sql: ${TABLE}."EVENT_DATA":sortFunction::string ;;
     label: "Sort Function"
     group_label: "CAFE Tags"
-    description: "Event data"
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: userInput {
@@ -239,7 +237,7 @@ view: all_events_base {
     sql: ${TABLE}."EVENT_DATA":userInput::string ;;
     label: "User Input"
     group_label: "CAFE Tags"
-    description: "UserInput from event tags"
+    description: "From event tags"
   }
 
   dimension: code_type {
@@ -253,7 +251,7 @@ view: all_events_base {
     type:  number
     sql: ${TABLE}."EVENT_DATA":time_to_next_event ;;
     label: "Time to next event"
-    description: "Event data"
+    description: "From event tags."
     hidden: yes
   }
 
@@ -263,6 +261,7 @@ view: all_events_base {
     description: "Number of days user had been in a subscription state when they executed this event"
     type: number
     sql: ${event_data}:days_in_current_state ;;
+    hidden: yes
   }
 
   dimension: role {
@@ -294,7 +293,8 @@ view: all_events_base {
           THEN ${event_data}:message_id
           ELSE NULL
           END;;
-          description: "Message ID for IPM events"
+    description: "Message ID for IPM events"
+    hidden: yes
   }
 
   dimension: side_bar_coursekey {
@@ -302,6 +302,7 @@ view: all_events_base {
     label: "Course key"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:courseKey::string END ;;
+    description: "Sidebar course key from event tags."
     hidden: no
   }
 
@@ -311,7 +312,7 @@ view: all_events_base {
     label: "Carousel name"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselName::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: side_bar_carouselSessionId {
@@ -319,7 +320,7 @@ view: all_events_base {
     label: "Carousel session Id"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:carouselSessionId::string END ;;
-    hidden: no
+    hidden: yes
   }
 
 
@@ -336,7 +337,7 @@ view: all_events_base {
     label: "checkpoint Id"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:checkpointId::string END ;;
-    hidden: no
+    hidden: yes
   }
 
 
@@ -346,7 +347,7 @@ view: all_events_base {
     label: "Content type"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:contentType::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: side_bar_pointInSemester {
@@ -355,7 +356,7 @@ view: all_events_base {
     label: "Point In Semester"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:pointInSemester::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: side_bar_discipline {
@@ -364,7 +365,7 @@ view: all_events_base {
     label: "Discipline"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:discipline::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: side_bar_studyToolCgi {
@@ -373,7 +374,7 @@ view: all_events_base {
     description: "Cengage Global Identifier"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:studyToolCgi::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: side_bar_ISBN {
@@ -381,6 +382,7 @@ view: all_events_base {
     label: "ISBN"
     type: string
     sql: CASE WHEN ${product_platform} = 'CU-SIDE-BAR' THEN ${event_data}:ISBN::string END ;;
+    description: "Sidebar ISBN from event tags."
     hidden: no
   }
 
@@ -390,7 +392,7 @@ view: all_events_base {
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP' THEN ${event_data}:institutionId::string END ;;
     #
-    hidden: no
+    hidden: yes
   }
 
   dimension: industryLinkURL {
@@ -398,7 +400,7 @@ view: all_events_base {
     label: "Industry Link URL"
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkURL::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: industryLinkType {
@@ -407,7 +409,7 @@ view: all_events_base {
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:industryLinkType::string END ;;
     description: "custom, global"
-    hidden: no
+    hidden: yes
   }
 
   dimension: userRole {
@@ -424,7 +426,7 @@ view: all_events_base {
     label: "Industry Link Title ISBN"
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN ${event_data}:titleIsbn::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: industryLinkCoursekey {
@@ -432,7 +434,7 @@ view: all_events_base {
     label: "Course key"
     type: string
     sql: CASE WHEN ${product_platform} = 'INDUSTRY-LINKS-MINDAPP'  THEN  ${event_data}:courseKey::string END ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_isImpersonated {
@@ -440,7 +442,7 @@ view: all_events_base {
     label: "Is Impersonated"
     type: string
     sql: ${event_data}:isImpersonated::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -449,8 +451,8 @@ view: all_events_base {
     label: "Impersonator Guid"
     type: string
     sql: ${event_data}:impersonatorGuid::string ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_impersonatorUserType {
@@ -458,8 +460,8 @@ view: all_events_base {
     label: "Impersonator User Type"
     type: string
     sql: ${event_data}:impersonatorUserType::string ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_courseCategoryId {
@@ -467,8 +469,8 @@ view: all_events_base {
     label: "Course Category Id"
     type: string
     sql: ${event_data}:courseCategoryId::string ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_iacISBN {
@@ -476,7 +478,7 @@ view: all_events_base {
     label: "IAC ISBN"
     type: string
     sql: ${event_data}:iacISBN::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -485,7 +487,7 @@ view: all_events_base {
     label: "User Type"
     type: string
     sql: ${event_data}:userType::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -494,7 +496,7 @@ view: all_events_base {
     label: "Context ID"
     type: string
     sql: ${event_data}:contextId::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -505,7 +507,7 @@ view: all_events_base {
     label: "Course key"
     type: string
     sql: ${event_data}:courseKey::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: yes
   }
 
@@ -515,7 +517,7 @@ view: all_events_base {
     label: "Carousel name"
     type: string
     sql: ${event_data}:carouselName::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -524,7 +526,7 @@ view: all_events_base {
     label: "Carousel session Id"
     type: string
     sql: ${event_data}:carouselSessionId::string  ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -534,7 +536,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:activityId::string  ;;
     hidden: no
-    description: "Event data"
+    description: "From event tags."
 #     CGI need to map to source to get metadata such as activity title
   }
 
@@ -543,8 +545,8 @@ view: all_events_base {
     label: "checkpoint Id"
     type: string
     sql: ${event_data}:checkpointId::string  ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_contentType {
@@ -553,7 +555,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:contentType::string  ;;
     description: "Event data - ISBN Module / Quick Lesson / Study Tool"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_appName {
@@ -561,8 +563,8 @@ view: all_events_base {
     label: "App Name"
     type: string
     sql: ${event_data}:appName::string  ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_external_take_uri {
@@ -571,7 +573,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:externalTakeUri::string  ;;
     description: "Event data - Unique Resource Identifier"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_item_uri {
@@ -580,7 +582,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:itemUri::string  ;;
     description: "Event data - Unique Resource Identifier"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_attempt_id {
@@ -588,8 +590,8 @@ view: all_events_base {
     label: "Attempt ID"
     type: string
     sql: ${event_data}:attemptId::string  ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_activity_uri {
@@ -616,7 +618,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:courseUri::string  ;;
     description: "Event data - Unique Resource Identifier"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_course_cgi {
@@ -625,7 +627,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:courseCgi::string  ;;
     description: "Event data - Cengage Global Identifier"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_core_text_isbn {
@@ -633,7 +635,7 @@ view: all_events_base {
     label: "Core Text ISBN"
     type: string
     sql: coalesce(${event_data}:coreTextISBN::string,${event_data}:coreTextIsbn::string)  ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -643,7 +645,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:pointInSemester::string  ;;
     description: "Event data - Early Semester, End-of-semester, Mid-semester"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_discipline {
@@ -651,8 +653,8 @@ view: all_events_base {
     label: "Discipline"
     type: string
     sql: ${event_data}:discipline::string  ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_studyToolCgi {
@@ -661,7 +663,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:studyToolCgi::string  ;;
     description: "Event data - Cengage Global Identifier"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_sequence_uuid {
@@ -669,8 +671,8 @@ view: all_events_base {
     label: "Sequence UUID"
     type: string
     sql: ${event_data}:sequenceUuid::string  ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_ISBN {
@@ -678,7 +680,7 @@ view: all_events_base {
     label: "ISBN"
     type: string
     sql: coalesce(${event_data}:ISBN::string,${event_data}:isbn::string)  ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -687,8 +689,8 @@ view: all_events_base {
     label: "Institution ID"
     type: string
     sql: ${event_data}:institutionId::string  ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_userRole {
@@ -706,7 +708,7 @@ view: all_events_base {
     type: number
     sql: ${event_data}:claPageNumber::number ;;
     description: "Event data - Compound Learning Activity"
-    hidden: no
+    hidden: yes
   }
 
   dimension: tags_number_of_pages {
@@ -714,8 +716,8 @@ view: all_events_base {
     label: "Number of Pages"
     type: number
     sql: ${event_data}:numberOfPages::number ;;
-    description: "Event data"
-    hidden: no
+    description: "From event tags."
+    hidden: yes
   }
 
   dimension: tags_titleIsbn {
@@ -723,7 +725,7 @@ view: all_events_base {
     label: "Title ISBN"
     type: string
     sql: COALESCE(${event_data}:titleISBN, ${event_data}:titleIsbn)::string ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -732,7 +734,7 @@ view: all_events_base {
     label: "eISBN"
     type: string
     sql: coalesce(${event_data}:eISBN::string,${event_data}:eIsbn::string) ;;
-    description: "Event data"
+    description: "From event tags."
     hidden: no
   }
 
@@ -742,7 +744,7 @@ view: all_events_base {
     type: string
     sql: ${event_data}:eventData::string ;;
     hidden: no
-    description: "Event data"
+    description: "From event tags."
   }
 
 
@@ -751,7 +753,7 @@ view: all_events_base {
     label: "ISBN13"
     type: string
     sql: replace(${event_data}:isbn13::string,'-','')  ;;
-    description: "ISBN13 (Event data tags)"
+    description: "ISBN13 from event tags."
     hidden: no
   }
 
@@ -760,7 +762,7 @@ view: all_events_base {
     label: "Activity Type"
     type: string
     sql: ${event_data}:activityType::string  ;;
-    description: "activityType (Event data tags)"
+    description: "activityType from event tags."
     hidden: no
   }
 
@@ -769,8 +771,8 @@ view: all_events_base {
     label: "Activity Launch Source"
     type: string
     sql: ${event_data}:activityLaunchSource::string  ;;
-    description: "activityLaunchSourcee (Event data tags)"
-    hidden: no
+    description: "activityLaunchSourcee from event tags."
+    hidden: yes
   }
 
   dimension: tags_grade {
@@ -778,8 +780,8 @@ view: all_events_base {
     label: "Grade"
     type: string
     sql: ${event_data}:grade::string ;;
-    description: "grade (Event data tags)"
-    hidden: no
+    description: "grade from event tags."
+    hidden: yes
   }
 
   dimension: tags_searchTerm {
@@ -787,7 +789,7 @@ view: all_events_base {
     label: "Search Term"
     type: string
     sql: ${event_data}:searchTerm::string  ;;
-    description: "searchTerm (Event data tags)"
+    description: "searchTerm from event tags."
     hidden: no
   }
 
@@ -796,8 +798,8 @@ view: all_events_base {
     label: "Results Count"
     type: number
     sql: ${event_data}:resultsCount::number  ;;
-    description: "resultsCount (Event data tags)"
-    hidden: no
+    description: "resultsCount from event tags."
+    hidden: yes
   }
 
 
@@ -806,8 +808,8 @@ view: all_events_base {
     label: "Report Type"
     type: string
     sql: ${event_data}:reportType::string  ;;
-    description: "reportType (Event data tags)"
-    hidden: no
+    description: "reportType from event tags."
+    hidden: yes
   }
 
   dimension: tags_cloneStatus {
@@ -815,8 +817,8 @@ view: all_events_base {
     label: "Clone Status"
     type: string
     sql: ${event_data}:cloneStatus::string  ;;
-    description: "cloneStatus (Event data tags)"
-    hidden: no
+    description: "cloneStatus from event tags."
+    hidden: yes
   }
 
   dimension: tags_assignmentStart {
@@ -824,8 +826,8 @@ view: all_events_base {
     label: "Assignment Start"
     type: date_time
     sql: ${event_data}:assignmentStart::datetime  ;;
-    description: "assignmentStart (Event data tags)"
-    hidden: no
+    description: "assignmentStart from event tags."
+    hidden: yes
   }
 
   dimension: tags_subscription_state {
@@ -842,8 +844,8 @@ view: all_events_base {
     label: "Assignment Due"
     type: date_time
     sql: ${event_data}:assignmentDue::datetime  ;;
-    description: "assignmentDue (Event data tags)"
-    hidden: no
+    description: "assignmentDue from event tags."
+    hidden: yes
   }
 
   dimension: tags_numberAttempts {
@@ -851,8 +853,8 @@ view: all_events_base {
     label: "Number Attempts"
     type: number
     sql: ${event_data}:numberAttempts::number  ;;
-    description: "numberAttempts (Event data tags)"
-    hidden: no
+    description: "numberAttempts from event tags."
+    hidden: yes
   }
 
   dimension: tags_gradebookCategory {
@@ -860,8 +862,8 @@ view: all_events_base {
     label: "Gradebook Category"
     type: string
     sql: ${event_data}:gradebookCategory::string  ;;
-    description: "gradebookCategory (Event data tags)"
-    hidden: no
+    description: "gradebookCategory from event tags."
+    hidden: yes
   }
 
   dimension: tags_studentCount {
@@ -869,8 +871,8 @@ view: all_events_base {
     label: "Student Count"
     type: number
     sql: ${event_data}:studentCount::number  ;;
-    description: "studentCount (Event data tags)"
-    hidden: no
+    description: "studentCount from event tags."
+    hidden: yes
   }
 
   dimension: tags_itemID {
@@ -878,8 +880,8 @@ view: all_events_base {
     label: "Item ID"
     type: string
     sql: ${event_data}:itemID::string  ;;
-    description: "itemID (Event data tags)"
-    hidden: no
+    description: "itemID from event tags."
+    hidden: yes
   }
 
 
@@ -929,7 +931,7 @@ view: all_events_base {
     group_label: "Event Classification"
     type: string
     sql: CASE WHEN ${event_data}:event_source = 'Client Activity Events' THEN  ${TABLE}."PRODUCT_PLATFORM" ELSE ${TABLE}."SYSTEM_CATEGORY" END ;;
-    label: "System category"
+    label: "System Category"
     description: "Categorizes events by system eg: Cengage Unlimited, Registrations, Product Platforms"
   }
 
@@ -947,7 +949,7 @@ view: all_events_base {
     group_label: "Event Classification - Raw"
     type: string
     sql: ${TABLE}."EVENT_ACTION" ;;
-    label: "Event action"
+    label: "Event Action"
     description:
     "DEFINITION: Action (verb) taken or performed by user or internal system.
     CAVEAT(S): Action labels are not necessarily consistent from platform to platform.
@@ -961,7 +963,7 @@ view: all_events_base {
   dimension: event_name {
     group_label: "Event Classification"
     type: string
-    label: "Event name"
+    label: "Event Name"
     description: "Visually friendly event name, generally event action + event category with duplicate words removed and improved capitalization and spacing"
     suggest_explore: filter_cache_all_events_event_name
     suggest_dimension: filter_cache_all_events_event_name.event_name
@@ -970,7 +972,7 @@ view: all_events_base {
 
   dimension: event_name_raw {
     group_label: "Event Classification - Raw"
-    label: "Raw event name"
+    label: "Raw Event Name"
     description: "Event Category - Event Action"
     type: string
     hidden: no
@@ -1051,7 +1053,7 @@ view: all_events_base {
 
   dimension: load_metadata_source {
     group_label: "Event Classification - Raw"
-    label: "Load source"
+    label: "Load Source"
     type: string
     sql: ${TABLE}."LOAD_METADATA":source::string ;;
   }
@@ -1082,6 +1084,7 @@ view: all_events_base {
     group_label: "Referral Path"
     description: "Which page did the student come from to get here?"
     sql: ${event_data}:"referral path"::STRING ;;
+    hidden: yes
   }
 
   dimension: subscription_start {
@@ -1098,6 +1101,7 @@ view: all_events_base {
     description: "Which site did the student come from to get here?"
     type: string
     sql: coalesce(parse_url(${event_data}:"referral path", 1):host, 'UNKNOWN');;
+    hidden: yes
   }
 
   dimension: referral_host_type {
@@ -1137,12 +1141,14 @@ view: all_events_base {
         when ${referral_path} is null then 'UNKNOWN'
         else 'Other'
        end;;
+      hidden: yes
   }
 
   dimension: grace_period_flag {
     group_label: "Grace Period"
     type: yesno
     description: "Event occurred before course activation up to midpoint of course or 60 days after start. Event occurred within 14 days of course start if not activated. See Day of Grace Period dimension to filter for events with first X days of course start."
+    hidden: yes
   }
 
   dimension: day_of_grace_period {
@@ -1172,7 +1178,7 @@ view: all_events_base {
 
   measure: events_per_student {
     group_label: "# Events"
-    label: "# Events per Student"
+    label: "# Events per User"
     type: number
     sql: ${count} /  NULLIF(${user_count}, 0)   ;;
     value_format_name: decimal_1
@@ -1180,7 +1186,7 @@ view: all_events_base {
 
   measure: events_per_student_per_day {
     group_label: "# Events"
-    label: "# Events per Student Per Day"
+    label: "# Events per User Per Day"
     type: number
     sql: ${count} / ${user_day_count} ;;
     value_format_name: decimal_1
@@ -1206,6 +1212,7 @@ view: all_events_base {
     type: number
     sql: COUNT(CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN 1 END) / NULLIF(COUNT(DISTINCT  CASE WHEN DATEDIFF(day, ${event_date_raw}, CURRENT_DATE()) = 1 THEN HASH(${user_sso_guid}, ${event_date_raw}) END), 0);;
     value_format_name: decimal_1
+    hidden: yes
   }
 
   measure: events_last_7_days {
@@ -1315,6 +1322,7 @@ view: all_events_base {
     type: average
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_min {
@@ -1323,6 +1331,7 @@ view: all_events_base {
     type: min
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_p05 {
@@ -1376,6 +1385,7 @@ view: all_events_base {
     type: max
     sql: ${event_duration_seconds} / 60 / 60 / 24 ;; #event duration is in seconds
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event {
@@ -1385,6 +1395,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_mean {
@@ -1394,6 +1405,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_min {
@@ -1403,6 +1415,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_p05 {
@@ -1413,6 +1426,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_p25 {
@@ -1423,6 +1437,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_p50 {
@@ -1433,6 +1448,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_p75 {
@@ -1443,6 +1459,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_p95 {
@@ -1453,6 +1470,7 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_time_to_next_event_max {
@@ -1462,20 +1480,22 @@ view: all_events_base {
     sql: ${time_to_next_event_seconds} / 3600 / 24  ;;
     # sql: ${event_data}:time_to_next_event / 3600 / 24  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: average_time_to_next_event_spent_per_student {
     group_label: "Active Time"
-    label: "Average time to next event per student"
+    label: "Average time to next event per user"
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_time_to_next_event} / NULLIF(${user_count}, 0)  ;;
     value_format: "[m]:ss \m\i\n\s"
+    hidden: yes
   }
 
   measure: average_time_spent_per_student {
     group_label: "Active Time"
-    label: "Average time spent per student"
+    label: "Average time spent per user"
     description: "Slice this metric by different dimensions"
     type: number
     sql: ${event_duration_total} / NULLIF(${user_count}, 0)  ;;
@@ -1484,7 +1504,7 @@ view: all_events_base {
 
   measure: average_time_spent_per_student_per_week {
     group_label: "Active Time"
-    label: "Average time spent per student per week"
+    label: "Average time spent per user per week"
     type: number
     sql: ${event_duration_total} / NULLIF(${user_week_count}, 0);;
     value_format: "[m]:ss \m\i\n\s"
@@ -1500,15 +1520,16 @@ view: all_events_base {
 
   measure: average_time_spent_per_student_per_month {
     group_label: "Active Time"
-    label: "Average time spent per student per month"
+    label: "Average time spent per user per month"
     type: number
     sql: ${event_duration_total} / ${user_month_count} ;;
     value_format: "[m] \m\i\n\s"
+    hidden: yes
   }
 
   measure: event_duration_per_day {
     group_label: "Active Time"
-    label: "Average time spent per student per day"
+    label: "Average time spent per user per day"
     type: number
     sql: ${event_duration_total} / ${user_day_count} ;;
     value_format: "[m]:ss \m\i\n\s"
@@ -1526,6 +1547,7 @@ view: all_events_base {
     label: "# days with activity per user per month (avg)"
     type: number
     sql: ${user_day_count} / ${user_count} / ${month_count};;
+    hidden: yes
   }
 
   dimension: cu_resource_open {
@@ -1556,7 +1578,7 @@ view: all_events_base {
 
 
   dimension: ATC_usage {
-    hidden: no
+    hidden: yes
     label: "Above The Course Event"
     description: "Events identified with above the course value (Launch of study tools, flashcards, test prep, career center, college success, quick lesson, courses, study pack, partner offers, study guides)"
     type:  yesno
@@ -1601,6 +1623,7 @@ dimension: course_key {
   type: string
   description: "Course key associated with the event identified through event tags. If an event's tags don't contain a course key identifier, the course key from the previous or next event in the same session is given instead."
   label: "Event Course Key"
+  hidden: yes
 }
 
 dimension: user_products_isbn {
@@ -1613,20 +1636,21 @@ dimension: user_products_isbn {
 dimension: course_key_isbn {
   label: "Event Course Key ISBN"
   description: "Product ISBN associated with Event Course Key"
+  hidden: yes
 }
 
 dimension: product_isbn {
   label: "Event Product ISBN"
   description: "ISBN associated with the event identified through event tags. If an event's tags don't contain an ISBN identifier, the ISBN from the previous or next event in the same session is given instead."
-
+  hidden: yes
 }
 
 dimension: platform {
   hidden: no
   type: string
-  description: "Platform associated with the event identified through TAGS. If an event's tags don't contain a platform identifier, the platform from the previous or next event in the same session is identified instead."
-  label: "Event Platform"
-  sql: COALESCE(${TABLE}.course_key_platform,${TABLE}.isbn_platform,
+  description: "Product platform associated with the event identified through event tags. If an event's tags don't contain a platform identifier, the platform from the previous or next event in the same session is identified instead."
+  label: "Event Product Platform"
+  sql: COALESCE(${TABLE}.course_key_platform,${TABLE}.product_isbn_platform,
     CASE ${TABLE}.product_platform
       WHEN 'WEBASSIGN' THEN 'WebAssign'
       WHEN 'MT3' THEN 'MindTap'

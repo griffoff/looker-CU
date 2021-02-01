@@ -26,5 +26,21 @@ view: institution_info {
   dimension: country_name {label:"Institution Country Name" group_label:"Institution Info"}
   dimension: financial_sales_region {label:"Institution Financial Sales Region" group_label:"Institution Info"}
 
+  measure: count {
+    type: count
+    label: "# Institutions"
+    drill_fields: [detail*]
+  }
+
+  set: detail {
+    fields: [
+      institution_id,
+      name,
+      type,
+      iso_country,
+      country_name,
+      financial_sales_region
+    ]
+  }
 
 }

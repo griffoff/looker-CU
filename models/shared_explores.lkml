@@ -455,7 +455,7 @@ explore: learner_profile {
   }
 
   join: custom_cohort_filter {
-    view_label: "** Custom Cohort Filter **"
+    view_label: "** Custom User Cohort Filter **"
     sql_on: ${learner_profile.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
     # type: left_outer
     relationship: one_to_many
@@ -645,11 +645,11 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 }
 
 explore: product_analysis {
-  label: "Product Analysis (beta)"
+  label: "Event Analysis (beta)"
   view_name: all_sessions
 
   always_filter: {
-    filters: [all_sessions.session_start_date: "Last 7 days"]
+    filters: [all_sessions.session_start_date: "Last 7 days", user_profile.real_user_flag: "Yes"]
   }
 
   join: session_products {
@@ -659,7 +659,7 @@ explore: product_analysis {
   }
 
   join: custom_course_key_cohort_filter {
-    view_label: "** Custom Course Key Cohort Filter **"
+    view_label: "*** Custom Course Key Cohort Filter ***"
     sql_on: ${session_products.course_key} = ${custom_course_key_cohort_filter.course_key} ;;
     relationship: many_to_many
   }
@@ -687,17 +687,23 @@ explore: product_analysis {
   }
 
   join: custom_cohort_filter {
-    view_label: "** Custom Cohort Filter **"
+    view_label: "*** Custom User Cohort Filter ***"
     sql_on: ${all_sessions.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
     relationship: one_to_many
   }
 
-  join: user_institution_info {
-    from: institution_info
-    view_label: "User Institution"
-    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
-    relationship: many_to_one
-  }
+  # join: user_institution_info {
+  #   from: institution_info
+  #   view_label: "User Institution"
+  #   sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+  #   relationship: many_to_one
+  # }
+
+  # join: user_gateway_institution {
+  #   from: gateway_institution
+  #   view_label: "User Institution"
+  #   sql_on: ${user_institution_info.institution_id} = ${user_gateway_institution.entity_no} ;;
+  # }
 
   join: user_products {
     view_label: "Product Details By User"
@@ -718,8 +724,14 @@ explore: product_analysis {
 
   join: product_institution_info {
     from: institution_info
-    view_label: "Product Institution"
+    view_label: "Institution Details"
     sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+
+  join: course_info {
+    view_label: "Course / Section Details"
+    sql_on: ${user_products.course_key} = ${course_info.course_identifier} ;;
     relationship: many_to_one
   }
 }

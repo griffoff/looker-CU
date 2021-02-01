@@ -93,6 +93,7 @@ view: all_sessions {
     sql: ${TABLE}."NUMBER_OF_COURSEWARE_EVENTS" ;;
     label: "Number of courseware events"
     description: "Number of courseware related events in the given session"
+    hidden: no
   }
 
   dimension: number_of_dashboard_clicks {
@@ -102,6 +103,7 @@ view: all_sessions {
     sql: ${TABLE}."NUMBER_OF_DASHBOARD_CLICKS" ;;
     label: "Number of dashboard events"
     description: "Number of dashboard related events in the given session"
+    hidden: no
   }
 
   dimension: number_of_ebook_events {
@@ -111,6 +113,7 @@ view: all_sessions {
     sql: ${TABLE}."NUMBER_OF_EBOOK_EVENTS" ;;
     label: "Number of ebook events"
     description: "Number of ebook related events in the given session"
+    hidden: no
   }
 
   dimension: number_of_partner_clicks {
@@ -120,6 +123,7 @@ view: all_sessions {
     sql: ${TABLE}."NUMBER_OF_PARTNER_CLICKS" ;;
     label: "Number of partner click events"
     description: "Number of partner related events (Chegg, Kaplan, etc.) in the given session"
+    hidden: yes
   }
 
   dimension: number_of_searches {
@@ -231,6 +235,7 @@ view: all_sessions {
     sql:  ${number_of_partner_clicks};;
     label: "# Partner click events (avg)"
     description: "Average number of partner click events"
+    hidden: yes
   }
 
   measure:  average_searches{
@@ -240,6 +245,7 @@ view: all_sessions {
     sql:  ${number_of_searches};;
     label: "# Search events (avg)"
     description: "Average number of search events"
+    hidden: no
   }
 
   measure: user_count {
@@ -288,7 +294,7 @@ view: all_sessions {
   measure: session_length_total {
     group_label: "Time in product"
     description: "Total of all session lengths in minutes"
-    label: "Total time in product"
+    label: "Total session time"
     hidden: no
     type: sum
     sql: ${session_length} ;;
@@ -320,6 +326,7 @@ view: all_sessions {
     type: number
     sql: ${session_length_total} / ${user_month_count}  ;;
     value_format: "[m] \m\i\n\s"
+    hidden: yes
   }
 
   measure: session_length_average_per_student {

@@ -26,7 +26,7 @@ view: live_subscription_status {
   dimension: subscription_state {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
-    description: "Active, Cancelled, Expired, Pending"
+    description: "Subscription Plan + Status (e.g. Trial Access (Expired))"
     suggest_explore: filter_cache_live_subscription_status_subscription_state
     suggest_dimension: subscription_state
   }
@@ -58,12 +58,14 @@ view: live_subscription_status {
     ** only use this is you want to filter on current subscription data **"
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden: yes
   }
 
   dimension: lms_user {
     type: yesno
     sql: ${TABLE}.lms_user_status = 1;;
     description: "This flag is yes if a user has ever done a subscription event from a gateway account (from a shadow or gateway guid)"
+    hidden: yes
   }
 
   dimension_group: local_time {
@@ -75,7 +77,7 @@ view: live_subscription_status {
   dimension: subscription_plan {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_PLAN" ;;
-    description: "Full Access, Limited Access, Read-Only, Trial Access"
+    description: "Read-Only / Full Access / Trial Access / etc."
   }
 
   dimension_group: _ldts {
@@ -136,12 +138,14 @@ view: live_subscription_status {
     type: string
     sql: ${TABLE}."CURRENT_GUID" ;;
     description: "Most recent GUID"
+    hidden: yes
   }
 
   dimension: original_guid {
     type: string
     sql: ${TABLE}."ORIGINAL_GUID" ;;
     description: "GUID at initial user subscription"
+    hidden: yes
   }
 
   dimension_group: initialization_time {
@@ -166,6 +170,7 @@ view: live_subscription_status {
   dimension: subscription_id {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_ID" ;;
+    hidden: yes
   }
 
   dimension_group: subscription_start {
@@ -182,7 +187,7 @@ view: live_subscription_status {
     type: date
     label: "Effective to date"
     description: "The day this status ended. e.g. different from subscription end date when a subscription gets cancelled or when a trial state upgrades to ful access early"
-    hidden: no
+    hidden: yes
     sql: ${TABLE}."EFFECTIVE_TO" ;;
   }
 
@@ -190,7 +195,7 @@ view: live_subscription_status {
     type: date
     label: "Subscription effective from date"
     description: "Start date of subscription status"
-    hidden: no
+    hidden: yes
     sql: ${TABLE}."EFFECTIVE_FROM" ;;
   }
 
@@ -201,6 +206,7 @@ view: live_subscription_status {
     sql_end:  CURRENT_DATE();;
     label: "Time in current status"
     description: "Time since subscription start date"
+    hidden: yes
   }
 
 
@@ -213,7 +219,6 @@ view: live_subscription_status {
   dimension: subscription_status {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
-    description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
     hidden: yes
   }
 
@@ -225,20 +230,21 @@ view: live_subscription_status {
 
   dimension: subscription_status_sap {
     type: string
-    description: "SAP subscription status"
+    description: "Active / Cancelled / Expired / Pending"
     sql: ${TABLE}."SUBSCRIPTION_STATUS" ;;
   }
 
   dimension: subscription_plan_id {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_PLAN_ID" ;;
-    description: "Full-Access-120, 2  Full-Access-365, Full-Access-730, Limited-Access-180,Read-Only, Trial"
+    description: "Full-Access-365 / CU-Trial-7-PV / CU-ETextBook-120 / etc."
   }
 
   dimension: subscription_duration {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_DURATION" ;;
     description: "14, 120, 122, 180, 365, 730 days"
+    hidden: yes
   }
 
   dimension_group: placed_time {
@@ -251,11 +257,13 @@ view: live_subscription_status {
   dimension_group: cancelled_time {
     type: time
     sql: ${TABLE}."CANCELLED_TIME" ;;
+    hidden: no
   }
 
   dimension: cancellation_reason {
     type: string
     sql: ${TABLE}."CANCELLATION_REASON" ;;
+    hidden: yes
   }
 
   dimension: payment_source_type {
@@ -302,6 +310,7 @@ view: live_subscription_status {
     sql_start: CASE WHEN ${subscription_end_raw} < current_timestamp() THEN ${subscription_end_raw}::date ELSE  ${subscription_start_raw}::date END ;;
     sql_end: current_date() ;;
     description: "Time since subscription start if active subscription is ongoing, otherwise time since subscription end"
+    hidden: yes
   }
 
   dimension_group: time_left_in_current_status {
@@ -309,7 +318,8 @@ view: live_subscription_status {
     intervals: [day, week, month]
     sql_start: current_timestamp() ;;
     sql_end: ${subscription_end_date} ;;
-  description: "Time remaining until subscription end"
+    description: "Time remaining until subscription end"
+    hidden: yes
   }
 
   dimension: gateway_guid {
@@ -317,7 +327,7 @@ view: live_subscription_status {
     description: "This event was done from the users gateway guid"
     type: yesno
     sql: ${user_sso_guid} <> ${original_guid} ;;
-    hidden: no
+    hidden: yes
   }
 
   dimension: marketing_intention {
@@ -327,6 +337,7 @@ view: live_subscription_status {
 # Trial source is via ala carte trial-opt in
 # Trial source is via Cengage.com
     sql:  ;;
+     hidden: yes
   }
 
   measure: student_count {
@@ -355,6 +366,7 @@ view: live_subscription_status {
     description: "The latest time at which any subscription event has been received"
     type: date_time
     sql: max(${local_time_raw}) ;;
+    hidden: yes
   }
 
   measure: user_count {

@@ -81,11 +81,11 @@ view: custom_cohort_filter {
   }
 
 
-  dimension: cohort_name {}
+  dimension: cohort_name {label:"User Cohort Name"}
 
   dimension: user_sso_guid {hidden:yes}
 
-  dimension: refresh_time {}
+  dimension: refresh_time {label:"User Cohort Refresh Time"}
 
   dimension: pk {
     primary_key: yes

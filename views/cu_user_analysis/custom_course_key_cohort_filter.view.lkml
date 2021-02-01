@@ -80,11 +80,11 @@ view: custom_course_key_cohort_filter {
                 }
 
 
-                dimension: cohort_name {}
+                dimension: cohort_name {label:"Course Key Cohort Name"}
 
                 dimension: course_key {hidden:yes}
 
-                dimension: refresh_time {}
+                dimension: refresh_time {label:"Course Key Cohort Refresh Time"}
 
                 dimension: pk {
                   primary_key: yes

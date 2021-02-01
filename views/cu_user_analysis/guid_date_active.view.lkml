@@ -47,7 +47,7 @@ view: guid_date_active {
             END AS product_platform_old
             , case
               when e.event_data:host_platform = 'lite' then 'Middle Product'
-              else COALESCE(e.course_key_platform, e.isbn_platform, product_platform_old)
+              else COALESCE(e.course_key_platform, e.product_isbn_platform, product_platform_old)
             end as product_platform
             , e.course_key
           FROM prod.cu_user_analysis.all_sessions s

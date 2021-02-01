@@ -99,6 +99,7 @@ view: user_profile {
   dimension: instructor {
     type: yesno
     description: "User account is currently flagged as an instructor"
+    group_label: "User Flags"
     }
 
   dimension: instructor_by_party {
@@ -106,11 +107,13 @@ view: user_profile {
     label: "Has Instructor User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with an Instructor flag"
     type: yesno
+    hidden: yes
     }
 
   dimension: k12_flag {
     type: yesno
     description: "User account is currently flagged as a K12 customer"
+    group_label: "User Flags"
     }
 
   dimension: k12_by_party {
@@ -118,6 +121,7 @@ view: user_profile {
     label: "Has K12 User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with a K12 flag"
     type: yesno
+    hidden: yes
     }
 
   dimension: country {
@@ -133,6 +137,7 @@ view: user_profile {
   dimension: non_usa_flag {
     type: yesno
     description: "User account currently has a non-USA country or region"
+    group_label: "User Flags"
     }
 
   dimension: non_usa_by_party {
@@ -140,11 +145,13 @@ view: user_profile {
     label: "Has Non-USA User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with a non-USA country or region"
     type: yesno
+    hidden: yes
     }
 
   dimension: user_timezone {
     group_label: "User Info - PII"
     description: "User local timezone"
+    hidden: yes
   }
 
   dimension: internal {type: yesno hidden: yes}
@@ -159,16 +166,18 @@ view: user_profile {
 
   dimension: institution_id {
     description: "Entity ID of user home institution"
+    hidden: yes
   }
 
   dimension: entity_blacklist_flag {
     type: yesno
-    label: "IPM Blacklist Institution"
+    label: "IPM Blacklist Institution User"
     description: "This flag is Yes for users that attend institutions that do NOT allow their student's to receive IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
     link: {
       label: "IPM suppression list google sheet"
       url: "https://docs.google.com/spreadsheets/d/1GWByyBwWhMX-aXEzYqeHe_p-wCRsiwCMMPn_SyrzpWk/edit#gid=0"
     }
+    group_label: "User Flags"
   }
 
   dimension: first_name {
@@ -200,6 +209,7 @@ view: user_profile {
       type: number
       value_format: "0000"
       description: "User birth year"
+      hidden: yes
     }
 
     dimension: age {
@@ -207,6 +217,7 @@ view: user_profile {
       type: number
       sql: YEAR(CURRENT_DATE()) - ${birth_year} ;;
       description: "User age"
+      hidden: yes
     }
 
     dimension: age_tiers {
@@ -217,20 +228,26 @@ view: user_profile {
       style: integer
       sql: ${age} ;;
       description: "User age (buckets)"
+      hidden: yes
     }
 
   dimension: postal_code {
     group_label: "User Info - PII"
     description: "User postal code"
+    hidden: yes
   }
 
-  dimension: marketing_opt_out {type: yesno hidden:yes}
+  dimension: marketing_opt_out {
+    type: yesno
+    hidden:yes
+  }
 
   dimension: marketing_opt_out_by_party {
     group_label: "Party flags"
     label: "Has Opt-Out User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with an Opt-out flag"
     type: yesno
+    hidden: yes
     }
 
   dimension: marketing_allowed {
@@ -251,11 +268,11 @@ view: user_profile {
     description: "Timestamp of users first session"
   }
 
-    dimension_group: latest_session {
-      type: time
-      timeframes: [raw, time, date, week, month, year]
-      description: "Timestamp of users most recent session"
-    }
+  dimension_group: latest_session {
+    type: time
+    timeframes: [raw, time, date, week, month, year]
+    description: "Timestamp of users most recent session"
+  }
 
   dimension: us_hed_marketing_allowed {
     label: "Marketing allowed - US HED"
