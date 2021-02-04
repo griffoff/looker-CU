@@ -204,7 +204,7 @@ derived_table: {
     type: yesno
     sql:(NOT ${paid}) and ${course_end_raw} > CURRENT_DATE();;
     group_label: "Payment Information"
-    label: "Unaid Current"
+    label: "Unpaid Current"
     description: "No paid flag or activation AND course has future end date"
   }
 

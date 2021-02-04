@@ -12,7 +12,7 @@ include: "/views/fair_use/*.view.lkml"
 include: "/views/discounts/*.view.lkml"
 include: "/views/spring_review/*.view.lkml"
 include: "/views/sales_order_forecasting/*.view.lkml"
-include: "/views/kpi_dashboards/*.view.lkml"
+# include: "/views/kpi_dashboards/*.view.lkml"
 include: "/views/uploads/covid19_trial_shutoff_schedule.view"
 include: "/views/uploads/ehp_tweets.view"
 include: "/views/uploads/parsed_ehp_tweets.view"
@@ -558,20 +558,20 @@ explore: sales_order_adoption_base {}
 
 # **************************************** KPI Dashboard *************************************
 
-explore: z_kpi_sf_activations {
-  join: dim_date {
-    sql_on: ${z_kpi_sf_activations.actv_dt} = ${dim_date.datevalue} ;;
-    relationship: many_to_one
-  }
-}
+# explore: z_kpi_sf_activations {
+#   join: dim_date {
+#     sql_on: ${z_kpi_sf_activations.actv_dt} = ${dim_date.datevalue} ;;
+#     relationship: many_to_one
+#   }
+# }
 
-explore: dm_activations {
-  join: dim_date {
-    sql_on: ${dm_activations.actv_dt} = ${dim_date.datevalue} ;;
-    relationship: one_to_one
+# explore: dm_activations {
+#   join: dim_date {
+#     sql_on: ${dm_activations.actv_dt} = ${dim_date.datevalue} ;;
+#     relationship: one_to_one
 
-  }
-}
+#   }
+# }
 
 
 
@@ -730,44 +730,74 @@ join: guid_first_last_date_seen {
     type: inner
   }
 
-
 }
 
 explore: guid_date_subscription {
+  hidden: yes
   join: date_to_date_filter {
     sql_on: ${guid_date_subscription.date_raw} = ${date_to_date_filter.middle_date_raw} ;;
     relationship: one_to_many
   }
 }
 
-# explore: provisioned_product_v2 {
-#   from: sat_provisioned_product_v2
-#   fields: [ALL_FIELDS*,-dim_productplatform.productplatform]
-#
-#   join: learner_profile {
-#     sql_on: ${provisioned_product_v2.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
-#     relationship: many_to_one
-#   }
-#
-#   join: live_subscription_status {
-#     sql_on: ${provisioned_product_v2.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
-#     relationship: many_to_one
-#   }
-#
-#   join: dim_product {
-#     relationship: many_to_one
-#     sql_on: ${provisioned_product_v2.product_id} = ${dim_product.productid} ;;
-#   }
-#
-#   join: products {
-#     view_label: "Product"
-#     sql_on: ${dim_product.isbn13} = ${products.isbn13};;
-#     relationship:  one_to_one
-#     fields: [products.prod_family_cd, products.available_dt*, products.copyright_yr, products.prod_family_cd_edition]
-#   }
-#
-#   join: dim_productplatform {
-#     relationship: many_to_one
-#     sql_on: ${products.platform} = ${dim_productplatform.productplatformkey} ;;
-#   }
-# }
+explore: kpi_user_stats_test {
+  persist_with: daily_refresh
+  from: dim_date_to_date
+  view_name: dim_date_to_date
+
+  always_filter: {filters:[date_range: "Last 7 days", cumulative_counts: "No"]}
+
+  view_label: "Date"
+
+  fields: [ALL_FIELDS*
+    ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type]
+
+  join: date_ty_ly {
+    sql_on: ${date_ty_ly.datevalue} between ${dim_date_to_date.cumulative_period_start_raw} and ${dim_date_to_date.date_value_raw};;
+    relationship: many_to_many
+    type: inner
+  }
+
+  join: combinations {
+    view_label: "Filters"
+    from: kpi_user_counts_filter_combinations
+    sql_on: ${date_ty_ly.date} = ${combinations.date} ;;
+    type: inner
+    relationship: one_to_many
+  }
+
+  join: kpi_user_counts {
+    from: kpi_user_counts_ranges_final
+    view_label: "User Counts"
+    sql_on: ${date_ty_ly.ty_date} between ${kpi_user_counts.date_range_start_raw} and ${kpi_user_counts.date_range_end_raw}
+    AND ${combinations.date} between ${kpi_user_counts.date_range_start_raw} and ${kpi_user_counts.date_range_end_raw}
+    AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
+    AND ${combinations.platform} = ${kpi_user_counts.platform}
+    AND ${combinations.organization} = ${kpi_user_counts.organization}
+    AND ${combinations.region} = ${kpi_user_counts.region}
+    AND ${combinations.user_type} = ${kpi_user_counts.user_type}
+    ;;
+    relationship: one_to_many
+  }
+
+  join: kpi_user_counts_ly {
+    from: kpi_user_counts_ranges_final
+    view_label: "User Counts - Prior Year"
+    sql_on: ${date_ty_ly.ly_date} between ${kpi_user_counts_ly.date_range_start_raw} and ${kpi_user_counts_ly.date_range_end_raw}
+    AND ${combinations.date} between ${kpi_user_counts_ly.date_range_start_raw} and ${kpi_user_counts_ly.date_range_end_raw}
+    AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
+    AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
+    AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
+    AND ${combinations.region} = ${kpi_user_counts_ly.region}
+    AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
+    ;;
+    relationship: one_to_many
+  }
+
+  # join: date_to_date_filter {
+  #   sql_on: ${kpi_user_stats_test.datevalue_raw} = ${date_to_date_filter.middle_date_raw}  ;;
+  #   relationship: one_to_many
+  #   type: inner
+  # }
+
+}

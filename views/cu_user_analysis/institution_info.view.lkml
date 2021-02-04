@@ -16,7 +16,7 @@ view: institution_info {
       inner join prod.datavault.SAT_COUNTRY sc on sc.HUB_COUNTRY_KEY = lic.HUB_COUNTRY_KEY and sc._LATEST
 
     ;;
-    persist_for: "8 hours"
+    sql_trigger_value: select count(*) from prod.DATAVAULT.SAT_INSTITUTION_SAWS ;;
   }
 
   dimension: institution_id  {primary_key:yes group_label:"Institution Info"}

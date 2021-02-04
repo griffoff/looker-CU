@@ -10,14 +10,27 @@ view: date_to_date_filter {
     description: "Date range for cumulative daily user counts. Use in combination with 'End Date' dimension to count total users in the range from the beginning date of this filter to the 'End Date'."
   }
 
+  # parameter: date_range {
+  #   type: date
+  #   suggest_explore: kpi_user_stats_test
+  #   suggest_dimension: kpi_user_stats_test.datevalue_date
+  #   description: "Date range for cumulative daily user counts. Use in combination with 'End Date' dimension to count total users in the range from the beginning date of this filter to the 'End Date'."
+  # }
+
   derived_table: {
     sql:
     with b as (
+
     select {% date_start date_range %}::date as begin_date
     )
     , e as (
     select datevalue as end_date from ${dim_date.SQL_TABLE_NAME}
     where {% condition date_range %} datevalue {% endcondition %}
+
+
+   -- select ${kpi_user_stats_test.datevalue_date}
+   -- {{ _filters['kpi_user_stats_test.datevalue_date'] | sql_quote }}
+  -- {{ _filters['kpi_user_stats_test.datevalue_date'] | sql_quote }}
 
 
     )
@@ -41,8 +54,8 @@ view: date_to_date_filter {
     hidden: yes
   }
 
-  dimension: end_date {
-    type: date
+  dimension_group: end_date {
+    type: time
     description: "Use in combination with 'Date Range' filter to count total users in the range from the beginning date of the 'Date Range' to the 'End Date'."
   }
 

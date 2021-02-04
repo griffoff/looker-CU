@@ -1,7 +1,14 @@
 explore: product_info {hidden:yes}
 view: product_info {
   view_label: "Products New"
-  sql_table_name: prod.STG_CLTS.PRODUCTS  ;;
+  derived_table: {
+    sql:
+    select *
+      , coalesce(platform,'UNKNOWN PLATFORM') as product_platform
+    from prod.STG_CLTS.PRODUCTS
+    ;;
+  }
+
 
 
    set: curated_fields {fields:[course,edition,productfamily, coursearea, discipline, product, title, count,productfamily_edition,minorsubjectmatter,isbn10,isbn13]}
@@ -15,7 +22,15 @@ view: product_info {
   # dimension: discipline_rank_mt {description: "Discipline rank by total activations in MindTap" type:number group_label:"Product Ranking"}
   # dimension: family_rank_mt {description: "Product family rank by total activations in MindTap" type:number group_label:"Product Ranking"}
 
-  dimension: platform {}
+  dimension: product_platform {
+    label: "Platform"
+  }
+
+  measure: platform_list {
+    type: string
+    sql: LISTAGG(DISTINCT ${product_platform}, ', ') WITHIN GROUP (ORDER BY ${product_platform}) ;;
+    description: "List of Platforms"
+  }
 
   dimension: course {
     label: "Course Name"

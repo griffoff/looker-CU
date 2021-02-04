@@ -76,8 +76,9 @@ view: course_info {
         , CASE WHEN cui then 'CUI' WHEN ia THEN 'IA' ELSE 'No License' END AS institutional_license_type
       FROM prod.datavault.hub_coursesection hcs
       LEFT JOIN (
-        SELECT *, LEAD(1) OVER(PARTITION BY course_key ORDER BY _effective_from) IS NULL AS _latest_by_course_key
-        FROM prod.datavault.sat_coursesection
+        SELECT DISTINCT sc.*, LEAD(1) OVER(PARTITION BY course_key ORDER BY context_id = course_key DESC, _effective_from) IS NULL AS _latest_by_course_key
+        FROM prod.datavault.sat_coursesection sc
+        INNER JOIN prod.datavault.hub_coursesection hc on hc.hub_coursesection_key = sc.hub_coursesection_key
       ) scs ON hcs.hub_coursesection_key = scs.hub_coursesection_key AND (scs._latest_by_course_key OR (scs.course_key IS NULL AND scs._latest))
       LEFT JOIN lms ON hcs.hub_coursesection_key = lms.hub_coursesection_key AND lms.latest
       LEFT JOIN (
@@ -97,12 +98,12 @@ view: course_info {
   dimension: course_identifier {
     hidden: no
     primary_key: yes
-    label: "Course Key"
+    description: "Course Key if it exists for a section, otherwise the context id"
   }
 
-  dimension: context_id  {label:"Context ID"}
+  dimension: context_id  {label:"Context ID" hidden:yes}
 
-  dimension: course_key {hidden:yes}
+  dimension: course_key {hidden:no}
 
   dimension: course_name {}
 

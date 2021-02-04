@@ -124,7 +124,7 @@ derived_table: {
     label: "Product Name"
   }
 
-  dimension: merged_guid {}
+  dimension: merged_guid {hidden:yes}
 
   dimension: user_sso_guid {
     sql: ${merged_guid} ;;
