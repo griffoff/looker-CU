@@ -18,6 +18,12 @@ dimension: academic_term {hidden:yes}
 
 dimension: course_key {hidden:yes}
 
+dimension: courseware_product {
+  type: yesno
+  description: "User's added product is associated with a course key"
+  sql: ${course_key} is not null  ;;
+}
+
 dimension_group: enrollment_date {
   label: "Enrollment"
   type:time

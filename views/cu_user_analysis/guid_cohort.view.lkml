@@ -18,7 +18,7 @@ view: guid_cohort {
   }
 
   dimension: cohort_group {
-    label: "Custom cohort"
+    label: "Custom upload cohort"
     description: "Upload custom list of guids via Fivetran. Please reach out to Looker admin if interested in using"
   }
 

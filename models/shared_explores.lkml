@@ -692,6 +692,13 @@ explore: product_analysis {
     relationship: one_to_many
   }
 
+  join: guid_cohort {
+    view_label: "User Details"
+    sql_on: ${all_sessions.user_sso_guid} = ${guid_cohort.guid} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
   # join: user_institution_info {
   #   from: institution_info
   #   view_label: "User Institution"
