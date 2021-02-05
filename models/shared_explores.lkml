@@ -645,7 +645,7 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 }
 
 explore: product_analysis {
-  label: "Event Analysis (beta)"
+  label: "Event and Session Analysis"
   view_name: all_sessions
 
   always_filter: {

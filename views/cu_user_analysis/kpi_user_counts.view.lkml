@@ -568,6 +568,110 @@ view: kpi_user_counts {
         ALTER TABLE looker_scratch.kpi_user_counts_monthly RECLUSTER
       ;;
 
+      # sql_step:
+      #   CREATE OR REPLACE TRANSIENT TABLE prod.looker_scratch.kpi_user_counts_ranges CLUSTER BY (date_range_start, date_range_end) AS
+      #     WITH kpi AS (
+      #     SELECT
+      #       date
+      #       , user_sso_guid
+      #       , region
+      #       , organization
+      #       , platform
+      #       , user_type
+      #       , userbase_digital_user_guid
+      #       , userbase_paid_user_guid
+      #       , userbase_paid_courseware_guid
+      #       , userbase_paid_ebook_only_guid
+      #       , userbase_full_access_cu_only_guid
+      #       , userbase_trial_access_cu_only_guid
+      #       , userbase_full_access_cu_etextbook_only_guid
+      #       , userbase_trial_access_cu_etextbook_only_guid
+      #       , all_instructors_active_course_guid
+      #       , all_courseware_guid
+      #       , all_ebook_guid
+      #       , all_paid_ebook_guid
+      #       , all_full_access_cu_guid
+      #       , all_trial_access_cu_guid
+      #       , all_full_access_cu_etextbook_guid
+      #       , all_trial_access_cu_etextbook_guid
+      #       , all_active_user_guid
+      #       , all_paid_active_user_guid
+      #       , payment_cui_guid
+      #       , payment_ia_guid
+      #       , payment_direct_purchase_guid
+      #       , HASH(
+      #         user_sso_guid
+      #         , region
+      #         , organization
+      #         , platform
+      #         , user_type
+      #         , userbase_digital_user_guid
+      #         , userbase_paid_user_guid
+      #         , userbase_paid_courseware_guid
+      #         , userbase_paid_ebook_only_guid
+      #         , userbase_full_access_cu_only_guid
+      #         , userbase_trial_access_cu_only_guid
+      #         , userbase_full_access_cu_etextbook_only_guid
+      #         , userbase_trial_access_cu_etextbook_only_guid
+      #         , all_instructors_active_course_guid
+      #         , all_courseware_guid
+      #         , all_ebook_guid
+      #         , all_paid_ebook_guid
+      #         , all_full_access_cu_guid
+      #         , all_trial_access_cu_guid
+      #         , all_full_access_cu_etextbook_guid
+      #         , all_trial_access_cu_etextbook_guid
+      #         , all_active_user_guid
+      #         , all_paid_active_user_guid
+      #         , payment_cui_guid
+      #         , payment_ia_guid
+      #         , payment_direct_purchase_guid
+      #       ) AS hash_key
+      #       , LEAD(date) OVER (PARTITION BY hash_key ORDER BY date) AS next_date
+      #       , COALESCE(next_date = date + 1, FALSE) AS has_consecutive_record
+      #       , LAG(date) OVER (PARTITION BY hash_key ORDER BY date) AS last_date
+      #       , COALESCE(last_date = date - 1, FALSE) AS has_preceding_record
+      #     FROM prod.LOOKER_SCRATCH.KPI_USER_COUNTS k
+      #     QUALIFY NOT has_consecutive_record OR NOT has_preceding_record
+      #     )
+      #     SELECT
+      #       hash_key
+      #       , date AS date_range_start
+      #       , CASE
+      #         WHEN has_consecutive_record THEN LEAD(date) OVER (PARTITION BY hash_key ORDER BY date)
+      #         ELSE date
+      #       END AS date_range_end
+      #       , user_sso_guid
+      #       , region
+      #       , organization
+      #       , platform
+      #       , user_type
+      #       , userbase_digital_user_guid
+      #       , userbase_paid_user_guid
+      #       , userbase_paid_courseware_guid
+      #       , userbase_paid_ebook_only_guid
+      #       , userbase_full_access_cu_only_guid
+      #       , userbase_trial_access_cu_only_guid
+      #       , userbase_full_access_cu_etextbook_only_guid
+      #       , userbase_trial_access_cu_etextbook_only_guid
+      #       , all_instructors_active_course_guid
+      #       , all_courseware_guid
+      #       , all_ebook_guid
+      #       , all_paid_ebook_guid
+      #       , all_full_access_cu_guid
+      #       , all_trial_access_cu_guid
+      #       , all_full_access_cu_etextbook_guid
+      #       , all_trial_access_cu_etextbook_guid
+      #       , all_active_user_guid
+      #       , all_paid_active_user_guid
+      #       , payment_cui_guid
+      #       , payment_ia_guid
+      #       , payment_direct_purchase_guid
+      #     FROM kpi
+      #     QUALIFY NOT has_preceding_record
+      #     ORDER BY date_range_start, date_range_end
+      # ;;
+
       sql_step: alter warehouse heavyduty suspend ;;
 
       sql_step: use warehouse analysis ;;
