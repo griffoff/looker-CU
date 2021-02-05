@@ -753,7 +753,8 @@ explore: kpi_user_stats_test {
     ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type]
 
   join: date_ty_ly {
-    sql_on: ${date_ty_ly.datevalue} between ${dim_date_to_date.cumulative_period_start_raw} and ${dim_date_to_date.date_value_raw};;
+    sql_on: ${date_ty_ly.datevalue} = ${dim_date_to_date.middle_date_raw};;
+    # ${date_ty_ly.datevalue} between ${dim_date_to_date.cumulative_period_start_raw} and ${dim_date_to_date.date_value_raw};;
     relationship: many_to_many
     type: inner
   }
@@ -767,32 +768,61 @@ explore: kpi_user_stats_test {
   }
 
   join: kpi_user_counts {
-    from: kpi_user_counts_ranges_final
+    from: kpi_user_counts
     view_label: "User Counts"
-    sql_on: ${date_ty_ly.ty_date} between ${kpi_user_counts.date_range_start_raw} and ${kpi_user_counts.date_range_end_raw}
-    AND ${combinations.date} between ${kpi_user_counts.date_range_start_raw} and ${kpi_user_counts.date_range_end_raw}
-    AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
-    AND ${combinations.platform} = ${kpi_user_counts.platform}
-    AND ${combinations.organization} = ${kpi_user_counts.organization}
-    AND ${combinations.region} = ${kpi_user_counts.region}
-    AND ${combinations.user_type} = ${kpi_user_counts.user_type}
+    sql_on: ${date_ty_ly.ty_date} = ${kpi_user_counts.date_raw}
+        AND ${combinations.date} = ${kpi_user_counts.date_raw}
+        AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
+        AND ${combinations.platform} = ${kpi_user_counts.platform}
+        AND ${combinations.organization} = ${kpi_user_counts.organization}
+        AND ${combinations.region} = ${kpi_user_counts.region}
+        AND ${combinations.user_type} = ${kpi_user_counts.user_type}
     ;;
     relationship: one_to_many
   }
 
   join: kpi_user_counts_ly {
-    from: kpi_user_counts_ranges_final
+    from: kpi_user_counts
     view_label: "User Counts - Prior Year"
-    sql_on: ${date_ty_ly.ly_date} between ${kpi_user_counts_ly.date_range_start_raw} and ${kpi_user_counts_ly.date_range_end_raw}
-    AND ${combinations.date} between ${kpi_user_counts_ly.date_range_start_raw} and ${kpi_user_counts_ly.date_range_end_raw}
-    AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
-    AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
-    AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
-    AND ${combinations.region} = ${kpi_user_counts_ly.region}
-    AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
+    sql_on:${date_ty_ly.ly_date} = ${kpi_user_counts_ly.date_raw}
+        AND ${combinations.date} = ${kpi_user_counts_ly.date_raw}
+        AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
+        AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
+        AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
+        AND ${combinations.region} = ${kpi_user_counts_ly.region}
+        AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
     ;;
     relationship: one_to_many
   }
+
+
+  # join: kpi_user_counts {
+  #   from: kpi_user_counts_ranges_final
+  #   view_label: "User Counts"
+  #   sql_on: ${date_ty_ly.ty_date} between ${kpi_user_counts.date_range_start_raw} and ${kpi_user_counts.date_range_end_raw}
+  #   AND ${combinations.date} between ${kpi_user_counts.date_range_start_raw} and ${kpi_user_counts.date_range_end_raw}
+  #   AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
+  #   AND ${combinations.platform} = ${kpi_user_counts.platform}
+  #   AND ${combinations.organization} = ${kpi_user_counts.organization}
+  #   AND ${combinations.region} = ${kpi_user_counts.region}
+  #   AND ${combinations.user_type} = ${kpi_user_counts.user_type}
+  #   ;;
+  #   relationship: one_to_many
+  # }
+
+  # join: kpi_user_counts_ly {
+  #   from: kpi_user_counts_ranges_final
+  #   view_label: "User Counts - Prior Year"
+  #   sql_on: ${date_ty_ly.ly_date} between ${kpi_user_counts_ly.date_range_start_raw} and ${kpi_user_counts_ly.date_range_end_raw}
+  #   AND ${combinations.date} between ${kpi_user_counts_ly.date_range_start_raw} and ${kpi_user_counts_ly.date_range_end_raw}
+  #   AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
+  #   AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
+  #   AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
+  #   AND ${combinations.region} = ${kpi_user_counts_ly.region}
+  #   AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
+  #   ;;
+  #   relationship: one_to_many
+  # }
 
   # join: date_to_date_filter {
   #   sql_on: ${kpi_user_stats_test.datevalue_raw} = ${date_to_date_filter.middle_date_raw}  ;;
