@@ -153,14 +153,17 @@ view: course_info {
   dimension: lms_type_all {
     label: "LMS Type"
     description: "Blackboard, Canvas, etc."
+    group_label: "LMS Integration"
   }
 
   dimension: lms_version {
     label: "LMS Version"
+    group_label: "LMS Integration"
   }
 
   dimension: integration_type {
     label: "LMS Integration Type"
+    group_label: "LMS Integration"
   }
 
   dimension: mt_lms_sync_course_scores {type:yesno hidden:yes}
@@ -171,11 +174,13 @@ view: course_info {
     type:yesno
     label: "Is LMS Integrated"
     description: "Course is LMS integrated"
+    group_label: "LMS Integration"
   }
 
   dimension: lms_grade_sync {
     label: "LMS Grade Sync"
     description: "Type of MindTap LMS grade sync, i.e. Activity Level or Course Level"
+    group_label: "LMS Integration"
   }
 
   dimension: cui {type:yesno hidden:yes}

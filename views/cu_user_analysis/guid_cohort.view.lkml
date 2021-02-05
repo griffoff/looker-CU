@@ -18,8 +18,9 @@ view: guid_cohort {
   }
 
   dimension: cohort_group {
-    label: "Custom upload cohort"
+    label: "Custom Upload Cohort"
     description: "Upload custom list of guids via Fivetran. Please reach out to Looker admin if interested in using"
+    group_label: "Custom Upload Cohort"
   }
 
   dimension: _fivetran_deleted {
@@ -29,10 +30,11 @@ view: guid_cohort {
   }
 
   dimension: guid {
-    label: "Custom Cohort GUID"
+    label: "Custom Upload Cohort GUID"
     description: "List of GUIDs uploaded via Fivetran to conduct cohort analysis"
     type: string
     sql: ${TABLE}."GUID" ;;
+    group_label: "Custom Upload Cohort"
   }
 
   dimension_group: _fivetran_synced {

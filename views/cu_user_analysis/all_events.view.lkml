@@ -159,7 +159,7 @@ view: all_events_base {
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
-    label: "From event tags."
+    label: "Event Data"
     description: "Data associated with a given event in a json format containing information like page number, URL, coursekeys, device information, etc."
   }
 
