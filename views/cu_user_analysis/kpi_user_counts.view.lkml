@@ -1,27 +1,9 @@
 explore: kpi_user_counts {}
-explore: kpi_user_counts_agg {
-  from: kpi_user_counts
-  view_name: kpi_user_counts
-}
 
 view: kpi_user_counts_agg {
   extends: [kpi_user_counts]
-  #hidden:yes
-  sql_table_name:
-    {% if kpi_user_stats.datevalue_date._in_query %}
-    ${kpi_user_counts.SQL_TABLE_NAME}
-    {% elsif kpi_user_stats.datevalue_week._in_query %}
-    LOOKER_SCRATCH.kpi_user_counts_weekly
-    {% elsif kpi_user_stats.datevalue_month._in_query %}
-    LOOKER_SCRATCH.kpi_user_counts_monthly
-    {% elsif kpi_user_stats.datevalue_year._in_query %}
-    LOOKER_SCRATCH.kpi_user_counts_monthly
-    {% else %}
-    ${kpi_user_counts.SQL_TABLE_NAME}
-    {% endif %}
-    ;;
-}
 
+}
 view: kpi_user_counts {
 
   derived_table: {
@@ -30,6 +12,7 @@ view: kpi_user_counts {
 
       sql_step:
         CREATE TABLE IF NOT EXISTS LOOKER_SCRATCH.kpi_user_counts
+        CLUSTER BY (date)
         (
         date DATE
         ,user_sso_guid STRING
@@ -458,219 +441,9 @@ view: kpi_user_counts {
 #       ;;
 
       sql_step:
-        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts CLUSTER BY (date);;
-
-      sql_step:
-        ALTER TABLE LOOKER_SCRATCH.kpi_user_counts RECLUSTER;;
-
-      sql_step:
         CREATE OR REPLACE TABLE ${SQL_TABLE_NAME}
         CLONE LOOKER_SCRATCH.kpi_user_counts
         ;;
-
-      sql_step:
-      CREATE TABLE IF NOT EXISTS looker_scratch.kpi_user_counts_weekly LIKE looker_scratch.kpi_user_counts;;
-
-      sql_step:
-      DELETE FROM looker_scratch.kpi_user_counts_weekly WHERE date = (SELECT MAX(date) FROM looker_scratch.kpi_user_counts_weekly);;
-
-      sql_step:
-        INSERT INTO looker_scratch.kpi_user_counts_weekly
-        SELECT
-          DATE_TRUNC(WEEK, DATE) AS DATE
-          ,USER_SSO_GUID
-          ,REGION
-          ,ORGANIZATION
-          ,PLATFORM
-          ,USER_TYPE
-          ,MAX(USERBASE_DIGITAL_USER_GUID) AS USERBASE_DIGITAL_USER_GUID
-          ,MAX(USERBASE_PAID_USER_GUID) AS USERBASE_PAID_USER_GUID
-          ,MAX(USERBASE_PAID_COURSEWARE_GUID) AS USERBASE_PAID_COURSEWARE_GUID
-          ,MAX(USERBASE_PAID_EBOOK_ONLY_GUID) AS USERBASE_PAID_EBOOK_ONLY_GUID
-          ,MAX(USERBASE_FULL_ACCESS_CU_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ONLY_GUID
-          ,MAX(USERBASE_TRIAL_ACCESS_CU_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ONLY_GUID
-          ,MAX(USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
-          ,MAX(USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
-          ,MAX(ALL_INSTRUCTORS_ACTIVE_COURSE_GUID) AS ALL_INSTRUCTORS_ACTIVE_COURSE_GUID
-          ,MAX(ALL_COURSEWARE_GUID) AS ALL_COURSEWARE_GUID
-          ,MAX(ALL_EBOOK_GUID) AS ALL_EBOOK_GUID
-          ,MAX(ALL_PAID_EBOOK_GUID) AS ALL_PAID_EBOOK_GUID
-          ,MAX(ALL_FULL_ACCESS_CU_GUID) AS ALL_FULL_ACCESS_CU_GUID
-          ,MAX(ALL_TRIAL_ACCESS_CU_GUID) AS ALL_TRIAL_ACCESS_CU_GUID
-          ,MAX(ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID
-          ,MAX(ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID
-          ,MAX(ALL_ACTIVE_USER_GUID) AS ALL_ACTIVE_USER_GUID
-          ,MAX(ALL_PAID_ACTIVE_USER_GUID) AS ALL_PAID_ACTIVE_USER_GUID
-          ,MAX(PAYMENT_CUI_GUID) AS PAYMENT_CUI_GUID
-          ,MAX(PAYMENT_IA_GUID) AS PAYMENT_IA_GUID
-          ,MAX(PAYMENT_DIRECT_PURCHASE_GUID) AS PAYMENT_DIRECT_PURCHASE_GUID
-        FROM looker_scratch.kpi_user_counts
-        WHERE DATE_TRUNC(WEEK, DATE) > (SELECT COALESCE(MAX(date), '1970-01-01') FROM looker_scratch.kpi_user_counts_weekly)
-        GROUP BY 1, 2, 3, 4, 5, 6
-        ORDER BY 1
-        ;;
-
-      sql_step:
-        ALTER TABLE looker_scratch.kpi_user_counts_weekly CLUSTER BY (date)
-        ;;
-
-      sql_step:
-        ALTER TABLE looker_scratch.kpi_user_counts_weekly RECLUSTER
-      ;;
-
-      sql_step:
-      CREATE TABLE IF NOT EXISTS looker_scratch.kpi_user_counts_monthly LIKE looker_scratch.kpi_user_counts;;
-
-      sql_step:
-      DELETE FROM looker_scratch.kpi_user_counts_monthly WHERE date = (SELECT MAX(date) FROM looker_scratch.kpi_user_counts_monthly);;
-
-      sql_step:
-        INSERT INTO looker_scratch.kpi_user_counts_monthly
-        SELECT
-          DATE_TRUNC(MONTH, DATE) AS DATE
-          ,USER_SSO_GUID
-          ,REGION
-          ,ORGANIZATION
-          ,PLATFORM
-          ,USER_TYPE
-          ,MAX(USERBASE_DIGITAL_USER_GUID) AS USERBASE_DIGITAL_USER_GUID
-          ,MAX(USERBASE_PAID_USER_GUID) AS USERBASE_PAID_USER_GUID
-          ,MAX(USERBASE_PAID_COURSEWARE_GUID) AS USERBASE_PAID_COURSEWARE_GUID
-          ,MAX(USERBASE_PAID_EBOOK_ONLY_GUID) AS USERBASE_PAID_EBOOK_ONLY_GUID
-          ,MAX(USERBASE_FULL_ACCESS_CU_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ONLY_GUID
-          ,MAX(USERBASE_TRIAL_ACCESS_CU_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ONLY_GUID
-          ,MAX(USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_FULL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
-          ,MAX(USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID) AS USERBASE_TRIAL_ACCESS_CU_ETEXTBOOK_ONLY_GUID
-          ,MAX(ALL_INSTRUCTORS_ACTIVE_COURSE_GUID) AS ALL_INSTRUCTORS_ACTIVE_COURSE_GUID
-          ,MAX(ALL_COURSEWARE_GUID) AS ALL_COURSEWARE_GUID
-          ,MAX(ALL_EBOOK_GUID) AS ALL_EBOOK_GUID
-          ,MAX(ALL_PAID_EBOOK_GUID) AS ALL_PAID_EBOOK_GUID
-          ,MAX(ALL_FULL_ACCESS_CU_GUID) AS ALL_FULL_ACCESS_CU_GUID
-          ,MAX(ALL_TRIAL_ACCESS_CU_GUID) AS ALL_TRIAL_ACCESS_CU_GUID
-          ,MAX(ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_FULL_ACCESS_CU_ETEXTBOOK_GUID
-          ,MAX(ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID) AS ALL_TRIAL_ACCESS_CU_ETEXTBOOK_GUID
-          ,MAX(ALL_ACTIVE_USER_GUID) AS ALL_ACTIVE_USER_GUID
-          ,MAX(ALL_PAID_ACTIVE_USER_GUID) AS ALL_PAID_ACTIVE_USER_GUID
-          ,MAX(PAYMENT_CUI_GUID) AS PAYMENT_CUI_GUID
-          ,MAX(PAYMENT_IA_GUID) AS PAYMENT_IA_GUID
-          ,MAX(PAYMENT_DIRECT_PURCHASE_GUID) AS PAYMENT_DIRECT_PURCHASE_GUID
-        FROM looker_scratch.kpi_user_counts_weekly
-        WHERE DATE_TRUNC(MONTH, DATE) > (SELECT COALESCE(MAX(date), '1970-01-01') FROM looker_scratch.kpi_user_counts_monthly)
-        GROUP BY 1, 2, 3, 4, 5, 6
-        ORDER BY 1
-        ;;
-
-      sql_step:
-        ALTER TABLE looker_scratch.kpi_user_counts_monthly CLUSTER BY (date)
-        ;;
-
-      sql_step:
-        ALTER TABLE looker_scratch.kpi_user_counts_monthly RECLUSTER
-      ;;
-
-      # sql_step:
-      #   CREATE OR REPLACE TRANSIENT TABLE prod.looker_scratch.kpi_user_counts_ranges CLUSTER BY (date_range_start, date_range_end) AS
-      #     WITH kpi AS (
-      #     SELECT
-      #       date
-      #       , user_sso_guid
-      #       , region
-      #       , organization
-      #       , platform
-      #       , user_type
-      #       , userbase_digital_user_guid
-      #       , userbase_paid_user_guid
-      #       , userbase_paid_courseware_guid
-      #       , userbase_paid_ebook_only_guid
-      #       , userbase_full_access_cu_only_guid
-      #       , userbase_trial_access_cu_only_guid
-      #       , userbase_full_access_cu_etextbook_only_guid
-      #       , userbase_trial_access_cu_etextbook_only_guid
-      #       , all_instructors_active_course_guid
-      #       , all_courseware_guid
-      #       , all_ebook_guid
-      #       , all_paid_ebook_guid
-      #       , all_full_access_cu_guid
-      #       , all_trial_access_cu_guid
-      #       , all_full_access_cu_etextbook_guid
-      #       , all_trial_access_cu_etextbook_guid
-      #       , all_active_user_guid
-      #       , all_paid_active_user_guid
-      #       , payment_cui_guid
-      #       , payment_ia_guid
-      #       , payment_direct_purchase_guid
-      #       , HASH(
-      #         user_sso_guid
-      #         , region
-      #         , organization
-      #         , platform
-      #         , user_type
-      #         , userbase_digital_user_guid
-      #         , userbase_paid_user_guid
-      #         , userbase_paid_courseware_guid
-      #         , userbase_paid_ebook_only_guid
-      #         , userbase_full_access_cu_only_guid
-      #         , userbase_trial_access_cu_only_guid
-      #         , userbase_full_access_cu_etextbook_only_guid
-      #         , userbase_trial_access_cu_etextbook_only_guid
-      #         , all_instructors_active_course_guid
-      #         , all_courseware_guid
-      #         , all_ebook_guid
-      #         , all_paid_ebook_guid
-      #         , all_full_access_cu_guid
-      #         , all_trial_access_cu_guid
-      #         , all_full_access_cu_etextbook_guid
-      #         , all_trial_access_cu_etextbook_guid
-      #         , all_active_user_guid
-      #         , all_paid_active_user_guid
-      #         , payment_cui_guid
-      #         , payment_ia_guid
-      #         , payment_direct_purchase_guid
-      #       ) AS hash_key
-      #       , LEAD(date) OVER (PARTITION BY hash_key ORDER BY date) AS next_date
-      #       , COALESCE(next_date = date + 1, FALSE) AS has_consecutive_record
-      #       , LAG(date) OVER (PARTITION BY hash_key ORDER BY date) AS last_date
-      #       , COALESCE(last_date = date - 1, FALSE) AS has_preceding_record
-      #     FROM prod.LOOKER_SCRATCH.KPI_USER_COUNTS k
-      #     QUALIFY NOT has_consecutive_record OR NOT has_preceding_record
-      #     )
-      #     SELECT
-      #       hash_key
-      #       , date AS date_range_start
-      #       , CASE
-      #         WHEN has_consecutive_record THEN LEAD(date) OVER (PARTITION BY hash_key ORDER BY date)
-      #         ELSE date
-      #       END AS date_range_end
-      #       , user_sso_guid
-      #       , region
-      #       , organization
-      #       , platform
-      #       , user_type
-      #       , userbase_digital_user_guid
-      #       , userbase_paid_user_guid
-      #       , userbase_paid_courseware_guid
-      #       , userbase_paid_ebook_only_guid
-      #       , userbase_full_access_cu_only_guid
-      #       , userbase_trial_access_cu_only_guid
-      #       , userbase_full_access_cu_etextbook_only_guid
-      #       , userbase_trial_access_cu_etextbook_only_guid
-      #       , all_instructors_active_course_guid
-      #       , all_courseware_guid
-      #       , all_ebook_guid
-      #       , all_paid_ebook_guid
-      #       , all_full_access_cu_guid
-      #       , all_trial_access_cu_guid
-      #       , all_full_access_cu_etextbook_guid
-      #       , all_trial_access_cu_etextbook_guid
-      #       , all_active_user_guid
-      #       , all_paid_active_user_guid
-      #       , payment_cui_guid
-      #       , payment_ia_guid
-      #       , payment_direct_purchase_guid
-      #     FROM kpi
-      #     QUALIFY NOT has_preceding_record
-      #     ORDER BY date_range_start, date_range_end
-      # ;;
 
       sql_step: alter warehouse heavyduty suspend ;;
 
@@ -703,10 +476,10 @@ measure: userbase_paid_user_guid  {type:count_distinct label: "# Paid Digital St
 measure: userbase_paid_courseware_guid  {type:count_distinct label: "# Paid Courseware Student Users"}
 
 measure: userbase_paid_ebook_only_guid  {
-  type:count_distinct
-  sql: case when ${TABLE}.userbase_paid_courseware_guid is null
-            then ${TABLE}.userbase_paid_ebook_only_guid end  ;;
-  label: "# Paid eBook ONLY Student Users"
+    type:count_distinct
+    sql: case when ${TABLE}.userbase_paid_courseware_guid is null
+      then ${TABLE}.userbase_paid_ebook_only_guid end  ;;
+    label: "# Paid eBook ONLY Student Users"
   }
 
 measure: userbase_full_access_cu_only_guid  {
