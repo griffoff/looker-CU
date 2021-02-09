@@ -98,6 +98,9 @@ view: kpi_user_counts_filter_combinations {
   }
 
   dimension: date {type:date_raw hidden:yes}
+
+  dimension: epoch_date {type:number hidden:yes}
+
   dimension: user_sso_guid {hidden:yes}
   dimension: region {hidden:yes}
   dimension: organization {label:"Market Segment"}

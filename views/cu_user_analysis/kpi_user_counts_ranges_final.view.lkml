@@ -1,6 +1,11 @@
 view: kpi_user_counts_ranges_final {
-  sql_table_name: "LOOKER_SCRATCH"."KPI_USER_COUNTS_RANGES"
+  sql_table_name: "LOOKER_SCRATCH".kpi_user_counts_ranges
     ;;
+
+  # dimension: date_range_end {type:number}
+  # dimension: date_range_start {type:number}
+
+  dimension: date_range_key {hidden:yes}
 
   dimension_group: date_range_end {
     type: time
