@@ -15,11 +15,6 @@ view: all_sessions {
 #     allowed_value: {label:"All records" value:"100"}
 #   }
 
-  filter: session_date_yoy {
-    type: date
-    description: "Use this to get sessoin data for the selected date range as well as data for the corresponding range the previous year"
-  }
-
   dimension: session_id {
     hidden:  yes
     type: number
