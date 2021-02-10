@@ -15,6 +15,11 @@ view: all_sessions {
 #     allowed_value: {label:"All records" value:"100"}
 #   }
 
+  filter: session_date_yoy {
+    type: date
+    description: "Use this to get sessoin data for the selected date range as well as data for the corresponding range the previous year"
+  }
+
   dimension: session_id {
     hidden:  yes
     type: number
@@ -180,7 +185,7 @@ view: all_sessions {
     description: "Start time of session converted to EST - captured from systems, so does not represent users local time
     ** Filtering on this can speed up queries significantly **"
     type: time
-    timeframes: [raw, time, date, week, month, quarter, year, day_of_year, week_of_year, day_of_week]
+    timeframes: [raw, time, date, week, month, quarter, year, month_name, week_of_year, day_of_year, day_of_week]
     sql: CONVERT_TIMEZONE('EST', ${TABLE}."SESSION_START");;
   }
 
