@@ -68,7 +68,18 @@ derived_table: {
     or kpi_user_counts.payment_cui_guid_ly._in_query
     or kpi_user_counts.payment_ia_guid_ly._in_query
     or kpi_user_counts.payment_direct_purchase_guid_ly._in_query
-    or yru_ly.yru._in_query %}
+    or kpi_user_counts.userbase_paid_ebook_only_guid_ly._in_query
+    or kpi_user_counts.userbase_full_access_cu_only_guid_ly._in_query
+    or kpi_user_counts.userbase_full_access_cu_etextbook_only_guid_ly._in_query
+    or kpi_user_counts.userbase_trial_access_cu_only_guid_ly._in_query
+    or kpi_user_counts.userbase_trial_access_cu_etextbook_only_guid_ly._in_query
+    or kpi_user_counts.all_active_instructor_with_active_course_guid_ly._in_query
+    or kpi_user_counts.all_active_instructor_ly._in_query
+    or kpi_user_counts.all_active_student_ly._in_query
+    or kpi_user_counts.paid_active_courseware_student_ly._in_query
+    or kpi_user_counts.paid_a_la_carte_courseware_users_ly._in_query
+    or kpi_user_counts.paid_a_la_carte_ebook_users_ly._in_query
+     %}
 
   union all
   select
