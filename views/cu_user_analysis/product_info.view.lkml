@@ -67,7 +67,7 @@ view: product_info {
     group_label: "Subject Matter"
     sql: ${TABLE}.SUB_MATTER_MAJ_DE ;;
     description: "Subject matter (math, economics, science, etc.)"
-    hidden: yes
+    hidden: no
   }
 
   dimension: minorsubjectmatter {
