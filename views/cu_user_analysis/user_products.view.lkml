@@ -91,6 +91,7 @@ dimension_group: added {
   description: "Minimum of enrollment, provision, activation, and serial number consumed dates for user and product in a term."
 }
 
+
 measure: count {
   type: count
   label: "# Products Added"
