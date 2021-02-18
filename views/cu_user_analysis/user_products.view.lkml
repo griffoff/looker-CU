@@ -1,4 +1,4 @@
-explore: user_products {hidden:yes}
+#explore: user_products {hidden:yes}
 view: user_products {
 sql_table_name: prod.cu_user_analysis.user_products ;;
 
@@ -91,6 +91,30 @@ dimension_group: added {
   description: "Minimum of enrollment, provision, activation, and serial number consumed dates for user and product in a term."
 }
 
+  measure: count_distinct_user  {
+    type:  count_distinct
+    hidden:  yes
+    sql: ${merged_guid} ;;
+  }
+  measure: distinct_user_provisioned_product {
+    type: count_distinct
+    hidden:  yes
+    sql: hash(${merged_guid}, ${isbn13}) ;;
+  }
+
+  measure: average_user_provisioned_product {
+    type:  number
+    label: "Average # of Provisioned Products"
+    sql: ${distinct_user_provisioned_product}/NULLIF(${count_distinct_user},0) ;;
+    value_format_name: decimal_2
+    description: "Provides average number of products provisioned by all users based on filter criteria."
+  }
+
+  measure: total_value_provisioned  {
+    type: sum
+    sql: case when ${paid_flag} then ${product_info.list_price} end ;;
+    value_format: "$0.00"
+  }
 
 measure: count {
   type: count
