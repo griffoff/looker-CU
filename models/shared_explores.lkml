@@ -550,6 +550,7 @@ explore: learner_profile {
 
 
 explore: session_analysis {
+  hidden: yes
   label: "CU User Analysis Prod"
   extends: [learner_profile, all_sessions]
   from: learner_profile
