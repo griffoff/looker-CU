@@ -700,12 +700,12 @@ explore: product_analysis {
     type: inner
   }
 
-  # join: user_institution_info {
-  #   from: institution_info
-  #   view_label: "User Institution"
-  #   sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
-  #   relationship: many_to_one
-  # }
+  join: user_institution_info {
+    from: institution_info
+    view_label: "User Institution Details"
+    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
 
   # join: user_gateway_institution {
   #   from: gateway_institution
@@ -732,7 +732,7 @@ explore: product_analysis {
 
   join: product_institution_info {
     from: institution_info
-    view_label: "Institution Details"
+    view_label: "Product Institution Details"
     sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
     relationship: many_to_one
   }
