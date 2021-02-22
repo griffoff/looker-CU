@@ -743,3 +743,14 @@ explore: product_analysis {
     relationship: many_to_one
   }
 }
+
+explore: fy_2020_support {
+  label: "FY 2020 Support"
+  description: "Temporary explore for FY2020 Support data upload. Will be removed 2021-08-01"
+  extends: [product_analysis]
+
+  join: fy_2020_support_mapping_combined {
+    sql_on: ${user_profile.user_sso_guid} = ${fy_2020_support_mapping_combined.merged_contact_guid} ;;
+    relationship: one_to_many
+  }
+}
