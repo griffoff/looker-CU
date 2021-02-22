@@ -67,7 +67,7 @@ view: product_info {
     group_label: "Subject Matter"
     sql: ${TABLE}.SUB_MATTER_MAJ_DE ;;
     description: "Subject matter (math, economics, science, etc.)"
-    hidden: yes
+    hidden: no
   }
 
   dimension: minorsubjectmatter {
@@ -337,6 +337,14 @@ view: product_info {
   #   primary_key: yes
   #   hidden: yes
   # }
+
+  dimension: list_price {
+    type: number
+    label: "List Price"
+    group_label: "Product Details"
+    value_format_name: decimal_2
+    sql: ${TABLE}.LIST_PRICE ;;
+  }
 
   measure: count_disciplines {
     label: "# Disciplines"
