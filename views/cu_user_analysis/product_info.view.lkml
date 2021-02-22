@@ -338,6 +338,14 @@ view: product_info {
   #   hidden: yes
   # }
 
+  dimension: list_price {
+    type: number
+    label: "List Price"
+    group_label: "Product Details"
+    value_format_name: decimal_2
+    sql: ${TABLE}.LIST_PRICE ;;
+  }
+
   measure: count_disciplines {
     label: "# Disciplines"
     type: count_distinct

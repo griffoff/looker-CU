@@ -1,6 +1,7 @@
 include: "//cube/dim_date.view"
 
 explore: user_courses_activations {
+  hidden: yes
 #   from:  dim_date
 #
 #   join: user_courses_activations_ty {

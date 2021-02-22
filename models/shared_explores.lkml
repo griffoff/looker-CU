@@ -177,7 +177,7 @@ explore: live_subscription_status {
   }
 
   join: dim_course {
-    sql_on: ${user_courses.olr_course_key = ${dim_course.coursekey} ;;
+    sql_on: ${user_courses.olr_course_key} = ${dim_course.coursekey} ;;
     relationship: many_to_many
   }
 
@@ -550,6 +550,7 @@ explore: learner_profile {
 
 
 explore: session_analysis {
+  hidden: yes
   label: "CU User Analysis Prod"
   extends: [learner_profile, all_sessions]
   from: learner_profile
@@ -699,12 +700,12 @@ explore: product_analysis {
     type: inner
   }
 
-  # join: user_institution_info {
-  #   from: institution_info
-  #   view_label: "User Institution"
-  #   sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
-  #   relationship: many_to_one
-  # }
+  join: user_institution_info {
+    from: institution_info
+    view_label: "User Institution Details"
+    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
 
   # join: user_gateway_institution {
   #   from: gateway_institution
@@ -731,7 +732,7 @@ explore: product_analysis {
 
   join: product_institution_info {
     from: institution_info
-    view_label: "Institution Details"
+    view_label: "Product Institution Details"
     sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
     relationship: many_to_one
   }
