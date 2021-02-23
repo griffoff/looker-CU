@@ -234,6 +234,7 @@ explore: provisioned_product {
 }
 
 explore: raw_subscription_event {
+  hidden: yes
   extends: [dim_course]
   label: "Raw Subscription Events"
   view_name: raw_subscription_event

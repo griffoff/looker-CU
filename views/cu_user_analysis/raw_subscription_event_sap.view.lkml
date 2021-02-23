@@ -1,4 +1,4 @@
-explore: raw_subscription_event_sap  {}
+explore: raw_subscription_event_sap  {hidden:yes}
 
 view: raw_subscription_event_sap {
   derived_table: {

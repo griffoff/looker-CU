@@ -754,3 +754,22 @@ explore: fy_2020_support {
     relationship: one_to_many
   }
 }
+
+explore: subscription_history {
+  view_name: user_profile
+
+  join: raw_subscription_event_sap {
+    view_label: "Subscription History"
+    sql_on: ${user_profile.user_sso_guid} = ${raw_subscription_event_sap.merged_guid} ;;
+    relationship: one_to_many
+    type: inner
+  }
+
+  join: user_institution_info {
+    from: institution_info
+    view_label: "User Institution Details"
+    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+
+}
