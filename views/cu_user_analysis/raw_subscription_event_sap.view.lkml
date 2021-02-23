@@ -93,12 +93,14 @@ persist_for: "1 hour"
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   measure: users {
     type: count_distinct
     sql: merged_guid ;;
     label: "# Users"
+    hidden: yes
   }
 
   dimension: subscription_state {
@@ -109,6 +111,7 @@ persist_for: "1 hour"
   dimension: merged_guid {
     type: string
     sql: ${TABLE}."MERGED_GUID" ;;
+    hidden: yes
   }
 
   dimension: record_rank {
@@ -124,6 +127,7 @@ persist_for: "1 hour"
   dimension: user_sso_guid {
     type: string
     sql: ${TABLE}."USER_SSO_GUID" ;;
+    hidden: yes
   }
 
   dimension_group: local_time {
@@ -179,11 +183,13 @@ persist_for: "1 hour"
   dimension: current_guid {
     type: string
     sql: ${TABLE}."CURRENT_GUID" ;;
+    hidden: yes
   }
 
   dimension: original_guid {
     type: string
     sql: ${TABLE}."ORIGINAL_GUID" ;;
+    hidden: yes
   }
 
   dimension_group: initialization_time {
@@ -264,6 +270,7 @@ persist_for: "1 hour"
   dimension: payment_source_guid {
     type: string
     sql: ${TABLE}."PAYMENT_SOURCE_GUID" ;;
+    hidden: yes
   }
 
   dimension: payment_source_line {
