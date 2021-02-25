@@ -82,6 +82,7 @@ view: user_profile {
         INNER JOIN prod.datavault.sat_user_v2 su ON su.hub_user_key = hu.hub_user_key
       ) lg ON lg.linked_guid = p.user_sso_guid
       LEFT JOIN prod.cu_user_analysis.all_sessions s ON s.user_sso_guid = p.user_sso_guid
+      LEFT JOIN prod.cu_user_analysis.lp_control_group lcg on lcg.user_sso_guid = p.user_sso_guid
       WHERE p.linked_guid IS NULL
       GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
     ;;
@@ -217,7 +218,7 @@ view: user_profile {
       type: number
       sql: YEAR(CURRENT_DATE()) - ${birth_year} ;;
       description: "User age"
-      hidden: yes
+      hidden: no
     }
 
     dimension: age_tiers {
@@ -228,7 +229,7 @@ view: user_profile {
       style: integer
       sql: ${age} ;;
       description: "User age (buckets)"
-      hidden: yes
+      hidden: no
     }
 
   dimension: postal_code {
@@ -286,6 +287,86 @@ view: user_profile {
     sql: NOT ${marketing_opt_out_by_party} AND NOT ${k12_by_party} AND NOT ${instructor_by_party} AND NOT ${non_usa_by_party};;
   }
 
+  dimension: control_flag_1 {
+    type: number
+    label: "Control flag 1"
+    hidden: yes
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_1";;
+  }
+
+  dimension: email_control_flag {
+    type: string
+    label: "Control flag Email"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql:
+          CASE
+              WHEN ${TABLE}."CONTROL_FLAG_1" < 85 THEN 'Usage and conversion'
+              WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 85 AND 90 THEN 'Conversion only'
+              WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 90 and 95 THEN  'Usage only'
+              WHEN ${TABLE}."CONTROL_FLAG_1" BETWEEN 95 and 100 THEN 'Hold Out'
+              WHEN ${TABLE}."CONTROL_FLAG_1" = 999 THEN 'pre control/test tracking'
+              ELSE 'No group' END
+            ;;
+  }
+
+
+
+  dimension: control_flag_2 {
+    type: number
+    label: "Control flag 2"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_2";;
+    hidden: yes
+  }
+
+  dimension: ipm_control_flag {
+    type: string
+    label: "Control flag IPM"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql:
+          CASE
+              WHEN ${TABLE}."CONTROL_FLAG_2" < 85 THEN 'Usage and conversion'
+              WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 85 AND 90 THEN 'Conversion only'
+              WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 90 and 95 THEN  'Usage only'
+              WHEN ${TABLE}."CONTROL_FLAG_2" BETWEEN 95 and 100 THEN 'Hold Out'
+              WHEN ${TABLE}."CONTROL_FLAG_2" = 999 THEN 'pre control/test tracking'
+              ELSE 'No group' END
+    ;;
+  }
+
+
+  dimension: control_flag_3 {
+    type: number
+    label: "Randomization flag"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_3";;
+    hidden: no
+  }
+
+  dimension: control_flag_4 {
+    type: number
+    label: "Control flag 4"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_4";;
+    hidden: yes
+  }
+
+  dimension: control_flag_5 {
+    type: number
+    label: "Control flag 5"
+    group_label: "Marketing control flags"
+    description: "Control flag used to conduct control/treatment testing for marketing campaigns"
+    sql: ${TABLE}."CONTROL_FLAG_5";;
+    hidden: yes
+  }
+
   measure: count {
     label: "# Users"
     type: count
@@ -307,6 +388,15 @@ view: user_profile {
     sql: case when ${TABLE}.instructor_by_party then ${TABLE}.user_sso_guid end;;
     description: "Count of primary instructor user accounts"
     drill_fields: [detail*]
+  }
+
+  measure: age_average {
+    group_label: "Age"
+    label: "Average Age"
+    type: average
+    sql: ${age} ;;
+    value_format: "0.0"
+    description: "Average user age (inc. students, instructors, etc.)"
   }
 
   set: detail {

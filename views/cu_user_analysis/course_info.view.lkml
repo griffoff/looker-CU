@@ -151,7 +151,16 @@ view: course_info {
   dimension: is_demo {
     type:yesno
     label: "Is Demo Course"
+    hidden: yes
   }
+
+  dimension: is_real_course {
+    type: yesno
+    label: "Real Course"
+    sql: NOT ${is_demo} ;;
+  }
+
+
 
   dimension: lms_type_all {
     label: "LMS Type"
@@ -186,12 +195,23 @@ view: course_info {
     group_label: "LMS Integration"
   }
 
-  dimension: cui {type:yesno hidden:yes}
+  dimension: cui {
+    type:yesno
+    label: "CUI"
+    description: "Course is part of a CUI deal"
+    group_label: "Institional Access Deal"
+  }
 
-  dimension: ia {type:yesno hidden:yes}
+  dimension: ia {
+    type:yesno
+    label: "IA"
+    description: "Course is part of an IA deal"
+    group_label: "Institional Access Deal"
+  }
 
   dimension: institutional_license_type {
     description: "IA or CUI"
+    group_label: "Institional Access Deal"
   }
 
   dimension: enrollments_count {
