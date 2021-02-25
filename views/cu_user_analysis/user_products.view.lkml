@@ -1,4 +1,31 @@
-#explore: user_products {hidden:yes}
+include: "./course_info.view"
+include: "./product_info.view"
+include: "./institution_info.view"
+
+explore: user_products {
+  hidden:yes
+
+  join: product_info {
+    view_label: "Product"
+    sql_on: ${user_products.isbn13} = ${product_info.isbn13} ;;
+    relationship: many_to_one
+  }
+
+  join: product_institution_info {
+    from: institution_info
+    view_label: "Product Institution Details"
+    sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+
+  join: course_info {
+    view_label: "Course / Section Details"
+    sql_on: ${user_products.course_key} = ${course_info.course_identifier} ;;
+    relationship: many_to_one
+  }
+
+}
+
 view: user_products {
 sql_table_name: prod.cu_user_analysis.user_products ;;
 
@@ -91,6 +118,12 @@ dimension_group: added {
   description: "Minimum of enrollment, provision, activation, and serial number consumed dates for user and product in a term."
 }
 
+dimension: grace_period_flag {
+  type: yesno
+  sql: coalesce(${course_info.grace_period_end_date_raw} > current_date AND NOT ${paid_flag},FALSE)  ;;
+  description: "Course grace period is active and user has not paid"
+}
+
   measure: count_distinct_user  {
     type:  count_distinct
     hidden:  yes
@@ -113,13 +146,50 @@ dimension_group: added {
   measure: total_value_provisioned  {
     type: sum
     sql: case when ${paid_flag} then ${product_info.list_price} end ;;
-    value_format: "$0.00"
+    value_format_name: usd
   }
 
-measure: count {
-  type: count
-  label: "# Products Added"
-  description: "Measured as combinations of user, ISBN, course key, and term."
-}
+  measure: user_course_count {
+    type: count_distinct
+    sql: hash(${merged_guid},${course_key}) ;;
+    hidden: yes
+  }
+
+  measure:  user_count {
+    type: count_distinct
+    sql: ${merged_guid} ;;
+    hidden: yes
+  }
+
+  measure: course_count {
+    type: count_distinct
+    sql: ${course_key} ;;
+    hidden: yes
+  }
+
+  measure: courses_per_user {
+    type: number
+    label: "# Courses per User"
+    #required_fields: [learner_profile.count]
+    #sql: ${user_course_count} / ${learner_profile.count}  ;;
+    sql: ${user_course_count} / NULLIF(${user_count}, 0)  ;;
+    value_format_name: decimal_1
+    description: "Total unique user-course interactions divided by total number of distinct users"
+  }
+
+  measure: users_per_course {
+    type: number
+    sql: ${user_count} / NULLIF(${course_count}, 0) ;;
+    label: "# Users per Course"
+    value_format_name: decimal_1
+    description: "Total unique users divided by total number of distinct courses"
+  }
+
+
+  measure: count {
+    type: count
+    label: "# Products Added"
+    description: "Measured as combinations of user, ISBN, course key, and term."
+  }
 
 }

@@ -648,6 +648,7 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 }
 
 explore: product_analysis {
+  extends: [user_products]
   label: "Event and Session Analysis"
   view_name: all_sessions
 
@@ -726,24 +727,6 @@ explore: product_analysis {
     relationship: many_to_many
   }
 
-  join: product_info {
-    view_label: "Product"
-    sql_on: ${user_products.isbn13} = ${product_info.isbn13} ;;
-    relationship: many_to_one
-  }
-
-  join: product_institution_info {
-    from: institution_info
-    view_label: "Product Institution Details"
-    sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
-    relationship: many_to_one
-  }
-
-  join: course_info {
-    view_label: "Course / Section Details"
-    sql_on: ${user_products.course_key} = ${course_info.course_identifier} ;;
-    relationship: many_to_one
-  }
 }
 
 explore: fy_2020_support {
