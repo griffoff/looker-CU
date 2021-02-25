@@ -547,7 +547,7 @@ explore: learner_profile {
 
 }
 
-
+# session analysis
 
 explore: session_analysis {
   hidden: yes
@@ -603,6 +603,8 @@ explore: session_analysis {
 
 
 }
+
+# end session analysis
 
 
 explore: ebook_sessions {

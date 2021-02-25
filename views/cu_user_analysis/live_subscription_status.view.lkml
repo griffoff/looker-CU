@@ -240,6 +240,21 @@ view: live_subscription_status {
     description: "Full-Access-365 / CU-Trial-7-PV / CU-ETextBook-120 / etc."
   }
 
+  dimension: cu_subscription_length {
+    type: string
+    label: "CU subscription state duration/length"
+    description: "Duration of current CU subscription state in months (Needs to be used with Subscription Status filter or dimension)"
+    case: {
+      when: {label: "1 Week" sql: ${subscription_plan_id} in ('CU-ETextBook-Trial-7','CU-ETextBook-Trial-7-PV','CU-Trial-7','CU-Trial-7-PV') ;;}
+      when: {label: "2 Weeks" sql: ${subscription_plan_id} in ('Trial','CU-Trial-14') ;;}
+      when: {label: "4 months" sql: ${subscription_plan_id} in ('CU-ETextBook-120','Full-Access-120') ;;}
+      when: {label: "12 months" sql: ${subscription_plan_id} = ('Full-Access-365') ;;}
+      when: {label: "24 months" sql: ${subscription_plan_id} = ('Full-Access-730') ;;}
+      else: "Other"
+    }
+    hidden: no
+  }
+
   dimension: subscription_duration {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_DURATION" ;;

@@ -1,4 +1,4 @@
-explore: guid_date_active {}
+explore: guid_date_active {hidden:yes}
 view: guid_date_active {
   derived_table: {
     create_process: {

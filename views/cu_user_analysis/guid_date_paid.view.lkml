@@ -1,4 +1,4 @@
-explore: guid_date_paid {}
+explore: guid_date_paid {hidden:yes}
 
 view: guid_date_paid {
   derived_table: {
