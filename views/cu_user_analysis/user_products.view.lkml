@@ -1,6 +1,7 @@
 include: "./course_info.view"
 include: "./product_info.view"
 include: "./institution_info.view"
+include: "./course_instructor.view"
 
 explore: user_products {
   hidden:yes
@@ -122,7 +123,30 @@ dimension: grace_period_flag {
   type: yesno
   sql: coalesce(${course_info.grace_period_end_date_raw} > current_date AND NOT ${paid_flag},FALSE)  ;;
   description: "Course grace period is active and user has not paid"
+  group_label: "Grace Period"
 }
+
+  dimension: grace_period_description {
+    type: string
+    group_label: "Grace Period"
+    sql: CASE
+      WHEN ${course_info.grace_period_end_date_raw} IS NULL THEN 'No Grace Period'
+      WHEN ${paid_flag} THEN 'Paid'
+      WHEN ${grace_period_flag} THEN 'In Grace Period'
+      ELSE 'Unpaid, Grace period expired'
+    END ;;
+    label: "Grace Period (Description)"
+    description: "No Grace Period / In Grace Period / Paid / Unpaid, Grace period expired"
+  }
+
+  dimension_group: week_in_course {
+    label: "Time in course"
+    type: duration
+    sql_start: case when ${course_key} is not null then ${added_raw} end ;;
+    sql_end: case when ${course_key} is not null then LEAST(dateadd(week,16,${added_raw}), CURRENT_DATE()) end ;;
+    intervals: [week]
+    description: "The difference in weeks from the user's added date for a course to the current date (max of 16 weeks from when the user added the course)"
+  }
 
   measure: count_distinct_user  {
     type:  count_distinct

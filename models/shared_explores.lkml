@@ -549,7 +549,7 @@ explore: learner_profile {
 
 # session analysis
 
-explore: session_analysis_delete {
+explore: session_analysis {
   hidden: yes
   label: "CU User Analysis Prod"
   extends: [learner_profile, all_sessions]
