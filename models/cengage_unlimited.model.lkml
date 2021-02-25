@@ -202,17 +202,17 @@ explore: products_v {}
 
 
 
-explore: customer_support_cases {
-  label: "CU User Analysis Customer Support Cases"
-  description: "One time upload of customer support cases joined with CU user analysis to analyze support cases in the context of CU"
-  extends: [session_analysis]
+# explore: customer_support_cases {
+#   label: "CU User Analysis Customer Support Cases"
+#   description: "One time upload of customer support cases joined with CU user analysis to analyze support cases in the context of CU"
+#   extends: [session_analysis]
 
-  join: customer_support_all {
-    view_label: "Customer Support Cases"
-    sql_on: ${learner_profile.user_sso_guid} = ${customer_support_all.sso_guid}::STRING ;;
-    relationship: one_to_many
-  }
-}
+#   join: customer_support_all {
+#     view_label: "Customer Support Cases"
+#     sql_on: ${learner_profile.user_sso_guid} = ${customer_support_all.sso_guid}::STRING ;;
+#     relationship: one_to_many
+#   }
+# }
 
 
 
@@ -581,44 +581,44 @@ explore: sales_order_adoption_base {}
 
 #account_creation
 
-explore: account_creation {
-  label: "Account creation"
-  extends: [session_analysis]
-  join: jia_account_creation {
-    view_label: "account creation F19"
-    sql_on: ${jia_account_creation.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
-    relationship: one_to_one
-  }
-  join: account_link_creation_cohort {
-    view_label: "account link creation cohort"
-    sql_on: ${account_link_creation_cohort.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
-    relationship: one_to_one
-  }
-}
+# explore: account_creation {
+#   label: "Account creation"
+#   extends: [session_analysis]
+#   join: jia_account_creation {
+#     view_label: "account creation F19"
+#     sql_on: ${jia_account_creation.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+#     relationship: one_to_one
+#   }
+#   join: account_link_creation_cohort {
+#     view_label: "account link creation cohort"
+#     sql_on: ${account_link_creation_cohort.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+#     relationship: one_to_one
+#   }
+# }
 
 
-explore: adoption_usage_analysis {
-  label: "Adoption Usage Analysis"
-  extends: [session_analysis]
-  join: adoption_platform_pivot {
-    view_label: "Adoption Platform Pivot"
-    sql_on:  ${products.prod_family_cd} = ${adoption_platform_pivot.product_family_code} ;;
-    relationship: one_to_one
-  }
+# explore: adoption_usage_analysis {
+#   label: "Adoption Usage Analysis"
+#   extends: [session_analysis]
+#   join: adoption_platform_pivot {
+#     view_label: "Adoption Platform Pivot"
+#     sql_on:  ${products.prod_family_cd} = ${adoption_platform_pivot.product_family_code} ;;
+#     relationship: one_to_one
+#   }
 
-  join: entity_names {
-    view_label: "Entity Names"
-    sql_on: ${dim_institution.entity_no}::string =  ${entity_names.entity_no}::string;;
-    relationship: one_to_one
-  }
+#   join: entity_names {
+#     view_label: "Entity Names"
+#     sql_on: ${dim_institution.entity_no}::string =  ${entity_names.entity_no}::string;;
+#     relationship: one_to_one
+#   }
 
-  join: cw_adoption_driver_20191217 {
-    view_label: "Courseware Adoption Driver"
-    sql_on: ${cw_adoption_driver_20191217.adoption_key} = ${entity_names.institution_nm} || '|' ||  ${entity_names.state_cd} || '|' || ${adoption_platform_pivot.course_code_description} ||  '|' ||  ${dim_product.publicationseries}
-    ;;
-    relationship: one_to_many
-  }
-}
+#   join: cw_adoption_driver_20191217 {
+#     view_label: "Courseware Adoption Driver"
+#     sql_on: ${cw_adoption_driver_20191217.adoption_key} = ${entity_names.institution_nm} || '|' ||  ${entity_names.state_cd} || '|' || ${adoption_platform_pivot.course_code_description} ||  '|' ||  ${dim_product.publicationseries}
+#     ;;
+#     relationship: one_to_many
+#   }
+# }
 
 view: date_ty_ly {
 

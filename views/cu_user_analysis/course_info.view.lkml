@@ -74,6 +74,7 @@ view: course_info {
         , COALESCE(el.cui, FALSE) AS cui
         , COALESCE(el.ia, FALSE) AS ia
         , CASE WHEN cui then 'CUI' WHEN ia THEN 'IA' ELSE 'No License' END AS institutional_license_type
+        , COUNT(DISTINCT hub_enrollment_key) as enrollments_count
       FROM prod.datavault.hub_coursesection hcs
       LEFT JOIN (
         SELECT DISTINCT sc.*, LEAD(1) OVER(PARTITION BY course_key ORDER BY context_id = course_key DESC, _effective_from) IS NULL AS _latest_by_course_key
@@ -90,7 +91,9 @@ view: course_info {
       ) g ON hcs.context_id = g.external_id
       LEFT JOIN el ON hcs.CONTEXT_ID = el.context_id AND el.latest
       LEFT JOIN prod.DATAVAULT.SAT_COURSESECTION scs2 on scs2.COURSE_KEY = hcs.CONTEXT_ID
+      LEFT JOIN prod.datavault.link_user_coursesection luc ON luc.hub_coursesection_key = hcs.hub_coursesection_key
       WHERE scs.course_key IS NOT NULL OR scs2.course_key IS NULL
+      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
   }
@@ -189,6 +192,12 @@ view: course_info {
 
   dimension: institutional_license_type {
     description: "IA or CUI"
+  }
+
+  dimension: enrollments_count {
+    label: "Total Course Enrollments"
+    type: number
+    description: "Total number of enrollments on course"
   }
 
   measure: count {

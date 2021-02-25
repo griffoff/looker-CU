@@ -3,7 +3,7 @@
 view: account_link_creation_cohort {
 
     derived_table: {
-      explore_source: session_analysis {
+      explore_source: session_analysis_delete {
         column: user_sso_guid { field: learner_profile.user_sso_guid }
         filters: {
           field: all_events.local_est_date
