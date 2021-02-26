@@ -76,7 +76,7 @@ explore: raw_olr_provisioned_product {
 }
 
 explore: course_sections {
-  extends: [course_info, user_courses, learner_profile_cohorts, all_events]
+  extends: [course_info, institution_info, user_courses, learner_profile_cohorts, all_events]
   from: current_date
   view_name: current_date
 

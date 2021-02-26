@@ -168,7 +168,7 @@ view: course_info {
       LEFT JOIN prod.DATAVAULT.SAT_COURSESECTION scs2 on scs2.COURSE_KEY = hcs.CONTEXT_ID
       LEFT JOIN prod.datavault.link_user_coursesection luc ON luc.hub_coursesection_key = hcs.hub_coursesection_key
       WHERE scs.course_key IS NOT NULL OR scs2.course_key IS NULL
-      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23
+      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
   }
