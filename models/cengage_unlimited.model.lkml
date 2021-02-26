@@ -76,54 +76,108 @@ explore: raw_olr_provisioned_product {
 }
 
 explore: course_sections {
-  extends: [course_info, institution_info, user_courses, learner_profile_cohorts, all_events]
-  from: current_date
-  view_name: current_date
+  from: course_info
+  view_name: course_info
+  extends: [user_profile]
+  view_label: "Course / Section Details"
 
-  join: course_info {type:cross}
+  join: current_date {type:cross}
 
-  label: "Course Sections"
+  join: product_info {
+    view_label: "Course Product Details"
+    sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
+    relationship: many_to_one
+  }
 
-  join: user_courses {
-    view_label: "Course / Section Students"
-    sql_on: ${course_info.course_key} = ${user_courses.olr_course_key} ;;
+  join: institution_info {
+    view_label: "Course Institution Details"
+    sql_on: ${course_info.institution_id} = ${institution_info.institution_id} ;;
+  }
+
+  join: user_products {
+    view_label: "Course Product Details By User"
+    sql_on: ${course_info.course_identifier} = ${user_products.course_key} ;;
     relationship: one_to_many
   }
 
-  join: merged_cu_user_info {
-    view_label: "Course / Section Students"
-    sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
-    relationship: one_to_one
-  }
-
-  join: learner_profile {
-    sql_on: ${user_courses.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+  join: user_profile {
+    view_label: "User Details"
+    sql_on: ${user_products.merged_guid} = ${user_profile.user_sso_guid} ;;
     relationship: many_to_one
   }
 
-  join: live_subscription_status {
-    sql_on: ${user_courses.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
-    relationship: many_to_one
+  join: session_products {
+    sql_on: ${session_products.user_sso_guid} = ${user_products.merged_guid}
+      and coalesce(${session_products.user_products_isbn} = ${user_products.isbn13},true)
+      and coalesce(${session_products.course_key} = ${user_products.course_key},true)
+      and coalesce(nullif(${session_products.user_products_isbn} = ${user_products.isbn13},false),nullif(${session_products.course_key} = ${user_products.course_key},false))
+      and ${session_products.session_start_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp)
+    ;;
+    relationship: many_to_many
   }
 
-  join: raw_olr_provisioned_product {
-    fields: []
-    view_label: "Provisioned Products"
-    sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
-    relationship: many_to_one
-  }
-
-  join: covid19_trial_shutoff_schedule {
-    sql_on: ${user_courses.entity_id} = ${covid19_trial_shutoff_schedule.entity_no} ;;
+  join: all_sessions {
+    sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;
     relationship: many_to_one
   }
 
   join: all_events {
-    sql_on: (${user_courses.user_sso_guid}, REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')) = (${all_events.user_sso_guid}, ${all_events.course_key}) ;;
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id};;
     relationship: one_to_many
   }
 
 }
+
+
+# explore: course_sections {
+#   extends: [course_info, institution_info, user_courses, learner_profile_cohorts, all_events]
+#   from: current_date
+#   view_name: current_date
+
+#   join: course_info {type:cross}
+
+#   label: "Course Sections"
+
+#   join: user_courses {
+#     view_label: "Course / Section Students"
+#     sql_on: ${course_info.course_key} = ${user_courses.olr_course_key} ;;
+#     relationship: one_to_many
+#   }
+
+#   join: merged_cu_user_info {
+#     view_label: "Course / Section Students"
+#     sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
+#     relationship: one_to_one
+#   }
+
+#   join: learner_profile {
+#     sql_on: ${user_courses.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+
+#   join: live_subscription_status {
+#     sql_on: ${user_courses.user_sso_guid} = ${live_subscription_status.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
+
+#   join: raw_olr_provisioned_product {
+#     fields: []
+#     view_label: "Provisioned Products"
+#     sql_on: ${raw_olr_provisioned_product.user_sso_guid} = ${live_subscription_status.user_sso_guid};;
+#     relationship: many_to_one
+#   }
+
+#   join: covid19_trial_shutoff_schedule {
+#     sql_on: ${user_courses.entity_id} = ${covid19_trial_shutoff_schedule.entity_no} ;;
+#     relationship: many_to_one
+#   }
+
+#   join: all_events {
+#     sql_on: (${user_courses.user_sso_guid}, REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')) = (${all_events.user_sso_guid}, ${all_events.course_key}) ;;
+#     relationship: one_to_many
+#   }
+
+# }
 
 
 # explore: active_users {

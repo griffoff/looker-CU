@@ -490,6 +490,7 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 }
 
 explore: product_analysis {
+  hidden: no
   extends: [course_info, user_products]
   label: "Event and Session Analysis"
   view_name: all_sessions

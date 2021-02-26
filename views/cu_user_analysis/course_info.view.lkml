@@ -6,6 +6,7 @@ include: "gateway_lms_course_sections.view"
 
 explore: course_info {
   hidden:yes
+  view_label: "Course / Section Details"
 
   always_filter: {
     filters:[
@@ -149,6 +150,7 @@ view: course_info {
         , COALESCE(el.cui, FALSE) AS cui
         , COALESCE(el.ia, FALSE) AS ia
         , CASE WHEN cui then 'CUI' WHEN ia THEN 'IA' ELSE 'No License' END AS institutional_license_type
+        , inst.institution_id
         , COUNT(DISTINCT hub_enrollment_key) as enrollments_count
       FROM prod.datavault.hub_coursesection hcs
       LEFT JOIN (
@@ -167,8 +169,32 @@ view: course_info {
       LEFT JOIN el ON hcs.CONTEXT_ID = el.context_id AND el.latest
       LEFT JOIN prod.DATAVAULT.SAT_COURSESECTION scs2 on scs2.COURSE_KEY = hcs.CONTEXT_ID
       LEFT JOIN prod.datavault.link_user_coursesection luc ON luc.hub_coursesection_key = hcs.hub_coursesection_key
+
+      LEFT JOIN (
+              SELECT DISTINCT COALESCE(sc.course_key, hc.context_id) as course_identifier
+              , LAST_VALUE(COALESCE(hi.institution_id, hi2.institution_id))
+                                   IGNORE NULLS OVER (PARTITION BY course_identifier ORDER BY sc._ldts,lci._ldts,hi2._ldts,hi2.institution_id) AS institution_id
+        FROM prod.datavault.hub_coursesection hc
+                 LEFT JOIN prod.datavault.sat_coursesection sc
+                           ON sc.hub_coursesection_key = hc.hub_coursesection_key AND sc._latest
+                 LEFT JOIN (
+            SELECT DISTINCT *
+            FROM prod.datavault.hub_institution hi
+                     INNER JOIN prod.datavault.sat_institution_saws si
+                                ON si.hub_institution_key = hi.hub_institution_key AND si._latest
+        ) hi ON hi.institution_id = sc.institution_id
+                 LEFT JOIN prod.datavault.link_coursesection_institution lci
+                           ON lci.hub_coursesection_key = hc.hub_coursesection_key
+                 LEFT JOIN (
+            SELECT DISTINCT hi.*
+            FROM prod.datavault.hub_institution hi
+                     INNER JOIN prod.datavault.sat_institution_saws si
+                                ON si.hub_institution_key = hi.hub_institution_key AND si._latest
+        ) hi2 ON lci.hub_institution_key = hi2.hub_institution_key
+      ) inst on inst.course_identifier = COALESCE(scs.course_key,hcs.context_id)
+
       WHERE scs.course_key IS NOT NULL OR scs2.course_key IS NULL
-      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24
+      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
   }
@@ -300,6 +326,8 @@ view: course_info {
     type: number
     description: "Total number of enrollments on course"
   }
+
+  dimension: institution_id {hidden:yes}
 
   measure: count {
     type: count

@@ -1,4 +1,5 @@
 include: "./live_subscription_status.view"
+include: "./institution_info.view"
 
 explore: user_profile {
   view_label: "User Details"
@@ -8,6 +9,13 @@ explore: user_profile {
     view_label: "Learner Profile - Live Subscription Status"
     sql_on:  ${user_profile.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
     relationship: one_to_one
+  }
+
+  join: user_institution_info {
+    from: institution_info
+    view_label: "User Institution Details"
+    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+    relationship: many_to_one
   }
 }
 
