@@ -1,6 +1,3 @@
-include: "//cube/dims.lkml"
-include: "//cube/dim_course.view"
-
 include: "/views/cu_user_analysis/*.view"
 include: "/views/cu_user_analysis/cohorts/*.view"
 include: "/views/event_analysis/*.view"
@@ -10,116 +7,11 @@ include: "/views/uploads/*.view"
 
 include: "/testing/*.view"
 
-include: "/views/cu_user_analysis/filter_caches/*.view"
-
 include: "/views/shared/*.view"
-
-explore: user_courses {
-  extension: required
-  hidden: no
-
-  join: guid_latest_course_activity {
-    view_label: "Course / Section Details by User"
-    sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
-      and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
-    relationship: one_to_one
-  }
-
-  join: guid_course_used {
-    view_label: "Course / Section Details by User"
-    sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
-      and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
-    relationship: one_to_one
-  }
-}
-
-explore: all_events {
-  hidden: yes
-  label: "all events prod"
-
-  join: event_groups {
-    fields: [event_group]
-    sql_on: UPPER(${all_events.event_name}) like UPPER(${event_groups.event_names}) ;;
-    relationship: many_to_one
-  }
-
-  join: all_events_tags {
-    sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
-    relationship: many_to_many
-  }
-
-  join: user_courses {
-    view_label: "Course / Section Details by User"
-    sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
-      and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
-
-    relationship: one_to_many
-  }
-
-  join: dim_course {
-    sql_on: ${user_courses.olr_course_key} = ${dim_course.olr_course_key} ;;
-    relationship: many_to_one
-  }
-
-  join: all_sessions {
-    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
-    relationship: many_to_one
-  }
-
-}
-
-explore: all_sessions {
-  extension: required
-  hidden:  no
-  extends: [all_events, dim_course]
-  always_filter: {
-    filters: [all_sessions.session_start_date: "Last 7 days"]
-  }
-
-  join: all_events {
-#        from:  all_events_dev
-    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
-    type: inner
-    relationship: one_to_many
-  }
-
-  # join: all_events_diff {
-  #   sql_table_name: cu_user_analysis.ALL_EVENTS_DIFF{% parameter event_type %} ;;
-  #   view_label: "Event Path (preceding and following events)"
-  #   sql_on: ${all_events.event_id} = ${all_events_diff.event_id} ;;
-  #   relationship: many_to_one
-  #   type: inner
-  # }
-
-  join: dim_course {
-    sql_on: ${all_events.course_key} = REGEXP_REPLACE(${dim_course.olr_course_key},'WA-production-','',1,0,'i') ;;
-    relationship: many_to_many
-  }
-
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
-
-  join: course_section_usage_facts {
-    sql_on:  ${dim_course.olr_course_key} = ${course_section_usage_facts.course_key} ;;
-    relationship: one_to_one
-  }
-
-
-  join: dim_institution {
-    fields: [dim_institution.CU_fields*]
-  }
-
-  join: dim_filter {
-    sql_on: ${dim_course.coursekey} = ${dim_filter.course_key} ;;
-#     fields: [-dim_filter.ALL_FIELDS*]
-  }
-}
 
 explore: live_subscription_status {
   label: "Live Subscription Status"
-  extends: [dim_course, user_courses]
+  extends: [course_info, user_courses]
   from: live_subscription_status
   view_name: live_subscription_status
   view_label: "Learner Profile"
@@ -137,12 +29,12 @@ explore: live_subscription_status {
     relationship: one_to_one
   }
 
-  join: guid_latest_activity {
-    view_label: "Learner Profile"
-    fields: [guid_latest_activity.active]
-    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
-    relationship: one_to_one
-  }
+  # join: guid_latest_activity {
+  #   view_label: "Learner Profile"
+  #   fields: [guid_latest_activity.active]
+  #   sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+  #   relationship: one_to_one
+  # }
 
 #   join: user_institution_map {
 #     fields: []
@@ -152,7 +44,7 @@ explore: live_subscription_status {
 
   join: gateway_institution {
     view_label: "Institution"
-    sql_on: ${dim_institution.entity_no}::STRING = ${gateway_institution.entity_no};;
+    sql_on: ${user_courses.entity_id}::STRING = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
 
@@ -176,21 +68,6 @@ explore: live_subscription_status {
     relationship: one_to_many
   }
 
-  join: dim_course {
-    sql_on: ${user_courses.olr_course_key} = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
-
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
-
-  join: dim_date {
-    view_label: "Subscription Start Date"
-    sql_on: ${live_subscription_status.subscription_start_date} =  ${dim_date.datevalue} ;;
-    relationship: one_to_one
-  }
 }
 
 explore: learner_profile_cohorts {
@@ -431,7 +308,7 @@ explore: learner_profile_cohorts {
 }
 
 explore: learner_profile {
-  extends: [learner_profile_cohorts, dim_course, user_courses]
+  extends: [learner_profile_cohorts, user_courses]
   view_name: learner_profile
   from: learner_profile
   label: "Learner Profile"
@@ -461,12 +338,12 @@ explore: learner_profile {
     relationship: one_to_many
   }
 
-  join: guid_latest_activity {
-    view_label: "Learner Profile"
-    fields: [guid_latest_activity.active, guid_latest_activity.active_desc]
-    sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
-    relationship: one_to_one
-  }
+  # join: guid_latest_activity {
+  #   view_label: "Learner Profile"
+  #   fields: [guid_latest_activity.active, guid_latest_activity.active_desc]
+  #   sql_on: ${learner_profile.user_sso_guid} = ${guid_latest_activity.user_sso_guid} ;;
+  #   relationship: one_to_one
+  # }
 
   join: user_institution_map {
     fields: []
@@ -511,26 +388,12 @@ explore: learner_profile {
 #       and ${user_courses.olr_course_key} = ${all_events_user_course_day.olr_course_key};;
 #   }
 
-  join: dim_course {
-    sql_on: ${user_courses.olr_course_key} = ${dim_course.coursekey} ;;
-    relationship: many_to_many
-  }
 
   join: custom_course_key_cohort_filter {
     view_label: "** Custom Course Key Cohort Filter **"
     sql_on: ${user_courses.olr_course_key} = ${custom_course_key_cohort_filter.course_key} ;;
     # type: left_outer
     relationship: many_to_many
-  }
-
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
-
-  join: course_section_usage_facts {
-    sql_on:  ${dim_course.olr_course_key} = ${course_section_usage_facts.course_key} ;;
-    relationship: one_to_one
   }
 
   join: student_discounts_dps {
@@ -541,7 +404,7 @@ explore: learner_profile {
 
   join: institutional_savings {
     view_label: "Institution"
-    sql_on: ${dim_institution.entity_no}::STRING = ${institutional_savings.entity_no}::STRING ;;
+    sql_on: ${user_courses.entity_id}::STRING = ${institutional_savings.entity_no}::STRING ;;
     relationship: many_to_one
   }
 
@@ -581,27 +444,6 @@ explore: session_analysis_delete {
     relationship:  one_to_many
   }
 
-  join: products_v {
-    fields: [products_v.print_digital_config_cd, products_v.print_digital_config_de]
-    view_label: "Product"
-    sql_on: ${dim_product.isbn13} = ${products_v.isbn13} ;;
-    relationship: one_to_one
-  }
-
-  # join: above_the_course_usage_buckets {
-  #   view_label: "Above the course usage buckets"
-  #   sql_on:  ${learner_profile.user_sso_guid} = ${above_the_course_usage_buckets.user_sso_guid} ;;
-  #   relationship:  one_to_many
-  # }
-
-  join: strategy_cui_pricing {
-    view_label: "Institution"
-    sql_on:  ${dim_institution.entity_no} = ${strategy_cui_pricing.entity_id} ;;
-    relationship:  one_to_many
-
-  }
-
-
 }
 
 # end session analysis
@@ -623,12 +465,12 @@ explore: ebook_sessions {
 explore: cas_cafe_student_activity_duration_aggregate_ext {
   label: "CAS CAFE ACTIVITY DURATION AGGREGATE"
   hidden: no
-  extends: [cas_cafe_student_activity_duration_aggregate, dim_course]
+  extends: [cas_cafe_student_activity_duration_aggregate, course_info]
   from: cas_cafe_student_activity_duration_aggregate
   view_name: cas_cafe_student_activity_duration_aggregate
 
-  join: dim_course {
-    sql_on: ${cas_cafe_student_activity_duration_aggregate.course_key} = ${dim_course.olr_course_key} ;;
+  join: course_info {
+    sql_on: ${cas_cafe_student_activity_duration_aggregate.course_key} = ${course_info.course_key} ;;
     relationship: many_to_many
   }
 
@@ -648,6 +490,7 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 }
 
 explore: product_analysis {
+  extends: [course_info]
   label: "Event and Session Analysis"
   view_name: all_sessions
 

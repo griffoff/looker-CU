@@ -1,5 +1,4 @@
 include: "//core/common.lkml"
-include: "//cube/ga_mobiledata.view"
 include: "//core/access_grants_file.view"
 
 include: "/views/cu_user_analysis/*.view.lkml"
@@ -77,29 +76,18 @@ explore: raw_olr_provisioned_product {
 }
 
 explore: course_sections {
-  extends: [dim_course, learner_profile_cohorts]
-  from: dim_course
-  view_name: dim_course
+  extends: [course_info, user_courses, learner_profile_cohorts, all_events]
+  from: current_date
+  view_name: current_date
 
-  always_filter: {
-    filters:[
-      dim_filter.is_external: "Yes"
-    ]
-  }
+  join: course_info {type:cross}
 
   label: "Course Sections"
 
   join: user_courses {
     view_label: "Course / Section Students"
-    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
+    sql_on: ${course_info.course_key} = ${user_courses.olr_course_key} ;;
     relationship: one_to_many
-  }
-
-  join: custom_course_key_cohort_filter {
-    view_label: "** Custom Course Key Cohort Filter **"
-    sql_on: ${dim_course.olr_course_key} = ${custom_course_key_cohort_filter.course_key} ;;
-    # type: left_outer
-    relationship: many_to_many
   }
 
   join: merged_cu_user_info {
@@ -125,26 +113,9 @@ explore: course_sections {
     relationship: many_to_one
   }
 
-  join: gateway_institution {
-    view_label: "Institution"
-    sql_on: ${dim_institution.entity_no}::string = ${gateway_institution.entity_no};;
-    relationship: many_to_one
-  }
-
-  join: current_date {
-    sql_on:  1=1 ;;
-    relationship: one_to_one
-  }
-
   join: covid19_trial_shutoff_schedule {
     sql_on: ${user_courses.entity_id} = ${covid19_trial_shutoff_schedule.entity_no} ;;
     relationship: many_to_one
-  }
-
-  join: gateway_lms_course_sections {
-    sql_on: ${dim_course.context_id} = ${gateway_lms_course_sections.olr_context_id};;
-    relationship: one_to_one
-    view_label: "Course / Section Details"
   }
 
   join: all_events {
@@ -152,38 +123,26 @@ explore: course_sections {
     relationship: one_to_many
   }
 
-  join: all_sessions {
-    sql_on: ${all_events.session_id} = ${all_sessions.session_id} ;;
-    relationship: many_to_one
-  }
-
-
 }
 
 
-explore: active_users {
-  hidden: yes
-  from: guid_platform_date_active
-}
+# explore: active_users {
+#   hidden: yes
+#   from: guid_platform_date_active
+# }
 
-explore: strategy_ecom_sales_orders {
-  label: "Revenue"
-  view_label: "Revenue"
-  join: dim_date {
-    sql_on: ${strategy_ecom_sales_orders.invoice_dt_raw} = ${dim_date.datevalue} ;;
-    relationship: many_to_one
-  }
-  join: dim_product {
-    sql_on: ${strategy_ecom_sales_orders.isbn_13} = ${dim_product.isbn13} ;;
-    relationship: many_to_one
-  }
-}
-
-
-
-explore: cu_ebook_usage {}
-
-
+# explore: strategy_ecom_sales_orders {
+#   label: "Revenue"
+#   view_label: "Revenue"
+#   join: dim_date {
+#     sql_on: ${strategy_ecom_sales_orders.invoice_dt_raw} = ${dim_date.datevalue} ;;
+#     relationship: many_to_one
+#   }
+#   join: dim_product {
+#     sql_on: ${strategy_ecom_sales_orders.isbn_13} = ${dim_product.isbn13} ;;
+#     relationship: many_to_one
+#   }
+# }
 
 
 ################################################# End of PROD Explores ###########################################
@@ -233,43 +192,43 @@ explore: provisioned_product {
   }
 }
 
-explore: raw_subscription_event {
-  hidden: yes
-  extends: [dim_course]
-  label: "Raw Subscription Events"
-  view_name: raw_subscription_event
-  view_label: "Subscription Status"
+# explore: raw_subscription_event {
+#   hidden: yes
+#   extends: [user_info]
+#   label: "Raw Subscription Events"
+#   view_name: raw_subscription_event
+#   view_label: "Subscription Status"
 
-  join: raw_olr_provisioned_product {
-    sql_on: ${raw_olr_provisioned_product.merged_guid} = ${raw_subscription_event.merged_guid};;
-    relationship: many_to_one
-  }
-  join: products_v {
-    sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
-    relationship: many_to_one
-  }
-  join: dim_date {
-    view_label: "Subscription Start"
-    sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
-    relationship: many_to_one
-  }
-  join: date_active {
-    view_label: "Subscription at point in time"
-    from: dim_date
-    sql_on: ${date_active.datevalue_raw} between ${raw_subscription_event.subscription_start_raw}::date and ${raw_subscription_event.subscription_end_raw}::date;;
-    relationship: many_to_many
-    type: inner
-  }
-  join: dim_course {
-    sql: cross join lateral flatten(${raw_olr_provisioned_product.context_id}, outer=>True)  courses
-        left join ${dim_course.SQL_TABLE_NAME} dim_course ON courses.value = ${dim_course.context_id} ;;
-    relationship: many_to_one
-  }
-#   join: sub_actv {
-#     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
+#   join: raw_olr_provisioned_product {
+#     sql_on: ${raw_olr_provisioned_product.merged_guid} = ${raw_subscription_event.merged_guid};;
 #     relationship: many_to_one
 #   }
-}
+#   join: products_v {
+#     sql_on: ${raw_olr_provisioned_product.iac_isbn} = ${products_v.isbn13};;
+#     relationship: many_to_one
+#   }
+#   join: dim_date {
+#     view_label: "Subscription Start"
+#     sql_on: ${raw_subscription_event.subscription_start_date}::date = ${dim_date.datevalue} ;;
+#     relationship: many_to_one
+#   }
+#   join: date_active {
+#     view_label: "Subscription at point in time"
+#     from: dim_date
+#     sql_on: ${date_active.datevalue_raw} between ${raw_subscription_event.subscription_start_raw}::date and ${raw_subscription_event.subscription_end_raw}::date;;
+#     relationship: many_to_many
+#     type: inner
+#   }
+#   join: dim_course {
+#     sql: cross join lateral flatten(${raw_olr_provisioned_product.context_id}, outer=>True)  courses
+#         left join ${dim_course.SQL_TABLE_NAME} dim_course ON courses.value = ${dim_course.context_id} ;;
+#     relationship: many_to_one
+#   }
+# #   join: sub_actv {
+# #     sql_on: ${raw_subscription_event.user_sso_guid} = ${sub_actv.user_sso_guid} ;;
+# #     relationship: many_to_one
+# #   }
+# }
 
 
 ##### END  Raw Snowflake Tables #####
@@ -350,39 +309,30 @@ explore: dashboardbuckets {
   }
 }
 
-explore: CU_Sandbox {
-  label: "CU Sandbox"
-  extends: [ebook_usage]
-  join: ga_dashboarddata {
-    sql_on: ${raw_subscription_event.user_sso_guid} = ${ga_dashboarddata.userssoguid} ;;
-    relationship: one_to_many
- }
-}
-
 ##### End Dashboard #####
 
 
 
 
-##### Ebook Usage #####
-  explore: ebook_usage {
-    label: "Ebook Usage"
-    extends: [raw_subscription_event]
-    join: ebook_usage_actions {
-      sql_on:  ${raw_subscription_event.user_sso_guid} = ${ebook_usage_actions.user_sso_guid} ;;
-      type: left_outer
-      relationship: one_to_many
-    }
+# ##### Ebook Usage #####
+#   explore: ebook_usage {
+#     label: "Ebook Usage"
+#     extends: [raw_subscription_event]
+#     join: ebook_usage_actions {
+#       sql_on:  ${raw_subscription_event.user_sso_guid} = ${ebook_usage_actions.user_sso_guid} ;;
+#       type: left_outer
+#       relationship: one_to_many
+#     }
 
-     join: ebook_mapping {
-       type: left_outer
-       sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action}  AND ${ebook_usage_actions.source} = ${ebook_mapping.source} AND ${ebook_usage_actions.event_category} = ${ebook_mapping.event_category};;
-       relationship: many_to_one
-     }
-  }
+#     join: ebook_mapping {
+#       type: left_outer
+#       sql_on: ${ebook_usage_actions.event_action} = ${ebook_mapping.action}  AND ${ebook_usage_actions.source} = ${ebook_mapping.source} AND ${ebook_usage_actions.event_category} = ${ebook_mapping.event_category};;
+#       relationship: many_to_one
+#     }
+#   }
 
-explore: ebook_usage_aggregated {}
-##### End Ebook Usage #####
+# explore: ebook_usage_aggregated {}
+# ##### End Ebook Usage #####
 
 
 #### Raw enrollment for Prod research #####
@@ -401,10 +351,10 @@ explore: mobiledata {
   from: ga_mobiledata
   view_name: ga_mobiledata
   label: "MT Mobile GA Data"
-  extends: [dim_course]
+  extends: [course_info]
 
-  join: dim_course {
-    sql_on:  ${ga_mobiledata.coursekey} = ${dim_course.coursekey};;
+  join: course_info {
+    sql_on:  ${ga_mobiledata.coursekey} = ${course_info.course_key};;
     relationship: many_to_one
   }
 
@@ -415,7 +365,7 @@ explore: mobiledata {
   }
 
   join: user_courses {
-    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key}
+    sql_on: ${course_info.course_key} = ${user_courses.olr_course_key}
           and ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid};;
     relationship: one_to_one
   }

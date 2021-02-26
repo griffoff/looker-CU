@@ -2,8 +2,8 @@ include: "/models/shared_explores.lkml"
 
 include: "/views/magellan/*.view"
 include: "//core/common.lkml"
-include: "//cube/dims.lkml"
-include: "//cube/dim_course.view"
+#include: "//cube/dims.lkml"
+#include: "//cube/dim_course.view"
 include: "//core/access_grants_file.view"
 include: "/views/discounts/*.view"
 include: "/views/strategy/*.view"
@@ -44,59 +44,59 @@ explore: late_activators_retroactive {
 }
 
 explore: late_activators {
-  extends: [dim_course, late_activators_removals]
+  extends: [course_info, late_activators_removals]
   view_name: late_activators
   from: late_activators_messages
   label: "Late Activations - daily removals emails"
 
-  join: dim_course {
-    sql_on: ${late_activators.course_key} = ${dim_course.olr_course_key} ;;
+  join: course_info {
+    sql_on: ${late_activators.course_key} = ${course_info.course_key} ;;
     relationship: many_to_one
   }
 }
 
-explore: magellan_instructor_setup_status {
+# explore: magellan_instructor_setup_status {
 
-  extends: [user_courses]
+#   extends: [user_courses]
 
-  join: dim_institution {
-    sql_on: ${magellan_instructor_setup_status.entity_no}::STRING = ${dim_institution.entity_no}::STRING ;;
-    relationship: many_to_one
-  }
+#   join: dim_institution {
+#     sql_on: ${magellan_instructor_setup_status.entity_no}::STRING = ${dim_institution.entity_no}::STRING ;;
+#     relationship: many_to_one
+#   }
 
-  join: courseinstructor {
-    sql_on: ${magellan_instructor_setup_status.user_guid} = ${courseinstructor.instructor_guid};;
-    relationship: many_to_many
-  }
+#   join: courseinstructor {
+#     sql_on: ${magellan_instructor_setup_status.user_guid} = ${courseinstructor.instructor_guid};;
+#     relationship: many_to_many
+#   }
 
-  join: dim_course {
-    sql_on: ${dim_institution.institutionid} = ${dim_course.institutionid}
-            AND ${dim_course.coursekey} = ${courseinstructor.coursekey};;
-    relationship: one_to_many
-  }
+#   join: dim_course {
+#     sql_on: ${dim_institution.institutionid} = ${dim_course.institutionid}
+#             AND ${dim_course.coursekey} = ${courseinstructor.coursekey};;
+#     relationship: one_to_many
+#   }
 
-  join: dim_start_date {
-    sql_on: ${dim_course.startdatekey} = ${dim_start_date.datekey} ;;
-    relationship: many_to_one
-  }
+#   join: dim_start_date {
+#     sql_on: ${dim_course.startdatekey} = ${dim_start_date.datekey} ;;
+#     relationship: many_to_one
+#   }
 
-  join: dim_product {
-    sql_on: ${dim_course.productid} = ${dim_product.productid} ;;
-    relationship: many_to_one
-  }
+#   join: dim_product {
+#     sql_on: ${dim_course.productid} = ${dim_product.productid} ;;
+#     relationship: many_to_one
+#   }
 
-  join: user_courses {
-    sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
-    relationship: one_to_many
-  }
+#   join: user_courses {
+#     sql_on: ${dim_course.olr_course_key} = ${user_courses.olr_course_key} ;;
+#     relationship: one_to_many
+#   }
 
 
-  join: course_section_facts {
-    sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
-    relationship: one_to_one
-  }
+#   join: course_section_facts {
+#     sql_on: ${dim_course.courseid} = ${course_section_facts.courseid} ;;
+#     relationship: one_to_one
+#   }
 
-}
+# }
 
 explore: marketing_analysis {
   hidden: yes
@@ -117,19 +117,19 @@ explore: marketing_analysis {
           ;;
 
   join: magellan_entity_user_mapping {
-    sql_on: ${dim_institution.entity_no}::STRING = ${magellan_entity_user_mapping.entity_no}::STRING ;;
+    sql_on: ${institution_info.institution_id}::STRING = ${magellan_entity_user_mapping.entity_no}::STRING ;;
     relationship: one_to_many
   }
 
   join: instiution_star_rating {
     view_label: "Institution"
-    sql_on: ${dim_institution.entity_no}::STRING = ${instiution_star_rating.entity_}::STRING ;;
+    sql_on: ${institution_info.institution_id}::STRING = ${instiution_star_rating.entity_}::STRING ;;
     relationship: many_to_one
   }
 
   join: institutional_savings {
     view_label: "Institution"
-    sql_on: ${dim_institution.entity_no}::STRING = ${institutional_savings.entity_no}::STRING ;;
+    sql_on: ${institution_info.institution_id}::STRING = ${institutional_savings.entity_no}::STRING ;;
     relationship: many_to_one
   }
 
@@ -139,21 +139,15 @@ explore: marketing_analysis {
     relationship: many_to_one
   }
 
-  join: magellan_instructor_setup_status {
-    view_label: "Magellan Instructor Status"
-    sql_on: ${courseinstructor.instructor_guid} = ${magellan_instructor_setup_status.user_guid} ;;
-    relationship: many_to_one
-  }
-
   join: magellan_ipeds_details {
     view_label: "IPEDS Details"
-    sql_on: ${dim_institution.entity_no}::STRING = ${magellan_ipeds_details.entity_no}::STRING ;;
+    sql_on: ${institution_info.institution_id}::STRING = ${magellan_ipeds_details.entity_no}::STRING ;;
     relationship: one_to_one
   }
 
   join: cu_enterprise_licenses {
     view_label: "CUI Info"
-    sql_on: ${dim_course.olr_course_key} = ${cu_enterprise_licenses.course_context_id} ;;
+    sql_on: ${course_info.course_key} = ${cu_enterprise_licenses.course_context_id} ;;
     relationship: many_to_one
   }
 
@@ -163,11 +157,17 @@ explore: marketing_analysis {
     relationship: one_to_one
   }
 
-  join: ipm_260_email_list {
-    view_label: " IPM 260 email list"
-    sql_on: ${courseinstructor.instructoremail} = ${ipm_260_email_list.email} ;;
-    relationship: many_to_one
-  }
+  # join: magellan_instructor_setup_status {
+  #   view_label: "Magellan Instructor Status"
+  #   sql_on: ${courseinstructor.instructor_guid} = ${magellan_instructor_setup_status.user_guid} ;;
+  #   relationship: many_to_one
+  # }
+
+  # join: ipm_260_email_list {
+  #   view_label: " IPM 260 email list"
+  #   sql_on: ${courseinstructor.instructoremail} = ${ipm_260_email_list.email} ;;
+  #   relationship: many_to_one
+  # }
 
   join: ipm_guids_impressions_past_7_days {
     view_label: "IPM Impressions past 7 days guid list"

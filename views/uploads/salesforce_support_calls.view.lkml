@@ -1,15 +1,11 @@
-include: "//cube/dim_institution.view"
 include: "/views/cu_user_analysis/*.view"
 explore: salesforce_support_calls {
-  join: dim_institution {
-    sql_on: ${salesforce_support_calls.account_entitynumber_c}::STRING = ${dim_institution.entity_no}::STRING ;;
+  extends: [institution_info]
+  join: institution_info {
+    sql_on: ${salesforce_support_calls.account_entitynumber_c}::STRING = ${institution_info.institution_id}::STRING ;;
     relationship: many_to_one
   }
-  join: gateway_institution {
-    view_label: "Institution"
-    sql_on: ${dim_institution.entity_no}::STRING = ${gateway_institution.entity_no};;
-    relationship: many_to_one
-  }
+
   join: user_products {
     view_label: "User Products"
     sql_on: ${user_products.merged_guid} = ${salesforce_support_calls.merged_guid} and ${salesforce_support_calls.created_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp);;

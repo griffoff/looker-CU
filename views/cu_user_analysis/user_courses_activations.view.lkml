@@ -1,24 +1,6 @@
-include: "//cube/dim_date.view"
-
 explore: user_courses_activations {
   hidden: yes
-#   from:  dim_date
-#
-#   join: user_courses_activations_ty {
-#     from: user_courses_activations
-#     sql_on: ${user_courses_activations.datevalue} = ${user_courses_activations_ty.date_raw} ;;
-#     relationship: one_to_many
-#     type: inner
-#     view_label: "User Courses Activations"
-#   }
 
-#   join: user_courses_activations_ly {
-#     from: user_courses_activations
-#     sql_on: ${user_courses_activations.datevalue} = DATEADD(year, 1, ${user_courses_activations_ly.date_raw}) ;;
-#     relationship: one_to_many
-#     type: left_outer
-#     view_label: "User Courses Activations - Prior Year"
-#   }
 }
 
 view: user_courses_activations {

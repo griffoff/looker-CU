@@ -1,3 +1,5 @@
+explore: cu_ebook_usage {}
+
 view: cu_ebook_usage {
   sql_table_name: UNLIMITED.CU_EBOOK_USAGE ;;
 

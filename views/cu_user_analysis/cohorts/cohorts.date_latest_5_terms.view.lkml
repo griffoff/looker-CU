@@ -9,7 +9,7 @@ view: date_latest_5_terms {
         ,MIN(date_value) AS start_date
         ,MAX(date_value) AS end_date
         ,RANK() OVER (ORDER BY start_date DESC) AS terms_chron_order_desc
-      FROM INT.DM_COMMON.DIM_DATE
+      FROM BPL_MART.PROD.DIM_DATE
       WHERE GOV_AY_TERM_FULL IS NOT NULL
       GROUP BY 1
       HAVING MIN(date_value) < CURRENT_DATE()

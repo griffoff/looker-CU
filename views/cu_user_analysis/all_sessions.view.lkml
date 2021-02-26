@@ -1,3 +1,21 @@
+include: "all_events.view"
+
+explore: all_sessions {
+  hidden:  yes
+
+  always_filter: {
+    filters: [all_sessions.session_start_date: "Last 7 days"]
+  }
+
+  join: all_events {
+    sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
+    type: inner
+    relationship: one_to_many
+  }
+
+}
+
+
 view: all_sessions {
   sql_table_name: prod.cu_user_analysis.all_sessions ;;
   view_label: "Sessions"

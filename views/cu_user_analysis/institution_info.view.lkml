@@ -1,4 +1,16 @@
-explore: institution_info {hidden:yes group_label:"Institution Info"}
+include: "gateway_institution.view"
+
+explore: institution_info {
+  hidden:yes
+  group_label:"Institution Info"
+
+  join: gateway_institution {
+    view_label: "Institution"
+    sql_on: ${institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
+    relationship: many_to_one
+  }
+}
+
 view: institution_info {
   derived_table: {
     sql:
@@ -34,7 +46,7 @@ view: institution_info {
     sql_trigger_value: select count(*) from prod.DATAVAULT.SAT_INSTITUTION_SAWS ;;
   }
 
-  dimension: institution_id  {primary_key:yes group_label:"Institution Info"}
+  dimension: institution_id  {primary_key:yes group_label:"Institution Info" label: "Entity No."}
   dimension: name {label:"Institution Name" group_label:"Institution Info"}
   dimension: type {label:"Institution Type" group_label:"Institution Info"}
   dimension: iso_country {label:"Institution Country Code" group_label:"Institution Info"}

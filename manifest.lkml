@@ -5,8 +5,12 @@ local_dependency: {
 }
 
 local_dependency: {
-  project: "cube"
+  project: "dm-bpl"
 }
+
+# local_dependency: {
+#   project: "cube"
+# }
 
 local_dependency: {
   project: "mongo_sync"

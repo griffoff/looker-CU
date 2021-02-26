@@ -1,4 +1,5 @@
 include: "/datagroups.lkml"
+include: "cohorts.date_latest_5_terms.view"
 
 view: cohorts_base {
   extension: required

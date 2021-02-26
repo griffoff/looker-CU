@@ -1,5 +1,73 @@
-explore: course_info {hidden:yes}
+include: "//dm-bpl/dm-shared/*.view"
+include: "course_section_usage_facts.view"
+include: "custom_course_key_cohort_filter.view"
+include: "gateway_lms_course_sections.view"
+
+explore: course_info {
+  hidden:yes
+
+  always_filter: {
+    filters:[
+      course_info.is_real_course: "Yes"
+    ]
+  }
+
+  join: dim_course_start_date  {
+    sql_on: ${course_info.begin_date_raw} = ${dim_course_start_date.date_value};;
+    relationship: many_to_one
+  }
+
+  join: dim_course_end_date  {
+    sql_on: ${course_info.begin_date_raw} = ${dim_course_end_date.date_value};;
+    relationship: many_to_one
+  }
+
+  join: course_section_usage_facts {
+    sql_on:  ${course_info.course_key} = ${course_section_usage_facts.course_key} ;;
+    relationship: one_to_one
+    view_label: "Course / Section Details"
+  }
+
+  join: custom_course_key_cohort_filter {
+    view_label: "** Custom Course Key Cohort Filter **"
+    sql_on: ${course_info.course_key} = ${custom_course_key_cohort_filter.course_key} ;;
+    # type: left_outer
+    relationship: many_to_many
+  }
+
+  join: gateway_lms_course_sections {
+    sql_on: ${course_info.course_key} = ${gateway_lms_course_sections.olr_context_id};;
+    relationship: one_to_one
+    view_label: "Course / Section Details"
+  }
+
+}
+
+view: course_info_base {
+  #extends: [base]
+  extension: required
+  view_label: "Course / Section Details"
+  #parameter: label_name {default_value: "Course Section Info"}
+  #parameter: label_name_plural {default_value: "Course Sections"}
+}
+
+view: dim_course_start_date {
+  extends: [course_info_base, dim_date]
+  parameter: group_label_name {
+    default_value: "Course Start Date"
+  }
+}
+
+view: dim_course_end_date {
+  extends: [course_info_base, dim_date]
+  parameter: group_label_name {
+    default_value: "Course End Date"
+  }
+}
+
 view: course_info {
+  extends: [course_info_base]
+
   derived_table: {
     sql:
       WITH el AS (
@@ -223,6 +291,11 @@ view: course_info {
   measure: count {
     type: count
     label: "# Courses"
+  }
+
+  measure: active_course_sections {
+    type: count_distinct
+    sql: CASE WHEN ${active} THEN ${course_key} END ;;
   }
 
 }

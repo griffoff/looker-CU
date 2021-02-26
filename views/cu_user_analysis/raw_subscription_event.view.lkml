@@ -1,3 +1,7 @@
+explore: raw_subscription_event {
+  hidden: yes
+}
+
 view: raw_subscription_event {
   derived_table: {
     sql:

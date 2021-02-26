@@ -1,5 +1,36 @@
-include: "//cube/additional_info.course_section_facts.view.lkml"
 include: "//core/common.lkml"
+include: "course_info.view"
+include: "institution_info.view"
+# include: "guid_latest_course_activity.view"
+# include: "guid_course_used.view"
+
+explore: user_courses {
+  hidden: yes
+  join: course_info {
+    sql_on: ${user_courses.olr_course_key} = ${course_info.course_key} ;;
+    relationship: many_to_one
+  }
+
+  # join: guid_latest_course_activity {
+  #   view_label: "Course / Section Details by User"
+  #   sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
+  #     and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
+  #   relationship: one_to_one
+  # }
+
+  # join: guid_course_used {
+  #   view_label: "Course / Section Details by User"
+  #   sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
+  #     and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
+  #   relationship: one_to_one
+  # }
+
+  join: institution_info {
+    sql_on: ${user_courses.entity_id} = ${institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+}
+
 view: user_courses {
   view_label: "User Courses"
 #   sql_table_name: prod.cu_user_analysis.user_courses ;;
@@ -649,8 +680,8 @@ derived_table: {
     sql: CASE
           WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
           ELSE
-          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${dim_course.coursename} END, ', ')
-            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} END)
+          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${course_info.course_name} END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${course_info.course_name} END)
         END ;;
     description: "List of student courses"
   }
@@ -662,8 +693,8 @@ derived_table: {
     sql: CASE
           WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
           ELSE
-          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_raw}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_raw}, 'mon-yy') || ')' END, ', ')
-            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${dim_course.coursename} || ' (' || TO_CHAR(${course_start_raw}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_raw}, 'mon-yy') || ')' END)
+          LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${course_info.course_name} || ' (' || TO_CHAR(${course_start_raw}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_raw}, 'mon-yy') || ')' END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${course_info.course_name} || ' (' || TO_CHAR(${course_start_raw}, 'mon-yy') || ' - ' || TO_CHAR(${course_end_raw}, 'mon-yy') || ')' END)
           END ;;
     description: "List of student courses (including dates)"
   }

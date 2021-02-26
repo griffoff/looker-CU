@@ -1,5 +1,32 @@
 include: "//core/common.lkml"
-include: "all_sessions.view.lkml"
+include: "user_courses.view"
+include: "all_sessions.view"
+include: "filter_caches/filter_cache_all_events*.view"
+
+explore: all_events {
+  extends: [user_courses]
+  hidden: yes
+  label: "All events"
+
+  join: all_events_tags {
+    sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
+    relationship: many_to_many
+  }
+
+  join: user_courses {
+    view_label: "Course / Section Details by User"
+    sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
+      and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
+
+    relationship: one_to_many
+  }
+
+  join: all_sessions {
+    sql_on: ${all_events.session_id} = ${all_sessions.session_id};;
+    relationship: many_to_one
+  }
+
+}
 
 # view: all_events_user_course_day {
 #
@@ -91,15 +118,15 @@ view: all_events_tags {
 view: all_events {
   extends: [all_events_base]
 
-  dimension_group: time_since_session_start {
-    label: "Time between start of session and event"
-    type: duration
-    intervals: [hour, day, week, month]
-    sql_start: ${all_sessions.session_start_raw} ;;
-    sql_end: ${event_date_raw} ;;
-    hidden: yes
+  # dimension_group: time_since_session_start {
+  #   label: "Time between start of session and event"
+  #   type: duration
+  #   intervals: [hour, day, week, month]
+  #   sql_start: ${all_sessions.session_start_raw} ;;
+  #   sql_end: ${event_date_raw} ;;
+  #   hidden: yes
 
-  }
+  # }
 
   # dimension_group: time_since_enrollment {
   #   label: "Time between enrollment and event"
