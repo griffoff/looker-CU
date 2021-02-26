@@ -52,15 +52,15 @@ fiscal_month_offset: 3
 
 ######################### Start of PROD Explores #########################################################################
 
-view: current_date {
+# view: current_date {
 
-  view_label: "** Date Filters **"
-  derived_table: {
-    sql: select date_part(week, current_date()) as current_week_of_year;;
-  }
+#   view_label: "** Date Filters **"
+#   derived_table: {
+#     sql: select date_part(week, current_date()) as current_week_of_year;;
+#   }
 
-  dimension: current_week_of_year {type: number hidden:yes}
-}
+#   dimension: current_week_of_year {type: number hidden:yes}
+# }
 
 explore: instructor_provisioned_products {
   from: raw_olr_provisioned_product
@@ -103,10 +103,10 @@ explore: course_sections {
   extends: [user_profile, course_info, product_institution_info]
   view_label: "Course Section Details"
 
-  join: current_date {
-    type:cross
-    relationship: many_to_one
-  }
+  # join: current_date {
+  #   type:cross
+  #   relationship: many_to_one
+  # }
 
   join: user_products {
     view_label: "Course Product Details By User"
@@ -670,108 +670,6 @@ view: date_ty_ly {
   dimension: ly_epoch_date {type:number hidden:yes}
 
 }
-
-# explore: kpi_user_stats {
-#   persist_with: daily_refresh
-#   from: dim_date
-
-
-#   view_label: "Date"
-#   fields: [ALL_FIELDS*
-#     ,-kpi_user_counts.user_sso_guid, -kpi_user_counts.organization, -kpi_user_counts.region, -kpi_user_counts.platform, -kpi_user_counts.user_type
-#     ,-kpi_user_counts_ly.user_sso_guid, -kpi_user_counts_ly.organization, -kpi_user_counts_ly.region, -kpi_user_counts_ly.platform, -kpi_user_counts_ly.user_type]
-
-#   join: date_ty_ly {
-#     sql_on: ${kpi_user_stats.datevalue_raw} = ${date_ty_ly.datevalue} ;;
-#     relationship: one_to_many
-#   }
-#   join: combinations {
-#     view_label: "Filters"
-#     from: kpi_user_counts_filter_combinations_agg
-#     # sql_on: ${kpi_user_stats.datevalue_raw} = ${combinations.date}
-#     #     OR DATEADD(year, -1, ${kpi_user_stats.datevalue_raw}) = ${combinations.date}
-#     #    ;;
-#     sql_on: ${date_ty_ly.date} = ${combinations.date} ;;
-#     type: inner
-#     relationship: one_to_many
-#   }
-
-#   join: kpi_user_counts {
-#     from: kpi_user_counts_agg
-#     view_label: "User Counts"
-#     sql_on: ${date_ty_ly.ty_date} = ${kpi_user_counts.date_raw}
-#         AND ${combinations.date} = ${kpi_user_counts.date_raw}
-#         AND ${combinations.user_sso_guid} = ${kpi_user_counts.user_sso_guid}
-#         AND ${combinations.platform} = ${kpi_user_counts.platform}
-#         AND ${combinations.organization} = ${kpi_user_counts.organization}
-#         AND ${combinations.region} = ${kpi_user_counts.region}
-#         AND ${combinations.user_type} = ${kpi_user_counts.user_type}
-#     ;;
-#     relationship: one_to_many
-#   }
-
-#   join: kpi_user_counts_ly {
-#     from: kpi_user_counts_agg
-#     view_label: "User Counts - Prior Year"
-#     sql_on:${date_ty_ly.ly_date} = ${kpi_user_counts_ly.date_raw}
-#         AND ${combinations.date} = ${kpi_user_counts_ly.date_raw}
-#         AND ${combinations.user_sso_guid} = ${kpi_user_counts_ly.user_sso_guid}
-#         AND ${combinations.platform} = ${kpi_user_counts_ly.platform}
-#         AND ${combinations.organization} = ${kpi_user_counts_ly.organization}
-#         AND ${combinations.region} = ${kpi_user_counts_ly.region}
-#         AND ${combinations.user_type} = ${kpi_user_counts_ly.user_type}
-#     ;;
-#     relationship: one_to_many
-
-#   }
-
-#   join: yru {
-#     view_label: "User Counts"
-#     sql_on: ${date_ty_ly.ty_date} = ${yru.date_raw};;
-#     relationship: one_to_one
-#     type: left_outer
-#   }
-
-#   join: yru_ly {
-#     from: yru
-#     view_label: "User Counts - Prior Year"
-#     sql_on: ${date_ty_ly.ly_date} =  ${yru_ly.date_raw}
-#     ;;
-#     relationship: one_to_one
-#     type: left_outer
-#   }
-
-# join: date_to_date_filter {
-#   sql_on: ${kpi_user_stats.datevalue_raw} = ${date_to_date_filter.middle_date_raw}  ;;
-#   relationship: one_to_many
-#   type: inner
-# }
-
-# join: guid_first_last_date_seen {
-#   view_label: "Filters"
-#   sql_on: ${combinations.user_sso_guid} = ${guid_first_last_date_seen.merged_guid} and ${combinations.user_type} = ${guid_first_last_date_seen.user_type}  ;;
-#   relationship: many_to_one
-# }
-
-#   join: past_x_days_filter {
-#     sql_on: ${kpi_user_stats.datevalue_raw} = ${past_x_days_filter.middle_date_raw} ;;
-#     relationship: one_to_many
-#     type: inner
-#   }
-
-# }
-
-# explore: guid_date_subscription {
-#   hidden: yes
-#   join: date_to_date_filter {
-#     sql_on: ${guid_date_subscription.date_raw} = ${date_to_date_filter.middle_date_raw} ;;
-#     relationship: one_to_many
-#   }
-# }
-
-
-
-
 
 explore: kpi_user_stats {
   persist_with: daily_refresh
