@@ -14,7 +14,7 @@ explore: all_events {
   }
 
   join: user_courses {
-    view_label: "Course / Section Details by User"
+    view_label: "Course Section Details by User"
     sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
       and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
 

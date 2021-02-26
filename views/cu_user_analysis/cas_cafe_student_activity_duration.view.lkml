@@ -1,3 +1,4 @@
+include: "//core/common.lkml"
 explore: cas_cafe_student_activity_duration {hidden:yes}
 view: cas_cafe_student_activity_duration {
   derived_table: {

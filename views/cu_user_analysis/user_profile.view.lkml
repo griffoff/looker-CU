@@ -5,6 +5,10 @@ explore: user_profile {
   view_label: "User Details"
   hidden:yes
 
+  always_filter: {
+    filters: [user_profile.real_user_flag: "Yes"]
+  }
+
   join: live_subscription_status {
     view_label: "Learner Profile - Live Subscription Status"
     sql_on:  ${user_profile.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;

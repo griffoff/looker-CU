@@ -1,13 +1,42 @@
-include: "/views/cu_user_analysis/*.view"
 include: "/views/cu_user_analysis/cohorts/*.view"
-include: "/views/event_analysis/*.view"
-include: "/views/discounts/*.view"
-include: "/views/strategy/*.view"
-include: "/views/uploads/*.view"
 
-include: "/testing/*.view"
+include: "/views/shared/tally.view"
 
-include: "/views/shared/*.view"
+include: "/views/cu_user_analysis/course_info.view"
+include: "/views/cu_user_analysis/user_products.view"
+include: "/views/cu_user_analysis/session_products.view"
+include: "/views/cu_user_analysis/user_profile.view"
+include: "/views/cu_user_analysis/live_subscription_status.view"
+include: "/views/cu_user_analysis/learner_profile.view"
+include: "/views/cu_user_analysis/guid_cohort.view"
+include: "/views/cu_user_analysis/user_courses.view"
+include: "/views/cu_user_analysis/merged_cu_user_info.view"
+include: "/views/cu_user_analysis/raw_olr_provisioned_product.view"
+include: "/views/cu_user_analysis/products_v.view"
+include: "/views/cu_user_analysis/custom_cohort_filter.view"
+include: "/views/cu_user_analysis/user_institution_map.view"
+include: "/views/cu_user_analysis/sat_provisioned_product_v2.view"
+include: "/views/cu_user_analysis/continue_to_partner.view"
+include: "/views/cu_user_analysis/study_pack_material_launch.view"
+include: "/views/cu_user_analysis/study_tool_launch.view"
+
+include: "/views/uploads/fy_2020_support_mapping_combined.view"
+include: "/views/cu_user_analysis/raw_subscription_event_sap.view"
+include: "/views/cu_user_analysis/ebook_sessions.view"
+include: "/views/cu_user_analysis/cas_cafe_student_activity_duration_aggregate.view"
+
+include: "/views/discounts/student_discounts_dps.view"
+include: "/views/strategy/institutional_savings.view"
+
+
+# include: "/views/event_analysis/*.view"
+# include: "/views/discounts/*.view"
+# include: "/views/strategy/*.view"
+# include: "/views/uploads/*.view"
+
+# include: "/testing/*.view"
+
+# include: "/views/shared/*.view"
 
 explore: live_subscription_status {
   label: "Live Subscription Status"
@@ -63,7 +92,7 @@ explore: live_subscription_status {
   }
 
   join: user_courses {
-    view_label: "Course / Section Details by User"
+    view_label: "Course Section Details by User"
     sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
     relationship: one_to_many
   }
@@ -75,8 +104,6 @@ explore: learner_profile_cohorts {
   hidden: no
   from: learner_profile
   view_name: learner_profile
-
-  always_filter: {filters:[merged_cu_user_info.real_user_flag: "Yes"]}
 
   join: cohorts_platforms_used {
     view_label: "Learner Profile"
@@ -377,17 +404,10 @@ explore: learner_profile {
   }
 
   join: user_courses {
-    view_label: "Course / Section Details by User"
+    view_label: "Course Section Details by User"
     sql_on: ${learner_profile.user_sso_guid} = ${user_courses.user_sso_guid} ;;
     relationship: one_to_many
   }
-
-#   join: all_events_user_course_day {
-#     view_label: "Course / Section Details by User"
-#     sql_on: ${user_courses.user_sso_guid} = ${all_events_user_course_day.user_sso_guid}
-#       and ${user_courses.olr_course_key} = ${all_events_user_course_day.olr_course_key};;
-#   }
-
 
   join: custom_course_key_cohort_filter {
     view_label: "** Custom Course Key Cohort Filter **"
@@ -409,6 +429,7 @@ explore: learner_profile {
   }
 
 }
+
 
 # session analysis
 
@@ -447,7 +468,6 @@ explore: session_analysis {
 }
 
 # end session analysis
-
 
 explore: ebook_sessions {
   join: ebook_sessions_weekly {
@@ -491,13 +511,10 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 
 explore: product_analysis {
   hidden: no
-  extends: [course_info, user_products]
+  extends: [course_info, user_products, user_profile, all_sessions]
   label: "Event and Session Analysis"
   view_name: all_sessions
-
-  always_filter: {
-    filters: [all_sessions.session_start_date: "Last 7 days", user_profile.real_user_flag: "Yes"]
-  }
+  view_label: "Sessions"
 
   join: session_products {
     sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;

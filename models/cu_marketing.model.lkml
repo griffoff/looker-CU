@@ -1,13 +1,14 @@
 include: "/models/shared_explores.lkml"
 
+include: "/views/cu_user_analysis/cu_enterprise_licenses.view"
+include: "/views/cu_user_analysis/instiution_star_rating.view"
+include: "/views/cu_user_analysis/csat_survey.view"
+
 include: "/views/magellan/*.view"
-include: "//core/common.lkml"
-#include: "//cube/dims.lkml"
-#include: "//cube/dim_course.view"
-include: "//core/access_grants_file.view"
 include: "/views/discounts/*.view"
-include: "/views/strategy/*.view"
-include: "/views/ipm/*.view"
+include: "/views/strategy/account_sharers.view"
+include: "/views/strategy/late_activators.view"
+include: "/views/ipm/ipm_guids_impressions_past_7_days.view"
 
 connection: "snowflake_prod"
 
@@ -179,8 +180,6 @@ explore: marketing_analysis {
 #     sql_on: ${learner_profile.user_sso_guid} = ${ipm_ff_20190830.user_sso_guid} ;;
 #     relationship: one_to_one
 #   }
-
-
 
 }
 

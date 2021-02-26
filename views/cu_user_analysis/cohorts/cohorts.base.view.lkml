@@ -1,5 +1,6 @@
 include: "/datagroups.lkml"
 include: "cohorts.date_latest_5_terms.view"
+include: "/views/cu_user_analysis/active_subscription_states.view"
 
 view: cohorts_base {
   extension: required

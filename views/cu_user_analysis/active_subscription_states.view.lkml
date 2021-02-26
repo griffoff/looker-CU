@@ -1,3 +1,6 @@
+include: "/views/shared/tally.view"
+include: "/views/cu_user_analysis/raw_subscription_event.view"
+
 explore: active_subscription_states {}
 
 view: active_subscription_states {

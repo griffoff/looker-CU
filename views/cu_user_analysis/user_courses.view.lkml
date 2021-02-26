@@ -12,14 +12,14 @@ explore: user_courses {
   }
 
   # join: guid_latest_course_activity {
-  #   view_label: "Course / Section Details by User"
+  #   view_label: "Course Section Details by User"
   #   sql_on: ${user_courses.user_sso_guid} = ${guid_latest_course_activity.user_sso_guid}
   #     and ${user_courses.olr_course_key} = ${guid_latest_course_activity.course_key};;
   #   relationship: one_to_one
   # }
 
   # join: guid_course_used {
-  #   view_label: "Course / Section Details by User"
+  #   view_label: "Course Section Details by User"
   #   sql_on: ${user_courses.user_sso_guid} = ${guid_course_used.user_sso_guid}
   #     and ${user_courses.olr_course_key} = ${guid_course_used.course_key};;
   #   relationship: one_to_one

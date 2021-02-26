@@ -1,6 +1,9 @@
 connection: "snowflake_prod"
 
-include: "/views/ipm/*.view.lkml"
+include: "/views/ipm/ipm_browser_event.view.lkml"
+include: "/views/ipm/ipm_campaign.view.lkml"
+include: "/views/ipm/ipm_queue_event.view.lkml"
+
 include: "/datagroups.lkml"
 
 explore: ipm_campaign {

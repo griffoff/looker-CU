@@ -1,6 +1,6 @@
 explore: course_instructor {hidden:yes}
 view: course_instructor {
-  label: "Course / Section Details"
+  label: "Course Section Details"
   derived_table: {
     sql:
         select distinct

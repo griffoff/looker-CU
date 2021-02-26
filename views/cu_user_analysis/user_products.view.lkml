@@ -20,7 +20,7 @@ explore: user_products {
   }
 
   join: course_info {
-    view_label: "Course / Section Details"
+    view_label: "Course Section Details"
     sql_on: ${user_products.course_key} = ${course_info.course_identifier} ;;
     relationship: many_to_one
   }

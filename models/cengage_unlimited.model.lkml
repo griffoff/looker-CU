@@ -1,10 +1,27 @@
 include: "//core/common.lkml"
 include: "//core/access_grants_file.view"
 
-include: "/views/cu_user_analysis/*.view.lkml"
+include: "/views/cu_user_analysis/*.view"
+# include: "/views/cu_user_analysis/raw_vitalsource_event.view"
+# include: "/views/cu_user_analysis/ga_dashboarddata.view"
+# include: "/views/cu_user_analysis/cu_product_category.view"
+# include: "/views/cu_user_analysis/instiution_star_rating.view"
+# include: "/views/cu_user_analysis/ga_dashboarddata_merged_2.view"
+# include: "/views/cu_user_analysis/raw_subscription_event_merged_2.view"
+# include: "/views/cu_user_analysis/raw_olr_enrollment.view"
+# include: "/views/cu_user_analysis/active_users_sam.view"
+# include: "/views/cu_user_analysis/guid_date_subscription.view"
+# include: "/views/cu_user_analysis/dim_date_to_date.view"
+# include: "/views/cu_user_analysis/kpi_user_counts_wide.view"
+
+# include: "/views/cu_user_analysis/Dashboard.*.view"
+# include: "/views/cu_user_analysis/ga_mobile_data.view"
+# include: "/views/cu_user_analysis/active_users.*.view"
+# include: "/views/cu_user_analysis/cu_user_analysis_clustering_information.view"
+
 include: "/views/cu_user_analysis/cohorts/*.view.lkml"
-include: "/views/strategy/*.view.lkml"
-include: "/views/uploads/*.view.lkml"
+include: "/views/strategy/courseware_usage_tiers_csms.view.lkml"
+#include: "/views/uploads/*.view.lkml"
 include: "/views/cu_ebook/*.view.lkml"
 include: "/views/customer_support/*.view.lkml"
 include: "/views/fair_use/*.view.lkml"
@@ -17,6 +34,7 @@ include: "/views/uploads/ehp_tweets.view"
 include: "/views/uploads/parsed_ehp_tweets.view"
 include: "/views/uploads/ehp_cases.view"
 include: "/views/uploads/parsed_ehp_cases.view"
+
 
 include: "/models/shared_explores.lkml"
 
@@ -78,25 +96,13 @@ explore: raw_olr_provisioned_product {
 explore: course_sections {
   from: course_info
   view_name: course_info
-  extends: [user_profile]
-  view_label: "Course / Section Details"
+  extends: [user_profile, course_info]
+  view_label: "Course Section Details"
 
   # join: current_date {
   #   type:cross
   #   relationship: many_to_one
   # }
-
-  join: product_info {
-    view_label: "Course Product Details"
-    sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
-    relationship: many_to_one
-  }
-
-  join: institution_info {
-    view_label: "Course Institution Details"
-    sql_on: ${course_info.institution_id} = ${institution_info.institution_id} ;;
-    relationship: many_to_one
-  }
 
   join: user_products {
     view_label: "Course Product Details By User"
@@ -143,13 +149,13 @@ explore: course_sections {
 #   label: "Course Sections"
 
 #   join: user_courses {
-#     view_label: "Course / Section Students"
+#     view_label: "Course Section Students"
 #     sql_on: ${course_info.course_key} = ${user_courses.olr_course_key} ;;
 #     relationship: one_to_many
 #   }
 
 #   join: merged_cu_user_info {
-#     view_label: "Course / Section Students"
+#     view_label: "Course Section Students"
 #     sql_on:  ${user_courses.user_sso_guid} = ${merged_cu_user_info.user_sso_guid}  ;;
 #     relationship: one_to_one
 #   }
@@ -500,14 +506,6 @@ explore: active_users_sam {
 #     relationship: one_to_one
 #   }
 # }
-
-
-
-# --------------------------- Spring Review ----------------------------------
-
-explore: renewed_vs_not_renewed_cu_user_usage_fall_2019 {
-}
-
 
 # **************************************** EHP Data *************************************
 
