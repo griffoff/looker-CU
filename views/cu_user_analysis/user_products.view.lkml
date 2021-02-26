@@ -209,6 +209,14 @@ dimension: grace_period_flag {
     description: "Total unique users divided by total number of distinct courses"
   }
 
+  measure: count_paid {
+    type: count_distinct
+    sql: case when ${paid_flag} then ${pk} end ;;
+    label: "# Paid Products Added"
+    description: "Measured as combinations of user, ISBN, course key, and term where the user has paid for the product."
+  }
+
+
 
   measure: count {
     type: count
