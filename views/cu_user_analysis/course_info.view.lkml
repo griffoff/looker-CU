@@ -132,6 +132,7 @@ view: course_info {
         , scs.begin_date::DATE <= CURRENT_DATE() AND scs.end_date >= CURRENT_DATE()::DATE AS active
         , coalesce(scs.deleted,false) AS deleted
         , scs.grace_period_end_date
+        , scs.created_on
         , scs.is_gateway_course
         , COALESCE(TRY_CAST(scs.course_master AS BOOLEAN),FALSE) AS course_master
         , scs.course_cgi
@@ -202,7 +203,7 @@ view: course_info {
       ) inst on inst.course_identifier = COALESCE(scs.course_key,hcs.context_id)
 
       WHERE scs.course_key IS NOT NULL OR scs2.course_key IS NULL
-      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25
+      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
   }
@@ -245,6 +246,11 @@ view: course_info {
 
   dimension_group: grace_period_end_date  {
     label: "Grace Period End"
+    type: time
+  }
+
+  dimension_group: created_on  {
+    label: "Course Created Date"
     type: time
   }
 
