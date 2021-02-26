@@ -1,4 +1,16 @@
-explore: user_profile {hidden:yes}
+include: "./live_subscription_status.view"
+
+explore: user_profile {
+  view_label: "User Details"
+  hidden:yes
+
+  join: live_subscription_status {
+    view_label: "Learner Profile - Live Subscription Status"
+    sql_on:  ${user_profile.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
+    relationship: one_to_one
+  }
+}
+
 view: user_profile {
   derived_table: {
     sql:
