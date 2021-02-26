@@ -188,11 +188,13 @@ view: course_info {
   dimension_group: begin_date {
     label: "Course Start"
     type: time
+    sql: CONVERT_TIMEZONE('EST', ${TABLE}.begin_date::DATE) ;;
   }
 
   dimension_group: end_date {
     label: "Course End"
     type: time
+    sql: CONVERT_TIMEZONE('EST', ${TABLE}.end_date::DATE) ;;
   }
 
   dimension: active {
