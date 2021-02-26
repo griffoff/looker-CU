@@ -1,5 +1,6 @@
 include: "//dm-bpl/dm-shared/*.view"
 include: "course_section_usage_facts.view"
+include: "product_info.view"
 include: "custom_course_key_cohort_filter.view"
 include: "gateway_lms_course_sections.view"
 
@@ -19,6 +20,11 @@ explore: course_info {
 
   join: dim_course_end_date  {
     sql_on: ${course_info.begin_date_raw} = ${dim_course_end_date.date_value};;
+    relationship: many_to_one
+  }
+
+  join: product_info {
+    sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
     relationship: many_to_one
   }
 
@@ -113,6 +119,7 @@ view: course_info {
         , scs.course_name
         , scs.begin_date
         , scs.end_date
+        , scs.iac_isbn
         , scs.begin_date::DATE <= CURRENT_DATE() AND scs.end_date >= CURRENT_DATE()::DATE AS active
         , coalesce(scs.deleted,false) AS deleted
         , scs.grace_period_end_date
@@ -214,6 +221,10 @@ view: course_info {
 
   dimension: course_cgi {
     label: "Course CGI"
+  }
+
+  dimension: iac_isbn {
+    hidden: yes
   }
 
   dimension: is_demo {

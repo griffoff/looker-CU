@@ -13,7 +13,7 @@ view: product_info {
 
    set: curated_fields {fields:[course,edition,productfamily, coursearea, discipline, product, title, count,productfamily_edition,minorsubjectmatter,isbn10,isbn13]}
 
-   set: marketing_fields {fields:[dim_product.coursearea, dim_product.discipline, dim_product.iac_isbn, dim_product.isbn13, dim_product.authors, dim_product.course, dim_product.titleshort, dim_product.productfamily, dim_product.count]}
+   set: marketing_fields {fields:[product_info.coursearea, product_info.discipline, product_info.iac_isbn, product_info.isbn13, product_info.authors, product_info.course, product_info.titleshort, product_info.productfamily, product_info.count]}
 
   # dimension: discipline_rank {description: "Discipline rank by total activations (all time)" type:number group_label:"Product Ranking"}
   # dimension: family_rank {description: "Product family rank by total activations (all time)" type:number group_label:"Product Ranking"}
@@ -243,6 +243,10 @@ view: product_info {
     hidden: yes
   }
 
+  dimension: iac_isbn {
+    sql: ${isbn13} ;;
+  }
+
   dimension: isbn13 {
     type: string
     label: "ISBN13"
@@ -250,7 +254,6 @@ view: product_info {
     sql: ${TABLE}.ISBN13 ;;
     primary_key: yes
     description: "Product ISBN13"
-    alias: [iac_isbn]
   }
 
   # dimension: mindtap_isbn {
