@@ -19,8 +19,12 @@ include: "/views/cu_user_analysis/*.view"
 # include: "/views/cu_user_analysis/active_users.*.view"
 # include: "/views/cu_user_analysis/cu_user_analysis_clustering_information.view"
 
+include: "/views/event_analysis/*.view"
+include: "/views/strategy/*.view"
+#include: "/views/strategy/courseware_usage_tiers_csms.view.lkml"
+
 include: "/views/cu_user_analysis/cohorts/*.view.lkml"
-include: "/views/strategy/courseware_usage_tiers_csms.view.lkml"
+
 #include: "/views/uploads/*.view.lkml"
 include: "/views/cu_ebook/*.view.lkml"
 include: "/views/customer_support/*.view.lkml"
@@ -96,7 +100,7 @@ explore: raw_olr_provisioned_product {
 explore: course_sections {
   from: course_info
   view_name: course_info
-  extends: [user_profile, course_info]
+  extends: [user_profile, course_info, product_institution_info]
   view_label: "Course Section Details"
 
   join: current_date {

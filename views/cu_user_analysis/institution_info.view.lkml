@@ -2,11 +2,23 @@ include: "gateway_institution.view"
 
 explore: institution_info {
   hidden:yes
-  group_label:"Institution Info"
+  view_label:"Institution Info"
 
   join: gateway_institution {
     view_label: "Institution"
     sql_on: ${institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
+    relationship: many_to_one
+  }
+}
+
+explore: product_institution_info {
+  from:  institution_info
+  hidden:yes
+  view_label:"Product Institution Info"
+
+  join: gateway_institution {
+    view_label: "Institution"
+    sql_on: ${product_institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
 }
