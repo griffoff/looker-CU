@@ -89,8 +89,18 @@ dimension: paid_flag {
 }
 
 dimension: cu_flag {
+  group_label: "Subscription"
+  label: "CU"
   type: yesno
   description: "Usage of the product is associated with a CU subscription."
+}
+
+dimension: cu_flag_desc {
+  group_label: "Subscription"
+  type: string
+  sql: CASE WHEN ${cu_flag} THEN 'Paid by subscription' WHEN ${activated} THEN 'Paid direct' ELSE 'Not paid' END;;
+  label: "CU (Description)"
+  description: "Paid by subscription / Paid direct / Not paid"
 }
 
 dimension_group: _effective_from {
@@ -146,6 +156,37 @@ dimension: grace_period_flag {
     sql_end: case when ${course_key} is not null then LEAST(dateadd(week,16,${added_raw}), CURRENT_DATE()) end ;;
     intervals: [week]
     description: "The difference in weeks from the user's added date for a course to the current date (max of 16 weeks from when the user added the course)"
+  }
+
+  dimension: current_course {
+    type: yesno
+    hidden: no
+    description: "Course end date is in the future"
+    sql: ${course_info.active} ;;
+  }
+
+  dimension: activated {
+    group_label: "Activated?"
+    description: "Course has been activated Y/N"
+    type: yesno
+    sql: coalesce(TRY_CAST(${TABLE}.activated AS BOOLEAN),false)  ;;
+    hidden: no
+  }
+
+  dimension: activated_current {
+    label: "Currently activated"
+    group_label: "Activated?"
+    description: "Activated on a course with a future end date"
+    type: yesno
+    sql: ${activated} and ${current_course}  ;;
+    hidden: no
+  }
+
+  measure: course_sections {
+    label: "# Course Sections"
+    type: count_distinct
+    sql: ${course_key} ;;
+    description: "Distinct count of course sections (by course key)"
   }
 
   measure: count_distinct_user  {
@@ -215,8 +256,6 @@ dimension: grace_period_flag {
     label: "# Paid Products Added"
     description: "Measured as combinations of user, ISBN, course key, and term where the user has paid for the product."
   }
-
-
 
   measure: count {
     type: count
