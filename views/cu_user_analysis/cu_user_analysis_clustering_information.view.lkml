@@ -65,6 +65,10 @@ view: clustering_information_fields {
       when: {
         label: "CLIENT_ACTIVITY_EVENT" sql:${TABLE}.table_info:TABLE_NAME = 'CLIENT_ACTIVITY_EVENT';;
       }
+
+      when: {
+        label: "SESSION_PRODUCTS" sql:${TABLE}.table_info:TABLE_NAME = 'SESSION_PRODUCTS';;
+      }
     }
     # sql:${TABLE}.table_info:TABLE_NAME::STRING ;;
   }
@@ -102,7 +106,8 @@ view: cu_user_analysis_clustering_information_history {
               ,PARSE_JSON(v.$4::VARIANT) as clustering_information
           FROM values
           ('PROD', 'CU_USER_ANALYSIS', 'ALL_EVENTS', system$clustering_information('prod.cu_user_analysis.all_events'))
-          ,('PROD', 'CU_USER_ANALYSIS', 'ALL_SESSIONS', system$clustering_information('prod.cu_user_analysis.all_sessions')) v
+          ,('PROD', 'CU_USER_ANALYSIS', 'ALL_SESSIONS', system$clustering_information('prod.cu_user_analysis.all_sessions'))
+          ,('PROD', 'CU_USER_ANALYSIS', 'SESSION_PRODUCTS', system$clustering_information('prod.cu_user_analysis.session_products')) v
           INNER JOIN prod.information_schema.tables t ON (v.$1, v.$2, v.$3) = (t.table_catalog, t.table_schema, t.table_name)
           UNION ALL
           SELECT
