@@ -1,6 +1,6 @@
 view: continue_to_partner {
   derived_table: {
-    explore_source: session_analysis_delete {
+    explore_source: session_analysis {
       column: user_sso_guid { field: live_subscription_status.user_sso_guid }
       column: count { field: all_events.count }
       filters: {

@@ -250,6 +250,7 @@ view: product_info {
     sql: ${TABLE}.ISBN13 ;;
     primary_key: yes
     description: "Product ISBN13"
+    alias: [iac_isbn]
   }
 
   # dimension: mindtap_isbn {
