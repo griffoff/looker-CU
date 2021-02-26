@@ -81,7 +81,10 @@ explore: course_sections {
   extends: [user_profile]
   view_label: "Course / Section Details"
 
-  join: current_date {type:cross}
+  join: current_date {
+    type:cross
+    relationship: many_to_one
+  }
 
   join: product_info {
     view_label: "Course Product Details"
@@ -92,6 +95,7 @@ explore: course_sections {
   join: institution_info {
     view_label: "Course Institution Details"
     sql_on: ${course_info.institution_id} = ${institution_info.institution_id} ;;
+    relationship: many_to_one
   }
 
   join: user_products {
