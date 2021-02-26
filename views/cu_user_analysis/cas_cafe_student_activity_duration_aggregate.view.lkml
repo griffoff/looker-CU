@@ -1,3 +1,4 @@
+include: "//core/common.lkml"
 include: "/views/cu_user_analysis/cas_cafe_student_activity_duration.view"
 
 explore: cas_cafe_student_activity_duration_aggregate {hidden:yes}
