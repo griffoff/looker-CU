@@ -1,3 +1,5 @@
+include: "/views/ipm/ipm.campaign_to_outcome.view"
+
 view: ipm_browser_event_and_outcome {
   view_label: "IPM Events"
   extends: [ipm_browser_event]

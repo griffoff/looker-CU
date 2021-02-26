@@ -3,7 +3,7 @@ include: "/views/cu_user_analysis/cohorts/cohorts.mobile_usage.view"
 
 view: course_section_usage_facts {
 
-  view_label: "Course / Section Details"
+  view_label: "Course Section Details"
 
   derived_table: {
     sql:

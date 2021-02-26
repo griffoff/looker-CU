@@ -6,7 +6,7 @@ include: "gateway_lms_course_sections.view"
 
 explore: course_info {
   hidden:yes
-  view_label: "Course / Section Details"
+  view_label: "Course Section Details"
 
   always_filter: {
     filters:[
@@ -25,14 +25,22 @@ explore: course_info {
   }
 
   join: product_info {
+    view_label: "Course Product Details"
     sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
+    relationship: many_to_one
+  }
+
+  join: product_institution_info {
+    from: institution_info
+    view_label: "Course Institution Details"
+    sql_on: ${course_info.institution_id} = ${product_institution_info.institution_id} ;;
     relationship: many_to_one
   }
 
   join: course_section_usage_facts {
     sql_on:  ${course_info.course_key} = ${course_section_usage_facts.course_key} ;;
     relationship: one_to_one
-    view_label: "Course / Section Details"
+    view_label: "Course Section Details"
   }
 
   join: custom_course_key_cohort_filter {
@@ -45,7 +53,7 @@ explore: course_info {
   join: gateway_lms_course_sections {
     sql_on: ${course_info.course_key} = ${gateway_lms_course_sections.olr_context_id};;
     relationship: one_to_one
-    view_label: "Course / Section Details"
+    view_label: "Course Section Details"
   }
 
 }
@@ -53,7 +61,7 @@ explore: course_info {
 view: course_info_base {
   #extends: [base]
   extension: required
-  view_label: "Course / Section Details"
+  view_label: "Course Section Details"
   #parameter: label_name {default_value: "Course Section Info"}
   #parameter: label_name_plural {default_value: "Course Sections"}
 }
