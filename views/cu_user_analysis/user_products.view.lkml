@@ -70,7 +70,7 @@ dimension_group: provision_date {
 dimension_group: activation_date {
   label: "Activation"
   type:time
-  timeframes: [time,date,month,year,raw,fiscal_year]
+  timeframes: [time,date,month,month_name,day_of_year,year,raw,fiscal_year]
   hidden:no
   description: "Date user activated the product."
 }
@@ -165,6 +165,74 @@ dimension: grace_period_flag {
     sql: ${course_info.active} ;;
   }
 
+  dimension: paid {
+    type: yesno
+    sql: (${TABLE}.paid_bool or ${TABLE}.activated_bool) ;;
+    group_label: "Payment Information"
+    label: "Paid"
+    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
+  }
+
+  dimension_group: paid {
+    type: time
+    timeframes: [
+      raw,
+      date,
+      week,
+      month,
+      month_name,
+      year,
+      week_of_year,
+      day_of_year
+    ]
+    sql: case when ${paid} then coalesce(${TABLE}.activation_date,${TABLE}.enrollment_date,${TABLE}.course_start_date)::date end ;;
+    label: "Approximate Paid"
+    # group_label: "Payment Information"
+    description: "Activation date or enrollment date / course start date when paid flag is true"
+  }
+
+  dimension: paid_current {
+    type: yesno
+    sql:(${paid}) and ${current_course};;
+    group_label: "Payment Information"
+    label: "Paid Current"
+    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
+  }
+
+  dimension: unpaid_current {
+    type: yesno
+    sql:(NOT ${paid}) and ${current_course};;
+    group_label: "Payment Information"
+    label: "Unpaid Current"
+    description: "No paid flag or activation AND course has future end date"
+  }
+
+  dimension: enrolled {
+    group_label: "Enrolled?"
+    description: "OLR enrollment has occurred Y/N"
+    type: yesno
+    sql: ${TABLE}.enrolled_bool  ;;
+    hidden: no
+  }
+
+  dimension: enrolled_current {
+    label: "Currently enrolled"
+    group_label: "Enrolled?"
+    description: "Enrolled on a course with a future end date"
+    type: yesno
+    sql: ${enrolled} and ${current_course}  ;;
+    hidden: no
+  }
+
+  dimension: enrolled_desc {
+    group_label: "Enrolled?"
+    label: "Enrolled (Description)"
+    description: "Enrolled / Not Enrolled"
+    type: string
+    sql: CASE WHEN ${enrolled} THEN 'Enrolled' ELSE 'Not enrolled' END  ;;
+    hidden: no
+  }
+
   dimension: activated {
     group_label: "Activated?"
     description: "Course has been activated Y/N"
@@ -182,11 +250,73 @@ dimension: grace_period_flag {
     hidden: no
   }
 
-  measure: course_sections {
+  measure: course_section_count {
     label: "# Course Sections"
     type: count_distinct
     sql: ${course_key} ;;
     description: "Distinct count of course sections (by course key)"
+    alias: [course_sections]
+  }
+
+  measure: enrollment_count {
+    group_label: "Enrollments"
+    label: "# Enrollments"
+    type: count_distinct
+    sql: CASE WHEN ${enrolled} THEN ${pk} END  ;;
+    description: "Total # of enrollments (all time)"
+    alias: [no_enrollments]
+  }
+
+  measure: paid_enrollment_count {
+    group_label: "Enrollments"
+    label: "# Paid enrollments"
+    type: count_distinct
+    sql: CASE WHEN ${enrolled} AND ${paid} THEN ${pk} END  ;;
+    description: "Total # of paid enrollments (all time)"
+    alias: [no_paid_enrollments]
+  }
+
+  measure: enrolled_current_count {
+    group_label: "Enrollments"
+    label: "# Current enrollments"
+    type: count_distinct
+    sql: CASE WHEN ${current_course} AND ${enrolled} THEN ${pk} END   ;;
+    description: "Count of distinct course enrollments for courses that have not yet ended"
+    alias: [current_enrollments]
+  }
+
+  measure: paid_enrolled_current_count {
+    group_label: "Enrollments"
+    label: "# Current paid enrollments"
+    type: count_distinct
+    sql: CASE WHEN ${current_course} AND ${enrolled} AND ${paid} THEN ${pk} END   ;;
+    description: "Count of distinct paid course enrollments on courses that have not yet ended"
+    alias: [current_paid_enrollments]
+  }
+
+  measure: activated_count {
+    group_label: "Activations"
+    label: "# Activations"
+    type: count_distinct
+    sql: CASE WHEN ${activated} THEN ${pk} END  ;;
+    description: "Total # of activations (all time)"
+    alias: [no_activated]
+  }
+
+  measure: activated_current_count {
+    group_label: "Activations"
+    label: "# Current activations"
+    type: count_distinct
+    sql: CASE WHEN ${current_course} AND ${activated} THEN ${pk} END   ;;
+    description: "Count of distinct course activations on courses that have not yet ended"
+  }
+
+  measure: paid_current_count {
+    group_label: "Payment Information"
+    label: "# Current Paid Courses"
+    type: count_distinct
+    sql: CASE WHEN ${current_course} AND (${paid}) THEN ${pk} END   ;;
+    description: "Count of distinct paid user courses (guid+coursekey combo) that have not yet ended"
   }
 
   measure: count_distinct_user  {
