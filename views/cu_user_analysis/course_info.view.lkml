@@ -37,6 +37,10 @@ explore: course_info {
     relationship: many_to_one
   }
 
+  join: gateway_institution {
+    view_label: "Course Institution Info"
+  }
+
   join: course_section_usage_facts {
     sql_on:  ${course_info.course_key} = ${course_section_usage_facts.course_key} ;;
     relationship: one_to_one
@@ -250,7 +254,7 @@ view: course_info {
   }
 
   dimension_group: created_on  {
-    label: "Course Created Date"
+    label: "Course Created"
     type: time
   }
 

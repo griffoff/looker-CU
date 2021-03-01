@@ -5,7 +5,7 @@ explore: institution_info {
   view_label:"Institution Info"
 
   join: gateway_institution {
-    view_label: "Institution"
+    view_label: "Institution Info"
     sql_on: ${institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
@@ -17,7 +17,7 @@ explore: product_institution_info {
   view_label:"Product Institution Info"
 
   join: gateway_institution {
-    view_label: "Institution"
+    view_label: "Product Institution Info"
     sql_on: ${product_institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
@@ -69,13 +69,13 @@ view: institution_info {
   dimension: type {label:"Institution Type"}
   dimension: financial_sales_region {label:"Institution Financial Sales Region"}
   dimension: organization {label:"Institution Organization Type" hidden:yes}
-  dimension: iso_country {group_label:"Location" label:"Country Code"}
-  dimension: country_name {group_label:"Location" label:"Country Name"}
-  dimension: city {group_label:"Location"}
-  dimension: county {group_label:"Location"}
-  dimension: state {group_label:"Location"}
-  dimension: state_code {group_label:"Location"}
-  dimension: postal_code {group_label:"Location"}
+  dimension: iso_country {group_label:"Location" label:"Country Code" map_layer_name: countries}
+  dimension: country_name {group_label:"Location" label:"Country Name" map_layer_name: countries}
+  dimension: city {group_label:"Location" }
+  dimension: county {group_label:"Location" map_layer_name: us_counties_fips}
+  dimension: state {group_label:"Location" map_layer_name: us_states}
+  dimension: state_code {group_label:"Location" map_layer_name: us_states}
+  dimension: postal_code {group_label:"Location" map_layer_name: us_zipcode_tabulation_areas}
 
   dimension: hed_flag {
     type: yesno
