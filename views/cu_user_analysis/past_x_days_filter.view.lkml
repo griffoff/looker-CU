@@ -17,9 +17,9 @@
 #     derived_table: {
 #       sql:
 #           select
-#             d1.datevalue as end_date
+#             d1.date_value as end_date
 #             , dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) as begin_date
-#             , d2.datevalue as middle_date
+#             , d2.date_value as middle_date
 #           from ${dim_date.SQL_TABLE_NAME} d1
 #           inner join ${dim_date.SQL_TABLE_NAME} d2 on d2.datevalue >= dateadd(d,-{{ x_days._parameter_value }}, d1.datevalue) and d2.datevalue < d1.datevalue
 #           where {% condition date_range %} d1.datevalue {% endcondition %}

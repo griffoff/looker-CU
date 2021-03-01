@@ -1,3 +1,4 @@
+explore: guid_date_subscription {hidden:yes}
 view: guid_date_subscription {
     derived_table: {
       create_process: {

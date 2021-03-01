@@ -18,7 +18,7 @@ view: yru {
         AS
         WITH dates AS (
           SELECT d.date_value
-          FROM ${dim_date.SQL_TABLE_NAME} d
+          FROM bpl_mart.prod.dim_date d
           WHERE d.date_value > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.YRU)
           AND d.date_value < CURRENT_DATE()
         )
