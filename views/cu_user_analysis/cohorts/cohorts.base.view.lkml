@@ -14,7 +14,10 @@ view: cohorts_base {
 
   set: marketing_fields {fields: [params*, cohort_term_fields*, other_fields*]}
 
-  derived_table: {sql: select 1;; datagroup_trigger: cu_user_analysis}
+  derived_table: {
+    sql: select 1;;
+  #  datagroup_trigger: cu_user_analysis
+  }
 
   dimension: user_sso_guid_merged {
     type: string

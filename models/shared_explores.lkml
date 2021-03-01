@@ -545,7 +545,7 @@ explore: product_analysis {
   }
 
   join: live_subscription_status {
-    view_label: "Learner Profile - Live Subscription Status"
+    view_label: "User Details - Current Subscription Status"
     sql_on:  ${all_sessions.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
     relationship: one_to_one
   }
