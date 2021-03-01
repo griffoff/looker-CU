@@ -5,6 +5,7 @@ include: "custom_course_key_cohort_filter.view"
 include: "gateway_lms_course_sections.view"
 
 explore: course_info {
+  extends: [product_info]
   hidden:yes
   view_label: "Course Section Details"
 
@@ -25,7 +26,6 @@ explore: course_info {
   }
 
   join: product_info {
-    view_label: "Course Product Details"
     sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
     relationship: many_to_one
   }

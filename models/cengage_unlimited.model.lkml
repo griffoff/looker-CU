@@ -98,6 +98,7 @@ explore: raw_olr_provisioned_product {
 }
 
 explore: course_sections {
+  hidden: no
   from: course_info
   view_name: course_info
   extends: [user_profile, course_info, product_institution_info]

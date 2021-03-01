@@ -1,6 +1,18 @@
-explore: product_info {hidden:yes}
+include: "./product_discipline_rank.view"
+
+explore: product_info {
+  hidden:yes
+
+  join: product_discipline_rank {
+    view_label: "Product"
+    sql_on: ${product_info.discipline} = ${product_discipline_rank.discipline} ;;
+    relationship: many_to_one
+  }
+
+}
+
 view: product_info {
-  view_label: "Products New"
+  view_label: "Product"
   derived_table: {
     sql:
     select *
@@ -244,16 +256,20 @@ view: product_info {
   }
 
   dimension: iac_isbn {
+    label: "IAC ISBN"
     sql: ${isbn13} ;;
   }
 
   dimension: isbn13 {
+    description: "These are individual products inside of an IAC.  These are MindTap products, Coursemate, CNOW, Aplia, ebooks, recourse centers, mobile apps, etc.
+    One component ISBN may be part of multiple IACs. Only one Courseware Component ISBN product may exist in an IAC.
+    But that component can be in multiple IACs that have different shared components along with it that are also Component ISBNs."
+    hidden: yes
     type: string
     label: "ISBN13"
     # group_label: "ISBN"
     sql: ${TABLE}.ISBN13 ;;
     primary_key: yes
-    description: "Product ISBN13"
   }
 
   # dimension: mindtap_isbn {

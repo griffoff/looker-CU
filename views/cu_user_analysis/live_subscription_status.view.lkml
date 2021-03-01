@@ -2,7 +2,7 @@
 
 view: live_subscription_status {
 
-  view_label: "Learner Profile - Live Subscription Status"
+  view_label: "User Details - Live Subscription Status"
 
   derived_table: {
     sql:

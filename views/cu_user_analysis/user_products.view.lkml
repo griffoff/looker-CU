@@ -211,7 +211,7 @@ dimension: grace_period_flag {
     group_label: "Enrolled?"
     description: "OLR enrollment has occurred Y/N"
     type: yesno
-    sql: ${TABLE}.enrolled_bool  ;;
+    sql: ${enrollment_date_raw} IS NOT NULL  ;;
     hidden: no
   }
 
@@ -237,7 +237,7 @@ dimension: grace_period_flag {
     group_label: "Activated?"
     description: "Course has been activated Y/N"
     type: yesno
-    sql: coalesce(TRY_CAST(${TABLE}.activated AS BOOLEAN),false)  ;;
+    sql: ${activation_date_raw} IS NOT NULL  ;;
     hidden: no
   }
 
@@ -256,6 +256,15 @@ dimension: grace_period_flag {
     sql: ${course_key} ;;
     description: "Distinct count of course sections (by course key)"
     alias: [course_sections]
+  }
+
+  measure: course_section_with_activations_count {
+    group_label: "Activations"
+    label: "# Courses with activations"
+    type: count_distinct
+    sql: CASE WHEN ${activated} THEN ${course_key} END  ;;
+    description: "Total # of distinct courses (by course key) with activations (all time)"
+    alias: [no_courses_with_activations]
   }
 
   measure: enrollment_count {
