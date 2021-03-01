@@ -104,12 +104,12 @@ view: guid_date_ebook {
         AND ui.hub_user_key IS NULL
       )
       )
-      SELECT DISTINCT dim_date.datevalue as date, user_sso_guid, 'eBook' AS content_type, region, platform, organization
+      SELECT DISTINCT dim_date.date_value as date, user_sso_guid, 'eBook' AS content_type, region, platform, organization
         , CASE WHEN (subscription_type ILIKE 'Full%' OR subscription_type ILIKE 'Limited%' OR (subscription_type ILIKE 'CU-ETextBook%' AND subscription_type NOT ILIKE 'CU-ETextBook-Trial%')) THEN TRUE ELSE FALSE END AS paid_flag
       FROM  ${dim_date.SQL_TABLE_NAME} dim_date
-      LEFT JOIN ebook_users ON dim_date.datevalue BETWEEN ebook_start AND ebook_end
-        AND dim_date.datevalue BETWEEN subscription_start AND subscription_end
-      WHERE dim_date.datevalue BETWEEN '2017-07-01' AND CURRENT_DATE()
+      LEFT JOIN ebook_users ON dim_date.date_value BETWEEN ebook_start AND ebook_end
+        AND dim_date.date_value BETWEEN subscription_start AND subscription_end
+      WHERE dim_date.date_value BETWEEN '2017-07-01' AND CURRENT_DATE()
       ORDER BY 1
       ;;
 

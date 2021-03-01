@@ -22,7 +22,7 @@ view: guid_date_subscription {
           AND bp.SUBSCRIPTION_STATE IN ('full_access','trial_access')
         WHERE user_guid IS NOT NULL
         )
-        SELECT DISTINCT dim_date.datevalue as date
+        SELECT DISTINCT dim_date.date_value as date
         , COALESCE(linked_guid,sub_users.user_guid) AS user_sso_guid
         , subscription_type
         , CASE
@@ -39,7 +39,7 @@ view: guid_date_subscription {
           WHEN mkt_seg_maj_cd = 'PSE' THEN 'Higher Ed'
           ELSE 'Other' END AS organization
         FROM ${dim_date.SQL_TABLE_NAME} dim_date
-        INNER JOIN sub_users ON dim_date.datevalue BETWEEN subscription_start AND subscription_end
+        INNER JOIN sub_users ON dim_date.date_value BETWEEN subscription_start AND subscription_end
         LEFT JOIN prod.datavault.hub_user hu ON sub_users.user_guid = hu.UID
         LEFT JOIN prod.datavault.sat_user_internal ui on hu.hub_user_key = ui.hub_user_key and ui.internal
         LEFT JOIN prod.datavault.SAT_USER_V2 su ON hu.hub_user_key = su.hub_user_key AND su._LATEST
@@ -47,7 +47,7 @@ view: guid_date_subscription {
         LEFT JOIN prod.datavault.sat_user_institution sui ON lui.link_user_institution_key = sui.link_user_institution_key and sui.active
         LEFT JOIN prod.datavault.hub_institution hi ON lui.hub_institution_key = hi.hub_institution_key
         LEFT JOIN prod.STG_CLTS.ENTITIES e ON hi.institution_id = e.ENTITY_NO
-        WHERE dim_date.datevalue BETWEEN '2018-01-01' AND CURRENT_DATE()
+        WHERE dim_date.date_value BETWEEN '2018-01-01' AND CURRENT_DATE()
         AND ui.hub_user_key IS NULL
         ORDER BY date
 

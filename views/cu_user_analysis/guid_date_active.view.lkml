@@ -22,10 +22,10 @@ view: guid_date_active {
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.guid_date_active_incremental
         AS
         WITH dates AS (
-          SELECT d.datevalue
+          SELECT d.date_value
           FROM ${dim_date.SQL_TABLE_NAME} d
-          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.guid_date_active)
-          AND d.datevalue < CURRENT_DATE()
+          WHERE d.date_value > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.guid_date_active)
+          AND d.date_value < CURRENT_DATE()
         )
         ,events AS (
           SELECT DISTINCT
@@ -52,7 +52,7 @@ view: guid_date_active {
             , e.course_key
           FROM prod.cu_user_analysis.all_sessions s
           INNER JOIN prod.cu_user_analysis.all_events e USING(session_id)
-          INNER JOIN dates d ON s.session_start::DATE = d.datevalue
+          INNER JOIN dates d ON s.session_start::DATE = d.date_value
         )
 
         SELECT DISTINCT

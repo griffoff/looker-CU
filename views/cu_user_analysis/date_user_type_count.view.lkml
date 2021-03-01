@@ -31,48 +31,48 @@ view: date_user_type_count {
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.date_user_type_count_incremental
         AS
           WITH dates AS (
-            SELECT d.datevalue
+            SELECT d.date_value
             FROM ${dim_date.SQL_TABLE_NAME} d
-            WHERE date_trunc(week,d.datevalue) > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.date_user_type_count)
-            AND d.datevalue < CURRENT_DATE()
+            WHERE date_trunc(week,d.date_value) > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.date_user_type_count)
+            AND d.date_value < CURRENT_DATE()
           )
-          SELECT DISTINCT date_trunc(week,d.DATEVALUE) AS date, 'Registered Student Users' AS user_type, students AS user_count
+          SELECT DISTINCT date_trunc(week,d.date_value) AS date, 'Registered Student Users' AS user_type, students AS user_count
           FROM ${yru.SQL_TABLE_NAME} t
-          INNER JOIN dates d on t.date = date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on t.date = date_trunc(week,d.date_value)
           UNION ALL
-          SELECT DISTINCT date_trunc(week,d.DATEVALUE) AS date, 'Registered Instructor Users' AS user_type, instructors AS user_count
+          SELECT DISTINCT date_trunc(week,d.date_value) AS date, 'Registered Instructor Users' AS user_type, instructors AS user_count
           FROM ${yru.SQL_TABLE_NAME} t
-          INNER JOIN dates d on t.date = date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on t.date = date_trunc(week,d.date_value)
           UNION ALL
-          SELECT date_trunc(week,d.DATEVALUE) AS date, 'Digital Student Users' AS user_type, COUNT(DISTINCT userbase_digital_user_guid) AS user_count
+          SELECT date_trunc(week,d.date_value) AS date, 'Digital Student Users' AS user_type, COUNT(DISTINCT userbase_digital_user_guid) AS user_count
           FROM ${kpi_user_counts.SQL_TABLE_NAME} t
-          INNER JOIN dates d on date_trunc(week,d.DATEVALUE) = date_trunc(week,t.DATE)
-          GROUP BY date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on date_trunc(week,d.date_value) = date_trunc(week,t.DATE)
+          GROUP BY date_trunc(week,d.date_value)
           UNION ALL
-          SELECT date_trunc(week,d.DATEVALUE) AS date, 'Instructors with Active Digital Course' AS user_type, COUNT(DISTINCT all_instructors_active_course_guid) AS user_count
+          SELECT date_trunc(week,d.date_value) AS date, 'Instructors with Active Digital Course' AS user_type, COUNT(DISTINCT all_instructors_active_course_guid) AS user_count
           FROM ${kpi_user_counts.SQL_TABLE_NAME} t
-          INNER JOIN dates d on date_trunc(week,d.DATEVALUE) = date_trunc(week,t.DATE)
-          GROUP BY date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on date_trunc(week,d.date_value) = date_trunc(week,t.DATE)
+          GROUP BY date_trunc(week,d.date_value)
           UNION ALL
-          SELECT date_trunc(week,d.DATEVALUE) AS date, 'Paid Digital Student Users' AS user_type, COUNT(DISTINCT userbase_paid_user_guid) AS user_count
+          SELECT date_trunc(week,d.date_value) AS date, 'Paid Digital Student Users' AS user_type, COUNT(DISTINCT userbase_paid_user_guid) AS user_count
           FROM ${kpi_user_counts.SQL_TABLE_NAME} t
-          INNER JOIN dates d on date_trunc(week,d.DATEVALUE) = date_trunc(week,t.DATE)
-          GROUP BY date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on date_trunc(week,d.date_value) = date_trunc(week,t.DATE)
+          GROUP BY date_trunc(week,d.date_value)
           UNION ALL
-          SELECT date_trunc(week,d.DATEVALUE) AS date, 'Paid Courseware Student Users' AS user_type, COUNT(DISTINCT userbase_paid_courseware_guid) AS user_count
+          SELECT date_trunc(week,d.date_value) AS date, 'Paid Courseware Student Users' AS user_type, COUNT(DISTINCT userbase_paid_courseware_guid) AS user_count
           FROM ${kpi_user_counts.SQL_TABLE_NAME} t
-          INNER JOIN dates d on date_trunc(week,d.DATEVALUE) = date_trunc(week,t.DATE)
-          GROUP BY date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on date_trunc(week,d.date_value) = date_trunc(week,t.DATE)
+          GROUP BY date_trunc(week,d.date_value)
           UNION ALL
-          SELECT date_trunc(week,d.DATEVALUE) AS date, 'Paid eBook Only Student Users' AS user_type, COUNT(DISTINCT userbase_paid_ebook_only_guid) AS user_count
+          SELECT date_trunc(week,d.date_value) AS date, 'Paid eBook Only Student Users' AS user_type, COUNT(DISTINCT userbase_paid_ebook_only_guid) AS user_count
           FROM ${kpi_user_counts.SQL_TABLE_NAME} t
-          INNER JOIN dates d on date_trunc(week,d.DATEVALUE) = date_trunc(week,t.DATE)
-          GROUP BY date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on date_trunc(week,d.date_value) = date_trunc(week,t.DATE)
+          GROUP BY date_trunc(week,d.date_value)
           UNION ALL
-          SELECT date_trunc(week,d.DATEVALUE) AS date, 'Full Access CU Users, no provisions' AS user_type, COUNT(DISTINCT userbase_full_access_cu_only_guid) AS user_count
+          SELECT date_trunc(week,d.date_value) AS date, 'Full Access CU Users, no provisions' AS user_type, COUNT(DISTINCT userbase_full_access_cu_only_guid) AS user_count
           FROM ${kpi_user_counts.SQL_TABLE_NAME} t
-          INNER JOIN dates d on date_trunc(week,d.DATEVALUE) = date_trunc(week,t.DATE)
-          GROUP BY date_trunc(week,d.DATEVALUE)
+          INNER JOIN dates d on date_trunc(week,d.date_value) = date_trunc(week,t.DATE)
+          GROUP BY date_trunc(week,d.date_value)
       ;;
 
       sql_step:
