@@ -7,9 +7,9 @@ view: user_courses_activations {
   derived_table: {
     sql:
     WITH dates AS (
-    SELECT DATEVALUE as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
-    FROM ${dim_date.SQL_TABLE_NAME}
-    WHERE datevalue between '2018-08-01' and current_date()
+    SELECT date_value as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
+    FROM bpl_mart.prod.dim_date
+    WHERE date_value between '2018-08-01' and current_date()
     )
     ,courses as (
     Select user_sso_guid, course_key, activation_date, course_end_date, cu_flag

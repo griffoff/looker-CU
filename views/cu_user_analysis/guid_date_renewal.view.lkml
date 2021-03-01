@@ -3,8 +3,8 @@ view: guid_date_renewal {
   derived_table: {
     sql:
     WITH dates AS (
-      SELECT DATEVALUE as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
-      FROM ${dim_date.SQL_TABLE_NAME}
+      SELECT date_value as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
+      FROM bpl_mart.prod.dim_date
     )
 
     ,subs as (

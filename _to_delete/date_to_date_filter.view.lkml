@@ -24,7 +24,7 @@
 #     select {% date_start date_range %}::date as begin_date
 #     )
 #     , e as (
-#     select datevalue as end_date from ${dim_date.SQL_TABLE_NAME}
+#     select datevalue as end_date from bpl_mart.prod.dim_date
 #     where {% condition date_range %} datevalue {% endcondition %}
 
 

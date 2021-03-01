@@ -25,27 +25,27 @@ view: guid_date_paid {
         CREATE OR REPLACE TEMPORARY TABLE looker_scratch.guid_date_paid_incremental
         AS
         WITH dates AS (
-          SELECT d.datevalue
-          FROM ${dim_date.SQL_TABLE_NAME} d
-          WHERE d.datevalue > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.guid_date_paid)
-          AND d.datevalue < CURRENT_DATE()
+          SELECT d.date_value
+          FROM bpl_mart.prod.dim_date d
+          WHERE d.date_value > (SELECT COALESCE(MAX(date), '2018-08-01') FROM LOOKER_SCRATCH.guid_date_paid)
+          AND d.date_value < CURRENT_DATE()
         )
         ,paid_courseware_users AS (
           SELECT DISTINCT c.date, c.user_sso_guid, region, platform, organization
           FROM ${guid_date_course.SQL_TABLE_NAME} c
-          INNER JOIN dates d on d.datevalue = c.date
+          INNER JOIN dates d on d.date_value = c.date
           WHERE c.paid_flag = TRUE
         )
         ,paid_ebook_users AS (
           SELECT DISTINCT e.date, e.user_sso_guid, region, platform, organization
           FROM ${guid_date_ebook.SQL_TABLE_NAME} e
-          INNER JOIN dates d on d.datevalue = e.date
+          INNER JOIN dates d on d.date_value = e.date
           WHERE e.paid_flag = TRUE
         )
         ,paid_cu_only_users AS (
           SELECT DISTINCT s.date, s.user_sso_guid, s.content_type, region, platform, organization
           FROM ${guid_date_subscription.SQL_TABLE_NAME} s
-          INNER JOIN dates d on d.datevalue = s.date
+          INNER JOIN dates d on d.date_value = s.date
         )
         ,paid_union as (
           SELECT date, user_sso_guid, region, platform, organization, TRUE AS paid_flag, 'Courseware' AS content_type, 1 AS content_order FROM paid_courseware_users

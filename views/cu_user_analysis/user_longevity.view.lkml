@@ -5,9 +5,9 @@ view: user_longevity {
       sql_step:
         create or replace table LOOKER_SCRATCH.user_longevity as
           with terms as (
-          select GOVERNMENTDEFINEDACADEMICTERM, min(datevalue) as term_start, max(DATEVALUE) as term_end, 1 - row_number() over (order by term_start desc) as relative_term
-          from ${dim_date.SQL_TABLE_NAME}
-          where DATEVALUE <= current_date()
+          select GOVERNMENTDEFINEDACADEMICTERM, min(date_value) as term_start, max(date_value) as term_end, 1 - row_number() over (order by term_start desc) as relative_term
+          from bpl_mart.prod.dim_date
+          where date_value <= current_date()
           group by GOVERNMENTDEFINEDACADEMICTERM
           )
           , current_guids as (
