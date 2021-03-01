@@ -6,7 +6,7 @@ explore: user_profile {
   hidden:yes
 
   always_filter: {
-    filters: [user_profile.real_user_flag: "Yes"]
+    filters: [user_profile.is_real_user: "Yes"]
   }
 
   join: live_subscription_status {
@@ -120,32 +120,36 @@ view: user_profile {
 
   dimension: account_type {hidden:yes}
 
-  dimension: instructor {
+  dimension: is_instructor {
     type: yesno
     description: "User account is currently flagged as an instructor"
     group_label: "User Flags"
+    alias: [instructor]
     }
 
-  dimension: instructor_by_party {
+  dimension: is_instructor_by_party {
     group_label: "Party flags"
     label: "Has Instructor User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with an Instructor flag"
     type: yesno
     hidden: yes
+    alias: [instructor_by_party]
     }
 
-  dimension: k12_flag {
+  dimension: is_k12 {
     type: yesno
     description: "User account is currently flagged as a K12 customer"
     group_label: "User Flags"
+    alias: [k12_user, k12_flag]
     }
 
-  dimension: k12_by_party {
+  dimension: is_k12_by_party {
     group_label: "Party flags"
     label: "Has K12 User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with a K12 flag"
     type: yesno
     hidden: yes
+    alias: [k12_by_party]
     }
 
   dimension: country {
@@ -158,18 +162,20 @@ view: user_profile {
     description: "User region"
   }
 
-  dimension: non_usa_flag {
+  dimension: is_non_usa {
     type: yesno
     description: "User account currently has a non-USA country or region"
     group_label: "User Flags"
+    alias: [non_usa_flag]
     }
 
-  dimension: non_usa_by_party {
+  dimension: is_non_usa_by_party {
     group_label: "Party flags"
     label: "Has Non-USA User Record"
     description: "Indicates whether this user has any other record (matched by email or merged guid) with a non-USA country or region"
     type: yesno
     hidden: yes
+    alias: [non_usa_by_party]
     }
 
   dimension: user_timezone {
@@ -178,14 +184,19 @@ view: user_profile {
     hidden: yes
   }
 
-  dimension: internal {type: yesno hidden: yes}
+  dimension: is_internal {
+    type: yesno
+    hidden: yes
+    alias: [internal, internal_user_flag]
+  }
 
-  dimension: real_user_flag {
+  dimension: is_real_user {
     view_label: "** RECOMMENDED FILTERS **"
     description: "Users who are not flagged as internal (e.g. QA)"
     label: "Real User Flag"
     type: yesno
     sql: NOT ${TABLE}.internal;;
+    alias: [real_user_flag]
   }
 
   dimension: institution_id {
@@ -193,7 +204,7 @@ view: user_profile {
     hidden: yes
   }
 
-  dimension: entity_blacklist_flag {
+  dimension: is_entity_blacklisted {
     type: yesno
     label: "IPM Blacklist Institution User"
     description: "This flag is Yes for users that attend institutions that do NOT allow their student's to receive IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
@@ -202,6 +213,7 @@ view: user_profile {
       url: "https://docs.google.com/spreadsheets/d/1GWByyBwWhMX-aXEzYqeHe_p-wCRsiwCMMPn_SyrzpWk/edit#gid=0"
     }
     group_label: "User Flags"
+    alias: [entity_blacklist_flag]
   }
 
   dimension: first_name {
@@ -274,12 +286,13 @@ view: user_profile {
     hidden: yes
     }
 
-  dimension: marketing_allowed {
+  dimension: is_marketing_allowed {
     label: "Marketing allowed"
     description: "Based on the opt out flag - if it is set to false or null then marketing is allowed"
     view_label: "** RECOMMENDED FILTERS **"
     type: yesno
     sql: NOT ${TABLE}.marketing_opt_out;;
+    alias: [marketing_allowed]
   }
 
   dimension: shadow_guids {
@@ -307,7 +320,7 @@ view: user_profile {
     - non-USA regions"
     view_label: "** RECOMMENDED FILTERS **"
     type: yesno
-    sql: NOT ${marketing_opt_out_by_party} AND NOT ${k12_by_party} AND NOT ${instructor_by_party} AND NOT ${non_usa_by_party};;
+    sql: NOT ${marketing_opt_out_by_party} AND NOT ${is_k12_by_party} AND NOT ${is_instructor_by_party} AND NOT ${is_non_usa_by_party};;
   }
 
   dimension: control_flag_1 {
@@ -425,8 +438,8 @@ view: user_profile {
   set: detail {
     fields: [
       user_sso_guid,
-      instructor,
-      k12_flag,
+      is_instructor,
+      is_k12,
       country,
       user_region,
       institution_id,

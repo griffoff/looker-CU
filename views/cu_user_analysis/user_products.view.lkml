@@ -347,6 +347,14 @@ dimension: grace_period_flag {
     description: "Provides average number of products provisioned by all users based on filter criteria."
   }
 
+  measure: provisioned_product_count {
+    type:  count_distinct
+    label: "# of Provisioned Products"
+    sql: CASE WHEN ${provision_date_raw} IS NOT NULL THEN ${pk} END ;;
+    value_format_name: decimal_2
+    description: "Provides average number of products provisioned by all users based on filter criteria."
+  }
+
   measure: total_value_provisioned  {
     type: sum
     sql: case when ${paid_flag} then ${product_info.list_price} end ;;
