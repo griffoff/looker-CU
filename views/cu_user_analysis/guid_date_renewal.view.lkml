@@ -1,10 +1,11 @@
-explore: guid_date_renewal {}
+explore: guid_date_renewal {hidden:yes}
 view: guid_date_renewal {
   derived_table: {
     sql:
     WITH dates AS (
-      SELECT date_value as date, GOVERNMENTDEFINEDACADEMICTERM AS season, GOVERNMENTDEFINEDACADEMICTERMYEAR AS term_year, GOVERNMENTDEFINEDACADEMICTERMID as season_no
+      SELECT date_value as date, GOV_AY_TERM_FULL AS season, GOV_AY_YEAR AS term_year, GOV_AY_TERM_FULL_ORD as season_no
       FROM ${dim_date.SQL_TABLE_NAME}
+      where date_value <= current_date
     )
 
     ,subs as (

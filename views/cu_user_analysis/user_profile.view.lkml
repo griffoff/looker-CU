@@ -124,7 +124,7 @@ view: user_profile {
     type: yesno
     description: "User account is currently flagged as an instructor"
     group_label: "User Flags"
-    alias: [instructor]
+    sql: ${TABLE}.instructor ;;
     }
 
   dimension: is_instructor_by_party {
@@ -134,6 +134,7 @@ view: user_profile {
     type: yesno
     hidden: yes
     alias: [instructor_by_party]
+    sql: ${TABLE}.instructor_by_party ;;
     }
 
   dimension: is_k12 {
@@ -141,6 +142,7 @@ view: user_profile {
     description: "User account is currently flagged as a K12 customer"
     group_label: "User Flags"
     alias: [k12_user, k12_flag]
+    sql: ${TABLE}.k12_flag ;;
     }
 
   dimension: is_k12_by_party {
@@ -150,6 +152,7 @@ view: user_profile {
     type: yesno
     hidden: yes
     alias: [k12_by_party]
+    sql: ${TABLE}.k12_by_party ;;
     }
 
   dimension: country {
@@ -167,6 +170,7 @@ view: user_profile {
     description: "User account currently has a non-USA country or region"
     group_label: "User Flags"
     alias: [non_usa_flag]
+    sql: ${TABLE}.non_usa_flag ;;
     }
 
   dimension: is_non_usa_by_party {
@@ -176,6 +180,7 @@ view: user_profile {
     type: yesno
     hidden: yes
     alias: [non_usa_by_party]
+    sql: ${TABLE}.non_usa_by_party ;;
     }
 
   dimension: user_timezone {
@@ -188,6 +193,7 @@ view: user_profile {
     type: yesno
     hidden: yes
     alias: [internal, internal_user_flag]
+    sql: ${TABLE}.internal ;;
   }
 
   dimension: is_real_user {
@@ -206,7 +212,7 @@ view: user_profile {
 
   dimension: is_entity_blacklisted {
     type: yesno
-    label: "IPM Blacklist Institution User"
+    label: "Is IPM Blacklist Institution User"
     description: "This flag is Yes for users that attend institutions that do NOT allow their student's to receive IPMs. This means these institutions appear on IPM suppression lists which are lists of institutions (typically IA or CUI institutions) who have requested that their students do NOT receive in-platform messages (IPMs) related to CU upsell or conversion. This list is driven by a google sheet that can be found in the value of this field."
     link: {
       label: "IPM suppression list google sheet"
@@ -214,6 +220,7 @@ view: user_profile {
     }
     group_label: "User Flags"
     alias: [entity_blacklist_flag]
+    sql: ${TABLE}.entity_blacklist_flag ;;
   }
 
   dimension: first_name {
@@ -320,7 +327,7 @@ view: user_profile {
     - non-USA regions"
     view_label: "** RECOMMENDED FILTERS **"
     type: yesno
-    sql: NOT ${marketing_opt_out_by_party} AND NOT ${is_k12_by_party} AND NOT ${is_instructor_by_party} AND NOT ${is_non_usa_by_party};;
+    sql: NOT ${marketing_opt_out_by_party}AND NOT ${is_k12_by_party} AND NOT ${is_instructor_by_party} AND NOT ${is_non_usa_by_party};;
   }
 
   dimension: control_flag_1 {
