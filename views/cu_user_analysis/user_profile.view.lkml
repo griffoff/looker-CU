@@ -125,6 +125,7 @@ view: user_profile {
     description: "User account is currently flagged as an instructor"
     group_label: "User Flags"
     sql: ${TABLE}.instructor ;;
+    alias: [instructor]
     }
 
   dimension: is_instructor_by_party {
