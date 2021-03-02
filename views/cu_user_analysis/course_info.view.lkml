@@ -1,6 +1,7 @@
 include: "//dm-bpl/dm-shared/*.view"
 include: "course_section_usage_facts.view"
 include: "product_info.view"
+include: "course_faculty.view"
 include: "custom_course_key_cohort_filter.view"
 include: "gateway_lms_course_sections.view"
 
@@ -8,12 +9,6 @@ explore: course_info {
   extends: [product_info]
   hidden:yes
   view_label: "Course Section Details"
-
-  always_filter: {
-    filters:[
-      course_info.is_real_course: "Yes"
-    ]
-  }
 
   join: dim_course_start_date  {
     sql_on: ${course_info.begin_date_raw} = ${dim_course_start_date.date_value};;
@@ -23,6 +18,11 @@ explore: course_info {
   join: dim_course_end_date  {
     sql_on: ${course_info.begin_date_raw} = ${dim_course_end_date.date_value};;
     relationship: many_to_one
+  }
+
+  join: course_primary_instructor {
+    sql_on: ${course_info.course_identifier} = ${course_primary_instructor.course_identifier} ;;
+    relationship: one_to_many
   }
 
   join: product_info {
@@ -206,7 +206,8 @@ view: course_info {
         ) hi2 ON lci.hub_institution_key = hi2.hub_institution_key
       ) inst on inst.course_identifier = COALESCE(scs.course_key,hcs.context_id)
 
-      WHERE scs.course_key IS NOT NULL OR scs2.course_key IS NULL
+      WHERE (scs.course_key IS NOT NULL OR scs2.course_key IS NULL)
+      AND NOT COALESCE(scs.is_demo,FALSE)
       GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
@@ -237,13 +238,13 @@ view: course_info {
   }
 
   dimension: active {
-    label: "Course Active"
+    label: "Is Course Active"
     type:yesno
     description: "Course start date in the past and course end date in the future."
     }
 
   dimension: deleted {
-    label: "Course Deleted"
+    label: "Is Course Deleted"
     type:yesno
     description: "OLR course section has been deleted"
     }
@@ -261,6 +262,7 @@ view: course_info {
   dimension: is_gateway_course {type:yesno hidden:yes}
 
   dimension: course_master {
+    label: "Is Course Master"
     type: yesno
     description: "Is a Master Course"
   }
@@ -281,11 +283,10 @@ view: course_info {
 
   dimension: is_real_course {
     type: yesno
-    label: "Real Course"
+    label: "Is Real Course"
     sql: NOT ${is_demo} ;;
+    hidden: yes
   }
-
-
 
   dimension: lms_type_all {
     label: "LMS Type"
@@ -322,14 +323,14 @@ view: course_info {
 
   dimension: cui {
     type:yesno
-    label: "CUI"
+    label: "Is CUI"
     description: "Course is part of a CUI deal"
     group_label: "Institional Access Deal"
   }
 
   dimension: ia {
     type:yesno
-    label: "IA"
+    label: "Is IA"
     description: "Course is part of an IA deal"
     group_label: "Institional Access Deal"
   }
@@ -353,6 +354,8 @@ view: course_info {
   }
 
   measure: active_course_sections {
+    label: "# Active Course Sections"
+    description: "Count of Course Sections where today is between the start and end date of the course section"
     type: count_distinct
     sql: CASE WHEN ${active} THEN ${course_key} END ;;
   }
