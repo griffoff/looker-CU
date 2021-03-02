@@ -283,8 +283,8 @@ view: course_info {
   dimension: is_real_course {
     type: yesno
     label: "Is Real Course"
+    description: "Course for actual students rather than a demo/internal course"
     sql: NOT ${is_demo} ;;
-    hidden: yes
   }
 
   dimension: lms_type_all {
