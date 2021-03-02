@@ -516,6 +516,8 @@ explore: product_analysis {
   view_name: all_sessions
   view_label: "Sessions"
 
+  always_filter: {filters: [course_info.is_real_course: ""]}
+
   join: session_products {
     sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;
     relationship: one_to_many

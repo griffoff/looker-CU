@@ -207,7 +207,6 @@ view: course_info {
       ) inst on inst.course_identifier = COALESCE(scs.course_key,hcs.context_id)
 
       WHERE (scs.course_key IS NOT NULL OR scs2.course_key IS NULL)
-      AND NOT COALESCE(scs.is_demo,FALSE)
       GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;

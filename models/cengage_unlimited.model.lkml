@@ -104,6 +104,8 @@ explore: course_sections {
   extends: [user_profile, product_institution_info, course_info]
   view_label: "Course Section Details"
 
+  always_filter: {filters: [course_info.is_real_course: "Yes"]}
+
   # join: current_date {
   #   type:cross
   #   relationship: many_to_one
