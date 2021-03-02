@@ -101,7 +101,7 @@ explore: course_sections {
   hidden: no
   from: course_info
   view_name: course_info
-  extends: [user_profile, course_info, product_institution_info]
+  extends: [user_profile, product_institution_info, course_info]
   view_label: "Course Section Details"
 
   # join: current_date {

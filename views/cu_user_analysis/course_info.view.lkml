@@ -38,7 +38,7 @@ explore: course_info {
   }
 
   join: gateway_institution {
-    view_label: "Course Institution Info"
+    view_label: "Course Institution Details"
   }
 
   join: course_section_usage_facts {
