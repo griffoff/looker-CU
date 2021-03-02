@@ -1,14 +1,14 @@
-explore: user_longevity {}
+explore: user_longevity {hidden:yes}
 view: user_longevity {
   derived_table: {
     create_process: {
       sql_step:
         create or replace table LOOKER_SCRATCH.user_longevity as
           with terms as (
-          select GOVERNMENTDEFINEDACADEMICTERM, min(date_value) as term_start, max(date_value) as term_end, 1 - row_number() over (order by term_start desc) as relative_term
+          select GOV_AY_TERM_FULL, min(date_value) as term_start, max(date_value) as term_end, 1 - row_number() over (order by term_start desc) as relative_term
           from ${dim_date.SQL_TABLE_NAME}
           where date_value <= current_date()
-          group by GOVERNMENTDEFINEDACADEMICTERM
+          group by GOV_AY_TERM_FULL
           )
           , current_guids as (
           select distinct user_sso_guid, user_type
@@ -49,7 +49,7 @@ view: user_longevity {
 
       sql_step:
       CREATE OR REPLACE TABLE ${SQL_TABLE_NAME} as
-      select user_sso_guid, user_type, last_5_terms as term_longevity, GOVERNMENTDEFINEDACADEMICTERM as current_term
+      select user_sso_guid, user_type, last_5_terms as term_longevity, GOV_AY_TERM_FULL as current_term
       from LOOKER_SCRATCH.user_longevity
       where term_user = 1
       ;;
