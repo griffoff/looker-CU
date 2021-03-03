@@ -63,6 +63,9 @@ view: user_profile {
           , COALESCE(bl.flag, FALSE) AS entity_blacklist_flag
           , sup.first_name
           , sup.last_name
+          , sg.lms_user_id
+          , sg.canvas_user_id
+          , sg.lis_person_source_id
           , p.merged_guid_email AS email
           , MAX(
             CASE
@@ -76,6 +79,8 @@ view: user_profile {
         FROM prod.datavault.hub_user hu
         INNER JOIN party p ON p.hub_user_key = hu.hub_user_key
         INNER JOIN prod.datavault.sat_user_v2 su ON su.hub_user_key = hu.hub_user_key AND su._latest
+        LEFT JOIN PROD.DATAVAULT.HUB_USER_GATEWAY hg on hg.UID = hu.UID
+        LEFT JOIN PROD.DATAVAULT.SAT_USER_GATEWAY sg on sg.HUB_USERGATEWAY_KEY = hg.HUB_USERGATEWAY_KEY and sg._LATEST
         LEFT JOIN prod.datavault.sat_user_internal sui ON sui.hub_user_key = hu.hub_user_key AND sui.active
         LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON sup.hub_user_key = hu.hub_user_key AND sup._latest
         LEFT JOIN (
@@ -107,7 +112,7 @@ view: user_profile {
       LEFT JOIN prod.cu_user_analysis.all_sessions s ON s.user_sso_guid = p.user_sso_guid
       LEFT JOIN prod.cu_user_analysis.lp_control_group lcg on lcg.user_sso_guid = p.user_sso_guid
       WHERE p.linked_guid IS NULL
-      GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+      GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25
     ;;
 
     sql_trigger_value: select count(*) from prod.datavault.sat_user_v2 ;;
@@ -204,6 +209,27 @@ view: user_profile {
     type: yesno
     sql: NOT ${TABLE}.internal;;
     alias: [real_user_flag]
+  }
+
+  dimension : lms_user_id  {
+    group_label: "User Info - LMS"
+    type: string
+    required_access_grants: [can_view_CU_pii_data]
+    description: "User LMS ID"
+  }
+
+  dimension : canvas_user_id  {
+    group_label: "User Info - LMS"
+    type: string
+    required_access_grants: [can_view_CU_pii_data]
+    description: "User Canvas ID"
+  }
+
+  dimension : lis_person_source_id  {
+    group_label: "User Info - LMS"
+    type: string
+    required_access_grants: [can_view_CU_pii_data]
+    description: "User SIS ID from LMS"
   }
 
   dimension: institution_id {

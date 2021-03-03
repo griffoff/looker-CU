@@ -147,6 +147,9 @@ view: course_info {
         ) AS lms_type_all
         , lms_type_all <> 'NOT LMS INTEGRATED' AS is_lms_integrated
         , lms.lms_version
+        , lms.canvas_course_id
+        , lms.lms_context_id
+        , lms.lis_course_source_id
         , COALESCE(
           lms.integration_type
           , CASE WHEN lms_type_all = 'UNKNOWN LMS' THEN 'UNKNOWN LMS' WHEN is_lms_integrated THEN 'UNKNOWN INTEGRATION TYPE' ELSE 'NOT LMS INTEGRATED' END
@@ -207,7 +210,7 @@ view: course_info {
       ) inst on inst.course_identifier = COALESCE(scs.course_key,hcs.context_id)
 
       WHERE (scs.course_key IS NOT NULL OR scs2.course_key IS NULL)
-      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
+      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
   }
@@ -302,6 +305,25 @@ view: course_info {
     label: "LMS Integration Type"
     group_label: "LMS Integration"
   }
+
+  dimension: lms_context_id {
+    label: "LMS Context ID"
+    description: "Context ID of LMS Course"
+    group_label: "LMS Integration"
+  }
+
+  dimension: canvas_course_id {
+    label: "Canvas Course ID"
+    description: "Course ID of Canvas Course"
+    group_label: "LMS Integration"
+  }
+
+  dimension: lis_course_source_id {
+    label: "SIS Course ID"
+    description: "SIS ID of LMS Course"
+    group_label: "LMS Integration"
+  }
+
 
   dimension: mt_lms_sync_course_scores {type:yesno hidden:yes}
 
