@@ -147,6 +147,9 @@ view: course_info {
         ) AS lms_type_all
         , lms_type_all <> 'NOT LMS INTEGRATED' AS is_lms_integrated
         , lms.lms_version
+        , lms.canvas_course_id
+        , lms.lms_context_id
+        , lms.lis_course_source_id
         , COALESCE(
           lms.integration_type
           , CASE WHEN lms_type_all = 'UNKNOWN LMS' THEN 'UNKNOWN LMS' WHEN is_lms_integrated THEN 'UNKNOWN INTEGRATION TYPE' ELSE 'NOT LMS INTEGRATED' END
@@ -302,6 +305,25 @@ view: course_info {
     label: "LMS Integration Type"
     group_label: "LMS Integration"
   }
+
+  dimension: lms_context_id {
+    label: "LMS Context ID"
+    description: "Context ID of LMS Course"
+    group_label: "LMS Integration"
+  }
+
+  dimension: canvas_course_id {
+    label: "Canvas Course ID"
+    description: "Course ID of Canvas Course"
+    group_label: "LMS Integration"
+  }
+
+  dimension: lis_course_source_id {
+    label: "SIS Course ID"
+    description: "SIS ID of LMS Course"
+    group_label: "LMS Integration"
+  }
+
 
   dimension: mt_lms_sync_course_scores {type:yesno hidden:yes}
 
