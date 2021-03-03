@@ -3,6 +3,7 @@ include: "/models/IPM.model.lkml"
 explore: ipm_guids_impressions_past_7_days {}
 
 view: ipm_guids_impressions_past_7_days {
+  view_label: "IPM Guids Impressions Last 7 Days"
   derived_table: {
     explore_source: ipm_campaign {
       column: user_sso_guid { field: ipm_browser_event.user_sso_guid }

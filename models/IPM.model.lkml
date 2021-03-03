@@ -9,6 +9,10 @@ include: "/datagroups.lkml"
 explore: ipm_campaign {
   label: "IPM Campaign"
 
+  description: "Contains IPM campaign details, Message interactions and calculated outcomes.
+  Including rates of click through and succcessful target actions.
+  "
+
   join: ipm_browser_event {
     from: ipm_browser_event_and_outcome
     sql_on: ${ipm_campaign.message_id} = ${ipm_browser_event.message_id}
@@ -22,6 +26,7 @@ explore: ipm_campaign {
 }
 
 explore: ipm_browser_event {
+  hidden: yes
   label: "IPM User Events"
   description: "Contains client-side events
   that are captured when a message is presented to a user,
