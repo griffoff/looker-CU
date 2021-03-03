@@ -1,14 +1,15 @@
 connection: "snowflake_prod"
 
-include: "/views/ipm/ipm_browser_event.view.lkml"
+include: "/views/ipm/ipm_browser_event_and_outcome.view.lkml"
 include: "/views/ipm/ipm_campaign.view.lkml"
 include: "/views/ipm/ipm_queue_event.view.lkml"
 
 include: "/datagroups.lkml"
 
-explore: ipm_campaign {
+explore: ipm_campaign_analysis {
+  from: ipm_campaign
+  view_name: ipm_campaign
   label: "IPM Campaign"
-
   description: "Contains IPM campaign details, Message interactions and calculated outcomes.
   Including rates of click through and succcessful target actions.
   "
@@ -25,7 +26,9 @@ explore: ipm_campaign {
 
 }
 
-explore: ipm_browser_event {
+explore: ipm_events {
+  from: ipm_browser_event
+  view_name: ipm_browser_event
   hidden: yes
   label: "IPM User Events"
   description: "Contains client-side events

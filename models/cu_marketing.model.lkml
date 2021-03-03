@@ -100,10 +100,10 @@ explore: late_activators {
 # }
 
 explore: marketing_analysis {
-  hidden: yes
   label: "CU User Analysis Marketing"
   description: "Marketing explore for user segmentation, IPM/email campaign analysis and ad-hoc marketing analysis"
   extends: [session_analysis]
+  hidden: yes
 
 # This method only works if everyone has a mapping (i.e. there is no override to see all)
 #   access_filter: {
