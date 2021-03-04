@@ -1,10 +1,10 @@
+include: "/views/event_analysis/*.view.lkml"
+include: "/models/cengage_unlimited.model"
+
 connection: "snowflake_prod"
 
-include: "/views/event_analysis/*.view.lkml"
-include: "/models/shared_explores.lkml"
-
 explore: conversion_analysis {
-  extends: [learner_profile]
+  extends: [user_profile, user_products]
   from:  conversion_analysis
   view_name:  conversion_analysis
 
@@ -21,15 +21,20 @@ explore: conversion_analysis {
       ]
     }
 
-  join: learner_profile {
-    sql_on: ${conversion_analysis.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+  join: user_profile {
+    sql_on: ${conversion_analysis.user_sso_guid} = ${user_profile.user_sso_guid} ;;
     relationship: many_to_one
+  }
+
+  join: user_products {
+    sql_on: ${user_profile.user_sso_guid} = ${user_products.merged_guid} ;;
+    relationship: one_to_many
   }
 }
 
 explore: flow_analysis {
   label: "Flow Analysis"
-  extends: [learner_profile]
+  extends: [user_profile, user_products]
   from: cohort_selection
   view_name: cohort_selection
 
@@ -46,8 +51,13 @@ explore: flow_analysis {
       ]
     }
 
-  join: learner_profile {
-    sql_on: ${cohort_selection.user_sso_guid} = ${learner_profile.user_sso_guid} ;;
+  join: user_profile {
+    sql_on: ${cohort_selection.user_sso_guid} = ${user_profile.user_sso_guid} ;;
     relationship: many_to_one
+  }
+
+  join: user_products {
+    sql_on: ${user_profile.user_sso_guid} = ${user_products.merged_guid} ;;
+    relationship: one_to_many
   }
 }

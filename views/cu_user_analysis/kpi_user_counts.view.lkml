@@ -1,10 +1,7 @@
-explore: kpi_user_counts {}
+explore: kpi_user_counts {hidden: yes}
 
-view: kpi_user_counts_agg {
-  extends: [kpi_user_counts]
-
-}
 view: kpi_user_counts {
+  view_label: "User Count KPIs"
 
   derived_table: {
     create_process: {

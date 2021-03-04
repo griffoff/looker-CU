@@ -52,16 +52,6 @@ fiscal_month_offset: 3
 
 ######################### Start of PROD Explores #########################################################################
 
-# view: current_date {
-
-#   view_label: "** Date Filters **"
-#   derived_table: {
-#     sql: select date_part(week, current_date()) as current_week_of_year;;
-#   }
-
-#   dimension: current_week_of_year {type: number hidden:yes}
-# }
-
 explore: instructor_provisioned_products {
   from: raw_olr_provisioned_product
   view_name: raw_olr_provisioned_product
@@ -197,11 +187,6 @@ explore: course_sections {
 # }
 
 
-# explore: active_users {
-#   hidden: yes
-#   from: guid_platform_date_active
-# }
-
 # explore: strategy_ecom_sales_orders {
 #   label: "Revenue"
 #   view_label: "Revenue"
@@ -219,14 +204,10 @@ explore: course_sections {
 ################################################# End of PROD Explores ###########################################
 
 
-explore: courseware_usage_tiers_csms {}
+#explore: courseware_usage_tiers_csms {}
 
 
-
-
-explore: products_v {}
-
-
+#explore: products_v {}
 
 ######## User Experience Journey End PROD ###################
 
@@ -249,19 +230,19 @@ explore: products_v {}
 
 
 ##### Raw Snowflake Tables #####
-explore: provisioned_product {
-  label: "VitalSource events"
-  from: raw_olr_provisioned_product
-  join: raw_subscription_event {
-    sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
-    relationship: many_to_one
-  }
+# explore: provisioned_product {
+#   label: "VitalSource events"
+#   from: raw_olr_provisioned_product
+#   join: raw_subscription_event {
+#     sql_on: ${provisioned_product.user_sso_guid} = ${raw_subscription_event.user_sso_guid} ;;
+#     relationship: many_to_one
+#   }
 
-  join:  raw_vitalsource_event {
-    sql_on: ${provisioned_product.user_sso_guid} = ${raw_vitalsource_event.user_sso_guid} ;;
-    relationship: many_to_many
-  }
-}
+#   join:  raw_vitalsource_event {
+#     sql_on: ${provisioned_product.user_sso_guid} = ${raw_vitalsource_event.user_sso_guid} ;;
+#     relationship: many_to_many
+#   }
+# }
 
 # explore: raw_subscription_event {
 #   hidden: yes
@@ -633,48 +614,50 @@ explore: sales_order_adoption_base {}
 #   }
 # }
 
-view: date_ty_ly {
+# view: date_ty_ly {
 
-  parameter: offset {
-    view_label: "Filters"
-    description: "Offset (days/weeks/months depending on metric) to use when comparing vs prior year, can be positive to move prior year values forwards or negative to shift prior year backwards"
-    type: number
-    default_value: "0"
-  }
+#   parameter: offset {
+#     view_label: "Filters"
+#     description: "Offset (days/weeks/months depending on metric) to use when comparing vs prior year, can be positive to move prior year values forwards or negative to shift prior year backwards"
+#     type: number
+#     default_value: "0"
+#   }
 
-  derived_table: {
-    sql:
-    select
-      datevalue
-      , datevalue as date
-      , date as ty_date
-      , null as ly_date
-      , DATE_PART(EPOCH, date) as ty_epoch_date
-      , null as ly_epoch_date
-    from prod.dm_common.dim_date_legacy_cube
-    union all
-    select
-      datevalue
-      , DATEADD(day, {% parameter offset %}, dateadd(year, -1, datevalue)) as date
-      , null
-      , date as ly_date
-      , null as ty_epoch_date
-      , DATE_PART(EPOCH, date) as ly_epoch_date
-    from prod.dm_common.dim_date_legacy_cube
-    ;;
-  }
+#   derived_table: {
+#     sql:
+#     select
+#       datevalue
+#       , datevalue as date
+#       , date as ty_date
+#       , null as ly_date
+#       , DATE_PART(EPOCH, date) as ty_epoch_date
+#       , null as ly_epoch_date
+#     from prod.dm_common.dim_date_legacy_cube
+#     union all
+#     select
+#       datevalue
+#       , DATEADD(day, {% parameter offset %}, dateadd(year, -1, datevalue)) as date
+#       , null
+#       , date as ly_date
+#       , null as ty_epoch_date
+#       , DATE_PART(EPOCH, date) as ly_epoch_date
+#     from prod.dm_common.dim_date_legacy_cube
+#     ;;
+#   }
 
-  dimension: datevalue {type: date_raw hidden:yes}
-  dimension: date {type: date_raw hidden:yes primary_key:yes}
-  dimension: ty_date {type:date_raw hidden:yes}
-  dimension: ly_date {type:date_raw hidden:yes}
+#   dimension: datevalue {type: date_raw hidden:yes}
+#   dimension: date {type: date_raw hidden:yes primary_key:yes}
+#   dimension: ty_date {type:date_raw hidden:yes}
+#   dimension: ly_date {type:date_raw hidden:yes}
 
-  dimension: ty_epoch_date {type:number hidden:yes}
-  dimension: ly_epoch_date {type:number hidden:yes}
+#   dimension: ty_epoch_date {type:number hidden:yes}
+#   dimension: ly_epoch_date {type:number hidden:yes}
 
-}
+# }
 
 explore: kpi_user_stats {
+  label: "User Count KPIs"
+  hidden: no
   persist_with: daily_refresh
   from: dim_date_to_date
   view_name: dim_date_to_date
@@ -682,7 +665,6 @@ explore: kpi_user_stats {
   always_filter: {filters:[date_range: "Last 7 days", cumulative_counts: "No", kpi_user_counts.exact_counts: "false"]}
 
   view_label: "Date"
-
 
   join: kpi_user_counts {
     from: kpi_user_counts_wide

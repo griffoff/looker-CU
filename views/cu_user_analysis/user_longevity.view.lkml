@@ -1,57 +1,78 @@
 explore: user_longevity {hidden:yes}
+
 view: user_longevity {
   derived_table: {
     create_process: {
       sql_step:
-        create or replace table LOOKER_SCRATCH.user_longevity as
-          with terms as (
-          select GOV_AY_TERM_FULL, min(date_value) as term_start, max(date_value) as term_end, 1 - row_number() over (order by term_start desc) as relative_term
-          from ${dim_date.SQL_TABLE_NAME}
-          where date_value <= current_date()
-          group by GOV_AY_TERM_FULL
-          )
-          , current_guids as (
-          select distinct user_sso_guid, user_type
-          from ${courseware_users.SQL_TABLE_NAME}
-          )
-          select *, 0 as term_user, 0 as last_5_terms
-          from current_guids
-          cross join (select * from terms where relative_term > -12)
-          order by user_sso_guid, relative_term desc
+        CREATE OR REPLACE TABLE looker_scratch.user_longevity AS
+        WITH terms AS (
+            SELECT gov_ay_term_full
+                 , MIN(date_value)                                      AS term_start
+                 , MAX(date_value)                                      AS term_end
+                 , 1 - ROW_NUMBER() OVER (ORDER BY term_start DESC)     AS relative_term
+                 , LEAD(gov_ay_term_full, 3) OVER (ORDER BY term_start) AS ny_term
+                 , LEAD(term_start, 3) OVER (ORDER BY term_start)       AS ny_term_start
+                 , LEAD(term_end, 3) OVER (ORDER BY term_start)         AS ny_term_end
+            FROM ${dim_date.SQL_TABLE_NAME}
+            WHERE date_value <= CURRENT_DATE()
+            GROUP BY gov_ay_term_full
+        )
+           , current_guids AS (
+            SELECT DISTINCT user_sso_guid, user_type
+            FROM ${courseware_users.SQL_TABLE_NAME}
+        )
+        SELECT *, 0 AS term_user, 0 AS last_5_terms
+        FROM current_guids
+             CROSS JOIN (SELECT * FROM terms WHERE relative_term > -12)
+        ORDER BY user_sso_guid, relative_term DESC
       ;;
       sql_step:
         UPDATE LOOKER_SCRATCH.user_longevity e
         SET term_user = 1
         FROM ${courseware_users.SQL_TABLE_NAME} g
-        WHERE e.user_sso_guid = g.user_sso_guid and g.activation_date between e.term_start and e.term_end and g.USER_TYPE = 'Student'
+        WHERE e.user_sso_guid = g.user_sso_guid
+          AND g.activation_date BETWEEN e.term_start AND e.term_end
+          AND g.USER_TYPE = 'Student'
       ;;
       sql_step:
-      UPDATE LOOKER_SCRATCH.user_longevity e
-      SET term_user = 1
-      FROM ${courseware_users.SQL_TABLE_NAME} g
-      WHERE e.user_sso_guid = g.user_sso_guid and g.COURSE_START between e.term_start and e.term_end and g.USER_TYPE = 'Instructor' and g.activation_date is null
+        UPDATE looker_scratch.user_longevity e
+        SET term_user = 1
+        FROM ${courseware_users.SQL_TABLE_NAME} g
+        WHERE e.user_sso_guid = g.user_sso_guid
+          AND g.course_start BETWEEN e.term_start AND e.term_end
+          AND g.user_type = 'Instructor'
+          AND g.activation_date IS NULL
       ;;
 
       sql_step:
-        UPDATE LOOKER_SCRATCH.user_longevity e
+        UPDATE looker_scratch.user_longevity e
         SET e.last_5_terms = v.last_5_terms
-        from (
-        select user_sso_guid
-        , user_type
-        , relative_term
-        , sum(coalesce(TERM_USER,0)) over (partition by USER_SSO_GUID, USER_TYPE order by RELATIVE_TERM rows between 5 preceding and current row ) as last_5_terms
-        from LOOKER_SCRATCH.user_longevity
-        ) v
-        where v.USER_SSO_GUID = e.USER_SSO_GUID
-        and v.USER_TYPE = e.USER_TYPE
-        and v.RELATIVE_TERM = e.RELATIVE_TERM;
+        FROM (
+                 SELECT user_sso_guid
+                      , user_type
+                      , relative_term
+                      , SUM(COALESCE(term_user, 0))
+                            OVER (PARTITION BY user_sso_guid, user_type ORDER BY relative_term ROWS BETWEEN 5 PRECEDING AND CURRENT ROW ) AS last_5_terms
+                 FROM looker_scratch.user_longevity
+             ) v
+        WHERE v.user_sso_guid = e.user_sso_guid
+          AND v.user_type = e.user_type
+          AND v.relative_term = e.relative_term
       ;;
 
       sql_step:
-      CREATE OR REPLACE TABLE ${SQL_TABLE_NAME} as
-      select user_sso_guid, user_type, last_5_terms as term_longevity, GOV_AY_TERM_FULL as current_term
-      from LOOKER_SCRATCH.user_longevity
-      where term_user = 1
+        CREATE OR REPLACE TABLE ${SQL_TABLE_NAME} AS
+        SELECT user_sso_guid
+             , user_type
+             , last_5_terms     AS term_longevity
+             , gov_ay_term_full AS current_term
+             , term_start
+             , term_end
+             , ny_term
+             , ny_term_start
+             , ny_term_end
+        FROM looker_scratch.user_longevity
+        WHERE term_user = 1
       ;;
     }
     datagroup_trigger: daily_refresh
@@ -61,6 +82,11 @@ view: user_longevity {
   dimension: user_type {}
   dimension: term_longevity {}
   dimension: current_term {}
+  dimension_group: term_start {type:time hidden:yes}
+  dimension_group: term_end {type:time hidden:yes}
+  dimension: ny_term {hidden: yes}
+  dimension_group: ny_term_start {type:time hidden:yes}
+  dimension_group: ny_term_end {type:time hidden:yes}
 
   dimension: term_longevity_bucket {
     sql: case

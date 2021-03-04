@@ -53,6 +53,10 @@ view: conversion_analysis {
     description: "Time frames for bucketing results"
     type: number
     allowed_value: {
+      label: "Seconds(s)"
+      value: "0.001"
+    }
+    allowed_value: {
       label: "Minute(s)"
       value: "0.01"
     }
@@ -108,7 +112,9 @@ view: conversion_analysis {
         SELECT DISTINCT
             user_sso_guid
             ,DATE_TRUNC(
-            {% if time_period._parameter_value == '0.01' %}
+            {% if time_period._parameter_value == '0.001' %}
+              second
+            {% elsif time_period._parameter_value == '0.01' %}
               minute
             {% elsif time_period._parameter_value == '0.1' %}
               hour
@@ -186,7 +192,9 @@ view: conversion_analysis {
           {% endif %}
           AS reference_event_time
           ,COALESCE(GREATEST(1, DATEDIFF(
-            {% if time_period._parameter_value == '0.01' %}
+            {% if time_period._parameter_value == '0.001' %}
+              second
+            {% elsif time_period._parameter_value == '0.01' %}
               minute
             {% elsif time_period._parameter_value == '0.1' %}
               hour
@@ -261,7 +269,7 @@ view: conversion_analysis {
           ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events) AS total_user_count
           ,(SELECT COUNT(DISTINCT user_sso_guid) FROM final_events WHERE event_type = 'conversion' ) AS total_converted_user_count
           , period_number
-          , CONCAT(DECODE({{ time_period._parameter_value }}, 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
+          , CONCAT(DECODE({{ time_period._parameter_value }}, 0.001, 'Second', 0.01, 'Minute', 0.1, 'Hour', 1, 'Day', 7, 'Week', 30, 'Month', 365, 'Year')
                       ,' ',period_number) AS period_label
           , MIN(reference_event_time) AS initial_time_min
           , MAX(reference_event_time) AS initial_time_max
