@@ -1,7 +1,4 @@
-view: conversion_analysis {
-
-  view_label: "** USER EVENT CONVERSION **"
-
+view: conversion_filters_base {
   filter: initial_events_filter {
     label: "Choose 1st (initial) event"
     description: "Select the starting event(s) that represent the beginning of the workflow  or the retention baseline"
@@ -26,6 +23,12 @@ view: conversion_analysis {
     type: date
     datatype: date
   }
+
+}
+
+view: conversion_analysis {
+extends: [conversion_filters_base]
+  view_label: "** USER EVENT CONVERSION **"
 
   parameter: analysis_type {
     label: "Choose the type of analysis"

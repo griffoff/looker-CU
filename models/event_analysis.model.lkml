@@ -33,10 +33,11 @@ explore: conversion_analysis {
 }
 
 explore: flow_analysis {
-  label: "Flow Analysis"
   extends: [user_profile, user_products]
   from: cohort_selection
   view_name: cohort_selection
+  label: "Flow Analysis"
+  view_label: "Flow Analysis"
 
   always_filter: {
     filters:[

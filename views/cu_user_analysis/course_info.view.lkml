@@ -172,6 +172,7 @@ view: course_info {
            , scs.grace_period_end_date
            , scs.created_on
            , scs.is_gateway_course
+           , scs.course_created_by_guid                                                      AS course_created_by_user
            , COALESCE(TRY_CAST(scs.course_master AS BOOLEAN), FALSE)                         AS course_master
            , scs.course_cgi
            , COALESCE(scs.is_demo, FALSE)                                                    AS is_demo
@@ -277,14 +278,29 @@ view: course_info {
   dimension: course_created_by_category {
     group_label: "Course Creation"
     case: {
-      when: {label:"Created By Cengage" sql: course_creation_is_impersonated OR course_creation_internal;;}
-      when: {label:"Created By Faculty" sql: course_creation_self_serve;;}
+      when: {label: "Created By Cengage Employee" sql: course_creation_is_impersonated OR course_creation_internal;;}
+      when: {label: "Created By Faculty" sql: course_creation_self_serve;;}
+      when: {label: "Created Via Enterprise License" sql: LEFT(${course_key}, 2) = 'EL';;}
+      when: {label: "Created Via K12 Rostering" sql: ${course_created_by_user} = 'app_k12_rostering';;}
+      when: {label: "Created Via Magellan" sql: ${course_created_by_user} = 'app_crms_servicedirect';;}
+      when: {label: "Created Via Gateway" sql: ${course_created_by_user} = 'app_the_gateway';;}
+      when: {label: "Created Via WebAssign" sql: ${course_created_by_user} = 'app_web_assign';;}
+      when: {label: "Created Via CNOW" sql: ${course_created_by_user} IN ('app_cnow_v8', 'app_cnow_v7');;}
+      when: {label: "Created Via SAM" sql: ${course_created_by_user} = 'app_gnm_sam';;}
+      when: {label: "Created Via Aplia" sql: ${course_created_by_user} = 'app_aplia_sso';;}
+      when: {label: "Created Via OLR Admin" sql: ${course_created_by_user} = 'olradminu';;}
+      when: {label: "UNKNOWN (app_gnm_ng)" sql: ${course_created_by_user} = 'app_gnm_ng';;}
+      when: {label: "UNKNOWN (app_cengage_sso)" sql: ${course_created_by_user} = 'app_cengage_sso';;}
+      when: {label: "UNKNOWN (app_fx)" sql: ${course_created_by_user} = 'app_fx';;}
+      when: {label: "UNKNOWN (app_wms)" sql: ${course_created_by_user} = 'app_wms';;}
       else: "UNKNOWN"
     }
   }
 
-  dimension: course_creation_user_type {group_label: "Course Creation"}
-  dimension: course_creation_impersonator_user_type {group_label: "Course Creation"}
+  dimension: course_creation_user_type {group_label: "Course Creation" hidden:yes}
+  dimension: course_creation_impersonator_user_type {group_label: "Course Creation" hidden:yes}
+
+  dimension: course_created_by_user {group_label: "Course Creation"hidden:yes}
 
   dimension_group: begin_date {
     label: "Course Start"
@@ -421,9 +437,19 @@ view: course_info {
   }
 
   dimension: enrollments_count {
+    group_label: "Course User Counts"
     label: "Total Course Enrollments"
     type: number
     description: "Total number of enrollments on course"
+  }
+
+  dimension: enrollments_count_tier {
+    group_label: "Course User Counts"
+    label: "Total Course Enrollments (buckets)"
+    type: tier
+    tiers: [5, 10, 30, 50, 100]
+    style: integer
+    sql: ${enrollments_count} ;;
   }
 
   dimension: institution_id {hidden:yes}
