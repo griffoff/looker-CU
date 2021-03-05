@@ -114,6 +114,7 @@ dimension_group: serial_number_consumed_expiration_date {
 dimension: paid_flag {
   type: yesno
   description: "User paid for the product."
+  alias: [paid]
 }
 
 dimension: cu_flag {
