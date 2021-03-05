@@ -1,3 +1,4 @@
+include: "./raw_subscription_event_sap.view"
 # explore: live_subscription_status_sap {}
 
 view: live_subscription_status {

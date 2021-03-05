@@ -1,6 +1,7 @@
 include: "./live_subscription_status.view"
 include: "./institution_info.view"
 include: "./instructor_latest_login.view"
+include: "//core/access_grants_file.view"
 
 explore: user_profile {
   view_label: "User Details"

@@ -28,7 +28,7 @@ view: conversion_filters_base {
 
 view: conversion_analysis {
 extends: [conversion_filters_base]
-  view_label: "** USER EVENT CONVERSION **"
+
 
   parameter: analysis_type {
     label: "Choose the type of analysis"
@@ -295,23 +295,23 @@ extends: [conversion_filters_base]
   }
 
   dimension: user_sso_guid {
-    view_label: "** USER EVENT CONVERSION **"
+
     hidden: no
     description: "User sso guid in potential conversion population"
     }
 
-  dimension: initial_event {view_label: "** USER EVENT CONVERSION **" hidden:yes}
-  dimension: initial_time_max {view_label: "** USER EVENT CONVERSION **" type:date hidden:yes}
-  dimension: initial_time_min {view_label: "** USER EVENT CONVERSION **" type:date hidden:yes}
-  dimension: conversion_event {view_label: "** USER EVENT CONVERSION **" hidden:yes}
-  dimension: conversion_time_max {view_label: "** USER EVENT CONVERSION **" type:date hidden:yes}
-  dimension: conversion_time_min {view_label: "** USER EVENT CONVERSION **" type:date hidden:yes}
+  dimension: initial_event {hidden:yes}
+  dimension: initial_time_max {type:date hidden:yes}
+  dimension: initial_time_min {type:date hidden:yes}
+  dimension: conversion_event {hidden:yes}
+  dimension: conversion_time_max {type:date hidden:yes}
+  dimension: conversion_time_min {type:date hidden:yes}
 
-  dimension: period_number {view_label: "** USER EVENT CONVERSION **" type: number hidden:yes}
+  dimension: period_number {type: number hidden:yes}
 
   dimension: conversion_period {
     label: "Conversion Period (output)"
-    view_label: "** USER EVENT CONVERSION **"
+
     order_by_field: period_number
     description: "Conversion occurred during this period after the initial event"
     sql: ${TABLE}.period_label ;;
@@ -326,7 +326,7 @@ extends: [conversion_filters_base]
   }
 
   dimension: user_converted {
-    view_label: "** USER EVENT CONVERSION **"
+
     sql: ${conversion_time_max} IS NOT NULL ;;
     type: yesno
     description: "User converted according the specified filter parameters"
@@ -335,21 +335,21 @@ extends: [conversion_filters_base]
   measure: user_count {
     type: count_distinct
     sql: ${user_sso_guid} ;;
-    view_label: "** USER EVENT CONVERSION **"
+
     hidden:yes
   }
 
   measure: total_user_count {
     type: number
     sql: MAX(${TABLE}.total_user_count);;
-    view_label: "** USER EVENT CONVERSION **"
+
     description: "Total number of users who did at least one of the initial event(s)"
   }
 
   measure: total_converted_user_count {
     type: number
     sql: MAX(${TABLE}.total_converted_user_count);;
-    view_label: "** USER EVENT CONVERSION **"
+
     description: "Total number of users who did at least one of the initial events and at least one of the conversion event(s)"
   }
 
@@ -358,7 +358,7 @@ extends: [conversion_filters_base]
     #required_fields: [conversion_period]
     type: count_distinct
     sql: ${user_sso_guid} ;;
-    view_label: "** USER EVENT CONVERSION **"
+
     description: "Number of users who converted (did one of the initial event(s) followed by one of the conversion event(s))"
   }
 
@@ -369,13 +369,13 @@ extends: [conversion_filters_base]
     tiers: [5, 10, 15, 50, 60, 120]
     sql: ${TABLE}.conversion_event_duration / 60 ;;
     value_format: "0 \m\i\n\s"
-    view_label: "** USER EVENT CONVERSION **"
+
   }
 
   measure: conversion_rate {
     type: number
     sql: COUNT(DISTINCT CASE WHEN ${period_number} >= 0 THEN ${user_sso_guid} END) / nullif(${total_user_count},0);;
-    view_label: "** USER EVENT CONVERSION **"
+
     value_format_name: percent_2
     description: "Ratio of number of users who converted over number that did one of the initial event(s).  NOTE: this does not work if you add other dimensions to the result"
   }
@@ -383,7 +383,7 @@ extends: [conversion_filters_base]
   measure: first_conversion_duration_average {
     type: number
     sql: AVG(datediff(seconds,${initial_time_min},${conversion_time_min}))/24/60/60;;
-    view_label: "** USER EVENT CONVERSION **"
+
     value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
     description: "Average time (in days) between first initital event and first conversion event"
@@ -392,7 +392,7 @@ extends: [conversion_filters_base]
   measure: first_conversion_duration_max {
     type: number
     sql: MAX(datediff(seconds,${initial_time_min},${conversion_time_min}))/24/60/60;;
-    view_label: "** USER EVENT CONVERSION **"
+
     value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
     description: "Max time (in days) between first initital event and first conversion event"
@@ -401,7 +401,7 @@ extends: [conversion_filters_base]
   measure: first_conversion_duration_min {
     type: number
     sql: MIN(datediff(seconds,${initial_time_min},${conversion_time_min}))/24/60/60;;
-    view_label: "** USER EVENT CONVERSION **"
+
     value_format: "d \d\a\y\s h \h\r\s m \m\i\n\s s \s\e\c\s"
 #     value_format: "[hh]:mm:ss"
     description: "Min time (in days) between first initital event and first conversion event"
