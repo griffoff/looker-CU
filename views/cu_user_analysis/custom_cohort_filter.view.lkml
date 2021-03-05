@@ -1,6 +1,8 @@
 explore: custom_cohort_filter {hidden: yes}
 
 view: custom_cohort_filter {
+  view_label: "*** Custom User Cohort Filter ***"
+
   derived_table: {
     create_process: {
       sql_step:

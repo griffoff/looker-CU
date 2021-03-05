@@ -445,9 +445,9 @@ view: kpi_user_counts {
         CLONE LOOKER_SCRATCH.kpi_user_counts
         ;;
 
-      sql_step: alter warehouse heavyduty suspend ;;
+      # sql_step: alter warehouse heavyduty suspend ;;
 
-      sql_step: use warehouse analysis ;;
+      sql_step: use warehouse looker_pdt ;;
 
        }
 

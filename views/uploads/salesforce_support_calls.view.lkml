@@ -1,25 +1,3 @@
-include: "/views/cu_user_analysis/*.view"
-explore: salesforce_support_calls {
-  extends: [institution_info, user_products]
-  join: institution_info {
-    sql_on: ${salesforce_support_calls.account_entitynumber_c}::STRING = ${institution_info.institution_id}::STRING ;;
-    relationship: many_to_one
-  }
-
-  join: user_products {
-    view_label: "User Products"
-    sql_on: ${user_products.merged_guid} = ${salesforce_support_calls.merged_guid} and ${salesforce_support_calls.created_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp);;
-    relationship: many_to_many
-  }
-
-  join: sap_subscriptions {
-    view_label: "Subscription"
-    sql_on: ${salesforce_support_calls.merged_guid} = ${sap_subscriptions.merged_guid} and ${salesforce_support_calls.created_raw} between ${sap_subscriptions.subscription_start_raw} and coalesce(${sap_subscriptions.cancelled_raw},${sap_subscriptions.subscription_end_raw}) ;;
-    relationship: many_to_many
-  }
-
-}
-
 view: salesforce_support_calls {
   derived_table: {
     sql:

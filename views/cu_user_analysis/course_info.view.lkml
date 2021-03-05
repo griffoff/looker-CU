@@ -5,15 +5,12 @@ include: "custom_course_key_cohort_filter.view"
 include: "gateway_lms_course_sections.view"
 
 explore: course_info {
-  extends: [product_info]
+  from: course_info
+  view_name: course_info
+
+  extends: [product_info,institution_info]
   hidden:yes
   view_label: "Course Section Details"
-
-  always_filter: {
-    filters:[
-      course_info.is_real_course: "Yes"
-    ]
-  }
 
   join: dim_course_start_date  {
     sql_on: ${course_info.begin_date_raw} = ${dim_course_start_date.date_value};;
@@ -26,36 +23,39 @@ explore: course_info {
   }
 
   join: product_info {
+    view_label: "Course Product Details"
     sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
     relationship: many_to_one
   }
 
-  join: product_institution_info {
-    from: institution_info
+  join: product_discipline_rank {
+    view_label: "Course Product Details"
+  }
+
+  join: institution_info {
     view_label: "Course Institution Details"
-    sql_on: ${course_info.institution_id} = ${product_institution_info.institution_id} ;;
+    sql_on: ${course_info.institution_id} = ${institution_info.institution_id} ;;
     relationship: many_to_one
   }
 
   join: gateway_institution {
-    view_label: "Course Institution Info"
+    view_label: "Course Institution Details"
   }
 
   join: course_section_usage_facts {
-    sql_on:  ${course_info.course_key} = ${course_section_usage_facts.course_key} ;;
+    sql_on:  ${course_info.course_identifier} = ${course_section_usage_facts.course_key} ;;
     relationship: one_to_one
     view_label: "Course Section Details"
   }
 
   join: custom_course_key_cohort_filter {
-    view_label: "** Custom Course Key Cohort Filter **"
-    sql_on: ${course_info.course_key} = ${custom_course_key_cohort_filter.course_key} ;;
-    # type: left_outer
+    view_label: "*** Custom Course Key Cohort Filter ***"
+    sql_on: ${course_info.course_identifier} = ${custom_course_key_cohort_filter.course_key} ;;
     relationship: many_to_many
   }
 
   join: gateway_lms_course_sections {
-    sql_on: ${course_info.course_key} = ${gateway_lms_course_sections.olr_context_id};;
+    sql_on: ${course_info.course_identifier} = ${gateway_lms_course_sections.olr_context_id};;
     relationship: one_to_one
     view_label: "Course Section Details"
   }
@@ -133,7 +133,8 @@ view: course_info {
         , scs.begin_date
         , scs.end_date
         , scs.iac_isbn
-        , scs.begin_date::DATE <= CURRENT_DATE() AND scs.end_date >= CURRENT_DATE()::DATE AS active
+        -- , scs.begin_date::DATE <= CURRENT_DATE() AND scs.end_date >= CURRENT_DATE()::DATE AS active
+        , COALESCE(CURRENT_DATE BETWEEN scs.begin_date::DATE and COALESCE(scs.end_date,CURRENT_DATE),FALSE) AS active
         , coalesce(scs.deleted,false) AS deleted
         , scs.grace_period_end_date
         , scs.created_on
@@ -141,6 +142,7 @@ view: course_info {
         , COALESCE(TRY_CAST(scs.course_master AS BOOLEAN),FALSE) AS course_master
         , scs.course_cgi
         , COALESCE(scs.is_demo,FALSE) AS is_demo
+        , scs.section_product_type
         , COALESCE(
           UPPER(DECODE(lms.lms_type, 'BB', 'Blackboard', lms.lms_type))
           , CASE WHEN scs.is_gateway_course THEN 'UNKNOWN LMS' ELSE 'NOT LMS INTEGRATED' END
@@ -207,7 +209,7 @@ view: course_info {
       ) inst on inst.course_identifier = COALESCE(scs.course_key,hcs.context_id)
 
       WHERE scs.course_key IS NOT NULL OR scs2.course_key IS NULL
-      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
+      GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27
     ;;
     sql_trigger_value: select count(*) from prod.datavault.sat_coursesection ;;
   }
@@ -347,6 +349,8 @@ view: course_info {
 
   dimension: institution_id {hidden:yes}
 
+  dimension: section_product_type {}
+
   measure: count {
     type: count
     label: "# Courses"
@@ -355,6 +359,17 @@ view: course_info {
   measure: active_course_sections {
     type: count_distinct
     sql: CASE WHEN ${active} THEN ${course_key} END ;;
+  }
+
+  measure: active_course_list {
+    type: string
+    sql: CASE
+          WHEN COUNT(DISTINCT ${course_identifier}) > 10 THEN ' More than 10 courses... '
+          ELSE
+          LISTAGG(DISTINCT CASE WHEN ${active} THEN ${course_name} END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${active} THEN ${course_name} END)
+        END ;;
+    description: "List of active courses by name"
   }
 
 }

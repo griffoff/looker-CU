@@ -1,12 +1,18 @@
 include: "./live_subscription_status.view"
 include: "./institution_info.view"
+include: "./custom_cohort_filter.view"
+include: "./guid_cohort.view"
+include: "/views/discounts/student_discounts_dps.view"
 
 explore: user_profile {
-  view_label: "User Details"
+  from: user_profile
+  view_name: user_profile
+  extends: [user_institution_info]
   hidden:yes
+  view_label: "User Details"
 
   always_filter: {
-    filters: [user_profile.is_real_user: "Yes"]
+    filters: [user_profile.user_type: ""]
   }
 
   join: live_subscription_status {
@@ -20,9 +26,27 @@ explore: user_profile {
     sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
     relationship: many_to_one
   }
+
+  join: custom_cohort_filter {
+    sql_on: ${user_profile.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
+    relationship: one_to_many
+  }
+
+  join: guid_cohort {
+    sql_on: ${user_profile.user_sso_guid} = ${guid_cohort.guid} ;;
+    relationship: many_to_one
+    type: inner
+  }
+
+  join: student_discounts_dps {
+    sql_on: ${user_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
+    relationship: one_to_one
+  }
 }
 
 view: user_profile {
+  view_label: "User Details"
+
   derived_table: {
     sql:
       WITH party AS (
@@ -43,6 +67,44 @@ view: user_profile {
         FROM prod.datavault.hub_user hu
         LEFT JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
         LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON hu.hub_user_key = sup.hub_user_key AND sup._latest
+      )
+      , product_usage AS (
+        SELECT
+          up.user_sso_guid
+          , up.platform_last_added
+          , up.section_product_type_last_added
+          , COUNT(DISTINCT CASE WHEN up.paid_flag AND (current_date BETWEEN up.begin_date AND up.end_date) THEN up.course_identifier END) AS current_paid_courses
+          , COUNT(DISTINCT CASE WHEN (NOT up.paid_flag) AND (current_date BETWEEN up.begin_date AND up.end_date) THEN up.course_identifier END) AS current_unpaid_courses
+          , COUNT(DISTINCT CASE WHEN up.paid_flag
+                                AND up.is_ebook_product
+                                AND (current_date BETWEEN up.provision_date AND COALESCE(up.provision_expiration_date,CURRENT_DATE))
+                                AND up.course_key IS NULL
+                              THEN HASH(up.user_sso_guid,up.isbn,up.academic_term) END
+            ) AS current_paid_standalone_ebook_provisions
+          , COUNT(DISTINCT CASE WHEN (NOT up.paid_flag)
+                                AND up.is_ebook_product
+                                AND (current_date BETWEEN up.provision_date AND COALESCE(up.provision_expiration_date,CURRENT_DATE))
+                                AND up.course_key IS NULL
+                              THEN HASH(up.user_sso_guid,up.isbn,up.academic_term) END
+            ) AS current_unpaid_standalone_ebook_provisions
+        FROM (
+          SELECT DISTINCT up.*, ci.begin_date, ci.end_date, ci.course_identifier, pi.is_ebook_product
+          , LEAST(COALESCE(enrollment_date,'9999-01-01'),COALESCE(provision_date,'9999-01-01'),COALESCE(activation_date,'9999-01-01'),COALESCE(serial_number_consumed_date,'9999-01-01')) AS added_date
+          , LAST_VALUE(pi.platform) IGNORE NULLS OVER(PARTITION BY up.user_sso_guid ORDER BY added_date) as platform_last_added
+          , LAST_VALUE(ci.section_product_type) IGNORE NULLS OVER(PARTITION BY up.user_sso_guid ORDER BY added_date) as section_product_type_last_added
+          FROM ${user_products.SQL_TABLE_NAME} up
+          LEFT JOIN ${course_info.SQL_TABLE_NAME} ci ON ci.course_identifier = up.course_key
+          LEFT JOIN ${product_info.SQL_TABLE_NAME} pi ON pi.isbn13 = up.isbn
+        ) up
+        GROUP BY 1,2,3
+      )
+      , sessions AS (
+        SELECT
+          s.user_sso_guid
+          , MIN(SESSION_START) AS first_session
+          , MAX(SESSION_START) AS latest_session
+        FROM prod.cu_user_analysis.all_sessions s
+        GROUP BY 1
       )
       , party_flags AS (
         SELECT
@@ -76,7 +138,7 @@ view: user_profile {
         FROM prod.datavault.hub_user hu
         INNER JOIN party p ON p.hub_user_key = hu.hub_user_key
         INNER JOIN prod.datavault.sat_user_v2 su ON su.hub_user_key = hu.hub_user_key AND su._latest
-        LEFT JOIN prod.datavault.sat_user_internal sui ON sui.hub_user_key = hu.hub_user_key AND sui.active
+        LEFT JOIN prod.datavault.sat_user_internal sui ON sui.hub_user_key = hu.hub_user_key AND sui.internal AND sui.active
         LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON sup.hub_user_key = hu.hub_user_key AND sup._latest
         LEFT JOIN (
           SELECT lui.hub_user_key, hi.institution_id
@@ -92,22 +154,31 @@ view: user_profile {
           FROM uploads.cu.entity_blacklist
         ) bl ON lui.institution_id = bl.entity_id AND bl.latest
         LEFT JOIN prod.datavault.sat_user_marketing_v2 sum ON sum.hub_user_key = hu.hub_user_key AND sum._latest
+        WHERE sui.hub_user_key IS NULL
       )
-      SELECT
-      p.*
-        , ARRAY_AGG(DISTINCT lg.uid) AS shadow_guids
-        , MIN(SESSION_START) AS first_session
-        , MAX(SESSION_START) AS latest_session
+      SELECT DISTINCT
+        p.*
+        , first_session
+        , latest_session
+        , platform_last_added
+        , section_product_type_last_added
+        , current_paid_courses
+        , current_unpaid_courses
+        , current_paid_standalone_ebook_provisions
+        , current_unpaid_standalone_ebook_provisions
+        , shadow_guids
       FROM party_flags p
       LEFT JOIN (
-        SELECT DISTINCT uid, linked_guid
+        SELECT linked_guid, ARRAY_AGG(DISTINCT uid) AS shadow_guids
         FROM prod.datavault.hub_user hu
         INNER JOIN prod.datavault.sat_user_v2 su ON su.hub_user_key = hu.hub_user_key
+        WHERE linked_guid IS NOT NULL
+        GROUP BY 1
       ) lg ON lg.linked_guid = p.user_sso_guid
-      LEFT JOIN prod.cu_user_analysis.all_sessions s ON s.user_sso_guid = p.user_sso_guid
-      LEFT JOIN prod.cu_user_analysis.lp_control_group lcg on lcg.user_sso_guid = p.user_sso_guid
+      LEFT JOIN sessions s ON s.user_sso_guid = p.user_sso_guid
+      LEFT JOIN prod.cu_user_analysis.lp_control_group lcg ON lcg.user_sso_guid = p.user_sso_guid
+      LEFT JOIN product_usage pu on pu.user_sso_guid = p.user_sso_guid
       WHERE p.linked_guid IS NULL
-      GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
     ;;
 
     sql_trigger_value: select count(*) from prod.datavault.sat_user_v2 ;;
@@ -126,7 +197,17 @@ view: user_profile {
     group_label: "User Flags"
     sql: ${TABLE}.instructor ;;
     alias: [instructor]
+    hidden: yes
     }
+
+  dimension: user_type {
+    case: {
+      when: {label:"Student" sql: NOT ${TABLE}.instructor ;;}
+      when: {label:"Faculty" sql: ${TABLE}.instructor ;;}
+    }
+    description: "Student or Faculty (incl. instructors, TA, course administrators, etc.)"
+    label: "Student or Faculty"
+  }
 
   dimension: is_instructor_by_party {
     group_label: "Party flags"
@@ -197,14 +278,15 @@ view: user_profile {
     sql: ${TABLE}.internal ;;
   }
 
-  dimension: is_real_user {
-    view_label: "** RECOMMENDED FILTERS **"
-    description: "Users who are not flagged as internal (e.g. QA)"
-    label: "Real User Flag"
-    type: yesno
-    sql: NOT ${TABLE}.internal;;
-    alias: [real_user_flag]
-  }
+  # dimension: is_real_user {
+  #   view_label: "** RECOMMENDED FILTERS **"
+  #   description: "Users who are not flagged as internal (e.g. QA)"
+  #   label: "Real User Flag"
+  #   type: yesno
+  #   sql: NOT ${TABLE}.internal;;
+  #   alias: [real_user_flag]
+  #   hidden: no
+  # }
 
   dimension: institution_id {
     description: "Entity ID of user home institution"
@@ -304,6 +386,7 @@ view: user_profile {
   }
 
   dimension: shadow_guids {
+    type: string
     description: "Array containing any non-primary guids for the user"
   }
 
@@ -328,7 +411,7 @@ view: user_profile {
     - non-USA regions"
     view_label: "** RECOMMENDED FILTERS **"
     type: yesno
-    sql: NOT ${marketing_opt_out_by_party}AND NOT ${is_k12_by_party} AND NOT ${is_instructor_by_party} AND NOT ${is_non_usa_by_party};;
+    sql: NOT ${marketing_opt_out_by_party} AND NOT ${is_k12_by_party} AND NOT ${is_instructor_by_party} AND NOT ${is_non_usa_by_party};;
   }
 
   dimension: control_flag_1 {
@@ -411,6 +494,49 @@ view: user_profile {
     hidden: yes
   }
 
+  dimension: current_paid_courses {
+    group_label: "Current Product Usage Counts"
+    type: number
+  }
+
+  dimension: current_unpaid_courses {
+    group_label: "Current Product Usage Counts"
+    type: number
+  }
+
+  dimension: current_paid_standalone_ebook_provisions {
+    group_label: "Current Product Usage Counts"
+    type: number
+  }
+
+  dimension: current_unpaid_standalone_ebook_provisions {
+    group_label: "Current Product Usage Counts"
+    type: number
+  }
+
+  dimension: platform_last_added {
+    description: "Platform of the user's most recently added product."
+  }
+
+  dimension: section_product_type_last_added {
+    description: "Section product type of the user's most recently added course."
+  }
+
+  dimension: cu_target_segment {
+    label: "CU Target Segment"
+    sql: case
+          when ${live_subscription_status.subscription_state} ilike '%trial%' --no current subscription
+          then case
+                when ${current_paid_courses} > 0 then 'Upgrade to CU from ALC' --has paid courseware
+                when ${current_unpaid_courses} > 0 then 'Advocate Subscription over ALC' --has unpaid courseware
+                when ${current_paid_standalone_ebook_provisions} > 0 then 'Upgrade to CUe from paid ebook'
+                when ${current_unpaid_standalone_ebook_provisions} > 0 then 'Advocate eTextbook subscription over paid ebook'
+                else 'Advocate Products and CU' --has no courseware set up
+                end
+          end
+    ;;
+  }
+
   measure: count {
     label: "# Users"
     type: count
@@ -421,7 +547,7 @@ view: user_profile {
   measure: student_count {
     label: "# Students"
     type: count_distinct
-    sql: case when not ${TABLE}.instructor_by_party then ${TABLE}.user_sso_guid end;;
+    sql: case when not ${TABLE}.instructor then ${TABLE}.user_sso_guid end;;
     description: "Count of primary student user accounts"
     drill_fields: [detail*]
   }
@@ -429,7 +555,7 @@ view: user_profile {
   measure: instructor_count {
     label: "# Instructors"
     type: count_distinct
-    sql: case when ${TABLE}.instructor_by_party then ${TABLE}.user_sso_guid end;;
+    sql: case when ${TABLE}.instructor then ${TABLE}.user_sso_guid end;;
     description: "Count of primary instructor user accounts"
     drill_fields: [detail*]
   }

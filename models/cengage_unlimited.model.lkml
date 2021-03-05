@@ -25,7 +25,7 @@ include: "/views/strategy/*.view"
 
 include: "/views/cu_user_analysis/cohorts/*.view.lkml"
 
-#include: "/views/uploads/*.view.lkml"
+include: "/views/uploads/*.view.lkml"
 include: "/views/cu_ebook/*.view.lkml"
 include: "/views/customer_support/*.view.lkml"
 include: "/views/fair_use/*.view.lkml"
@@ -38,6 +38,7 @@ include: "/views/uploads/ehp_tweets.view"
 include: "/views/uploads/parsed_ehp_tweets.view"
 include: "/views/uploads/ehp_cases.view"
 include: "/views/uploads/parsed_ehp_cases.view"
+include: "/views/uploads/salesforce_support_calls.view"
 
 
 include: "/models/shared_explores.lkml"
@@ -101,13 +102,8 @@ explore: course_sections {
   hidden: no
   from: course_info
   view_name: course_info
-  extends: [user_profile, course_info, product_institution_info]
+  extends: [user_profile, course_info, all_sessions]
   view_label: "Course Section Details"
-
-  # join: current_date {
-  #   type:cross
-  #   relationship: many_to_one
-  # }
 
   join: user_products {
     view_label: "Course Product Details By User"
@@ -134,11 +130,6 @@ explore: course_sections {
   join: all_sessions {
     sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;
     relationship: many_to_one
-  }
-
-  join: all_events {
-    sql_on: ${all_events.session_id} = ${all_sessions.session_id};;
-    relationship: one_to_many
   }
 
 }
@@ -704,6 +695,31 @@ explore: kpi_user_stats {
     sql_on: ${dim_date_to_date.middle_date_ly_raw} = ${yru_ly.date_raw};;
     relationship: many_to_one
     type: left_outer
+  }
+
+}
+
+explore: salesforce_support_calls {
+  hidden: no
+  view_name: salesforce_support_calls
+  from: salesforce_support_calls
+  extends: [institution_info, user_products]
+
+  join: institution_info {
+    sql_on: ${salesforce_support_calls.account_entitynumber_c}::STRING = ${institution_info.institution_id}::STRING ;;
+    relationship: many_to_one
+  }
+
+  join: user_products {
+    view_label: "User Products"
+    sql_on: ${user_products.merged_guid} = ${salesforce_support_calls.merged_guid} and ${salesforce_support_calls.created_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp);;
+    relationship: many_to_many
+  }
+
+  join: sap_subscriptions {
+    view_label: "Subscription"
+    sql_on: ${salesforce_support_calls.merged_guid} = ${sap_subscriptions.merged_guid} and ${salesforce_support_calls.created_raw} between ${sap_subscriptions.subscription_start_raw} and coalesce(${sap_subscriptions.cancelled_raw},${sap_subscriptions.subscription_end_raw}) ;;
+    relationship: many_to_many
   }
 
 }

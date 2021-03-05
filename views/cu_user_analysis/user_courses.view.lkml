@@ -675,7 +675,7 @@ derived_table: {
   }
 
   measure: student_course_list {
-    group_label: "Course Lists"
+    # group_label: "Course Lists"
     type: string
     sql: CASE
           WHEN COUNT(DISTINCT ${olr_course_key}) > 10 THEN ' More than 10 courses... '
@@ -683,7 +683,7 @@ derived_table: {
           LISTAGG(DISTINCT CASE WHEN ${current_course} THEN ${course_info.course_name} END, ', ')
             WITHIN GROUP (ORDER BY CASE WHEN ${current_course} THEN ${course_info.course_name} END)
         END ;;
-    description: "List of student courses"
+    description: "List of Active Course Names"
   }
 
   measure: student_course_list_extended {

@@ -26,6 +26,7 @@ view: live_subscription_status {
   dimension: subscription_state {
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
+    label: "Subscription Plan + Status"
     description: "Subscription Plan + Status (e.g. Trial Access (Expired))"
     suggest_explore: filter_cache_live_subscription_status_subscription_state
     suggest_dimension: subscription_state
@@ -217,6 +218,7 @@ view: live_subscription_status {
   }
 
   dimension: subscription_status {
+    # same as subscription_state
     type: string
     sql: ${TABLE}."SUBSCRIPTION_STATE" ;;
     hidden: yes
@@ -229,6 +231,7 @@ view: live_subscription_status {
   }
 
   dimension: subscription_status_sap {
+    label: ""
     type: string
     description: "Active / Cancelled / Expired / Pending"
     sql: ${TABLE}."SUBSCRIPTION_STATUS" ;;
