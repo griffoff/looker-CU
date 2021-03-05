@@ -291,15 +291,15 @@ view: user_profile {
     sql: ${TABLE}.internal ;;
   }
 
-  # dimension: is_real_user {
-  #   view_label: "** RECOMMENDED FILTERS **"
-  #   description: "Users who are not flagged as internal (e.g. QA)"
-  #   label: "Real User Flag"
-  #   type: yesno
-  #   sql: NOT ${TABLE}.internal;;
-  #   alias: [real_user_flag]
-  #   hidden: no
-  # }
+  dimension: is_real_user {
+    view_label: "** RECOMMENDED FILTERS **"
+    description: "Users who are not flagged as internal (e.g. QA)"
+    label: "Real User Flag"
+    type: yesno
+    sql: NOT ${TABLE}.internal;;
+    alias: [real_user_flag]
+    hidden: yes
+  }
 
   dimension : lms_user_id  {
     group_label: "User Info - LMS"
