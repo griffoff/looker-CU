@@ -336,7 +336,7 @@ dimension: grace_period_flag {
   measure: distinct_user_provisioned_product {
     type: count_distinct
     hidden:  yes
-    sql: hash(${merged_guid}, ${isbn13}) ;;
+    sql: hash(${merged_guid}, ${isbn13}, ${provision_date_time}) ;;
   }
 
   measure: average_user_provisioned_product {
