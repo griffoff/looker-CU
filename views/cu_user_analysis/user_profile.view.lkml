@@ -550,6 +550,13 @@ view: user_profile {
     type: number
   }
 
+  dimension: current_total_standalone_ebook_provisions {
+    group_label: "Current Product Usage Counts"
+    type: number
+    sql: ${current_paid_standalone_ebook_provisions} + ${current_unpaid_standalone_ebook_provisions} ;;
+    description: "Paid + Unpaid"
+  }
+
   dimension: current_unpaid_standalone_ebook_provisions {
     group_label: "Current Product Usage Counts"
     type: number

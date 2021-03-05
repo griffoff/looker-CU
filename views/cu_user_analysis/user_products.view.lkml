@@ -205,14 +205,6 @@ dimension: grace_period_flag {
     hidden: yes
   }
 
-  dimension: paid {
-    type: yesno
-    sql: (${TABLE}.paid_bool or ${TABLE}.activated_bool) ;;
-    group_label: "Payment Information"
-    label: "Paid"
-    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
-  }
-
   dimension_group: paid {
     type: time
     timeframes: [
@@ -225,15 +217,16 @@ dimension: grace_period_flag {
       week_of_year,
       day_of_year
     ]
-    sql: case when ${paid} then coalesce(${TABLE}.activation_date,${TABLE}.enrollment_date,${TABLE}.course_start_date)::date end ;;
+    sql: case when ${paid_flag} then ${added_date} end ;;
     label: "Approximate Paid"
     # group_label: "Payment Information"
     description: "Activation date or enrollment date / course start date when paid flag is true"
+    hidden: yes
   }
 
   dimension: paid_current {
     type: yesno
-    sql:(${paid}) and ${current_course};;
+    sql:(${paid_flag}) and ${current_course};;
     group_label: "Payment Information"
     label: "Paid Current"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
@@ -241,7 +234,7 @@ dimension: grace_period_flag {
 
   dimension: unpaid_current {
     type: yesno
-    sql:(NOT ${paid}) and ${current_course};;
+    sql:(NOT ${paid_flag}) and ${current_course};;
     group_label: "Payment Information"
     label: "Unpaid Current"
     description: "No paid flag or activation AND course has future end date"
@@ -321,7 +314,7 @@ dimension: grace_period_flag {
     group_label: "Enrollments"
     label: "# Paid enrollments"
     type: count_distinct
-    sql: CASE WHEN ${enrolled} AND ${paid} THEN ${pk} END  ;;
+    sql: CASE WHEN ${enrolled} AND ${paid_flag} THEN ${pk} END  ;;
     description: "Total # of paid enrollments (all time)"
     alias: [no_paid_enrollments]
   }
@@ -339,7 +332,7 @@ dimension: grace_period_flag {
     group_label: "Enrollments"
     label: "# Current paid enrollments"
     type: count_distinct
-    sql: CASE WHEN ${current_course} AND ${enrolled} AND ${paid} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${enrolled} AND ${paid_flag} THEN ${pk} END   ;;
     description: "Count of distinct paid course enrollments on courses that have not yet ended"
     alias: [current_paid_enrollments]
   }
@@ -365,7 +358,7 @@ dimension: grace_period_flag {
     group_label: "Payment Information"
     label: "# Current Paid Courses"
     type: count_distinct
-    sql: CASE WHEN ${current_course} AND (${paid}) THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND (${paid_flag}) THEN ${pk} END   ;;
     description: "Count of distinct paid user courses (guid+coursekey combo) that have not yet ended"
   }
 
@@ -450,6 +443,14 @@ dimension: grace_period_flag {
     type: count_distinct
     sql: case when ${paid_flag} and (not ${cu_flag}) and (${course_info.active} or ${is_current_provision} or ${is_current_serial_number}) then ${pk} end ;;
     description: "Count of distinct paid products added, not paid via CU, where the user currently has access."
+  }
+
+  measure: user_cu_course_list {
+    # group_label: "Course Lists"
+    type: string
+    sql: LISTAGG(DISTINCT case when ${cu_flag} and ${course_key} is not null then ${isbn13} end, ', ')
+      WITHIN GROUP (ORDER BY case when ${cu_flag} and ${course_key} is not null then ${isbn13} end);;
+    description: "List of user CU course ISBNs"
   }
 
   measure: count {
