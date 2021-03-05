@@ -1,10 +1,11 @@
 include: "./product_discipline_rank.view"
 
 explore: product_info {
+  view_label: "Product Details"
   hidden:yes
 
   join: product_discipline_rank {
-    view_label: "Product"
+    view_label: "Product Details"
     sql_on: ${product_info.discipline} = ${product_discipline_rank.discipline} ;;
     relationship: many_to_one
   }
@@ -12,13 +13,26 @@ explore: product_info {
 }
 
 view: product_info {
-  view_label: "Product"
+  view_label: "Product Details"
   derived_table: {
     sql:
-    select *
-      , coalesce(platform,'UNKNOWN PLATFORM') as product_platform
-    from prod.STG_CLTS.PRODUCTS
+      select distinct
+        p.*
+        , spa.TYPE
+        , coalesce(platform,'UNKNOWN PLATFORM') as product_platform
+        , coalesce(product_platform in ('Standalone Academic eBook','MindTap Reader') or spa.type in ('MTR','SMEB'),false)  as is_ebook_product
+      from prod.STG_CLTS.PRODUCTS p
+      left join (
+        select distinct
+        hi.isbn13
+        , last_value(lpi.hub_product_key) over(partition by hi.isbn13 order by spie._effective_from) as hub_product_key
+        from prod.datavault.hub_isbn hi
+        inner join prod.DATAVAULT.LINK_PRODUCT_ISBN lpi on lpi.HUB_ISBN_KEY = hi.HUB_ISBN_KEY
+        inner join prod.DATAVAULT.SAT_PRODUCT_ISBN_EFFECTIVITY spie on spie.LINK_PRODUCT_ISBN_KEY = lpi.LINK_PRODUCT_ISBN_KEY and spie._EFFECTIVE
+      ) lpi on lpi.isbn13 = p.isbn13
+      left join prod.DATAVAULT.SAT_PRODUCT_OLR spa on spa.HUB_PRODUCT_KEY = lpi.HUB_PRODUCT_KEY and spa._latest
     ;;
+    persist_for: "8 hours"
   }
 
 
@@ -36,6 +50,13 @@ view: product_info {
 
   dimension: product_platform {
     label: "Platform"
+  }
+
+  dimension: type {hidden:no}
+
+  dimension: is_ebook_product {
+    type: yesno
+    # sql: coalesce(${product_platform} in ('Standalone Academic eBook','MindTap Reader') or ${type} in ('MTR','SMEB'),false) ;;
   }
 
   measure: platform_list {

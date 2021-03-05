@@ -1,6 +1,7 @@
-explore: guid_cohort {}
+explore: guid_cohort {hidden:yes}
 view: guid_cohort {
-  label: "X Cohort Analysis X"
+  view_label: "User Details"
+
   derived_table: {
     sql: Select * from uploads.cu.guid_cohort where NOT _fivetran_deleted
       ;;
@@ -9,6 +10,7 @@ view: guid_cohort {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   dimension: _row {
@@ -35,6 +37,7 @@ view: guid_cohort {
     type: string
     sql: ${TABLE}."GUID" ;;
     group_label: "Custom Upload Cohort"
+    hidden: yes
   }
 
   dimension_group: _fivetran_synced {

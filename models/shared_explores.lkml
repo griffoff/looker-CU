@@ -511,10 +511,17 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
 
 explore: product_analysis {
   hidden: no
-  extends: [course_info, user_products, user_profile, all_sessions]
+  from: user_profile
+  extends: [course_info, user_products, all_sessions, user_profile]
+  view_name: user_profile
   label: "Event and Session Analysis"
-  view_name: all_sessions
-  view_label: "Sessions"
+
+  view_label: "User Details"
+
+  join: all_sessions {
+    sql_on: ${user_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
+    relationship: one_to_many
+  }
 
   always_filter: {filters: [course_info.is_real_course: ""]}
 
@@ -522,12 +529,6 @@ explore: product_analysis {
     sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;
     relationship: one_to_many
     type: inner
-  }
-
-  join: custom_course_key_cohort_filter {
-    view_label: "*** Custom Course Key Cohort Filter ***"
-    sql_on: ${session_products.course_key} = ${custom_course_key_cohort_filter.course_key} ;;
-    relationship: many_to_many
   }
 
   join: all_events {
@@ -539,44 +540,6 @@ explore: product_analysis {
     relationship: one_to_many
     type: inner
   }
-
-  join: user_profile {
-    view_label: "User Details"
-    sql_on: ${all_sessions.user_sso_guid} = ${user_profile.user_sso_guid} ;;
-    relationship: many_to_one
-  }
-
-  join: live_subscription_status {
-    view_label: "User Details - Current Subscription Status"
-    sql_on:  ${all_sessions.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
-    relationship: one_to_one
-  }
-
-  join: custom_cohort_filter {
-    view_label: "*** Custom User Cohort Filter ***"
-    sql_on: ${all_sessions.user_sso_guid} = ${custom_cohort_filter.user_sso_guid} ;;
-    relationship: one_to_many
-  }
-
-  join: guid_cohort {
-    view_label: "User Details"
-    sql_on: ${all_sessions.user_sso_guid} = ${guid_cohort.guid} ;;
-    relationship: many_to_one
-    type: inner
-  }
-
-  join: user_institution_info {
-    from: institution_info
-    view_label: "User Institution Details"
-    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
-    relationship: many_to_one
-  }
-
-  # join: user_gateway_institution {
-  #   from: gateway_institution
-  #   view_label: "User Institution"
-  #   sql_on: ${user_institution_info.institution_id} = ${user_gateway_institution.entity_no} ;;
-  # }
 
   join: user_products {
     view_label: "Product Details By User"
@@ -591,6 +554,19 @@ explore: product_analysis {
 
 }
 
+explore: user_analysis {
+  hidden: no
+  extends: [user_profile,user_products]
+  from: user_profile
+  view_name: user_profile
+  view_label: "User Details"
+
+  join: user_products {
+    sql_on: ${user_profile.user_sso_guid} = ${user_products.merged_guid} ;;
+    relationship: one_to_many
+  }
+}
+
 explore: fy_2020_support {
   label: "FY 2020 Support"
   description: "Temporary explore for FY2020 Support data upload. Will be removed 2021-08-01"
@@ -603,6 +579,7 @@ explore: fy_2020_support {
 }
 
 explore: subscription_history {
+  extends: [user_profile]
   view_name: user_profile
 
   join: raw_subscription_event_sap {
@@ -617,6 +594,10 @@ explore: subscription_history {
     view_label: "User Institution Details"
     sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
     relationship: many_to_one
+  }
+
+  join: live_subscription_status {
+    fields: []
   }
 
 }

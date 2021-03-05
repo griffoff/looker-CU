@@ -4,23 +4,33 @@ include: "./institution_info.view"
 include: "./course_instructor.view"
 
 explore: user_products {
+  from: user_products
+  view_name: user_products
+  view_label: "Product Details By User"
+  extends: [course_info, institution_info, product_info]
   hidden:yes
 
   join: product_info {
-    view_label: "Product"
+    view_label: "Product Details"
     sql_on: ${user_products.isbn13} = ${product_info.isbn13} ;;
     relationship: many_to_one
   }
 
-  join: product_institution_info {
-    from: institution_info
-    view_label: "Product Institution Details"
-    sql_on: ${user_products.institution_id} = ${product_institution_info.institution_id} ;;
+  join: product_discipline_rank {
+    view_label: "Product Details"
+  }
+
+  join: institution_info {
+    sql_on: ${user_products.institution_id} = ${institution_info.institution_id} ;;
     relationship: many_to_one
+    view_label: "Product Institution Details"
+  }
+
+  join: gateway_institution {
+    view_label: "Product Institution Details"
   }
 
   join: course_info {
-    view_label: "Course Section Details"
     sql_on: ${user_products.course_key} = ${course_info.course_identifier} ;;
     relationship: many_to_one
   }
@@ -28,7 +38,9 @@ explore: user_products {
 }
 
 view: user_products {
-sql_table_name: prod.cu_user_analysis.user_products ;;
+  view_label: "Product Details By User"
+
+  sql_table_name: prod.cu_user_analysis.user_products ;;
 
 dimension: merged_guid {
   sql: ${TABLE}.user_sso_guid ;;
@@ -67,6 +79,14 @@ dimension_group: provision_date {
   description: "Date user provisioned the product."
 }
 
+  dimension_group: provision_expiration_date {
+    label: "Provision Expiration"
+    type:time
+    timeframes: [time,date,month,year,raw,fiscal_year]
+    hidden:no
+    description: "Expiration date of access to provisioned product."
+  }
+
 dimension_group: activation_date {
   label: "Activation"
   type:time
@@ -83,9 +103,18 @@ dimension_group: serial_number_consumed_date {
   description: "Date user consumed a serial number for the product."
 }
 
+dimension_group: serial_number_consumed_expiration_date {
+  label: "Serial Number Consumed Expiration"
+  type:time
+  timeframes: [time,date,month,year,raw,fiscal_year]
+  hidden:no
+  description: "Expiration date of access gained though a consumed serial number."
+}
+
 dimension: paid_flag {
   type: yesno
   description: "User paid for the product."
+  alias: [paid]
 }
 
 dimension: cu_flag {
@@ -125,7 +154,7 @@ dimension: pk {
 dimension_group: added {
   type: time
   timeframes: [raw,time,date,week,month,year,fiscal_year]
-  sql: least(coalesce(${enrollment_date_raw},'9999-01-01'),coalesce(${provision_date_raw},'9999-01-01'),coalesce(${activation_date_raw},'9999-01-01'),coalesce(${serial_number_consumed_date_raw},'9999-01-01'));;
+  sql: nullif(least(coalesce(${enrollment_date_raw},'9999-01-01'),coalesce(${provision_date_raw},'9999-01-01'),coalesce(${activation_date_raw},'9999-01-01'),coalesce(${serial_number_consumed_date_raw},'9999-01-01')),'9999-01-01');;
   description: "Minimum of enrollment, provision, activation, and serial number consumed dates for user and product in a term."
 }
 
@@ -160,17 +189,21 @@ dimension: grace_period_flag {
 
   dimension: current_course {
     type: yesno
-    hidden: no
+    hidden: yes
     description: "Course end date is in the future"
     sql: ${course_info.active} ;;
   }
 
-  dimension: paid {
+  dimension: is_current_provision {
     type: yesno
-    sql: (${TABLE}.paid_bool or ${TABLE}.activated_bool) ;;
-    group_label: "Payment Information"
-    label: "Paid"
-    description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair"
+    sql: current_date between ${provision_date_raw} and coalesce(${provision_expiration_date_raw},current_date) ;;
+    hidden: yes
+  }
+
+  dimension: is_current_serial_number {
+    type: yesno
+    sql: current_date between ${serial_number_consumed_date_raw} and coalesce(${serial_number_consumed_expiration_date_raw},current_date) ;;
+    hidden: yes
   }
 
   dimension_group: paid {
@@ -185,15 +218,16 @@ dimension: grace_period_flag {
       week_of_year,
       day_of_year
     ]
-    sql: case when ${paid} then coalesce(${TABLE}.activation_date,${TABLE}.enrollment_date,${TABLE}.course_start_date)::date end ;;
+    sql: case when ${paid_flag} then ${added_date} end ;;
     label: "Approximate Paid"
     # group_label: "Payment Information"
     description: "Activation date or enrollment date / course start date when paid flag is true"
+    hidden: yes
   }
 
   dimension: paid_current {
     type: yesno
-    sql:(${paid}) and ${current_course};;
+    sql:(${paid_flag}) and ${current_course};;
     group_label: "Payment Information"
     label: "Paid Current"
     description: "paid_in_full flag from OLR enrollments table OR activation record for the user_sso_guid and context_id pair AND course has future end date"
@@ -201,7 +235,7 @@ dimension: grace_period_flag {
 
   dimension: unpaid_current {
     type: yesno
-    sql:(NOT ${paid}) and ${current_course};;
+    sql:(NOT ${paid_flag}) and ${current_course};;
     group_label: "Payment Information"
     label: "Unpaid Current"
     description: "No paid flag or activation AND course has future end date"
@@ -256,6 +290,7 @@ dimension: grace_period_flag {
     sql: ${course_key} ;;
     description: "Distinct count of course sections (by course key)"
     alias: [course_sections]
+    hidden: yes
   }
 
   measure: course_section_with_activations_count {
@@ -280,7 +315,7 @@ dimension: grace_period_flag {
     group_label: "Enrollments"
     label: "# Paid enrollments"
     type: count_distinct
-    sql: CASE WHEN ${enrolled} AND ${paid} THEN ${pk} END  ;;
+    sql: CASE WHEN ${enrolled} AND ${paid_flag} THEN ${pk} END  ;;
     description: "Total # of paid enrollments (all time)"
     alias: [no_paid_enrollments]
   }
@@ -298,7 +333,7 @@ dimension: grace_period_flag {
     group_label: "Enrollments"
     label: "# Current paid enrollments"
     type: count_distinct
-    sql: CASE WHEN ${current_course} AND ${enrolled} AND ${paid} THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND ${enrolled} AND ${paid_flag} THEN ${pk} END   ;;
     description: "Count of distinct paid course enrollments on courses that have not yet ended"
     alias: [current_paid_enrollments]
   }
@@ -324,7 +359,7 @@ dimension: grace_period_flag {
     group_label: "Payment Information"
     label: "# Current Paid Courses"
     type: count_distinct
-    sql: CASE WHEN ${current_course} AND (${paid}) THEN ${pk} END   ;;
+    sql: CASE WHEN ${current_course} AND (${paid_flag}) THEN ${pk} END   ;;
     description: "Count of distinct paid user courses (guid+coursekey combo) that have not yet ended"
   }
 
@@ -336,7 +371,7 @@ dimension: grace_period_flag {
   measure: distinct_user_provisioned_product {
     type: count_distinct
     hidden:  yes
-    sql: hash(${merged_guid}, ${isbn13}) ;;
+    sql: hash(${merged_guid}, ${isbn13}, ${provision_date_time}) ;;
   }
 
   measure: average_user_provisioned_product {
@@ -402,6 +437,21 @@ dimension: grace_period_flag {
     sql: case when ${paid_flag} then ${pk} end ;;
     label: "# Paid Products Added"
     description: "Measured as combinations of user, ISBN, course key, and term where the user has paid for the product."
+  }
+
+  measure: distinct_ala_cart_purchase_current {
+    label:  "# Current a la carte purchases"
+    type: count_distinct
+    sql: case when ${paid_flag} and (not ${cu_flag}) and (${course_info.active} or ${is_current_provision} or ${is_current_serial_number}) then ${pk} end ;;
+    description: "Count of distinct paid products added, not paid via CU, where the user currently has access."
+  }
+
+  measure: user_cu_course_list {
+    # group_label: "Course Lists"
+    type: string
+    sql: LISTAGG(DISTINCT case when ${cu_flag} and ${course_key} is not null then ${isbn13} end, ', ')
+      WITHIN GROUP (ORDER BY case when ${cu_flag} and ${course_key} is not null then ${isbn13} end);;
+    description: "List of user CU course ISBNs"
   }
 
   measure: count {

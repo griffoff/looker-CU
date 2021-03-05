@@ -6,7 +6,10 @@ include: "custom_course_key_cohort_filter.view"
 include: "gateway_lms_course_sections.view"
 
 explore: course_info {
-  extends: [product_info]
+  from: course_info
+  view_name: course_info
+
+  extends: [product_info,institution_info]
   hidden:yes
   view_label: "Course Section Details"
 
@@ -26,14 +29,18 @@ explore: course_info {
   }
 
   join: product_info {
+    view_label: "Course Product Details"
     sql_on: ${course_info.iac_isbn} = ${product_info.isbn13} ;;
     relationship: many_to_one
   }
 
-  join: product_institution_info {
-    from: institution_info
+  join: product_discipline_rank {
+    view_label: "Course Product Details"
+  }
+
+  join: institution_info {
     view_label: "Course Institution Details"
-    sql_on: ${course_info.institution_id} = ${product_institution_info.institution_id} ;;
+    sql_on: ${course_info.institution_id} = ${institution_info.institution_id} ;;
     relationship: many_to_one
   }
 
@@ -42,20 +49,19 @@ explore: course_info {
   }
 
   join: course_section_usage_facts {
-    sql_on:  ${course_info.course_key} = ${course_section_usage_facts.course_key} ;;
+    sql_on:  ${course_info.course_identifier} = ${course_section_usage_facts.course_key} ;;
     relationship: one_to_one
     view_label: "Course Section Details"
   }
 
   join: custom_course_key_cohort_filter {
-    view_label: "** Custom Course Key Cohort Filter **"
-    sql_on: ${course_info.course_key} = ${custom_course_key_cohort_filter.course_key} ;;
-    # type: left_outer
+    view_label: "*** Custom Course Key Cohort Filter ***"
+    sql_on: ${course_info.course_identifier} = ${custom_course_key_cohort_filter.course_key} ;;
     relationship: many_to_many
   }
 
   join: gateway_lms_course_sections {
-    sql_on: ${course_info.course_key} = ${gateway_lms_course_sections.olr_context_id};;
+    sql_on: ${course_info.course_identifier} = ${gateway_lms_course_sections.olr_context_id};;
     relationship: one_to_one
     view_label: "Course Section Details"
   }
@@ -167,7 +173,8 @@ view: course_info {
            , scs.begin_date
            , scs.end_date
            , scs.iac_isbn
-           , scs.begin_date::DATE <= CURRENT_DATE() AND scs.end_date >= CURRENT_DATE()::DATE AS active
+           -- , scs.begin_date::DATE <= CURRENT_DATE() AND scs.end_date >= CURRENT_DATE()::DATE AS active
+           , COALESCE(CURRENT_DATE BETWEEN scs.begin_date::DATE and COALESCE(scs.end_date,CURRENT_DATE),FALSE) AS active
            , COALESCE(scs.deleted, FALSE)                                                    AS deleted
            , scs.grace_period_end_date
            , scs.created_on
@@ -175,6 +182,7 @@ view: course_info {
            , scs.course_created_by_guid                                                      AS course_created_by_user
            , COALESCE(TRY_CAST(scs.course_master AS BOOLEAN), FALSE)                         AS course_master
            , scs.course_cgi
+           , scs.section_product_type
            , COALESCE(scs.is_demo, FALSE)                                                    AS is_demo
            , COALESCE(
                      UPPER(DECODE(lms.lms_type, 'BB', 'Blackboard', lms.lms_type))
@@ -454,6 +462,8 @@ view: course_info {
 
   dimension: institution_id {hidden:yes}
 
+  dimension: section_product_type {}
+
   measure: count {
     type: count
     label: "# Courses"
@@ -464,6 +474,17 @@ view: course_info {
     description: "Count of Course Sections where today is between the start and end date of the course section"
     type: count_distinct
     sql: CASE WHEN ${active} THEN ${course_key} END ;;
+  }
+
+  measure: active_course_list {
+    type: string
+    sql: CASE
+          WHEN COUNT(DISTINCT ${course_identifier}) > 10 THEN ' More than 10 courses... '
+          ELSE
+          LISTAGG(DISTINCT CASE WHEN ${active} THEN ${course_name} END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN ${active} THEN ${course_name} END)
+        END ;;
+    description: "List of active courses by name"
   }
 
 }

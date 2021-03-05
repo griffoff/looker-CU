@@ -2,23 +2,24 @@ include: "gateway_institution.view"
 
 explore: institution_info {
   hidden:yes
-  view_label:"Institution Info"
+  view_label:"Institution Details"
 
   join: gateway_institution {
-    view_label: "Institution Info"
+    view_label: "Institution Details"
     sql_on: ${institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
     relationship: many_to_one
   }
 }
 
-explore: product_institution_info {
-  from:  institution_info
+explore: user_institution_info {
+  from: institution_info
   hidden:yes
-  view_label:"Product Institution Info"
+  view_label:"User Institution Details"
 
-  join: gateway_institution {
-    view_label: "Product Institution Info"
-    sql_on: ${product_institution_info.institution_id}::STRING = ${gateway_institution.entity_no};;
+  join: user_gateway_institution {
+    from: gateway_institution
+    view_label: "User Institution Details"
+    sql_on: ${user_institution_info.institution_id}::STRING = ${user_gateway_institution.entity_no};;
     relationship: many_to_one
   }
 }

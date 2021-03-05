@@ -4,7 +4,7 @@ view: guid_date_renewal {
     sql:
     WITH dates AS (
       SELECT date_value as date, GOV_AY_TERM_FULL AS season, GOV_AY_YEAR AS term_year, GOV_AY_TERM_FULL_ORD as season_no
-      FROM ${dim_date.SQL_TABLE_NAME}
+      FROM bpl_mart.prod.dim_date
       where date_value <= current_date
     )
 

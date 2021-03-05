@@ -1,6 +1,8 @@
-explore: student_discounts_dps {}
+explore: student_discounts_dps {hidden:yes}
 
 view: student_discounts_dps {
+  view_label: "User Details"
+
   derived_table: {
     sql:
     WITH most_recent_run_eloqua AS
@@ -63,6 +65,7 @@ view: student_discounts_dps {
   measure: count {
     type: count
     drill_fields: [detail*]
+    hidden: yes
   }
 
   measure: count_users {
