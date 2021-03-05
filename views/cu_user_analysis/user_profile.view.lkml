@@ -258,6 +258,13 @@ view: user_profile {
     description: "User first name"
   }
 
+  dimension: instructor_name {
+    group_label: "User Info - PII"
+    type: string
+    sql: CASE WHEN ${is_instructor} THEN InitCap(${TABLE}.first_name) || ' ' || InitCap(${TABLE}.last_name) ELSE 'Student' END;;
+    description: "Instructor Name - only available if the user is an instructor, to see student names you need PII access"
+  }
+
   dimension: last_name {
     group_label: "User Info - PII"
     type: string
