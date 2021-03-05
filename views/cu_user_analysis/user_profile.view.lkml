@@ -1,5 +1,6 @@
 include: "./live_subscription_status.view"
 include: "./institution_info.view"
+include: "./instructor_latest_login.view"
 
 explore: user_profile {
   view_label: "User Details"
@@ -19,6 +20,12 @@ explore: user_profile {
     view_label: "User Institution Details"
     sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
     relationship: many_to_one
+  }
+
+  join: instructor_latest_login {
+    view_label: "User Details - Instructor Last Login"
+    sql_on: ${user_profile.user_sso_guid} = ${instructor_latest_login.user_sso_guid} ;;
+    relationship: one_to_one
   }
 }
 
