@@ -3,6 +3,7 @@ include: "./institution_info.view"
 include: "./custom_cohort_filter.view"
 include: "./guid_cohort.view"
 include: "/views/discounts/student_discounts_dps.view"
+include: "./instructor_latest_login.view"
 
 explore: user_profile {
   from: user_profile
@@ -40,6 +41,13 @@ explore: user_profile {
 
   join: student_discounts_dps {
     sql_on: ${user_profile.user_sso_guid} = ${student_discounts_dps.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
+  join: instructor_latest_login {
+    view_label: "User Details - Instructor Last Login"
+    sql_on: ${user_profile.user_sso_guid} = ${instructor_latest_login.user_sso_guid} ;;
+
     relationship: one_to_one
   }
 }
@@ -125,6 +133,9 @@ view: user_profile {
           , COALESCE(bl.flag, FALSE) AS entity_blacklist_flag
           , sup.first_name
           , sup.last_name
+          , sg.lms_user_id
+          , sg.canvas_user_id
+          , sg.lis_person_source_id
           , p.merged_guid_email AS email
           , MAX(
             CASE
@@ -138,7 +149,9 @@ view: user_profile {
         FROM prod.datavault.hub_user hu
         INNER JOIN party p ON p.hub_user_key = hu.hub_user_key
         INNER JOIN prod.datavault.sat_user_v2 su ON su.hub_user_key = hu.hub_user_key AND su._latest
-        LEFT JOIN prod.datavault.sat_user_internal sui ON sui.hub_user_key = hu.hub_user_key AND sui.internal AND sui.active
+        LEFT JOIN PROD.DATAVAULT.HUB_USER_GATEWAY hg on hg.UID = hu.UID
+        LEFT JOIN PROD.DATAVAULT.SAT_USER_GATEWAY sg on sg.HUB_USERGATEWAY_KEY = hg.HUB_USERGATEWAY_KEY and sg._LATEST
+        LEFT JOIN prod.datavault.sat_user_internal sui ON sui.hub_user_key = hu.hub_user_key AND sui.active
         LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON sup.hub_user_key = hu.hub_user_key AND sup._latest
         LEFT JOIN (
           SELECT lui.hub_user_key, hi.institution_id
@@ -288,6 +301,27 @@ view: user_profile {
   #   hidden: no
   # }
 
+  dimension : lms_user_id  {
+    group_label: "User Info - LMS"
+    type: string
+    required_access_grants: [can_view_CU_pii_data]
+    description: "User LMS ID"
+  }
+
+  dimension : canvas_user_id  {
+    group_label: "User Info - LMS"
+    type: string
+    required_access_grants: [can_view_CU_pii_data]
+    description: "User Canvas ID"
+  }
+
+  dimension : lis_person_source_id  {
+    group_label: "User Info - LMS"
+    type: string
+    required_access_grants: [can_view_CU_pii_data]
+    description: "User SIS ID from LMS"
+  }
+
   dimension: institution_id {
     description: "Entity ID of user home institution"
     hidden: yes
@@ -312,6 +346,13 @@ view: user_profile {
     sql: InitCap(${TABLE}.first_name);;
     required_access_grants: [can_view_CU_pii_data]
     description: "User first name"
+  }
+
+  dimension: instructor_name {
+    group_label: "User Info - PII"
+    type: string
+    sql: CASE WHEN ${is_instructor} THEN InitCap(${TABLE}.first_name) || ' ' || InitCap(${TABLE}.last_name) ELSE 'Student' END;;
+    description: "Instructor Name - only available if the user is an instructor, to see student names you need PII access"
   }
 
   dimension: last_name {

@@ -1,24 +1,10 @@
 include: "/views/ipm/ipm.campaign_to_outcome.view"
 
-view: ipm_browser_event_and_outcome {
-  view_label: "IPM Events"
-  extends: [ipm_browser_event]
+explore: ipm_browser_event {hidden:yes}
 
-  derived_table: {
-    sql:
-      SELECT message_id, event_action, event_category, user_platform, event_time, user_sso_guid
-      FROM IPM.PROD.IPM_BROWSER_EVENT
-      UNION ALL
-      SELECT message_id, 'CONVERTED', COALESCE(event_name, 'UNKNOWN EVENT'), product_platform, first_event_time, user_sso_guid
-      FROM ${ipm_campaign_to_outcome.SQL_TABLE_NAME}
-      ;;
-
-      datagroup_trigger: daily_refresh
-  }
-}
 view: ipm_browser_event {
   sql_table_name: IPM.PROD.IPM_BROWSER_EVENT ;;
-
+  view_label: "IPM Events"
   dimension: message_id {
     type: string
     sql: ${TABLE}."MESSAGE_ID" ;;

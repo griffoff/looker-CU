@@ -36,8 +36,8 @@ view: course_section_usage_facts {
     hidden: yes
   }
 
-  dimension: total_users_on_course {type: number}
-  dimension: total_sessions_for_course {type:number}
+  dimension: total_users_on_course {type: number group_label: "Course User Counts"}
+  dimension: total_sessions_for_course {type:number group_label: "Course User Counts"}
   dimension: mobile_users {type:number group_label: "Mobile Usage" label:"# Mobile Users" description: "Number of people using the mobile app on this course"}
   dimension: mobile_users_tier {
     group_label: "Mobile Usage" label:"# Mobile Users (buckets)" description: "Number of people using the mobile app on this course"

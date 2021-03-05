@@ -3,18 +3,18 @@ view: fiscal_year_user_growth {
   derived_table: {
     sql:
     with el as (
-      select distinct
+      select
         case when CU_ENABLED = true or IAC_ISBN13 in ('0000357700006','0000357700013','0000357700020') then 'CUI' else 'IA' end as license_type
-        , array_agg(HUB_ENTERPRISELICENSE_KEY) as license_keys
         , IAC_ISBN13
         , CONVERT_TIMEZONE('UTC',sel.BEGIN_DATE)::date as el_begin_date
         , CONVERT_TIMEZONE('UTC',sel.END_DATE)::date as el_end_date
         , sel.INSTITUTION_ID
         , concat(sel.INSTITUTION_ID,p.PROD_FAMILY_CD) as adoption_key
+        , array_agg(HUB_ENTERPRISELICENSE_KEY) as license_keys
         from PROD.DATAVAULT.SAT_ENTERPRISELICENSE sel
         left join prod.STG_CLTS.products p on sel.IAC_ISBN13 = p.ISBN13
         where sel._LATEST and not sel.IS_DEMO
-        group by license_type, IAC_ISBN13, el_begin_date, el_end_date, INSTITUTION_ID, adoption_key
+        group by 1, 2, 3, 4, 5, 6
       )
 
       , el_prev as (

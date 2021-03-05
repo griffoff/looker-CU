@@ -1,6 +1,5 @@
 view: kpi_user_counts_wide {
-
-
+  view_label: "User Count KPIs"
 
   parameter: exact_counts {
     view_label: "Filters"

@@ -1,5 +1,8 @@
+explore: ipm_campaign {hidden:yes}
+
 view: ipm_campaign {
-  #sql_table_name: IPM.PROD.IPM_CAMPAIGN ;;
+  view_label: "IPM Campaign"
+
   derived_table: {
     sql:
     SELECT
