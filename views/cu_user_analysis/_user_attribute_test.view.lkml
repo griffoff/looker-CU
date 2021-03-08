@@ -29,7 +29,14 @@ view: _user_attribute_test {
   }
 
   dimension: show_schema_name {
-    hidden: yes
+    sql:
+      {% if _user_attributes['access_dev_data'] == 'yes' %}
+      -- {{ _user_attributes['access_dev_data'] }}
+        ${TABLE}.show_schema_name
+      {% else %} nullif(${TABLE}.show_schema_name,'NONPROD_V1')
+      {% endif %}
+    ;;
+    hidden: no
   }
 
 }
