@@ -7,8 +7,9 @@ explore: conversion_analysis {
   extends: [user_profile, user_products]
   from:  conversion_analysis
   view_name:  conversion_analysis
-
   label: "Conversion/Retention Analysis"
+  view_label: "** USER EVENT CONVERSION **"
+
   always_filter: {
     filters:[
       initial_events_filter: ""
@@ -37,7 +38,7 @@ explore: flow_analysis {
   from: cohort_selection
   view_name: cohort_selection
   label: "Flow Analysis"
-  view_label: "Flow Analysis"
+  view_label: "** USER FLOW ANALYSIS **"
 
   always_filter: {
     filters:[

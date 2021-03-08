@@ -4,6 +4,7 @@ include: "./custom_cohort_filter.view"
 include: "./guid_cohort.view"
 include: "/views/discounts/student_discounts_dps.view"
 include: "./instructor_latest_login.view"
+include: "//core/access_grants_file.view"
 
 explore: user_profile {
   from: user_profile
