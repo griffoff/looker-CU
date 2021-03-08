@@ -3,9 +3,9 @@ include: "all_events.view"
 explore: all_sessions {
   hidden:  yes
 
-  always_filter: {
-    filters: [all_sessions.session_start_date: "Last 7 days"]
-  }
+  # always_filter: {
+  #   filters: [all_sessions.session_start_date: "Last 7 days"]
+  # }
 
   join: all_events {
     sql_on: ${all_sessions.session_id} = ${all_events.session_id} ;;
