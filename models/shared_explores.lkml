@@ -516,14 +516,16 @@ explore: product_analysis {
   view_name: user_profile
   label: "Event and Session Analysis"
 
+  always_filter: {
+    filters: [all_sessions.session_start_date: "Last 7 days"]
+  }
+
   view_label: "User Details"
 
   join: all_sessions {
     sql_on: ${user_profile.user_sso_guid} = ${all_sessions.user_sso_guid} ;;
     relationship: one_to_many
   }
-
-  always_filter: {filters: [course_info.is_real_course: ""]}
 
   join: session_products {
     sql_on: ${all_sessions.session_id} = ${session_products.session_id} ;;

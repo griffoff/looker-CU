@@ -94,6 +94,8 @@ explore: course_sections {
   view_name: course_info
   extends: [user_profile, course_info, all_sessions]
 
+  always_filter: {filters: [course_info.is_real_course: "Yes"]}
+
   view_label: "Course Section Details"
 
   join: user_products {
