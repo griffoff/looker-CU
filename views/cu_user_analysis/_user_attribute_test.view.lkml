@@ -1,15 +1,12 @@
+access_grant: access_dev_data {
+  user_attribute: access_dev_data
+  allowed_values: [ "yes" ]
+}
+
 explore: _user_attribute_test {hidden:yes}
 view: _user_attribute_test {
 
-  derived_table: {
-    sql:
-    select 'PROD_V1' as show_schema_name
-    {% if _user_attributes['access_dev_data'] == 'yes' %}
-    union all
-    select 'NONPROD_V1'
-    {% endif %}
-    ;;
-  }
+  sql_table_name: "DM_CUI_ACTIVATIONS".{% parameter schema_name %}."FACT_SUBSCRIPTION_STATE_CHANGE";;
 
   parameter: schema_name {
     type: unquoted
@@ -22,21 +19,26 @@ view: _user_attribute_test {
       value: "NONPROD_V1"
     }
 
-    suggest_dimension: show_schema_name
-
     default_value: "PROD_V1"
     description: ""
+
+    required_access_grants: [access_dev_data]
   }
 
-  dimension: show_schema_name {
-    sql:
-      {% if _user_attributes['access_dev_data'] == 'yes' %}
-      -- {{ _user_attributes['access_dev_data'] }}
-        ${TABLE}.show_schema_name
-      {% else %} nullif(${TABLE}.show_schema_name,'NONPROD_V1')
-      {% endif %}
-    ;;
-    hidden: no
+  measure: new_subscription_count {
+    type: sum
+    sql: ${TABLE}."COUNT_NEW_SUBSCRIPTION";;
   }
+
+  # dimension: show_schema_name {
+  #   sql:
+  #     {% if _user_attributes['access_dev_data'] == 'yes' %}
+  #     -- {{ _user_attributes['access_dev_data'] }}
+  #       ${TABLE}.show_schema_name
+  #     {% else %} nullif(${TABLE}.show_schema_name,'NONPROD_V1')
+  #     {% endif %}
+  #   ;;
+  #   hidden: no
+  # }
 
 }
