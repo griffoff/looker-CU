@@ -22,7 +22,7 @@ view: instructor_latest_login {
   }
 
   dimension: user_sso_guid {}
-  dimension_group: created {type:time}
+  dimension_group: created {type:time sql:CASE WHEN ${TABLE}.created <= ${TABLE}.first_login THEN ${TABLE}.created END;; }
   dimension_group: latest_login {type:time}
   dimension_group: first_login {type:time}
   dimension_group: since_last_login {

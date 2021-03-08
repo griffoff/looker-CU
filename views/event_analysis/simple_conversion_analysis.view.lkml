@@ -38,6 +38,12 @@ view: simple_conversion_analysis {
           {% condition conversion_events_filter %} event_name {% endcondition %}
           )
       )
+     ,successful_users AS (
+        SELECT DISTINCT
+              user_sso_guid
+        FROM events
+        WHERE is_target_event
+      )
      , sessions AS (
       SELECT user_sso_guid
            , event_id
@@ -47,12 +53,16 @@ view: simple_conversion_analysis {
            , is_target_event
            , LEAD(events.event_time)
                   OVER (PARTITION BY events.user_sso_guid ORDER BY events.event_time) AS target_event_time
+           , MAX(is_target_event)
+                  OVER (PARTITION BY events.user_sso_guid)                            AS user_session_succeeded
       FROM events
       WHERE prev_is_first_event IS NULL
          OR prev_is_first_event = is_target_event
       )
       SELECT s.user_sso_guid
+           , su.user_sso_guid IS NOT NULL                                           AS user_succeeded
            , ROW_NUMBER() OVER (PARTITION BY s.user_sso_guid ORDER BY s.event_time) AS user_session_no
+           , s.user_session_succeeded
            , s.event_time                                                           AS start_event
            , s.target_event_time                                                    AS target_event
            , MAX(e.event_time)                                                      AS last_event
@@ -64,6 +74,7 @@ view: simple_conversion_analysis {
            , SUM(e.is_first_event::INT)                                             AS cycles
            , SUM(e.is_target_event::INT)                                            AS target_hit
       FROM sessions s
+           LEFT JOIN successful_users su ON s.user_sso_guid = su.user_sso_guid
            LEFT JOIN events e ON s.user_sso_guid = e.user_sso_guid
           AND e.event_time >= s.event_time
           AND (e.event_time <= s.target_event_time OR s.target_event_time IS NULL)
@@ -73,12 +84,14 @@ view: simple_conversion_analysis {
         target_event IS NULL
         OR DATEDIFF(minute, start_event, target_event) <= {{ time_period._parameter_value }}
         )
-      GROUP BY s.user_sso_guid, s.event_time, s.target_event_time
+      GROUP BY s.user_sso_guid, su.user_sso_guid, s.user_session_succeeded, s.event_time, s.target_event_time
     ;;
   }
 
   dimension: user_sso_guid {}
+  dimension: user_succeeded {type:yesno}
   dimension: user_session_no {type:number}
+  dimension: user_session_succeeded {type:yesno}
   dimension: cycles {label:"Attempts" type:number}
   dimension: target_hit {type: yesno}
   dimension_group: start_event {type:time}
@@ -108,6 +121,15 @@ view: simple_conversion_analysis {
     type: average
     sql: ${seconds_to_convert} ;;
     value_format_name: decimal_1
+  }
+  measure: attempts_average {
+    type: average
+    sql: ${cycles} ;;
+    value_format_name: decimal_1
+  }
+  measure: user_count {
+    type: count_distinct
+    sql: ${user_sso_guid} ;;
   }
   measure: count {
     type: count
