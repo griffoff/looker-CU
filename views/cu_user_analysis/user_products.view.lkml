@@ -206,6 +206,12 @@ dimension: grace_period_flag {
     hidden: yes
   }
 
+  dimension: is_access_current {
+    type: yesno
+    sql: coalesce(${current_course} or ${is_current_provision} or ${is_current_serial_number},false)  ;;
+    description: "User currently has access to the added product (future course end date, future provision expiration date, or future serial number expiration date)"
+  }
+
   dimension_group: paid {
     type: time
     timeframes: [

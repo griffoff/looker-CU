@@ -125,6 +125,13 @@ view: user_facts {
     type: number
   }
 
+  dimension: current_total_products {
+    group_label: "Current Product Usage Facts"
+    type: number
+    sql: ${current_paid_products} + ${current_unpaid_products} ;;
+    description: "Paid + Unpaid"
+  }
+
   dimension: platform_last_added {
     group_label: "Current Product Usage Facts"
     description: "Platform of the user's most recently added product."
