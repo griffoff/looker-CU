@@ -479,7 +479,7 @@ view: course_info {
   measure: active_course_list {
     type: string
     sql: CASE
-          WHEN COUNT(DISTINCT ${course_identifier}) > 10 THEN ' More than 10 courses... '
+          WHEN COUNT(DISTINCT CASE WHEN ${active} THEN ${course_identifier} END) > 10 THEN ' More than 10 courses... '
           ELSE
           LISTAGG(DISTINCT CASE WHEN ${active} THEN ${course_name} END, ', ')
             WITHIN GROUP (ORDER BY CASE WHEN ${active} THEN ${course_name} END)
