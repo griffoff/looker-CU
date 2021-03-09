@@ -387,7 +387,7 @@ dimension: grace_period_flag {
     label: "# of Provisioned Products"
     sql: CASE WHEN ${provision_date_raw} IS NOT NULL THEN ${pk} END ;;
     value_format_name: decimal_2
-    description: "Provides average number of products provisioned by all users based on filter criteria."
+    description: "Number of products provisioned by all users based on filter criteria."
   }
 
   measure: total_value_provisioned  {

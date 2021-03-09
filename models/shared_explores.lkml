@@ -38,6 +38,8 @@ include: "/views/strategy/institutional_savings.view"
 
 # include: "/views/shared/*.view"
 
+# start of live_subscription_status
+
 explore: live_subscription_status {
   label: "Live Subscription Status"
   extends: [course_info, user_courses]
@@ -98,6 +100,10 @@ explore: live_subscription_status {
   }
 
 }
+
+# end of live_subscription_status
+
+# start of learner_profile_cohorts
 
 explore: learner_profile_cohorts {
   extension: required
@@ -334,6 +340,10 @@ explore: learner_profile_cohorts {
 
 }
 
+# end of learner_profile_cohorts
+
+# start of learner_profile
+
 explore: learner_profile {
   extends: [learner_profile_cohorts, user_courses]
   view_name: learner_profile
@@ -430,8 +440,10 @@ explore: learner_profile {
 
 }
 
+# end of learner_profile
 
-# session analysis
+
+# start of session analysis
 
 explore: session_analysis {
   hidden: yes
@@ -469,6 +481,8 @@ explore: session_analysis {
 
 # end session analysis
 
+# start of ebook_sessions
+
 explore: ebook_sessions {
   join: ebook_sessions_weekly {
     sql_on: ${ebook_sessions.merged_guid} = ${ebook_sessions_weekly.merged_guid}
@@ -481,6 +495,10 @@ explore: ebook_sessions {
     relationship: many_to_one
   }
 }
+
+# end of ebook_sessions
+
+# start of cas_cafe_student_activity_duration_aggregate_ext
 
 explore: cas_cafe_student_activity_duration_aggregate_ext {
   label: "CAS CAFE ACTIVITY DURATION AGGREGATE"
@@ -508,6 +526,10 @@ explore: cas_cafe_student_activity_duration_aggregate_ext {
     ]
   }
 }
+
+# end of cas_cafe_student_activity_duration_aggregate_ext
+
+# start of product_analysis
 
 explore: product_analysis {
   hidden: no
@@ -556,6 +578,10 @@ explore: product_analysis {
 
 }
 
+# end of product_analysis
+
+# start of user_analysis
+
 explore: user_analysis {
   hidden: no
   extends: [user_profile,user_products]
@@ -569,6 +595,10 @@ explore: user_analysis {
   }
 }
 
+# end of user_analysis
+
+# start of fy_2020_support
+
 explore: fy_2020_support {
   label: "FY 2020 Support"
   description: "Temporary explore for FY2020 Support data upload. Will be removed 2021-08-01"
@@ -579,6 +609,10 @@ explore: fy_2020_support {
     relationship: one_to_many
   }
 }
+
+# end of fy_2020_support
+
+# start of subscription_history
 
 explore: subscription_history {
   extends: [user_profile]
@@ -603,3 +637,5 @@ explore: subscription_history {
   }
 
 }
+
+# end of subscription_history

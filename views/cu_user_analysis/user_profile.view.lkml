@@ -5,6 +5,7 @@ include: "./guid_cohort.view"
 include: "/views/discounts/student_discounts_dps.view"
 include: "./instructor_latest_login.view"
 include: "//core/access_grants_file.view"
+include: "./user_facts.view"
 
 explore: user_profile {
   from: user_profile
@@ -16,6 +17,12 @@ explore: user_profile {
   always_filter: {
     filters: [user_profile.user_type: ""]
   }
+
+  join: user_facts {
+    sql_on: ${user_profile.user_sso_guid} = ${user_facts.user_sso_guid} ;;
+    relationship: one_to_one
+  }
+
 
   join: live_subscription_status {
     sql_on:  ${user_profile.user_sso_guid} = ${live_subscription_status.merged_guid}  ;;
@@ -77,44 +84,6 @@ view: user_profile {
         LEFT JOIN prod.datavault.sat_user_v2 su ON hu.hub_user_key = su.hub_user_key AND su._latest
         LEFT JOIN prod.datavault.sat_user_pii_v2 sup ON hu.hub_user_key = sup.hub_user_key AND sup._latest
       )
-      , product_usage AS (
-        SELECT
-          up.user_sso_guid
-          , up.platform_last_added
-          , up.section_product_type_last_added
-          , COUNT(DISTINCT CASE WHEN up.paid_flag AND (current_date BETWEEN up.begin_date AND up.end_date) THEN up.course_identifier END) AS current_paid_courses
-          , COUNT(DISTINCT CASE WHEN (NOT up.paid_flag) AND (current_date BETWEEN up.begin_date AND up.end_date) THEN up.course_identifier END) AS current_unpaid_courses
-          , COUNT(DISTINCT CASE WHEN up.paid_flag
-                                AND up.is_ebook_product
-                                AND (current_date BETWEEN up.provision_date AND COALESCE(up.provision_expiration_date,CURRENT_DATE))
-                                AND up.course_key IS NULL
-                              THEN HASH(up.user_sso_guid,up.isbn,up.academic_term) END
-            ) AS current_paid_standalone_ebook_provisions
-          , COUNT(DISTINCT CASE WHEN (NOT up.paid_flag)
-                                AND up.is_ebook_product
-                                AND (current_date BETWEEN up.provision_date AND COALESCE(up.provision_expiration_date,CURRENT_DATE))
-                                AND up.course_key IS NULL
-                              THEN HASH(up.user_sso_guid,up.isbn,up.academic_term) END
-            ) AS current_unpaid_standalone_ebook_provisions
-        FROM (
-          SELECT DISTINCT up.*, ci.begin_date, ci.end_date, ci.course_identifier, pi.is_ebook_product
-          , LEAST(COALESCE(enrollment_date,'9999-01-01'),COALESCE(provision_date,'9999-01-01'),COALESCE(activation_date,'9999-01-01'),COALESCE(serial_number_consumed_date,'9999-01-01')) AS added_date
-          , LAST_VALUE(pi.platform) IGNORE NULLS OVER(PARTITION BY up.user_sso_guid ORDER BY added_date) as platform_last_added
-          , LAST_VALUE(ci.section_product_type) IGNORE NULLS OVER(PARTITION BY up.user_sso_guid ORDER BY added_date) as section_product_type_last_added
-          FROM ${user_products.SQL_TABLE_NAME} up
-          LEFT JOIN ${course_info.SQL_TABLE_NAME} ci ON ci.course_identifier = up.course_key
-          LEFT JOIN ${product_info.SQL_TABLE_NAME} pi ON pi.isbn13 = up.isbn
-        ) up
-        GROUP BY 1,2,3
-      )
-      , sessions AS (
-        SELECT
-          s.user_sso_guid
-          , MIN(SESSION_START) AS first_session
-          , MAX(SESSION_START) AS latest_session
-        FROM prod.cu_user_analysis.all_sessions s
-        GROUP BY 1
-      )
       , party_flags AS (
         SELECT
           hu.uid AS user_sso_guid
@@ -172,15 +141,14 @@ view: user_profile {
       )
       SELECT DISTINCT
         p.*
-        , first_session
-        , latest_session
-        , platform_last_added
-        , section_product_type_last_added
-        , current_paid_courses
-        , current_unpaid_courses
-        , current_paid_standalone_ebook_provisions
-        , current_unpaid_standalone_ebook_provisions
         , shadow_guids
+        , lcg.control_flag_1
+        , lcg.control_flag_2
+        , lcg.control_flag_3
+        , lcg.control_flag_4
+        , lcg.control_flag_5
+        , lcg.control_flag_6
+        , lcg.control_flag_7
       FROM party_flags p
       LEFT JOIN (
         SELECT linked_guid, ARRAY_AGG(DISTINCT uid) AS shadow_guids
@@ -189,9 +157,7 @@ view: user_profile {
         WHERE linked_guid IS NOT NULL
         GROUP BY 1
       ) lg ON lg.linked_guid = p.user_sso_guid
-      LEFT JOIN sessions s ON s.user_sso_guid = p.user_sso_guid
       LEFT JOIN prod.cu_user_analysis.lp_control_group lcg ON lcg.user_sso_guid = p.user_sso_guid
-      LEFT JOIN product_usage pu on pu.user_sso_guid = p.user_sso_guid
       WHERE p.linked_guid IS NULL
     ;;
 
@@ -432,18 +398,6 @@ view: user_profile {
     description: "Array containing any non-primary guids for the user"
   }
 
-  dimension_group: first_session {
-    type: time
-    timeframes: [raw, time, date, week, month, year]
-    description: "Timestamp of users first session"
-  }
-
-  dimension_group: latest_session {
-    type: time
-    timeframes: [raw, time, date, week, month, year]
-    description: "Timestamp of users most recent session"
-  }
-
   dimension: us_hed_marketing_allowed {
     label: "Marketing allowed - US HED"
     description: "None of the following are found in any matching user records (matched by email address or merged guid if email is missing)
@@ -536,54 +490,20 @@ view: user_profile {
     hidden: yes
   }
 
-  dimension: current_paid_courses {
-    group_label: "Current Product Usage Counts"
-    type: number
-  }
-
-  dimension: current_unpaid_courses {
-    group_label: "Current Product Usage Counts"
-    type: number
-  }
-
-  dimension: current_paid_standalone_ebook_provisions {
-    group_label: "Current Product Usage Counts"
-    type: number
-  }
-
-  dimension: current_total_standalone_ebook_provisions {
-    group_label: "Current Product Usage Counts"
-    type: number
-    sql: ${current_paid_standalone_ebook_provisions} + ${current_unpaid_standalone_ebook_provisions} ;;
-    description: "Paid + Unpaid"
-  }
-
-  dimension: current_unpaid_standalone_ebook_provisions {
-    group_label: "Current Product Usage Counts"
-    type: number
-  }
-
-  dimension: platform_last_added {
-    description: "Platform of the user's most recently added product."
-  }
-
-  dimension: section_product_type_last_added {
-    description: "Section product type of the user's most recently added course."
-  }
-
   dimension: cu_target_segment {
-    label: "CU Target Segment"
+    label: "CU Trial Marketing Target Segment"
     sql: case
           when ${live_subscription_status.subscription_state} ilike '%trial%' --no current subscription
           then case
-                when ${current_paid_courses} > 0 then 'Upgrade to CU from ALC' --has paid courseware
-                when ${current_unpaid_courses} > 0 then 'Advocate Subscription over ALC' --has unpaid courseware
-                when ${current_paid_standalone_ebook_provisions} > 0 then 'Upgrade to CUe from paid ebook'
-                when ${current_unpaid_standalone_ebook_provisions} > 0 then 'Advocate eTextbook subscription over paid ebook'
+                when ${user_facts.current_paid_courses} > 0 then 'Upgrade to CU from ALC' --has paid courseware
+                when ${user_facts.current_unpaid_courses} > 0 then 'Advocate Subscription over ALC' --has unpaid courseware
+                when ${user_facts.current_paid_standalone_ebook_provisions} > 0 then 'Upgrade to CUe from paid ebook'
+                when ${user_facts.current_unpaid_standalone_ebook_provisions} > 0 then 'Advocate eTextbook subscription over paid ebook'
                 else 'Advocate Products and CU' --has no courseware set up
                 end
           end
     ;;
+    description: "Marketing target segment for users with most recent subscription type trial (active or expired)."
   }
 
   measure: count {
@@ -626,8 +546,6 @@ view: user_profile {
       country,
       user_region,
       institution_id,
-      first_session_time,
-      latest_session_time
     ]
   }
 
