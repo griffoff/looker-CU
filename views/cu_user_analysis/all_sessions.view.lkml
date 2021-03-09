@@ -304,7 +304,7 @@ view: all_sessions {
     group_label: "Time in product"
     label: "Average session length in minutes"
     type: average
-    sql: ${session_length_mins} / 60 / 24;;
+    sql: ${session_length};;
     value_format: "[m] \m\i\n\s s \s\e\c\s"
     description: "Average of all session lengths in minutes"
   }
