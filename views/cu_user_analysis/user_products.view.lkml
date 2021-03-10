@@ -460,6 +460,13 @@ dimension: grace_period_flag {
     description: "List of user CU course ISBNs"
   }
 
+  measure: cu_purchase {
+    label: "# Paid CU Products Added"
+    type: count_distinct
+    sql: CASE WHEN ${cu_flag} AND ${paid_flag} THEN ${pk} END;;
+    description: "Total # of products added paid via CU"
+  }
+
   measure: count {
     type: count
     label: "# Products Added"

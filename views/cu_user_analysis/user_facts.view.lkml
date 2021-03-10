@@ -98,6 +98,13 @@ view: user_facts {
     type: number
   }
 
+  dimension: current_total_courses {
+    group_label: "Current Product Usage Facts"
+    type: number
+    sql: ${current_paid_courses}+${current_unpaid_courses} ;;
+    description: "Paid + Unpaid"
+  }
+
   dimension: current_paid_standalone_ebook_provisions {
     group_label: "Current Product Usage Facts"
     type: number

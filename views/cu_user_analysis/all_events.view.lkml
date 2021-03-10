@@ -1,24 +1,38 @@
 include: "//core/common.lkml"
-include: "user_courses.view"
+include: "user_products.view"
 include: "all_sessions.view"
+include: "session_products.view"
 include: "filter_caches/filter_cache_all_events*.view"
 
 explore: all_events {
-  extends: [user_courses]
+  from: all_events
+  view_name: all_events
+  extends: [user_products]
   hidden: yes
-  label: "All events"
+  label: "All Events"
 
   join: all_events_tags {
     sql:  cross join lateral flatten (${all_events.event_data}) all_events_tags;;
     relationship: many_to_many
   }
 
-  join: user_courses {
-    view_label: "Course Section Details by User"
-    sql_on: ${all_events.user_sso_guid} = ${user_courses.user_sso_guid}
-      and ${all_events.course_key} = REGEXP_REPLACE(${user_courses.olr_course_key},'WA-production-','',1,0,'i')  ;;
+  join: session_products {
+    sql_on: sql_on: ${session_products.session_id} = ${all_events.session_id}
+    and coalesce(${session_products.course_key},'') = coalesce(${all_events.course_key},'')
+    and coalesce(${session_products.user_products_isbn},'') = coalesce(${all_events.user_products_isbn},'')
+    ;;
+    relationship: many_to_one
+  }
 
-    relationship: one_to_many
+  join: user_products {
+    view_label: "Product Details By User"
+    sql_on: ${session_products.user_sso_guid} = ${user_products.merged_guid}
+      and coalesce(${session_products.user_products_isbn} = ${user_products.isbn13},true)
+      and coalesce(${session_products.course_key} = ${user_products.course_key},true)
+      and coalesce(nullif(${session_products.user_products_isbn} = ${user_products.isbn13},false),nullif(${session_products.course_key} = ${user_products.course_key},false))
+      and ${session_products.session_start_raw} between coalesce(${user_products._effective_from_raw},to_timestamp(0)) and coalesce(${user_products._effective_to_raw},current_timestamp)
+      ;;
+    relationship: many_to_many
   }
 
   join: all_sessions {

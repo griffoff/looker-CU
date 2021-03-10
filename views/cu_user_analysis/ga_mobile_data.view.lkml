@@ -1,5 +1,20 @@
 view: ga_mobiledata {
-  sql_table_name: RAW_GA.GA_MOBILEDATA ;;
+
+  derived_table: {
+    sql:
+      select distinct
+        ga.*
+        , coalesce(su.linked_guid,hu.uid) as merged_guid
+      from RAW_GA.GA_MOBILEDATA ga
+      inner join prod.datavault.hub_user hu on hu.uid = ga.userssoguid
+      left join prod.datavault.sat_user_v2 su on su.hub_user_key = hu.hub_user_key and su._latest
+    ;;
+    datagroup_trigger: daily_refresh
+  }
+
+  # sql_table_name: RAW_GA.GA_MOBILEDATA ;;
+
+  dimension: merged_guid {hidden:yes}
 
   dimension: activityid {
     type: string
