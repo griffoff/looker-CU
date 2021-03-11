@@ -390,7 +390,7 @@ dimension: grace_period_flag {
 
   measure: provisioned_product_count {
     type:  count_distinct
-    label: "# of Provisioned Products"
+    label: "# Provisioned Products"
     sql: CASE WHEN ${provision_date_raw} IS NOT NULL THEN ${pk} END ;;
     value_format_name: decimal_2
     description: "Number of products provisioned by all users based on filter criteria."
@@ -453,6 +453,7 @@ dimension: grace_period_flag {
   }
 
   measure: user_cu_course_list {
+    label: "List of CU courses"
     # group_label: "Course Lists"
     type: string
     sql: LISTAGG(DISTINCT case when ${cu_flag} and ${course_key} is not null then ${isbn13} end, ', ')
