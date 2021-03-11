@@ -460,6 +460,13 @@ dimension: grace_period_flag {
     description: "List of user CU course ISBNs"
   }
 
+  measure: user_product_list {
+    type: string
+    sql: LISTAGG(DISTINCT ${isbn13}, ', ')
+      WITHIN GROUP (ORDER BY ${isbn13});;
+    description: "List of user product ISBNs"
+  }
+
   measure: cu_purchase {
     label: "# Paid CU Products Added"
     type: count_distinct
