@@ -275,13 +275,33 @@ view: course_info {
     hidden: no
     primary_key: yes
     description: "Course Key if it exists for a section, otherwise the context id"
+    link: {
+      label: "Student Activity Timeline"
+      url:"https://cengage.looker.com/dashboards-next/1058?course_key={{ course_key._value }}"
+    }
+
   }
 
   dimension: context_id  {label:"Context ID" hidden:yes}
 
-  dimension: course_key {hidden:no}
+  dimension: course_key {
+    hidden:no
+    link: {
+      label: "Student Activity Dashboard"
+      url:"https://cengage.looker.com/dashboards-next/1058?course_key={{ course_key._value }}"
+      }
+    link: {
+      label: "Student Activity Timeline"
+      url:"https://cengage.looker.com/looks/6069?filters[course_info.course_key]={{ course_key._value }}"
+    }
+    }
 
-  dimension: course_name {}
+  dimension: course_name {
+    link: {
+      label: "Student Activity Timeline"
+      url:"https://cengage.looker.com/looks/6069?filters[course_info.course_key]={{ course_key._value }}"
+    }
+  }
 
   dimension: course_created_by_category {
     group_label: "Course Creation"
@@ -477,6 +497,7 @@ view: course_info {
   }
 
   measure: active_course_list {
+    label: "List of Active Courses"
     type: string
     sql: CASE
           WHEN COUNT(DISTINCT CASE WHEN ${active} THEN ${course_identifier} END) > 10 THEN ' More than 10 courses... '

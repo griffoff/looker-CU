@@ -41,13 +41,6 @@ view: product_info {
 
    set: marketing_fields {fields:[product_info.coursearea, product_info.discipline, product_info.iac_isbn, product_info.isbn13, product_info.authors, product_info.course, product_info.titleshort, product_info.productfamily, product_info.count]}
 
-  # dimension: discipline_rank {description: "Discipline rank by total activations (all time)" type:number group_label:"Product Ranking"}
-  # dimension: family_rank {description: "Product family rank by total activations (all time)" type:number group_label:"Product Ranking"}
-  # dimension: discipline_rank_6m {description: "Discipline rank by total activations in the last 6 months" type:number group_label:"Product Ranking"}
-  # dimension: family_rank_6m {description: "Product family rank by total activations in the last 6 months" type:number group_label:"Product Ranking"}
-  # dimension: discipline_rank_mt {description: "Discipline rank by total activations in MindTap" type:number group_label:"Product Ranking"}
-  # dimension: family_rank_mt {description: "Product family rank by total activations in MindTap" type:number group_label:"Product Ranking"}
-
   dimension: product_platform {
     label: "Platform"
   }
@@ -57,12 +50,6 @@ view: product_info {
   dimension: is_ebook_product {
     type: yesno
     # sql: coalesce(${product_platform} in ('Standalone Academic eBook','MindTap Reader') or ${type} in ('MTR','SMEB'),false) ;;
-  }
-
-  measure: platform_list {
-    type: string
-    sql: LISTAGG(DISTINCT ${product_platform}, ', ') WITHIN GROUP (ORDER BY ${product_platform}) ;;
-    description: "List of Platforms"
   }
 
   dimension: course {
@@ -411,4 +398,24 @@ view: product_info {
     drill_fields: []
   }
 
-   }
+  measure: platform_list {
+    label: "List of Platforms"
+    type: string
+    sql: LISTAGG(DISTINCT ${product_platform}, ', ') WITHIN GROUP (ORDER BY ${product_platform}) ;;
+    description: "List of platforms used (MT, Webassign, etc.)"
+  }
+
+
+  measure: active_discipline_list {
+    label: "List of Active Disciplines"
+    type: string
+    sql: CASE
+          WHEN COUNT(DISTINCT CASE WHEN course_info.active THEN ${discipline} END) > 10 THEN ' More than 10 disciplines... '
+          ELSE
+          LISTAGG(DISTINCT CASE WHEN course_info.active THEN ${discipline} END, ', ')
+            WITHIN GROUP (ORDER BY CASE WHEN course_info.active THEN ${discipline} END)
+        END ;;
+    description: "List of active disciplines by name"
+    #required_fields: [course_info.active]
+  }
+}
