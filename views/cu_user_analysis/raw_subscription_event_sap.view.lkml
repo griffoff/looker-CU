@@ -289,6 +289,13 @@ persist_for: "1 hour"
     description: "Subscription status created from SAP fields (subscription_plan_id, subscription_status, contract_status) "
   }
 
+  measure: count_subscriptions_all {
+    label: "# Subscriptions + Resubscriptions"
+    description: "A count of unique user GUID / subscription start /subscription end combinations, representing the number of unique subscriptions and resubscriptions"
+    type: count_distinct
+    sql: hash(${merged_guid},${subscription_start_date}::date,${subscription_end_date}::date) ;;
+  }
+
   set: detail {
     fields: [
       subscription_state,
