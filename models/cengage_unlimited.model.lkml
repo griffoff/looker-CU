@@ -1,24 +1,22 @@
 include: "//core/common.lkml"
 include: "//core/access_grants_file.view"
-
 include: "/views/cu_user_analysis/*.view"
-
-# include: "/views/event_analysis/*.view"
 include: "/views/strategy/*.view"
-
 include: "/views/uploads/*.view.lkml"
-# include: "/views/cu_ebook/*.view.lkml"
-include: "/views/customer_support/*.view.lkml"
-include: "/views/fair_use/*.view.lkml"
 include: "/views/discounts/*.view.lkml"
-# include: "/views/spring_review/*.view.lkml"
 include: "/views/sales_order_forecasting/*.view.lkml"
-include: "/views/uploads/covid19_trial_shutoff_schedule.view"
-include: "/views/uploads/ehp_tweets.view"
-include: "/views/uploads/parsed_ehp_tweets.view"
-include: "/views/uploads/ehp_cases.view"
-include: "/views/uploads/parsed_ehp_cases.view"
-include: "/views/uploads/salesforce_support_calls.view"
+
+# include: "/views/uploads/ehp_tweets.view"
+# include: "/views/uploads/parsed_ehp_tweets.view"
+# include: "/views/uploads/ehp_cases.view"
+# include: "/views/uploads/parsed_ehp_cases.view"
+# include: "/views/uploads/salesforce_support_calls.view"
+# include: "/views/event_analysis/*.view"
+# include: "/views/cu_ebook/*.view.lkml"
+# include: "/views/customer_support/*.view.lkml"
+# include: "/views/fair_use/*.view.lkml"
+# include: "/views/spring_review/*.view.lkml"
+# include: "/views/uploads/covid19_trial_shutoff_schedule.view"
 
 include: "/datagroups.lkml"
 
