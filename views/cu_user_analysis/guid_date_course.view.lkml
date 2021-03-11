@@ -1,4 +1,4 @@
-explore: guid_date_course {hidden:no}
+explore: guid_date_course {hidden:yes}
 
 view: guid_date_course {
   derived_table: {

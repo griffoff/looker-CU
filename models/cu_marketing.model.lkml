@@ -20,6 +20,7 @@ case_sensitive: no
 # }
 
 explore: late_activators_removals {
+  hidden: yes
   from: late_activators_removals
   view_name: late_activators
   label: "Late Activations - daily removals"
@@ -40,6 +41,7 @@ explore: late_activators_removals {
 }
 
 explore: late_activators_retroactive {
+  hidden: yes
   extends: [late_activators_removals]
   from: late_activators_full_retroactive_email_list
   view_name: late_activators

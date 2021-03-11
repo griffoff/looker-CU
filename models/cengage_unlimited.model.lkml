@@ -3,15 +3,15 @@ include: "//core/access_grants_file.view"
 
 include: "/views/cu_user_analysis/*.view"
 
-include: "/views/event_analysis/*.view"
+# include: "/views/event_analysis/*.view"
 include: "/views/strategy/*.view"
 
 include: "/views/uploads/*.view.lkml"
-include: "/views/cu_ebook/*.view.lkml"
+# include: "/views/cu_ebook/*.view.lkml"
 include: "/views/customer_support/*.view.lkml"
 include: "/views/fair_use/*.view.lkml"
 include: "/views/discounts/*.view.lkml"
-include: "/views/spring_review/*.view.lkml"
+# include: "/views/spring_review/*.view.lkml"
 include: "/views/sales_order_forecasting/*.view.lkml"
 include: "/views/uploads/covid19_trial_shutoff_schedule.view"
 include: "/views/uploads/ehp_tweets.view"
@@ -209,8 +209,8 @@ explore: ebook_sessions {
 # start of cas_cafe_student_activity_duration_aggregate_ext
 
 explore: cas_cafe_student_activity_duration_aggregate_ext {
+  hidden: yes
   label: "CAS CAFE ACTIVITY DURATION AGGREGATE"
-  hidden: no
   extends: [cas_cafe_student_activity_duration_aggregate, course_info]
   from: cas_cafe_student_activity_duration_aggregate
   view_name: cas_cafe_student_activity_duration_aggregate
