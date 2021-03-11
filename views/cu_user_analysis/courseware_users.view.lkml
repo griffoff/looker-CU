@@ -1,4 +1,4 @@
-explore: courseware_users {}
+explore: courseware_users {hidden:yes}
 view: courseware_users {
 
     derived_table: {

@@ -2,6 +2,8 @@ explore: instructor_latest_login {hidden: yes}
 
 view: instructor_latest_login {
 
+  view_label: "User Details - Instructor Last Login"
+
   derived_table: {
     sql:
       WITH created AS (
@@ -21,14 +23,24 @@ view: instructor_latest_login {
   persist_for: "24 hours"
   }
 
-  dimension: user_sso_guid {}
-  dimension_group: created {type:time sql:CASE WHEN ${TABLE}.created <= ${TABLE}.first_login THEN ${TABLE}.created END;; }
-  dimension_group: latest_login {type:time}
-  dimension_group: first_login {type:time}
+  dimension: user_sso_guid {hidden:yes}
+
+  dimension_group: created {
+    type:time sql:CASE WHEN ${TABLE}.created <= ${TABLE}.first_login THEN ${TABLE}.created END;;
+  }
+
+  dimension_group: latest_login {
+    type:time
+  }
+
+  dimension_group: first_login {
+    type:time
+  }
+
   dimension_group: since_last_login {
     type:duration
     sql_start: ${latest_login_raw} ;;
     sql_end:  CURRENT_DATE();;
-    }
+  }
 
- }
+}

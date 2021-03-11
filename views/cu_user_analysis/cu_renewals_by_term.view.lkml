@@ -1,4 +1,4 @@
-explore: cu_renewals_by_term {}
+explore: cu_renewals_by_term {hidden:yes}
 view: cu_renewals_by_term {
   derived_table: {
     create_process: {

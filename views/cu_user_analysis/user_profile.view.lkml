@@ -53,9 +53,7 @@ explore: user_profile {
   }
 
   join: instructor_latest_login {
-    view_label: "User Details - Instructor Last Login"
     sql_on: ${user_profile.user_sso_guid} = ${instructor_latest_login.user_sso_guid} ;;
-
     relationship: one_to_one
   }
 }
@@ -491,6 +489,7 @@ view: user_profile {
   }
 
   dimension: cu_target_segment {
+    group_label: "Discount Info"
     label: "CU Trial Marketing Target Segment"
     sql: case
           when ${live_subscription_status.subscription_state} ilike '%trial%' --no current subscription

@@ -1,4 +1,4 @@
-explore: guid_date_ebook {}
+explore: guid_date_ebook {hidden:yes}
 
 view: guid_date_ebook {
   derived_table: {

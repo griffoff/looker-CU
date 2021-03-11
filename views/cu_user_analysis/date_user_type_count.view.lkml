@@ -1,4 +1,5 @@
 explore: date_user_type_count {
+  hidden: yes
   join: date_user_type_count_ly {
     from: date_user_type_count
     view_label: "Prior Year"

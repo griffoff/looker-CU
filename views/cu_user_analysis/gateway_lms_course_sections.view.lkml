@@ -55,4 +55,4 @@ view: gateway_lms_course_sections {
     description: "Count of deployments divided by count of LMS context IDs (deployment = institution ID + IAC ISBN + LMS context ID combination)"
 }
 
- }
+}

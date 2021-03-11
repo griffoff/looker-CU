@@ -1,5 +1,3 @@
-
-
 explore: ebook_sessions_only {
   from: ebook_sessions
   hidden: yes

@@ -1,6 +1,7 @@
-explore: all_events_quarantine {}
+explore: all_events_quarantine {hidden:yes}
 
 explore: event_counts_per_day {
+  hidden: yes
   join: event_quarantined_counts_per_day {
     sql_on: (${event_counts_per_day.event_raw}, ${event_counts_per_day.load_source}, ${event_counts_per_day.event_type}, ${event_counts_per_day.event_action})
                             = (${event_quarantined_counts_per_day.event_raw}, ${event_quarantined_counts_per_day.load_source}, ${event_quarantined_counts_per_day.event_type}, ${event_quarantined_counts_per_day.event_action}) ;;

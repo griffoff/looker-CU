@@ -1,7 +1,7 @@
 include: "./course_info.view"
 include: "./product_info.view"
 include: "./institution_info.view"
-include: "./course_instructor.view"
+# include: "./course_instructor.view"
 
 explore: user_products {
   from: user_products
@@ -67,14 +67,14 @@ dimension: courseware_product {
 dimension_group: enrollment_date {
   label: "Enrollment"
   type:time
-  timeframes: [time,date,month,year,raw,fiscal_year]
+  timeframes: [time,date,week,month,year,raw,fiscal_year]
   hidden:no
 }
 
 dimension_group: provision_date {
   label: "Provision"
   type:time
-  timeframes: [time,date,month,year,raw,fiscal_year]
+  timeframes: [time,date,week,month,year,raw,fiscal_year]
   hidden:no
   description: "Date user provisioned the product."
 }
@@ -82,7 +82,7 @@ dimension_group: provision_date {
   dimension_group: provision_expiration_date {
     label: "Provision Expiration"
     type:time
-    timeframes: [time,date,month,year,raw,fiscal_year]
+    timeframes: [time,date,week,month,year,raw,fiscal_year]
     hidden:no
     description: "Expiration date of access to provisioned product."
   }
@@ -90,7 +90,7 @@ dimension_group: provision_date {
 dimension_group: activation_date {
   label: "Activation"
   type:time
-  timeframes: [time,date,month,month_name,day_of_year,year,raw,fiscal_year]
+  timeframes: [time,date,week,month,month_name,day_of_year,year,raw,fiscal_year]
   hidden:no
   description: "Date user activated the product."
 }
@@ -98,7 +98,7 @@ dimension_group: activation_date {
 dimension_group: serial_number_consumed_date {
   label: "Serial Number Consumed"
   type:time
-  timeframes: [time,date,month,year,raw,fiscal_year]
+  timeframes: [time,date,week,month,year,raw,fiscal_year]
   hidden:no
   description: "Date user consumed a serial number for the product."
 }
@@ -106,7 +106,7 @@ dimension_group: serial_number_consumed_date {
 dimension_group: serial_number_consumed_expiration_date {
   label: "Serial Number Consumed Expiration"
   type:time
-  timeframes: [time,date,month,year,raw,fiscal_year]
+  timeframes: [time,date,week,month,year,raw,fiscal_year]
   hidden:no
   description: "Expiration date of access gained though a consumed serial number."
 }
@@ -459,6 +459,20 @@ dimension: grace_period_flag {
     sql: LISTAGG(DISTINCT case when ${cu_flag} and ${course_key} is not null then ${isbn13} end, ', ')
       WITHIN GROUP (ORDER BY case when ${cu_flag} and ${course_key} is not null then ${isbn13} end);;
     description: "List of user CU course ISBNs"
+  }
+
+  measure: user_product_list {
+    type: string
+    sql: LISTAGG(DISTINCT ${isbn13}, ', ')
+      WITHIN GROUP (ORDER BY ${isbn13});;
+    description: "List of user product ISBNs"
+  }
+
+  measure: cu_purchase {
+    label: "# Paid CU Products Added"
+    type: count_distinct
+    sql: CASE WHEN ${cu_flag} AND ${paid_flag} THEN ${pk} END;;
+    description: "Total # of products added paid via CU"
   }
 
   measure: count {
