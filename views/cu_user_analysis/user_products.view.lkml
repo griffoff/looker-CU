@@ -1,7 +1,7 @@
 include: "./course_info.view"
 include: "./product_info.view"
 include: "./institution_info.view"
-include: "./course_instructor.view"
+# include: "./course_instructor.view"
 
 explore: user_products {
   from: user_products
