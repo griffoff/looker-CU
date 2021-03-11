@@ -1,5 +1,6 @@
 include: "/views/cu_user_analysis/all_events.view"
 include: "/views/cu_user_analysis/user_profile.view"
+include: "/datagroups.lkml"
 
 view: course_section_usage_facts {
 
