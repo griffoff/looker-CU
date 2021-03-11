@@ -1,9 +1,15 @@
 include: "/views/event_analysis/*.view.lkml"
-include: "/models/cengage_unlimited.model"
+include: "/views/cu_user_analysis/user_profile.view"
+include: "/views/cu_user_analysis/user_products.view"
+
+include: "/datagroups.lkml"
+
+# include: "/models/cengage_unlimited.model"
 
 connection: "snowflake_prod"
 
 explore: conversion_analysis {
+  hidden: no
   extends: [user_profile, user_products]
   from:  conversion_analysis
   view_name:  conversion_analysis
@@ -34,6 +40,7 @@ explore: conversion_analysis {
 }
 
 explore: flow_analysis {
+  hidden: no
   extends: [user_profile, user_products]
   from: cohort_selection
   view_name: cohort_selection
