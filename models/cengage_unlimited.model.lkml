@@ -345,3 +345,31 @@ explore: subscription_history {
 }
 
 # end of subscription_history
+
+# start of subscription_history_new
+
+explore: subscription_history_new {
+  extends: [user_profile]
+  view_name: user_profile
+
+  join: subs_combined_new {
+    view_label: "Subscription History New"
+    sql_on: ${user_profile.user_sso_guid} = ${subs_combined_new.merged_guid} ;;
+    relationship: one_to_many
+    type: inner
+  }
+
+  join: user_institution_info {
+    from: institution_info
+    view_label: "User Institution Details"
+    sql_on: ${user_profile.institution_id} = ${user_institution_info.institution_id} ;;
+    relationship: many_to_one
+  }
+
+  join: live_subscription_status {
+    fields: []
+  }
+
+}
+
+# end of subscription_history_new
