@@ -272,7 +272,6 @@ view: all_sessions {
     hidden: yes
   }
 
-
   measure: user_day_count {
     type: count_distinct
     sql: ${user_sso_guid}, ${session_start_raw}::DATE ;;
