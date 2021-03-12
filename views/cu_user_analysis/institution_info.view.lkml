@@ -30,13 +30,12 @@ view: institution_info {
       with orgs as (
         select
           ACTV_ENTITY_ID
-          , ACTV_ENTITY_NAME
           , ORGANIZATION
           , count(*) as ct
           , max(ACTV_DT) as last_date
-          , row_number() over(partition by ACTV_ENTITY_ID,ACTV_ENTITY_NAME order by ct desc,last_date desc) = 1 as best_value
+          , row_number() over(partition by ACTV_ENTITY_ID order by ct desc,last_date desc) = 1 as best_value
         from prod.STG_CLTS.ACTIVATIONS_OLR
-        group by 1,2,3
+        group by 1,2
         qualify best_value
       )
 
@@ -69,7 +68,7 @@ view: institution_info {
   dimension: name {label:"Institution Name"}
   dimension: type {label:"Institution Type"}
   dimension: financial_sales_region {label:"Institution Financial Sales Region"}
-  dimension: organization {label:"Institution Organization Type" hidden:yes}
+  dimension: organization {label:"Institution Organization Type" hidden:no}
   dimension: iso_country {group_label:"Location" label:"Country Code" map_layer_name: countries}
   dimension: country_name {group_label:"Location" label:"Country Name" map_layer_name: countries}
   dimension: city {group_label:"Location" }
