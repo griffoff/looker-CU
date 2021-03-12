@@ -183,6 +183,7 @@ view: course_info {
            , COALESCE(TRY_CAST(scs.course_master AS BOOLEAN), FALSE)                         AS course_master
            , scs.course_cgi
            , scs.section_product_type
+           , scs.section_type
            , COALESCE(scs.is_demo, FALSE)                                                    AS is_demo
            , COALESCE(
                      UPPER(DECODE(lms.lms_type, 'BB', 'Blackboard', lms.lms_type))
@@ -489,6 +490,7 @@ view: course_info {
   dimension: institution_id {hidden:yes}
 
   dimension: section_product_type {}
+  dimension: section_type {}
 
   measure: count {
     type: count
