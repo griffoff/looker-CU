@@ -77,96 +77,101 @@ view: cohort_selection {
   derived_table: {
 
     sql:
+    WITH
+    starting_events AS (
       SELECT
-          user_sso_guid
-          ,start_events
-          ,MAX(CASE WHEN event_sequence = 1 THEN event_name END) as event_1
-          ,MAX(CASE WHEN event_sequence = 2 THEN event_name END) as event_2
-          ,MAX(CASE WHEN event_sequence = 3 THEN event_name END) as event_3
-          ,MAX(CASE WHEN event_sequence = 4 THEN event_name END) as event_4
-          ,MAX(CASE WHEN event_sequence = 5 THEN event_name END) as event_5
-        FROM (
+        all_events.user_sso_guid
+        ,all_events.session_id
+        ,LISTAGG(distinct event_name) as start_events, min(event_time) as start_event_time
+        ,MIN(all_events.event_id) as first_event_id
+        ,CASE
+          WHEN {{ time_period._parameter_value }} IS NULL THEN NULL
+          ELSE
+            DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
+          END as boundary_event_time
+      FROM ${all_events.SQL_TABLE_NAME} all_events SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
+      WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+      AND (TO_TIMESTAMP(session_id::INT) <= {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+      AND {% condition cohort_events_filter %} event_name {% endcondition %}
+      GROUP BY 1, 2
+      )
+      ,flow_events AS (
           SELECT
-              {% if before_or_after._parameter_value == 'before' %}
-              ROW_NUMBER() OVER(PARTITION BY flow_events.session_id ORDER BY event_time DESC, event_id DESC) AS event_sequence
-              {% else %}
-              ROW_NUMBER() OVER(PARTITION BY flow_events.session_id ORDER BY event_time, event_id) AS event_sequence
-              {% endif %}
-              ,starting_events.start_events
-              ,COALESCE(flow_events.USER_SSO_GUID,starting_events.USER_SSO_GUID) AS user_sso_guid
-              ,flow_events.new_event_name as event_name
-          FROM (
-            SELECT
-              all_events.user_sso_guid
-              ,all_events.session_id
-              ,LISTAGG(distinct event_name) as start_events, min(event_time) as start_event_time
-              ,MIN(all_events.event_id) as first_event_id
-              ,CASE
-                WHEN {{ time_period._parameter_value }} IS NULL THEN NULL
-                ELSE
-                  DATEADD(minute,  IFF('{% parameter before_or_after %}' = 'before', -1, 1) * {{ time_period._parameter_value }}, start_event_time)
-                END as boundary_event_time
-            FROM ${all_events.SQL_TABLE_NAME} all_events SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
-            WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-            AND (TO_TIMESTAMP(session_id::INT) <= {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
-            AND {% condition cohort_events_filter %} event_name {% endcondition %}
-            GROUP BY 1, 2
-            ) starting_events
-          LEFT JOIN (
-              SELECT
-                all_events.event_time
-                ,all_events.session_id
-                ,all_events.event_id
-                ,all_events.user_sso_guid
-                ,
-                {% if bucket_other_events._parameter_value == 'bucket' %}
-                  CASE WHEN {% condition flow_events_filter %} event_name {% endcondition %}
-                    THEN all_events.event_name ELSE '* Other Event(s) *' END
-                {% else %}
-                  all_events.event_name
-                {% endif %}
-                  AS new_event_name
-                ,
-                {% if before_or_after._parameter_value == 'before' %}
-                    LEAD(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
-                {% else %}
-                    LAG(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
-                {% endif %}
-                  AS is_duplicate
-             FROM ${all_events.SQL_TABLE_NAME} all_events SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
-             WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
-             AND (TO_TIMESTAMP(session_id::INT) <= {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
-              {% if bucket_other_events._parameter_value != 'bucket' %}
-                AND {% condition flow_events_filter %} event_name {% endcondition %}
-              {% endif %}
-          ) flow_events ON starting_events.session_id = flow_events.session_id
-            {% if ignore_duplicates._parameter_value == 'exclude' %}
-                    --remove all duplicate events
-                    AND NOT flow_events.is_duplicate
+            all_events.event_time
+            ,all_events.session_id
+            ,all_events.event_id
+            ,all_events.user_sso_guid
+            ,
+            {% if bucket_other_events._parameter_value == 'bucket' %}
+              CASE WHEN {% condition flow_events_filter %} event_name {% endcondition %}
+                THEN all_events.event_name ELSE '* Other Event(s) *' END
             {% else %}
-                    -- only de duplicate the 'Other' bucket
-                    AND (new_event_name != '* Other Event(s) *' OR NOT flow_events.is_duplicate)
+              all_events.event_name
             {% endif %}
-
+              AS new_event_name
+            ,
             {% if before_or_after._parameter_value == 'before' %}
-              --PRECEDING EVENT ANALYSIS
-                    AND flow_events.event_time < starting_events.start_event_time
-                    AND (
-                      flow_events.event_time > starting_events.boundary_event_time
-                      OR starting_events.boundary_event_time IS NULL
-                    )
+                LEAD(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
             {% else %}
-            --SUBSEQUENT EVENT ANALYSIS
-                    AND flow_events.event_time > starting_events.start_event_time
-                    AND (
-                      flow_events.event_time < starting_events.boundary_event_time
-                      OR starting_events.boundary_event_time IS NULL
-                    )
+                LAG(new_event_name) OVER(PARTITION BY user_sso_guid ORDER BY event_time) = new_event_name
             {% endif %}
-          )
-        WHERE event_sequence <= 5
-        GROUP BY 1, 2
-        ;;
+              AS is_duplicate
+         FROM ${all_events.SQL_TABLE_NAME} all_events SAMPLE({{ sample_size._parameter_value }}) REPEATABLE(0)
+         WHERE (TO_TIMESTAMP(session_id::INT) >= {% date_start cohort_date_range_filter %} OR {% date_start cohort_date_range_filter %} IS NULL)
+         AND (TO_TIMESTAMP(session_id::INT) <= {% date_end cohort_date_range_filter %} OR {% date_end cohort_date_range_filter %} IS NULL)
+          {% if bucket_other_events._parameter_value != 'bucket' %}
+            AND {% condition flow_events_filter %} event_name {% endcondition %}
+          {% endif %}
+         AND all_events.user_sso_guid IN (SELECT user_sso_guid FROM starting_events)
+      )
+      ,results AS (
+        SELECT
+            {% if before_or_after._parameter_value == 'before' %}
+            ROW_NUMBER() OVER(PARTITION BY flow_events.session_id ORDER BY event_time DESC, event_id DESC) AS event_sequence
+            {% else %}
+            ROW_NUMBER() OVER(PARTITION BY flow_events.session_id ORDER BY event_time, event_id) AS event_sequence
+            {% endif %}
+            ,starting_events.start_events
+            ,COALESCE(flow_events.USER_SSO_GUID,starting_events.USER_SSO_GUID) AS user_sso_guid
+            ,flow_events.new_event_name as event_name
+        FROM starting_events
+        LEFT JOIN flow_events ON starting_events.session_id = flow_events.session_id
+          {% if ignore_duplicates._parameter_value == 'exclude' %}
+                  --remove all duplicate events
+                  AND NOT flow_events.is_duplicate
+          {% else %}
+                  -- only de duplicate the 'Other' bucket
+                  AND (new_event_name != '* Other Event(s) *' OR NOT flow_events.is_duplicate)
+          {% endif %}
+
+          {% if before_or_after._parameter_value == 'before' %}
+            --PRECEDING EVENT ANALYSIS
+                  AND flow_events.event_time < starting_events.start_event_time
+                  AND (
+                    flow_events.event_time > starting_events.boundary_event_time
+                    OR starting_events.boundary_event_time IS NULL
+                  )
+          {% else %}
+          --SUBSEQUENT EVENT ANALYSIS
+                  AND flow_events.event_time > starting_events.start_event_time
+                  AND (
+                    flow_events.event_time < starting_events.boundary_event_time
+                    OR starting_events.boundary_event_time IS NULL
+                  )
+          {% endif %}
+        )
+      SELECT
+        user_sso_guid
+        ,start_events
+        ,MAX(CASE WHEN event_sequence = 1 THEN event_name END) as event_1
+        ,MAX(CASE WHEN event_sequence = 2 THEN event_name END) as event_2
+        ,MAX(CASE WHEN event_sequence = 3 THEN event_name END) as event_3
+        ,MAX(CASE WHEN event_sequence = 4 THEN event_name END) as event_4
+        ,MAX(CASE WHEN event_sequence = 5 THEN event_name END) as event_5
+      FROM results
+      WHERE event_sequence <= 5
+      GROUP BY 1, 2
+      ;;
   }
 
   dimension: user_sso_guid {hidden:yes primary_key:yes}
@@ -184,6 +189,9 @@ view: cohort_selection {
   dimension: event_4_p { type: string  group_label: "Events before" label: "4 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_4 {% else %} NULL {% endif%} ;;}
   dimension: event_5_p { type: string  group_label: "Events before" label: "5 events before" sql: {% if before_or_after._parameter_value == "before" %} ${TABLE}.event_5 {% else %} NULL {% endif%} ;;}
 
+  measure: count {
+    type: count
+  }
   measure: user_count {
     label: "# Users"
     type: count_distinct
