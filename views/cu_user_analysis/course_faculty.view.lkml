@@ -25,6 +25,12 @@ view: course_primary_instructor {
     description: "Primary Instructor Email"
   }
 
+  dimension: name {
+    group_label: "Primary Instructor"
+    label: "Primary instructor Name"
+    description: "Primary Instructor Name"
+  }
+
   dimension: guid {
     group_label: "Primary Instructor"
     label: "Primary Instructor GUID"
@@ -61,6 +67,7 @@ view: course_faculty {
              , DATEDIFF(WEEK, first_course_begin_date, sc.begin_date) <= 12                    AS is_new_customer
              , DATEDIFF(WEEK, first_course_begin_date, sc.begin_date) > 12                     AS is_returning_customer
              , sup.email                                                                       AS email
+             , sup.first_name || ' ' || sup.last_name                                          AS name
              , se.access_role                                                                  AS role
              , LEAD(course_identifier) OVER (PARTITION BY guid ORDER BY sc.begin_date) IS NULL AS is_first_course_section
              , COALESCE(sui.internal, FALSE)                                                   AS is_internal_user
@@ -121,10 +128,17 @@ view: course_faculty {
 
     dimension: email {
       label: "Faculty Email"
-      description: "Please use this Email ID to identify the faculty members linked to a course. We do not have an instructor name field yet"
+      description: "Please use this Email ID to identify the faculty members linked to a course."
       type: string
       alias: [instructoremail]
     }
+
+  dimension: name {
+    label: "Faculty Name"
+    description: "Please use this Name to identify the faculty members linked to a course."
+    type: string
+    alias: [instructorname]
+  }
 
     dimension: role {
       description: "Type of faculty linked to course section (Instructor, TA, Co-instructor)"
