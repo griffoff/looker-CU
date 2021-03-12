@@ -348,6 +348,12 @@ view: course_info {
     description: "Course start date in the past and course end date in the future."
   }
 
+  dimension: complete {
+    label: "Is Course Completed"
+    type: yesno
+    sql: ${end_date_raw} < CURRENT_DATE() ;;
+  }
+
   dimension: deleted {
     label: "Is Course Deleted"
     type:yesno
