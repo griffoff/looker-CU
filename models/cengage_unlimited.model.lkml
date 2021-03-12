@@ -71,33 +71,33 @@ explore: course_sections {
 
 # MT Mobile Data
 
-explore: mobiledata {
-  hidden: no
-  from: ga_mobiledata
-  view_name: ga_mobiledata
-  label: "MT Mobile GA Data"
-  view_label: "MT Mobile GA Data"
-  extends: [course_info,user_profile]
+# explore: mobiledata {
+#   hidden: no
+#   from: ga_mobiledata
+#   view_name: ga_mobiledata
+#   label: "MT Mobile GA Data"
+#   view_label: "MT Mobile GA Data"
+#   extends: [course_info,user_profile]
 
-  join: course_info {
-    sql_on:  ${ga_mobiledata.coursekey} = ${course_info.course_identifier};;
-    relationship: many_to_one
-  }
+#   join: course_info {
+#     sql_on:  ${ga_mobiledata.coursekey} = ${course_info.course_identifier};;
+#     relationship: many_to_one
+#   }
 
-  join: user_profile {
-    sql_on: ${ga_mobiledata.merged_guid}= ${user_profile.user_sso_guid} ;;
-    type: left_outer
-    relationship: many_to_one
-  }
+#   join: user_profile {
+#     sql_on: ${ga_mobiledata.merged_guid}= ${user_profile.user_sso_guid} ;;
+#     type: left_outer
+#     relationship: many_to_one
+#   }
 
-  join: user_products {
-    view_label: "Course Product Details By User"
-    sql_on: ${course_info.course_identifier} = ${user_products.course_key}
-          and ${user_profile.user_sso_guid} = ${user_products.merged_guid};;
-    relationship: one_to_one
-  }
+#   join: user_products {
+#     view_label: "Course Product Details By User"
+#     sql_on: ${course_info.course_identifier} = ${user_products.course_key}
+#           and ${user_profile.user_sso_guid} = ${user_products.merged_guid};;
+#     relationship: one_to_one
+#   }
 
-}
+# }
 
 # **************************************** EHP Data *************************************
 

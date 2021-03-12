@@ -159,7 +159,7 @@ view: product_info {
     label: "Publication Series"
     group_label: "Publication Categories"
     sql: ${TABLE}.PUB_SERIES_DE ;;
-    hidden: yes
+    hidden: no
   }
   dimension: discipline {
     description: "Subject matter: Art, Philosophy, Criminal Justice, etc."
