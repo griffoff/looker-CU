@@ -104,6 +104,11 @@ view: all_events_quarantine {
     sql: ${TABLE}."EVENT_ACTION" ;;
   }
 
+  dimension: event_category {
+    type: string
+    sql: ${TABLE}.event_type ;;
+  }
+
   dimension: event_data {
     type: string
     sql: ${TABLE}."EVENT_DATA" ;;
